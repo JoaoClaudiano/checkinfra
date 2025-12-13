@@ -7,88 +7,208 @@
 
 <style>
 body{
+margin:0;
 font-family: Arial, sans-serif;
-padding:16px;
-background:#f5f5f5;
+background:#f4f6f8;
+color:#333;
 }
-h2{
-color:#1f3a5f;
-}
-fieldset{
-background:#fff;
-padding:12px;
-border-radius:6px;
-margin-bottom:16px;
-border:1px solid #ddd;
-}
-button{
-padding:12px 18px;
-font-size:16px;
+
+header{
 background:#1f3a5f;
-color:white;
-border:none;
+color:#fff;
+padding:16px;
+text-align:center;
+}
+
+main{
+max-width:600px;
+margin:auto;
+padding:16px;
+}
+
+section{
+background:#fff;
+padding:16px;
+border-radius:8px;
+margin-bottom:20px;
+box-shadow:0 2px 6px rgba(0,0,0,.1);
+}
+
+h2{
+margin-top:0;
+color:#1f3a5f;
+font-size:18px;
+}
+
+/* Cabeçalho */
+label{
+display:block;
+margin-top:10px;
+font-weight:bold;
+}
+
+input[type="text"],
+input[type="date"]{
+width:100%;
+padding:8px;
+margin-top:4px;
+}
+
+/* Checklist */
+.item-check{
+padding:12px;
+margin-top:10px;
+background:#f9fafb;
 border-radius:6px;
 }
-pre{
-background:#fff;
+
+.item-check input{
+transform:scale(1.2);
+margin-right:8px;
+}
+
+/* Botão */
+button{
+width:100%;
+padding:14px;
+background:#1f3a5f;
+color:#fff;
+border:none;
+border-radius:8px;
+font-size:16px;
+margin-top:20px;
+}
+
+/* Resultado */
+.status{
+padding:16px;
+font-size:18px;
+border-radius:8px;
+display:flex;
+align-items:center;
+gap:10px;
+margin-top:20px;
+}
+
+.bola{
+width:16px;
+height:16px;
+border-radius:50%;
+}
+
+.adequado{ background:#e6f4ea; color:#2e7d32; }
+.adequado .bola{ background:#2e7d32; }
+
+.alerta{ background:#fff8e1; color:#f9a825; }
+.alerta .bola{ background:#f9a825; }
+
+.critico{ background:#fdecea; color:#c62828; }
+.critico .bola{ background:#c62828; }
+
+footer{
+text-align:center;
+font-size:12px;
+color:#666;
 padding:12px;
-border-radius:6px;
-font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Avaliação Sanitária – Banheiros Escolares</h2>
+<header>
+<h1>Avaliação Sanitária Escolar</h1>
+</header>
 
-<fieldset>
-<legend><strong>Checklist</strong></legend>
+<main>
 
-<label><input type="checkbox" id="piso"> Piso quebrado ou escorregadio</label><br>
-<label><input type="checkbox" id="mofo"> Mofo, infiltração ou manchas de umidade</label><br>
-<label><input type="checkbox" id="sanitario"> Sanitário quebrado ou entupido</label><br>
-<label><input type="checkbox" id="torneira"> Torneira danificada ou vazando</label><br>
-<label><input type="checkbox" id="odor"> Odor forte persistente</label>
-</fieldset>
+<section>
+<h2>Identificação</h2>
 
-<button onclick="finalizar()">Finalizar Avaliação</button>
+<label>Nome da Escola</label>
+<input type="text" id="escola" placeholder="Ex: EEF João XXIII">
 
-<h3>Registro Gerado</h3>
-<pre id="saida">Aguardando avaliação...</pre>
+<label>Responsável pela Avaliação</label>
+<input type="text" placeholder="Nome e cargo">
+
+<label>Data</label>
+<input type="date" value="">
+</section>
+
+<section>
+<h2>Checklist Sanitário</h2>
+
+<div class="item-check">
+<label><input type="checkbox" data-peso="3"> Piso quebrado ou escorregadio</label>
+</div>
+
+<div class="item-check">
+<label><input type="checkbox" data-peso="4"> Presença de mofo ou umidade excessiva</label>
+</div>
+
+<div class="item-check">
+<label><input type="checkbox" data-peso="2"> Sanitário ou torneira com defeito</label>
+</div>
+
+<div class="item-check">
+<label><input type="checkbox" data-peso="2"> Mau cheiro persistente</label>
+</div>
+
+<div class="item-check">
+<label><input type="checkbox" data-peso="1"> Falta de ventilação adequada</label>
+</div>
+</section>
+
+<section>
+<h2>Registro Fotográfico</h2>
+<input type="file" multiple accept="image/*">
+</section>
+
+<button onclick="avaliar()">Gerar Diagnóstico</button>
+
+<div id="resultado"></div>
+
+</main>
+
+<footer>
+MVP • Apoio à gestão pública • Avaliação não substitui laudo técnico
+</footer>
 
 <script>
-function finalizar(){
+function avaliar(){
+const checks = document.querySelectorAll('input[type="checkbox"]:checked');
+let pontuacao = 0;
 
-let pontuacao = 5;
+checks.forEach(c=>{
+pontuacao += parseInt(c.dataset.peso);
+});
 
-if(document.getElementById("piso").checked) pontuacao -= 1;
-if(document.getElementById("sanitario").checked) pontuacao -= 1;
-if(document.getElementById("torneira").checked) pontuacao -= 1;
-if(document.getElementById("odor").checked) pontuacao -= 1;
+// IA simulada: se mofo marcado, aumenta severidade
+const mofo = [...checks].some(c=>c.parentNode.innerText.includes("mofo"));
+if(mofo) pontuacao += 2;
 
-// Mofo com peso maior (alerta técnico)
-if(document.getElementById("mofo").checked) pontuacao -= 2;
+const resultado = document.getElementById("resultado");
+resultado.innerHTML = "";
 
-if(pontuacao < 0) pontuacao = 0;
+let status, classe;
 
-let status = "adequado";
-if(pontuacao < 3) status = "critico";
-else if(pontuacao < 4) status = "alerta";
+if(pontuacao <= 2){
+status = "Condição adequada";
+classe = "adequado";
+}else if(pontuacao <= 6){
+status = "Situação de alerta";
+classe = "alerta";
+}else{
+status = "Condição crítica";
+classe = "critico";
+}
 
-const registro = {
-id: "ESC_001",
-nome: "EMEF Exemplo",
-lat: -3.7319,
-lng: -38.5267,
-itds: pontuacao,
-status: status,
-data: new Date().toISOString().split("T")[0],
-relatorio: "#"
-};
-
-document.getElementById("saida").textContent =
-JSON.stringify(registro, null, 2);
+resultado.innerHTML = `
+<div class="status ${classe}">
+<span class="bola"></span>
+${status}
+</div>
+`;
 }
 </script>
 

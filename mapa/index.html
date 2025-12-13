@@ -1,4 +1,4 @@
-!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -55,7 +55,35 @@ margin-right:6px;
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
 
+dados.forEach(registro => {
+
+  // Coordenadas simuladas (depois entra geocodificação real)
+  const lat = -3.7319 + (Math.random() * 0.02);
+  const lng = -38.5267 + (Math.random() * 0.02);
+
+  let cor;
+  if(registro.status === "adequado") cor = "green";
+  else if(registro.status === "alerta") cor = "orange";
+  else cor = "red";
+
+  L.circleMarker([lat, lng], {
+    radius: 8,
+    color: cor,
+    fillColor: cor,
+    fillOpacity: 0.8
+  })
+  .addTo(map)
+  .bindPopup(`
+    <strong>${registro.escola}</strong><br>
+    Status: ${registro.status}<br>
+    Data: ${registro.data}
+  `);
+
+});
+</script>
 <script>
 const map = L.map('map').setView([-3.7319, -38.5267], 12);
 
@@ -90,4 +118,5 @@ Data: ${e.data}
 </script>
 
 </body>
+
 </html>

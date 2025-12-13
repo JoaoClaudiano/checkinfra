@@ -1,33 +1,10 @@
-let escolas = [];
+// mapa/escolas.js
+// Base simplificada de escolas (exemplo funcional)
 
-fetch("escolas.kml")
-  .then(res => res.text())
-  .then(kmlText => {
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(kmlText, "text/xml");
-    const placemarks = xml.getElementsByTagName("Placemark");
+window.escolas = [
+  { nome: "EMEF PAPA JOÃO XXIII", lat: -3.7500, lng: -38.5400 },
+  { nome: "EMEI JOSÉ DE ALENCAR", lat: -3.7482, lng: -38.5314 }
+];
 
-    for (let p of placemarks) {
-      const nameTag = p.getElementsByTagName("name")[0];
-      const coordTag = p.getElementsByTagName("coordinates")[0];
-
-      if (!nameTag || !coordTag) continue;
-
-      const nome = nameTag.textContent.trim();
-      const coords = coordTag.textContent.trim().split(",");
-
-      escolas.push({
-        nome,
-        lon: parseFloat(coords[0]),
-        lat: parseFloat(coords[1])
-      });
-    }
-
-    document.dispatchEvent(new Event("escolasCarregadas"));
-  })
-  .catch(err => console.error("Erro ao carregar KML:", err));
-      });
-    }
-
-    document.dispatchEvent(new Event("escolasCarregadas"));
-  });
+// flag global
+window.escolasCarregadas = true;

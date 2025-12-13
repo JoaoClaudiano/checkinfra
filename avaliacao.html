@@ -176,41 +176,87 @@ MVP • Apoio à gestão pública • Avaliação não substitui laudo técnico
 
 <script>
 function avaliar(){
-const checks = document.querySelectorAll('input[type="checkbox"]:checked');
-let pontuacao = 0;
 
-checks.forEach(c=>{
-pontuacao += parseInt(c.dataset.peso);
-});
+  /* ========= AVALIAÇÃO DO GESTOR ========= */
+  const checks = document.querySelectorAll('input[type="checkbox"]:checked');
+  let pontuacaoGestor = 0;
+  let gestorMarcouMofo = false;
 
-// IA simulada: se mofo marcado, aumenta severidade
-const mofo = [...checks].some(c=>c.parentNode.innerText.includes("mofo"));
-if(mofo) pontuacao += 2;
+  checks.forEach(c=>{
+    pontuacaoGestor += parseInt(c.dataset.peso);
+    if(c.parentNode.innerText.toLowerCase().includes("mofo")){
+      gestorMarcouMofo = true;
+    }
+  });
 
-const resultado = document.getElementById("resultado");
-resultado.innerHTML = "";
+  /* ========= AVALIAÇÃO IA (SIMULADA) ========= */
+  let pontuacaoIA = 0;
+  let iaDetectouMofo = false;
 
-let status, classe;
+  // Simulação: se fotos enviadas, IA "detecta" algo
+  const fotos = document.querySelector('input[type="file"]').files;
+  if(fotos.length > 0){
+    pontuacaoIA = 4;
+    iaDetectouMofo = true;
+  }
 
-if(pontuacao <= 2){
-status = "Condição adequada";
-classe = "adequado";
-}else if(pontuacao <= 6){
-status = "Situação de alerta";
-classe = "alerta";
-}else{
-status = "Condição crítica";
-classe = "critico";
+  /* ========= CONSOLIDAÇÃO ========= */
+  let statusGestor;
+  if(pontuacaoGestor <= 2) statusGestor = "adequado";
+  else if(pontuacaoGestor <= 6) statusGestor = "alerta";
+  else statusGestor = "critico";
+
+  let statusIA;
+  if(pontuacaoIA <= 2) statusIA = "adequado";
+  else if(pontuacaoIA <= 5) statusIA = "alerta";
+  else statusIA = "critico";
+
+  let statusFinal = statusGestor;
+
+  // Regra de proteção institucional
+  if(statusGestor === "adequado" && statusIA === "alerta"){
+    statusFinal = "alerta";
+  }
+
+  if(statusGestor === "alerta" && statusIA === "critico"){
+    statusFinal = "critico";
+  }
+
+  if(statusGestor === "adequado" && iaDetectouMofo && !gestorMarcouMofo){
+    statusFinal = "alerta";
+  }
+
+  /* ========= EXIBIÇÃO ========= */
+  const resultado = document.getElementById("resultado");
+  resultado.innerHTML = `
+    <div class="status ${statusFinal}">
+      <span class="bola"></span>
+      ${statusFinal === "adequado" ? "Condição adequada" :
+        statusFinal === "alerta" ? "Situação de alerta" :
+        "Condição crítica"}
+    </div>
+  `;
+
+  /* ========= REGISTRO PARA O MAPA ========= */
+  const escola = document.getElementById("escola").value || "Escola sem nome";
+
+  const registro = {
+    escola: escola,
+    status: statusFinal,
+    data: new Date().toISOString().split("T")[0]
+  };
+
+  salvarRegistro(registro);
 }
 
-resultado.innerHTML = `
-<div class="status ${classe}">
-<span class="bola"></span>
-${status}
-</div>
-`;
+/* ========= SALVAR REGISTRO ========= */
+function salvarRegistro(registro){
+  let dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+  dados.push(registro);
+  localStorage.setItem("avaliacoes", JSON.stringify(dados));
 }
 </script>
 
 </body>
+
 </html>

@@ -1,298 +1,103 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Avaliação Sanitária Escolar</title>
+<title>Avaliação Sanitária</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-body{
-margin:0;
-font-family: Arial, sans-serif;
-background:#f4f6f8;
-color:#333;
-}
-
-header{
-background:#1f3a5f;
-color:#fff;
-padding:16px;
-text-align:center;
-}
-
-main{
-max-width:600px;
-margin:auto;
-padding:16px;
-}
-
+body{ font-family:Arial; background:#f4f6f8; padding:20px; }
 section{
-background:#fff;
-padding:16px;
-border-radius:8px;
-margin-bottom:20px;
-box-shadow:0 2px 6px rgba(0,0,0,.1);
+  background:#fff; padding:20px; border-radius:8px;
+  margin-bottom:20px; box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
-
-h2{
-margin-top:0;
-color:#1f3a5f;
-font-size:18px;
-}
-
-/* Cabeçalho */
-label{
-display:block;
-margin-top:10px;
-font-weight:bold;
-}
-
-input[type="text"],
-input[type="date"]{
-width:100%;
-padding:8px;
-margin-top:4px;
-}
-
-/* Checklist */
-.item-check{
-padding:12px;
-margin-top:10px;
-background:#f9fafb;
-border-radius:6px;
-}
-
-.item-check input{
-transform:scale(1.2);
-margin-right:8px;
-}
-
-/* Botão */
+.item{ margin-top:10px; }
 button{
-width:100%;
-padding:14px;
-background:#1f3a5f;
-color:#fff;
-border:none;
-border-radius:8px;
-font-size:16px;
-margin-top:20px;
+  width:100%; padding:15px; background:#1f3a5f;
+  color:#fff; border:none; border-radius:8px; font-size:16px;
 }
-
-/* Resultado */
-.status{
-padding:16px;
-font-size:18px;
-border-radius:8px;
-display:flex;
-align-items:center;
-gap:10px;
-margin-top:20px;
-}
-
-.bola{
-width:16px;
-height:16px;
-border-radius:50%;
-}
-
-.adequado{ background:#e6f4ea; color:#2e7d32; }
-.adequado .bola{ background:#2e7d32; }
-
-.alerta{ background:#fff8e1; color:#f9a825; }
-.alerta .bola{ background:#f9a825; }
-
-.critico{ background:#fdecea; color:#c62828; }
-.critico .bola{ background:#c62828; }
-
-footer{
-text-align:center;
-font-size:12px;
-color:#666;
-padding:12px;
-}
+.status{ display:flex; align-items:center; gap:10px; margin-top:20px; }
+.bola{ width:16px; height:16px; border-radius:50%; }
+.adequado .bola{ background:green; }
+.alerta .bola{ background:orange; }
+.critico .bola{ background:red; }
 </style>
 </head>
 
 <body>
 
-<header>
-<h1>Avaliação Sanitária Escolar</h1>
-  
-</header>
-
-<main>
-
 <section>
-<h2>Identificação</h2>
-
-<label>Nome da Escola</label>
-<input type="text" id="escola" placeholder="Ex: EEF João XXIII">
-
-<label>Responsável pela Avaliação</label>
-<input type="text" placeholder="Nome e cargo">
-
-<label>Data</label>
-<input type="date" value="">
+<h3>Identificação</h3>
+<input id="escola" placeholder="Nome da escola" style="width:100%;padding:8px">
 </section>
 
 <section>
-<h2>Checklist Sanitário</h2>
-
-<div class="item-check">
-<label><input type="checkbox" data-peso="3"> Piso quebrado ou escorregadio</label>
-</div>
-
-<div class="item-check">
-<label><input type="checkbox" data-peso="4"> Presença de mofo ou umidade excessiva</label>
-</div>
-
-<div class="item-check">
-<label><input type="checkbox" data-peso="2"> Sanitário ou torneira com defeito</label>
-</div>
-
-<div class="item-check">
-<label><input type="checkbox" data-peso="2"> Mau cheiro persistente</label>
-</div>
-
-<div class="item-check">
-<label><input type="checkbox" data-peso="1"> Falta de ventilação adequada</label>
-</div>
+<h3>Checklist</h3>
+<div class="item"><input type="checkbox" data-peso="3"> Presença de mofo</div>
+<div class="item"><input type="checkbox" data-peso="2"> Piso quebrado</div>
+<div class="item"><input type="checkbox" data-peso="2"> Vazamentos</div>
 </section>
 
 <section>
-<h2>Registro Fotográfico</h2>
-<input type="file" multiple accept="image/*">
+<h3>Fotos</h3>
+<input type="file" id="fotos" multiple>
 </section>
 
 <button onclick="avaliar()">Gerar Diagnóstico</button>
 
 <div id="resultado"></div>
 
-</main>
-
-<footer>
-MVP • Apoio à gestão pública • Avaliação não substitui laudo técnico
-</footer>
-
 <script>
 function avaliar(){
+  let pontos = 0;
+  document.querySelectorAll('input[type=checkbox]:checked')
+    .forEach(c => pontos += Number(c.dataset.peso));
 
-  /* ========= AVALIAÇÃO DO GESTOR ========= */
-  const checks = document.querySelectorAll('input[type="checkbox"]:checked');
-  let pontuacaoGestor = 0;
-  let gestorMarcouMofo = false;
-
-  checks.forEach(c=>{
-    pontuacaoGestor += parseInt(c.dataset.peso);
-    if(c.parentNode.innerText.toLowerCase().includes("mofo")){
-      gestorMarcouMofo = true;
-    }
-  });
-
-  /* ========= AVALIAÇÃO IA (SIMULADA) ========= */
-  let pontuacaoIA = 0;
-  let iaDetectouMofo = false;
-
-  // Simulação: se fotos enviadas, IA "detecta" algo
-  const fotos = document.querySelector('input[type="file"]').files;
-  if(fotos.length > 0){
-    pontuacaoIA = 4;
-    iaDetectouMofo = true;
+  if(document.getElementById("fotos").files.length > 0){
+    pontos += 2; // IA simulada
   }
 
-  /* ========= CONSOLIDAÇÃO ========= */
-  let statusGestor;
-  if(pontuacaoGestor <= 2) statusGestor = "adequado";
-  else if(pontuacaoGestor <= 6) statusGestor = "alerta";
-  else statusGestor = "critico";
+  let status = "adequado";
+  if(pontos > 5) status = "critico";
+  else if(pontos > 2) status = "alerta";
 
-  let statusIA;
-  if(pontuacaoIA <= 2) statusIA = "adequado";
-  else if(pontuacaoIA <= 5) statusIA = "alerta";
-  else statusIA = "critico";
-
-  let statusFinal = statusGestor;
-
-  // Regra de proteção institucional
-  if(statusGestor === "adequado" && statusIA === "alerta"){
-    statusFinal = "alerta";
-  }
-
-  if(statusGestor === "alerta" && statusIA === "critico"){
-    statusFinal = "critico";
-  }
-
-  if(statusGestor === "adequado" && iaDetectouMofo && !gestorMarcouMofo){
-    statusFinal = "alerta";
-  }
-
-/* ========= EXIBIÇÃO ========= */
-  const resultado = document.getElementById("resultado");
-
-  let textoStatus =
-    statusFinal === "adequado" ? "Condição adequada" :
-    statusFinal === "alerta" ? "Situação de alerta" :
-    "Condição crítica";
-
-  resultado.innerHTML = `
-    <div class="status ${statusFinal}">
+  document.getElementById("resultado").innerHTML = `
+    <div class="status ${status}">
       <span class="bola"></span>
-      <div>
-        <strong>${textoStatus}</strong><br>
-        Pontuação final: ${pontuacaoGestor + pontuacaoIA}
-      </div>
+      <strong>${status.toUpperCase()}</strong> — Pontuação: ${pontos}
     </div>
-    <button onclick="gerarPDF('${textoStatus}', ${pontuacaoGestor + pontuacaoIA})">
-      Gerar PDF do Relatório
-    </button>
+    <button onclick="gerarPDF('${status}', ${pontos})">Gerar PDF</button>
   `;
 
-  /* ========= REGISTRO PARA O MAPA ========= */
-  const escola = document.getElementById("escola").value || "Escola sem nome";
-
-  const registro = {
-    escola: escola,
-    status: statusFinal,
-    data: new Date().toISOString().split("T")[0]
-  };
-
-  salvarRegistro(registro);
+  salvarMapa(status);
 }
 
-/* ========= SALVAR REGISTRO ========= */
-function salvarRegistro(registro){
-  let dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
-  dados.push(registro);
-  localStorage.setItem("avaliacoes", JSON.stringify(dados));
-}
-function gerarPDF(statusTexto, pontuacao){
+function gerarPDF(status, pontos){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-
   const escola = document.getElementById("escola").value || "Não informado";
-  const data = new Date().toLocaleDateString();
 
-  doc.setFontSize(14);
-  doc.text("Relatório de Avaliação Sanitária Escolar", 20, 20);
-
-  doc.setFontSize(11);
+  doc.text("Relatório de Avaliação Sanitária", 20, 20);
   doc.text(Escola: ${escola}, 20, 35);
-  doc.text(Data: ${data}, 20, 45);
-  doc.text(Status: ${statusTexto}, 20, 55);
-  doc.text(Pontuação: ${pontuacao}, 20, 65);
+  doc.text(Status: ${status}, 20, 45);
+  doc.text(Pontuação: ${pontos}, 20, 55);
+  doc.text("Diagnóstico preliminar. Não substitui laudo técnico.", 20, 75);
 
-  doc.text(
-    "Este relatório é um diagnóstico preliminar de apoio à gestão.\nNão substitui laudo técnico.",
-    20, 85
-  );
+  doc.save("avaliacao.pdf");
+}
 
-  doc.save(avaliacao_${escola.replaceAll(" ","_")}.pdf);
-  }
-  
+function salvarMapa(status){
+  const escola = document.getElementById("escola").value || "Escola sem nome";
+  let dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+  dados.push({ escola, status, data:new Date().toLocaleDateString() });
+  localStorage.setItem("avaliacoes", JSON.stringify(dados));
+}
 </script>
 
 </body>
-
 </html>
+
 

@@ -1,154 +1,43 @@
-
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Mapa – Diagnóstico Sanitário Escolar</title>
+<title>Mapa da Secretaria</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
-body{ margin:0; font-family:Arial, sans-serif; }
-header{
-background:#1f3a5f;
-color:white;
-padding:12px;
-}
-#map{ height: calc(100vh - 70px); }
-
-.legend{
-position:absolute;
-bottom:20px;
-left:20px;
-background:white;
-padding:10px;
-border-radius:6px;
-font-size:14px;
-box-shadow:0 2px 6px rgba(0,0,0,.3);
-}
-.dot{
-width:12px;
-height:12px;
-border-radius:50%;
-display:inline-block;
-margin-right:6px;
-}
-.vermelho{background:#c62828;}
-.amarelo{background:#f9a825;}
-.verde{background:#2e7d32;}
+#map{ height:100vh; }
 </style>
 </head>
 
 <body>
-
-<header>
-<strong>Mapa de Diagnóstico Sanitário – Fortaleza</strong>
-</header>
-
 <div id="map"></div>
 
-<div class="legend">
-<div><span class="dot vermelho"></span> Crítico</div>
-<div><span class="dot amarelo"></span> Alerta</div>
-<div><span class="dot verde"></span> Adequado</div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-const dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
-
-dados.forEach(registro => {
-
-  // Coordenadas simuladas (depois entra geocodificação real)
-  const lat = -3.7319 + (Math.random() * 0.02);
-  const lng = -38.5267 + (Math.random() * 0.02);
-
-  let cor;
-  if(registro.status === "adequado") cor = "green";
-  else if(registro.status === "alerta") cor = "orange";
-  else cor = "red";
-
-  L.circleMarker([lat, lng], {
-    radius: 8,
-    color: cor,
-    fillColor: cor,
-    fillOpacity: 0.8
-  })
-  .addTo(map)
-  .bindPopup(`
-    <strong>${registro.escola}</strong><br>
-    Status: ${registro.status}<br>
-    Data: ${registro.data}
-  `);
-
-});
-</script>
 <script>
 const map = L.map('map').setView([-3.7319, -38.5267], 12);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-attribution: '&copy; OpenStreetMap'
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© OpenStreetMap'
 }).addTo(map);
 
-document.addEventListener("DOMContentLoaded", () => {
+const dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
 
-  const dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
+dados.forEach(r=>{
+  let cor = r.status === "adequado" ? "green" :
+            r.status === "alerta" ? "orange" : "red";
 
-  dados.forEach(registro => {
-
-    const lat = -3.7319 + (Math.random() * 0.02);
-    const lng = -38.5267 + (Math.random() * 0.02);
-
-    let cor =
-      registro.status === "adequado" ? "green" :
-      registro.status === "alerta" ? "orange" : "red";
-
-    L.circleMarker([lat, lng], {
-      radius: 8,
-      color: cor,
-      fillColor: cor,
-      fillOpacity: 0.8
-    })
-    .addTo(map)
-    .bindPopup(`
-      <strong>${registro.escola}</strong><br>
-      Status: ${registro.status}<br>
-      Data: ${registro.data}
-    `);
-  });
-
+  L.circleMarker(
+    [-3.7319 + Math.random()*0.02, -38.5267 + Math.random()*0.02],
+    { radius:8, color:cor, fillColor:cor, fillOpacity:0.8 }
+  )
+  .addTo(map)
+  .bindPopup(<strong>${r.escola}</strong><br>Status: ${r.status}<br>${r.data});
 });
-  
-function cor(status){
-if(status === "critico") return "#c62828";
-if(status === "alerta") return "#f9a825";
-return "#2e7d32";
-}
-
-fetch("avaliacoes.json")
-.then(r => r.json())
-.then(dados => {
-dados.forEach(e => {
-L.circleMarker([e.lat, e.lng], {
-radius:8,
-color:"#333",
-fillColor:cor(e.status),
-fillOpacity:0.9
-}).addTo(map)
-.bindPopup(`
-<strong>${e.nome}</strong><br>
-Status: <b>${e.status}</b><br>
-ITDS: ${e.itds}<br>
-Data: ${e.data}
-`);
-});
-});
-
-  
 </script>
 
 </body>
-
 </html>
 

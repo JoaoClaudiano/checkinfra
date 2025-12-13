@@ -1,122 +1,110 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Avaliação Sanitária Escolar</title>
+  <meta charset="UTF-8" />
+  <title>Avaliação Sanitária Escolar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<style>
-body { font-family: Arial; padding: 20px; }
-label { display: block; margin-top: 15px; }
-button { margin-top: 20px; padding: 10px 15px; }
-.status { margin-top: 20px; padding: 15px; border-radius: 6px; display: flex; align-items: center; }
-.verde { background: #e0f7e9; }
-.amarelo { background: #fff7cc; }
-.vermelho { background: #ffe0e0; }
-.bola { width: 15px; height: 15px; border-radius: 50%; margin-right: 10px; }
-.verde .bola { background: green; }
-.amarelo .bola { background: orange; }
-.vermelho .bola { background: red; }
-</style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 2px 6px rgba(0,0,0,.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+    }
+    .checklist label {
+      font-weight: normal;
+    }
+    button {
+      margin-top: 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 
 <body>
 
-<h2>Avaliação Sanitária de Banheiros Escolares</h2>
+  <h1>Avaliação Sanitária</h1>
 
-<label>Escola:</label>
-<select id="escola">
-  <option value="">Selecione a escola</option>
-</select>
+  <div class="card">
+    <label>Nome da escola</label>
+    <select id="escola">
+      <option value="">Carregando escolas...</option>
+    </select>
 
-<label>Responsável pela avaliação:</label>
-<input id="responsavel" type="text">
+    <label>Responsável pela avaliação</label>
+    <input id="responsavel" placeholder="Nome do gestor ou diretor" />
 
-<label><input type="checkbox" id="piso"> Piso quebrado</label>
-<label><input type="checkbox" id="mofo"> Mofo ou infiltração</label>
-<label><input type="checkbox" id="sanitario"> Sanitário ou torneira quebrados</label>
-
-<button onclick="avaliar()">Gerar diagnóstico</button>
-
-<div id="resultado"></div>
-
-<!-- 🔹 CARREGA ESCOLAS DO KML -->
-<script src="mapa/escolas.js"></script>
-
-<!-- 🔹 SCRIPT PRINCIPAL -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<script>
-let dadosUltimaAvaliacao = null;
-
-document.addEventListener("escolasCarregadas", () => {
-  const select = document.getElementById("escola");
-  escolas.forEach(e => {
-    const opt = document.createElement("option");
-    opt.value = e.nome;
-    opt.textContent = e.nome;
-    select.appendChild(opt);
-  });
-});
-
-function avaliar(){
-  const escola = document.getElementById("escola").value;
-  const responsavel = document.getElementById("responsavel").value;
-  const data = new Date().toLocaleDateString();
-
-  let pontos = 0;
-  if(document.getElementById("piso").checked) pontos += 2;
-  if(document.getElementById("mofo").checked) pontos += 3;
-  if(document.getElementById("sanitario").checked) pontos += 2;
-
-  let status, classe;
-  if(pontos >= 5){ status = "Crítico"; classe = "vermelho"; }
-  else if(pontos >= 2){ status = "Alerta"; classe = "amarelo"; }
-  else { status = "Adequado"; classe = "verde"; }
-
-  dadosUltimaAvaliacao = { escola, responsavel, data, pontos, status };
-
-  document.getElementById("resultado").innerHTML = `
-    <div class="status ${classe}">
-      <div class="bola"></div>
-      <div>
-        <strong>Status: ${status}</strong><br>
-        Pontuação técnica: ${pontos}
-      </div>
+    <label>Checklist</label>
+    <div class="checklist">
+      <label><input type="checkbox" /> Piso quebrado</label>
+      <label><input type="checkbox" /> Mofo / infiltração</label>
+      <label><input type="checkbox" /> Sanitário quebrado</label>
+      <label><input type="checkbox" /> Torneira com vazamento</label>
     </div>
-    <button onclick="gerarPDF()">Gerar PDF</button>
-  `;
 
-  salvarAvaliacaoSheets(escola, status, pontos, data);
-}
+    <button onclick="gerarDiagnostico()">Gerar diagnóstico</button>
 
-function gerarPDF(){
-  const { jsPDF } = window.jspdf;
-  const d = dadosUltimaAvaliacao;
-  const doc = new jsPDF();
+    <p id="resultado"></p>
+  </div>
 
-  doc.text("Relatório de Avaliação Sanitária Escolar", 20, 20);
-  doc.text(Escola: ${d.escola}, 20, 40);
-  doc.text(Responsável: ${d.responsavel}, 20, 50);
-  doc.text(Data: ${d.data}, 20, 60);
-  doc.text(Status: ${d.status}, 20, 80);
-  doc.text(Pontuação: ${d.pontos}, 20, 90);
+  <!-- SCRIPT DE ESCOLAS -->
+  <script src="mapa/escolas.js"></script>
 
-  doc.save("avaliacao_sanitaria.pdf");
-}
+  <script>
+    function preencherSelect() {
+      const select = document.getElementById("escola");
+      select.innerHTML = "<option value=''>Selecione a escola</option>";
 
-function salvarAvaliacaoSheets(escola, status, pontos, data){
-  fetch("COLE_AQUI_A_URL_DO_APPS_SCRIPT", {
-    method: "POST",
-    body: JSON.stringify({
-      escola,
-      status,
-      pontos,
-      data,
-      responsavel: document.getElementById("responsavel").value
-    })
-  });
-}
-</script>
+      window.escolas.forEach(e => {
+        const opt = document.createElement("option");
+        opt.value = e.nome;
+        opt.textContent = e.nome;
+        select.appendChild(opt);
+      });
+    }
+
+    if (window.escolasCarregadas) {
+      preencherSelect();
+    } else {
+      window.addEventListener("load", preencherSelect);
+    }
+
+    function gerarDiagnostico() {
+      const escola = document.getElementById("escola").value;
+      if (!escola) {
+        alert("Selecione uma escola");
+        return;
+      }
+
+      document.getElementById("resultado").innerHTML =
+        "Diagnóstico gerado para <b>" + escola + "</b>";
+    }
+  </script>
 
 </body>
 </html>

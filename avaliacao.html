@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -14,7 +13,6 @@ section{
   background:#fff; padding:20px; border-radius:8px;
   margin-bottom:20px; box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
-.item{ margin-top:10px; }
 button{
   width:100%; padding:15px; background:#1f3a5f;
   color:#fff; border:none; border-radius:8px; font-size:16px;
@@ -31,73 +29,88 @@ button{
 
 <section>
 <h3>Identificação</h3>
-<input id="escola" placeholder="Nome da escola" style="width:100%;padding:8px">
+<label>Escola</label>
+<select id="escola" style="width:100%;padding:8px"></select>
 </section>
 
 <section>
-<h3>Checklist</h3>
-<div class="item"><input type="checkbox" data-peso="3"> Presença de mofo</div>
-<div class="item"><input type="checkbox" data-peso="2"> Piso quebrado</div>
-<div class="item"><input type="checkbox" data-peso="2"> Vazamentos</div>
+<h3>Checklist Sanitário</h3>
+<div><input type="checkbox" data-peso="3"> Presença de mofo</div>
+<div><input type="checkbox" data-peso="2"> Piso quebrado</div>
+<div><input type="checkbox" data-peso="2"> Vazamentos</div>
 </section>
 
 <section>
-<h3>Fotos</h3>
+<h3>Registro Fotográfico</h3>
 <input type="file" id="fotos" multiple>
 </section>
 
 <button onclick="avaliar()">Gerar Diagnóstico</button>
-
 <div id="resultado"></div>
 
 <script>
+// carregar escolas
+fetch("mapa/escolas.json")
+.then(r=>r.json())
+.then(lista=>{
+  const sel=document.getElementById("escola");
+  sel.innerHTML='<option value="">Selecione a escola</option>';
+  lista.forEach(e=>{
+    const o=document.createElement("option");
+    o.value=e.nome;
+    o.textContent=e.nome;
+    sel.appendChild(o);
+  });
+});
+
+// avaliação
 function avaliar(){
-  let pontos = 0;
-  document.querySelectorAll('input[type=checkbox]:checked')
-    .forEach(c => pontos += Number(c.dataset.peso));
+  const escola=document.getElementById("escola").value;
+  if(!escola){ alert("Selecione a escola"); return; }
 
-  if(document.getElementById("fotos").files.length > 0){
-    pontos += 2; // IA simulada
-  }
+  let pontos=0;
+  document.querySelectorAll("input[type=checkbox]:checked")
+    .forEach(c=>pontos+=Number(c.dataset.peso));
 
-  let status = "adequado";
-  if(pontos > 5) status = "critico";
-  else if(pontos > 2) status = "alerta";
+  if(document.getElementById("fotos").files.length>0) pontos+=2;
 
-  document.getElementById("resultado").innerHTML = `
+  let status="adequado";
+  if(pontos>5) status="critico";
+  else if(pontos>2) status="alerta";
+
+  document.getElementById("resultado").innerHTML=`
     <div class="status ${status}">
       <span class="bola"></span>
       <strong>${status.toUpperCase()}</strong> — Pontuação: ${pontos}
     </div>
-    <button onclick="gerarPDF('${status}', ${pontos})">Gerar PDF</button>
+    <button onclick="gerarPDF('${escola}','${status}',${pontos})">
+      Gerar PDF
+    </button>
   `;
 
-  salvarMapa(status);
+  salvarMapa(escola,status);
 }
 
-function gerarPDF(status, pontos){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  const escola = document.getElementById("escola").value || "Não informado";
-
-  doc.text("Relatório de Avaliação Sanitária", 20, 20);
-  doc.text(Escola: ${escola}, 20, 35);
-  doc.text(Status: ${status}, 20, 45);
-  doc.text(Pontuação: ${pontos}, 20, 55);
-  doc.text("Diagnóstico preliminar. Não substitui laudo técnico.", 20, 75);
-
-  doc.save("avaliacao.pdf");
+function salvarMapa(escola,status){
+  let dados=JSON.parse(localStorage.getItem("avaliacoes"))||[];
+  dados.push({escola,status,data:new Date().toLocaleDateString()});
+  localStorage.setItem("avaliacoes",JSON.stringify(dados));
 }
 
-function salvarMapa(status){
-  const escola = document.getElementById("escola").value || "Escola sem nome";
-  let dados = JSON.parse(localStorage.getItem("avaliacoes")) || [];
-  dados.push({ escola, status, data:new Date().toLocaleDateString() });
-  localStorage.setItem("avaliacoes", JSON.stringify(dados));
+function gerarPDF(escola,status,pontos){
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF();
+  pdf.text("Relatório de Avaliação Sanitária",20,20);
+  pdf.text(Escola: ${escola},20,35);
+  pdf.text(Status: ${status},20,45);
+  pdf.text(Pontuação: ${pontos},20,55);
+  pdf.text("Diagnóstico preliminar. Não substitui laudo técnico.",20,75);
+  pdf.save("avaliacao.pdf");
 }
 </script>
 
 </body>
 </html>
+
 
 

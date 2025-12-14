@@ -174,25 +174,19 @@ function gerarDiagnostico(){
 
   const escolaObj = escolas.find(x => x.nome === escola);
 
-  /* ✅ POST CORRETO (SEM no-cors) */
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      escola: escola,
-      avaliador: avaliador,
-      pontuacao: score,
-      status: status,
-      problemas: problemas.join("; "),
-      lat: escolaObj ? escolaObj.lat : "",
-      lng: escolaObj ? escolaObj.lng : ""
-    })
-  })
-  .then(r => r.json())
-  .then(resp => console.log("Sheets:", resp))
-  .catch(err => console.error("Erro POST:", err));
+const params = new URLSearchParams({
+  escola: escola,
+  avaliador: avaliador,
+  pontuacao: score,
+  status: status,
+  problemas: problemas.join("; "),
+  lat: escolaObj ? escolaObj.lat : "",
+  lng: escolaObj ? escolaObj.lng : ""
+});
+
+fetch(SCRIPT_URL + "?" + params.toString(), {
+  method: "POST"
+});
 
   setTimeout(()=>location.href="./index.html",3000);
 }

@@ -186,10 +186,24 @@ function gerarDiagnostico(){
     lng: escolaObj ? escolaObj.lng : ""
   });
 
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    body: body
-  });
+fetch(SCRIPT_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    escola: escola,
+    avaliador: avaliador,
+    pontuacao: score,
+    status: status,
+    problemas: problemas.join("; "),
+    lat: escolaObj ? escolaObj.lat : "",
+    lng: escolaObj ? escolaObj.lng : ""
+  })
+})
+.then(r => r.json())
+.then(resp => console.log("Sheets OK:", resp))
+.catch(err => console.error("Erro POST:", err));
 
   setTimeout(()=>location.href="./index.html",3000);
 }

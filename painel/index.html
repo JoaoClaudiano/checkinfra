@@ -13,6 +13,10 @@ body { font-family: Arial; background:#f4f6f8; padding:20px; }
 .grid { display:grid; grid-template-columns: 1fr 1fr; gap:20px; }
 h2 { margin:0 0 10px; }
 small { color:#666; }
+.grafico {
+  max-width: 500px;
+  margin: 30px auto;
+}
 </style>
 </head>
 
@@ -26,7 +30,10 @@ small { color:#666; }
 <div class="card grid">
   <div>
     <h3>Status das Avaliações</h3>
-    <canvas id="graficoStatus"></canvas>
+    <div class="grafico">
+      <canvas id="graficoStatus"></canvas>
+    </div>
+      
   </div>
   <div>
     <h3>Principais Problemas</h3>

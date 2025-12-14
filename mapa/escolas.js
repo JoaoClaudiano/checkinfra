@@ -20,6 +20,9 @@ window.escolas = [
   { nome: "MÃE BALBINA", lat: -3.78654629, lng: -38.61829067 },
   { nome: "SEMENTE DO AMANHÃ II", lat: -3.794048385, lng: -38.58877966 },
   { nome: "DOMINGOS SÁVIO", lat: -3.768396592, lng: -38.53105177 }
+  { nome: "DOMINGOS SÁVIO", lat: -3.768396592, lng: -38.53105177 },
+  { nome: "PETRONILLA ISONNI", lat: -3.772599965, lng: -38.5283 },
+  { nome: "VILA DA CRIANÇA", lat: -3.766056979, lng: -38.53758769 },
 ];
 
 // Evento global para avisar que as escolas carregaram

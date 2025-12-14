@@ -50,7 +50,7 @@ window.escolas = [
   { nome: "PARQUE SANTA MARIA", lat: -3.844772118, lng: -38.52299118 },
   { nome: "FÁTIMA", lat: -3.768441229, lng: -38.58344122 },
   { nome: "VILA NOVA", lat: -3.781882114, lng: -38.55711833 },
-  { nome: "SÃO PEDRO", lat: -3.812991118, lng: -38.53344199 },
+  { nome: "SÃO PEDRO", lat: -3.812991118, lng: -38.53344199 }
 
 
 ];

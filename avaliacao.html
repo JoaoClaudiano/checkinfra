@@ -85,7 +85,6 @@
       font-weight:bold;
     }
 
-    /* 📷 IMAGENS */
     .preview {
       display: flex;
       gap: 12px;
@@ -142,7 +141,6 @@
 <div class="container">
   <h1>Avaliação Sanitária Escolar</h1>
 
-  <!-- DADOS -->
   <div class="card">
     <label>Escola</label>
     <select id="escola">
@@ -153,9 +151,7 @@
     <input type="text" id="avaliador" placeholder="Nome do avaliador">
   </div>
 
-  <!-- CHECKLIST -->
   <div class="card">
-
     <div class="categoria">
       <h3>🏗️ Estrutura</h3>
       <div class="checklist-cards">
@@ -180,10 +176,8 @@
         <label class="check-card"><input type="checkbox" data-peso="1"> Ventilação inadequada</label>
       </div>
     </div>
-
   </div>
 
-  <!-- 📷 IMAGENS -->
   <div class="card">
     <h3>📷 Registro Fotográfico</h3>
     <input type="file" id="fotos" accept="image/*" multiple>
@@ -198,23 +192,26 @@
 <script src="./mapa/escolas.js"></script>
 
 <script>
-/* 🔗 URL DO APPS SCRIPT */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIqrAdgd7pLsW0kYAnrrHQ-WrCsnbR4Eh9BpkamYbrKwCOFP5fH6N52HFw2nOz2t2G/exec";
 
-/* ===== ESCOLAS ===== */
-document.addEventListener("escolasCarregadas", () => {
+/* ✅ CORREÇÃO DO CARREGAMENTO */
+document.addEventListener("DOMContentLoaded", () => {
   const select = document.getElementById("escola");
-  select.innerHTML = '<option value="">Selecione a escola</option>';
 
-  escolas.forEach(e => {
-    const opt = document.createElement("option");
-    opt.value = e.nome;
-    opt.textContent = e.nome;
-    select.appendChild(opt);
-  });
+  if (window.escolas && Array.isArray(window.escolas)) {
+    select.innerHTML = '<option value="">Selecione a escola</option>';
+    escolas.forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e.nome;
+      opt.textContent = e.nome;
+      select.appendChild(opt);
+    });
+  } else {
+    select.innerHTML = '<option>Erro ao carregar escolas</option>';
+  }
 });
 
-/* ===== IMAGENS ===== */
+/* IMAGENS */
 let imagensBase64 = [];
 
 document.getElementById("fotos").addEventListener("change", e => {
@@ -234,7 +231,7 @@ document.getElementById("fotos").addEventListener("change", e => {
   });
 });
 
-/* ===== DIAGNÓSTICO ===== */
+/* DIAGNÓSTICO */
 function gerarDiagnostico() {
   const escola = document.getElementById("escola").value;
   const avaliador = document.getElementById("avaliador").value;
@@ -273,10 +270,9 @@ function gerarDiagnostico() {
     Avaliador: ${avaliador}<br>
     Pontuação técnica: ${score}<br>
     Status: ${status}<br><br>
-    Avaliação registrada. Redirecionando para a página inicial…
+    Avaliação registrada. Redirecionando…
   `;
 
-  /* 📤 ENVIA PARA O SHEETS */
   const escolaObj = escolas.find(e => e.nome === escola);
 
   fetch(SCRIPT_URL, {
@@ -288,13 +284,12 @@ function gerarDiagnostico() {
       pontuacao: score,
       status,
       problemas: problemas.join("; "),
-      lat: escolaObj ? escolaObj.lat : null,
-      lng: escolaObj ? escolaObj.lng : null,
-      fotos: imagensBase64.length // por enquanto só registra a quantidade
+      lat: escolaObj?.lat || null,
+      lng: escolaObj?.lng || null,
+      fotos: imagensBase64.length
     })
   });
 
-  /* ⏱️ REDIRECIONA */
   setTimeout(() => {
     window.location.href = "./index.html";
   }, 3000);

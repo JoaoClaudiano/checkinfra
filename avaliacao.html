@@ -1,7 +1,28 @@
 <script>
+const SCRIPT_URL = "https://script.google.com/macros/s/SEU_URL_EXEC_AQUI/exec";
+
+/* Garante que o código só rode depois que tudo carregar */
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.escolas || !Array.isArray(window.escolas)) {
+    console.error("Lista de escolas não carregou");
+    alert("Erro ao carregar lista de escolas. Atualize a página.");
+    return;
+  }
+});
+
+/* Diagnóstico */
 function gerarDiagnostico() {
-  const escola = document.getElementById("escola").value;
-  const avaliador = document.getElementById("avaliador").value;
+  const escolaInput = document.getElementById("escola");
+  const avaliadorInput = document.getElementById("avaliador");
+  const resultado = document.getElementById("resultado");
+
+  if (!escolaInput || !avaliadorInput || !resultado) {
+    alert("Erro interno na página.");
+    return;
+  }
+
+  const escola = escolaInput.value.trim();
+  const avaliador = avaliadorInput.value.trim();
 
   if (!escola || !avaliador) {
     alert("Preencha a escola e o avaliador");
@@ -13,7 +34,7 @@ function gerarDiagnostico() {
 
   document.querySelectorAll("input[type=checkbox]").forEach(cb => {
     if (cb.checked) {
-      score += parseInt(cb.dataset.peso);
+      score += Number(cb.dataset.peso || 0);
       problemas.push(cb.parentElement.textContent.trim());
     }
   });
@@ -29,9 +50,8 @@ function gerarDiagnostico() {
     classe = "alerta";
   }
 
-  const r = document.getElementById("resultado");
-  r.className = "resultado " + classe;
-  r.innerHTML = `
+  resultado.className = "resultado " + classe;
+  resultado.innerHTML = `
     Escola: ${escola}<br>
     Avaliador: ${avaliador}<br>
     Pontuação técnica: ${score}<br>
@@ -39,8 +59,10 @@ function gerarDiagnostico() {
     <strong>Avaliação registrada. Redirecionando para a página inicial…</strong>
   `;
 
-  const escolaObj = escolas.find(e => e.nome === escola);
+  /* Busca segura da escola */
+  const escolaObj = window.escolas.find(e => e.nome === escola) || null;
 
+  /* Envia para o Sheets */
   fetch(SCRIPT_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -53,13 +75,32 @@ function gerarDiagnostico() {
       lat: escolaObj ? escolaObj.lat : null,
       lng: escolaObj ? escolaObj.lng : null
     })
+  }).catch(err => {
+    console.error("Erro ao salvar:", err);
   });
 
+  /* PDF */
   gerarPDF(escola, score, status);
 
-  // ⏱️ redireciona após 3 segundos
+  /* Redireciona após 3 segundos */
   setTimeout(() => {
     window.location.href = "./index.html";
   }, 3000);
+}
+
+/* PDF */
+function gerarPDF(escola, score, status) {
+  if (!window.jspdf) return;
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  pdf.text("Relatório Sanitário – CheckInfra", 20, 20);
+  pdf.text(`Escola: ${escola}`, 20, 40);
+  pdf.text(`Pontuação técnica: ${score}`, 20, 50);
+  pdf.text(`Status: ${status}`, 20, 60);
+  pdf.text(`Data: ${new Date().toLocaleDateString()}`, 20, 70);
+
+  pdf.save(`avaliacao_${escola}.pdf`);
 }
 </script>

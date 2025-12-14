@@ -90,10 +90,9 @@ button:hover{background:#163ca6;}
 <script src="./mapa/escolas.js"></script>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyt2ba43-ZwETWri7JoEFX9InL75iCtlqn796gQBjCRr4MGm0KgT_Tff8_MxiB4CZ2zCw/exec";
-let imagensBase64=[];
+const SCRIPT_URL = "COLE_AQUI_SEU_URL_EXEC_ATUAL";
+let imagensBase64 = [];
 
-  
 /* escolas */
 document.addEventListener("DOMContentLoaded",()=>{
   const s=document.getElementById("escola");
@@ -175,35 +174,25 @@ function gerarDiagnostico(){
 
   const escolaObj = escolas.find(x => x.nome === escola);
 
-  /* ✅ ENVIO CORRETO PARA APPS SCRIPT */
-  const body = new URLSearchParams({
-    escola: escola,
-    avaliador: avaliador,
-    pontuacao: score,
-    status: status,
-    problemas: problemas.join("; "),
-    lat: escolaObj ? escolaObj.lat : "",
-    lng: escolaObj ? escolaObj.lng : ""
-  });
-
-fetch(SCRIPT_URL, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    escola: escola,
-    avaliador: avaliador,
-    pontuacao: score,
-    status: status,
-    problemas: problemas.join("; "),
-    lat: escolaObj ? escolaObj.lat : "",
-    lng: escolaObj ? escolaObj.lng : ""
+  /* ✅ POST CORRETO (SEM no-cors) */
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      escola: escola,
+      avaliador: avaliador,
+      pontuacao: score,
+      status: status,
+      problemas: problemas.join("; "),
+      lat: escolaObj ? escolaObj.lat : "",
+      lng: escolaObj ? escolaObj.lng : ""
+    })
   })
-})
-.then(r => r.json())
-.then(resp => console.log("Sheets OK:", resp))
-.catch(err => console.error("Erro POST:", err));
+  .then(r => r.json())
+  .then(resp => console.log("Sheets:", resp))
+  .catch(err => console.error("Erro POST:", err));
 
   setTimeout(()=>location.href="./index.html",3000);
 }

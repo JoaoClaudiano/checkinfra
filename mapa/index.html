@@ -1,50 +1,43 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>Mapa das Escolas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<title>Mapa – Diagnóstico Sanitário</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  <style>
-    body, html {
-      margin: 0;
-      height: 100%;
-    }
-    #map {
-      height: 100%;
-    }
-  </style>
+<style>
+#map { height: 100vh; }
+</style>
 </head>
 
 <body>
+<div id="map"></div>
 
-  <div id="map"></div>
+<script src="./escolas.js"></script>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="escolas.js"></script>
+<script>
+const map = L.map("map").setView([-3.73, -38.54], 12);
 
-  <script>
-    const map = L.map("map").setView([-3.75, -38.53], 13);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "© OpenStreetMap"
+}).addTo(map);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap"
-    }).addTo(map);
-
-    if (!window.escolas) {
-      alert("Escolas não carregadas");
-    } else {
-      window.escolas.forEach(e => {
-        L.marker([e.lat, e.lng])
-          .addTo(map)
-          .bindPopup(e.nome);
-      });
-    }
-  </script>
+document.addEventListener("escolasCarregadas", () => {
+  window.escolas.forEach(e => {
+    L.circleMarker([e.lat, e.lng], {
+      radius: 7,
+      color: "#999",
+      fillColor: "#999",
+      fillOpacity: 0.8
+    })
+    .bindPopup(e.nome)
+    .addTo(map);
+  });
+});
+</script>
 
 </body>
 </html>

@@ -2,41 +2,122 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Mapa – Diagnóstico Sanitário</title>
+<title>Mapa Sanitário – Escolas Municipais</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Leaflet -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-#map { height: 100vh; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  padding: 12px;
+  background: #1f4fd8;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+}
+
+#map {
+  height: calc(100vh - 50px);
+}
+
+.legenda {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+}
+
+.legenda div {
+  margin-bottom: 5px;
+}
+
+.bola {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+.verde { background: green; }
+.laranja { background: orange; }
+.vermelho { background: red; }
 </style>
 </head>
 
 <body>
+
+<header>
+Mapa Sanitário das Escolas – Secretaria de Educação
+</header>
+
 <div id="map"></div>
 
-<script src="./escolas.js"></script>
+<div class="legenda">
+  <div><span class="bola verde"></span> Condição adequada</div>
+  <div><span class="bola laranja"></span> Situação de alerta</div>
+  <div><span class="bola vermelho"></span> Condição crítica</div>
+</div>
 
 <script>
-const map = L.map("map").setView([-3.73, -38.54], 12);
+// 👉 COLE A MESMA URL /exec DO APPS SCRIPT
+const API_URL = "COLE_AQUI_SUA_URL_DO_APPS_SCRIPT_EXEC";
 
+// Mapa centrado em Fortaleza
+const map = L.map("map").setView([-3.7319, -38.5267], 12);
+
+// OpenStreetMap
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "© OpenStreetMap"
 }).addTo(map);
 
-document.addEventListener("escolasCarregadas", () => {
-  window.escolas.forEach(e => {
-    L.circleMarker([e.lat, e.lng], {
-      radius: 7,
-      color: "#999",
-      fillColor: "#999",
-      fillOpacity: 0.8
-    })
-    .bindPopup(e.nome)
-    .addTo(map);
+// Cores por status
+function corPorStatus(status) {
+  if (status.includes("crítica")) return "red";
+  if (status.includes("alerta")) return "orange";
+  return "green";
+}
+
+// Carregar dados do banco
+fetch(API_URL)
+  .then(res => res.json())
+  .then(dados => {
+    dados.forEach(e => {
+      if (!e.lat || !e.lng) return;
+
+      const cor = corPorStatus(e.status);
+
+      L.circleMarker([e.lat, e.lng], {
+        radius: 8,
+        color: cor,
+        fillColor: cor,
+        fillOpacity: 0.8
+      })
+      .addTo(map)
+      .bindPopup(`
+        <strong>${e.escola}</strong><br>
+        Status: ${e.status}<br>
+        Pontuação: ${e.pontuacao}
+      `);
+    });
+  })
+  .catch(err => {
+    alert("Erro ao carregar dados do mapa");
+    console.error(err);
   });
-});
 </script>
 
 </body>

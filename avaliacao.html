@@ -5,80 +5,28 @@
 <title>CheckInfra – Avaliação Sanitária</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{
-  font-family:Arial, sans-serif;
-  background:#f4f6f8;
-  margin:0;
-}
-.header{
-  background:#1f4fd8;
-  color:#fff;
-  padding:16px;
-  text-align:center;
-}
-.container{
-  max-width:900px;
-  margin:30px auto;
-  padding:0 16px;
-}
+body{font-family:Arial,sans-serif;background:#f4f6f8;margin:0;}
+.header{background:#1f4fd8;color:#fff;padding:16px;text-align:center;}
+.container{max-width:900px;margin:30px auto;padding:0 16px;}
 h1{text-align:center;margin-bottom:24px;}
-.card{
-  background:#fff;
-  border-radius:14px;
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 2px 6px rgba(0,0,0,.08);
-}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.08);}
 label{font-weight:bold;margin-bottom:6px;display:block;}
-select,input[type="text"]{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  margin-bottom:14px;
-}
+select,input[type="text"],input[type="file"]{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:14px;}
 .categoria{margin-bottom:26px;}
 .categoria h3{color:#1f4fd8;margin-bottom:12px;}
 .checklist{display:flex;flex-direction:column;gap:12px;}
-.check-card{
-  border:2px solid #e0e0e0;
-  border-radius:12px;
-  padding:16px;
-  cursor:pointer;
-  transition:.2s;
-  background:#fafafa;
-  font-weight:500;
-}
+.check-card{border:2px solid #e0e0e0;border-radius:12px;padding:16px;cursor:pointer;transition:.2s;background:#fafafa;font-weight:500;}
 .check-card input{display:none;}
 .check-card:hover{border-color:#1f4fd8;background:#f0f5ff;}
-.check-card:has(input:checked){
-  border-color:#1f4fd8;
-  background:#eaf0ff;
-  font-weight:bold;
-}
-button{
-  width:100%;
-  padding:16px;
-  background:#1f4fd8;
-  color:#fff;
-  font-size:16px;
-  font-weight:bold;
-  border:none;
-  border-radius:12px;
-  cursor:pointer;
-}
+.check-card:has(input:checked){border-color:#1f4fd8;background:#eaf0ff;font-weight:bold;}
+.preview{display:flex;gap:10px;flex-wrap:wrap;}
+.preview img{width:120px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #ccc;}
+button{width:100%;padding:16px;background:#1f4fd8;color:#fff;font-size:16px;font-weight:bold;border:none;border-radius:12px;cursor:pointer;}
 button:hover{background:#163ca6;}
-.resultado{
-  margin-top:20px;
-  padding:20px;
-  border-radius:12px;
-  display:none;
-  font-weight:bold;
-}
+.resultado{margin-top:20px;padding:20px;border-radius:12px;display:none;font-weight:bold;}
 .ok{background:#e8f7ee;color:#1e7e34;}
 .alerta{background:#fff3cd;color:#856404;}
 .critico{background:#f8d7da;color:#721c24;}
@@ -128,6 +76,13 @@ button:hover{background:#163ca6;}
 
 </div>
 
+<!-- 📷 FOTOS -->
+<div class="card">
+<h3>📷 Registro Fotográfico</h3>
+<input type="file" id="fotos" accept="image/*" multiple>
+<div class="preview" id="preview"></div>
+</div>
+
 <button onclick="gerarDiagnostico()">Gerar Diagnóstico</button>
 <div id="resultado" class="resultado"></div>
 </div>
@@ -136,10 +91,10 @@ button:hover{background:#163ca6;}
 
 <script>
 const SCRIPT_URL = "COLE_AQUI_SEU_URL_EXEC";
+let imagensBase64=[];
 
-/* carregar escolas */
+/* escolas */
 document.addEventListener("DOMContentLoaded",()=>{
-  if(!window.escolas)return;
   const s=document.getElementById("escola");
   s.innerHTML='<option value="">Selecione a escola</option>';
   escolas.forEach(e=>{
@@ -148,26 +103,44 @@ document.addEventListener("DOMContentLoaded",()=>{
   });
 });
 
-/* gerar pdf */
+/* fotos */
+document.getElementById("fotos").addEventListener("change",e=>{
+  imagensBase64=[];
+  const p=document.getElementById("preview");
+  p.innerHTML="";
+  [...e.target.files].forEach(file=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      imagensBase64.push(ev.target.result);
+      const img=document.createElement("img");
+      img.src=ev.target.result;
+      p.appendChild(img);
+    };
+    r.readAsDataURL(file);
+  });
+});
+
+/* pdf */
 function gerarPDF(escola,avaliador,score,status,problemas){
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF();
   let y=20;
 
   pdf.setFontSize(16);
-  pdf.text("CheckInfra – Avaliação Sanitária",10,y);
-  y+=10;
-
+  pdf.text("CheckInfra – Avaliação Sanitária",10,y);y+=12;
   pdf.setFontSize(12);
-  pdf.text(`Escola: ${escola}`,10,y); y+=8;
-  pdf.text(`Avaliador: ${avaliador}`,10,y); y+=8;
-  pdf.text(`Pontuação: ${score}`,10,y); y+=8;
-  pdf.text(`Status: ${status}`,10,y); y+=10;
+  pdf.text(`Escola: ${escola}`,10,y);y+=8;
+  pdf.text(`Avaliador: ${avaliador}`,10,y);y+=8;
+  pdf.text(`Pontuação: ${score}`,10,y);y+=8;
+  pdf.text(`Status: ${status}`,10,y);y+=10;
+  pdf.text("Itens avaliados:",10,y);y+=8;
 
-  pdf.text("Itens avaliados:",10,y); y+=8;
-  problemas.forEach(p=>{
-    pdf.text(`- ${p}`,12,y);
-    y+=7;
+  problemas.forEach(p=>{pdf.text("- "+p,12,y);y+=7;});
+
+  imagensBase64.forEach(img=>{
+    if(y>230){pdf.addPage();y=20;}
+    pdf.addImage(img,"JPEG",10,y,60,45);
+    y+=50;
   });
 
   pdf.save(`avaliacao_${escola.replaceAll(" ","_")}.pdf`);
@@ -181,10 +154,7 @@ function gerarDiagnostico(){
 
   let score=0,problemas=[];
   document.querySelectorAll("input[type=checkbox]").forEach(cb=>{
-    if(cb.checked){
-      score+=Number(cb.dataset.peso);
-      problemas.push(cb.parentElement.textContent.trim());
-    }
+    if(cb.checked){score+=Number(cb.dataset.peso);problemas.push(cb.parentElement.textContent.trim());}
   });
 
   let status="Condição adequada",classe="ok";
@@ -198,18 +168,18 @@ function gerarDiagnostico(){
 
   gerarPDF(escola,avaliador,score,status,problemas);
 
-  const escolaObj=escolas.find(e=>e.nome===escola);
+  const e=escolas.find(x=>x.nome===escola);
   fetch(SCRIPT_URL,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
       escola,avaliador,pontuacao:score,status,
       problemas:problemas.join("; "),
-      lat:escolaObj?.lat,lng:escolaObj?.lng
+      lat:e?.lat,lng:e?.lng
     })
   });
 
-  setTimeout(()=>window.location.href="./index.html",3000);
+  setTimeout(()=>location.href="./index.html",3000);
 }
 </script>
 

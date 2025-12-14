@@ -46,57 +46,88 @@ button { margin-top:30px; width:100%; padding:15px; font-size:16px; background:#
 </div>
 
 <script>
-const SCRIPT_URL ="https://script.google.com/macros/s/AKfycbwIqrAdgd7pLsW0kYAnrrHQ-WrCsnbR4Eh9BpkamYbrKwCOFP5fH6N52HFw2nOz2t2G/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIqrAdgd7pLsW0kYAnrrHQ-WrCsnbR4Eh9BpkamYbrKwCOFP5fH6N52HFw2nOz2t2G/exec";
 
+/* Preenche lista de escolas */
 const lista = document.getElementById("listaEscolas");
 escolas.forEach(e => {
   const opt = document.createElement("option");
   opt.value = e.nome;
-  opt.dataset.lat = e.lat;
-  opt.dataset.lng = e.lng;
   lista.appendChild(opt);
 });
 
+/* Diagnóstico */
 function gerarDiagnostico() {
-  const escolaNome = escola.value;
+  const escola = document.getElementById("escola").value;
   const avaliador = document.getElementById("avaliador").value;
 
-  const escolaObj = escolas.find(e => e.nome === escolaNome);
-  if (!escolaObj) {
-    alert("Selecione uma escola válida da lista");
+  if (!escola || !avaliador) {
+    alert("Preencha a escola e o avaliador");
     return;
   }
 
   let score = 0;
-  document.querySelectorAll("input[type=checkbox]:checked")
-    .forEach(cb => score += Number(cb.dataset.peso));
+  let problemas = [];
 
-  let status = "Condição adequada", classe = "ok";
-  if (score >= 8) { status = "Condição crítica"; classe = "critico"; }
-  else if (score >= 4) { status = "Situação de alerta"; classe = "alerta"; }
+  document.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    if (cb.checked) {
+      score += parseInt(cb.dataset.peso);
+      problemas.push(cb.parentElement.textContent.trim());
+    }
+  });
 
-  resultado.className = "resultado " + classe;
-  resultado.innerHTML = `Pontuação: ${score}<br>Status: ${status}`;
+  let status = "Condição adequada";
+  let classe = "ok";
+
+  if (score >= 9) {
+    status = "Condição crítica";
+    classe = "critico";
+  } else if (score >= 4) {
+    status = "Situação de alerta";
+    classe = "alerta";
+  }
+
+  const r = document.getElementById("resultado");
+  r.className = "resultado " + classe;
+  r.style.display = "block";
+  r.innerHTML = `
+    Escola: ${escola}<br>
+    Avaliador: ${avaliador}<br>
+    Pontuação técnica: ${score}<br>
+    Status: ${status}
+  `;
+
+  const escolaObj = escolas.find(e => e.nome === escola);
 
   fetch(SCRIPT_URL, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      escola: escolaNome,
+      escola,
       avaliador,
       pontuacao: score,
       status,
-      lat: escolaObj.lat,
-      lng: escolaObj.lng
+      problemas: problemas.join("; "),
+      lat: escolaObj ? escolaObj.lat : null,
+      lng: escolaObj ? escolaObj.lng : null
     })
   });
 
+  gerarPDF(escola, score, status);
+}
+
+/* PDF */
+function gerarPDF(escola, score, status) {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
-  pdf.text("Relatório Sanitário", 20, 20);
-  pdf.text(`Escola: ${escolaNome}`, 20, 40);
-  pdf.text(`Pontuação: ${score}`, 20, 50);
+
+  pdf.text("Relatório Sanitário – Banheiros Escolares", 20, 20);
+  pdf.text(`Escola: ${escola}`, 20, 40);
+  pdf.text(`Pontuação técnica: ${score}`, 20, 50);
   pdf.text(`Status: ${status}`, 20, 60);
-  pdf.save(`avaliacao_${escolaNome}.pdf`);
+  pdf.text(`Data: ${new Date().toLocaleDateString()}`, 20, 70);
+
+  pdf.save(`avaliacao_${escola}.pdf`);
 }
 </script>
 

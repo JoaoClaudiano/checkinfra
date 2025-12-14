@@ -109,3 +109,5 @@ window.escolas = [
   { nome: "SANTA CRUZ", lat: -3.787771992, lng: -38.55511877 }
 ];
 
+// 🔔 AVISA QUE A LISTA DE ESCOLAS FOI CARREGADA
+document.dispatchEvent(new Event("escolasCarregadas"));

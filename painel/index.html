@@ -62,6 +62,11 @@ h1 {
     <h3>Status das Escolas</h3>
     <canvas id="graficoStatus"></canvas>
   </div>
+  
+  <div class="box">
+  <h3>Tempo em Situação Crítica (dias)</h3>
+  <canvas id="graficoTempoCritico"></canvas>
+</div>
 
   <div class="box">
     <h3>Principais Problemas</h3>
@@ -84,6 +89,25 @@ fetch(SCRIPT_URL)
       "Ventilação inadequada":0,
       "Outros":0
     };
+    const escolasCriticas = dados.filter(d => d.diasCritico > 0);
+
+new Chart(document.getElementById("graficoTempoCritico"), {
+  type: "bar",
+  data: {
+    labels: escolasCriticas.map(e => e.escola),
+    datasets: [{
+      label: "Dias em condição crítica",
+      data: escolasCriticas.map(e => e.diasCritico),
+      backgroundColor: "#dc3545"
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    scales: {
+      x: { beginAtZero: true }
+    }
+  }
+});
 
     dados.forEach(d => {
       if (d.status.includes("adequada")) contagemStatus.ok++;

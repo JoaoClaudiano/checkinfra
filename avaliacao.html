@@ -12,7 +12,6 @@
       margin: 0;
     }
 
-    /* ===== HEADER ===== */
     .header {
       background: #1f4fd8;
       color: #fff;
@@ -23,26 +22,18 @@
       max-width: 1100px;
       margin: auto;
       display: flex;
-      align-items: center;
       justify-content: center;
-      gap: 10px;
     }
 
-    .logo img {
-      height: 44px;
-    }
+    .logo img { height: 44px; }
 
-    /* ===== CONTAINER ===== */
     .container {
       max-width: 1000px;
       margin: 40px auto;
       padding: 0 20px;
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+    h1 { text-align: center; margin-bottom: 30px; }
 
     .card {
       background: #fff;
@@ -52,11 +43,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 6px;
-    }
+    label { font-weight: bold; display: block; margin-bottom: 6px; }
 
     select, input[type="text"] {
       width: 100%;
@@ -66,15 +53,8 @@
       margin-bottom: 12px;
     }
 
-    /* ===== CHECKLIST EM CARDS ===== */
-    .categoria {
-      margin-bottom: 25px;
-    }
-
-    .categoria h3 {
-      margin-bottom: 12px;
-      color: #1f4fd8;
-    }
+    .categoria { margin-bottom: 25px; }
+    .categoria h3 { color:#1f4fd8; }
 
     .checklist-cards {
       display: grid;
@@ -83,57 +63,64 @@
     }
 
     .check-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
       padding: 16px;
       border-radius: 10px;
       border: 2px solid #e0e0e0;
       background: #fafafa;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: 0.2s;
       font-weight: 500;
     }
 
-    .check-card input {
-      display: none;
-    }
+    .check-card input { display: none; }
 
     .check-card:hover {
-      border-color: #1f4fd8;
-      background: #f0f5ff;
+      border-color:#1f4fd8;
+      background:#f0f5ff;
     }
 
     .check-card:has(input:checked) {
-      border-color: #1f4fd8;
-      background: #eaf0ff;
-      font-weight: bold;
+      border-color:#1f4fd8;
+      background:#eaf0ff;
+      font-weight:bold;
     }
 
-    /* ===== BOTÃO ===== */
+    /* 📷 IMAGENS */
+    .preview {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .preview img {
+      width: 120px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
     button {
-      width: 100%;
-      padding: 16px;
-      background: #1f4fd8;
-      color: #fff;
-      font-size: 16px;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+      width:100%;
+      padding:16px;
+      background:#1f4fd8;
+      color:#fff;
+      font-size:16px;
+      font-weight:bold;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
     }
 
-    button:hover {
-      background: #163ca6;
-    }
+    button:hover { background:#163ca6; }
 
-    /* ===== RESULTADO ===== */
     .resultado {
-      margin-top: 24px;
-      padding: 20px;
-      border-radius: 10px;
-      display: none;
-      font-weight: bold;
+      margin-top:24px;
+      padding:20px;
+      border-radius:10px;
+      display:none;
+      font-weight:bold;
     }
 
     .ok { background:#e8f7ee; color:#1e7e34; }
@@ -147,7 +134,7 @@
 <header class="header">
   <div class="header-container">
     <div class="logo">
-      <img src="./assets/logo-checkinfra.png" alt="CheckInfra">
+      <img src="./assets/logo-checkinfra.png">
     </div>
   </div>
 </header>
@@ -159,7 +146,7 @@
   <div class="card">
     <label>Escola</label>
     <select id="escola">
-      <option value="">Carregando escolas…</option>
+      <option>Carregando escolas…</option>
     </select>
 
     <label>Avaliador</label>
@@ -169,74 +156,52 @@
   <!-- CHECKLIST -->
   <div class="card">
 
-    <!-- ESTRUTURA -->
     <div class="categoria">
       <h3>🏗️ Estrutura</h3>
       <div class="checklist-cards">
-        <label class="check-card">
-          <input type="checkbox" data-peso="3">
-          Mofo ou umidade excessiva
-        </label>
-
-        <label class="check-card">
-          <input type="checkbox" data-peso="2">
-          Piso quebrado ou escorregadio
-        </label>
-
-        <label class="check-card">
-          <input type="checkbox" data-peso="2">
-          Infiltrações visíveis
-        </label>
+        <label class="check-card"><input type="checkbox" data-peso="3">Mofo ou umidade excessiva</label>
+        <label class="check-card"><input type="checkbox" data-peso="2">Piso quebrado ou escorregadio</label>
+        <label class="check-card"><input type="checkbox" data-peso="2">Infiltrações visíveis</label>
       </div>
     </div>
 
-    <!-- HIGIENE -->
     <div class="categoria">
       <h3>🧹 Higiene</h3>
       <div class="checklist-cards">
-        <label class="check-card">
-          <input type="checkbox" data-peso="2">
-          Limpeza inadequada
-        </label>
-
-        <label class="check-card">
-          <input type="checkbox" data-peso="2">
-          Mau cheiro persistente
-        </label>
+        <label class="check-card"><input type="checkbox" data-peso="2">Limpeza inadequada</label>
+        <label class="check-card"><input type="checkbox" data-peso="2">Mau cheiro persistente</label>
       </div>
     </div>
 
-    <!-- CONFORTO -->
     <div class="categoria">
-      <h3>💡 Conforto e Uso</h3>
+      <h3>💡 Conforto</h3>
       <div class="checklist-cards">
-        <label class="check-card">
-          <input type="checkbox" data-peso="1">
-          Iluminação insuficiente
-        </label>
-
-        <label class="check-card">
-          <input type="checkbox" data-peso="1">
-          Ventilação inadequada
-        </label>
+        <label class="check-card"><input type="checkbox" data-peso="1">Iluminação insuficiente</label>
+        <label class="check-card"><input type="checkbox" data-peso="1">Ventilação inadequada</label>
       </div>
     </div>
 
   </div>
 
-  <button onclick="gerarDiagnostico()">Gerar Diagnóstico</button>
+  <!-- 📷 IMAGENS -->
+  <div class="card">
+    <h3>📷 Registro Fotográfico</h3>
+    <input type="file" id="fotos" accept="image/*" multiple>
+    <div class="preview" id="preview"></div>
+  </div>
 
+  <button onclick="gerarDiagnostico()">Gerar Diagnóstico</button>
   <div id="resultado" class="resultado"></div>
 </div>
 
-<!-- ESCOLAS -->
 <script src="./mapa/escolas.js"></script>
 
 <script>
+let imagensBase64 = [];
+
 document.addEventListener("escolasCarregadas", () => {
   const select = document.getElementById("escola");
   select.innerHTML = '<option value="">Selecione a escola</option>';
-
   escolas.forEach(e => {
     const opt = document.createElement("option");
     opt.value = e.nome;
@@ -245,46 +210,45 @@ document.addEventListener("escolasCarregadas", () => {
   });
 });
 
-function gerarDiagnostico() {
-  const escola = document.getElementById("escola").value;
-  const avaliador = document.getElementById("avaliador").value;
+document.getElementById("fotos").addEventListener("change", e => {
+  imagensBase64 = [];
+  const preview = document.getElementById("preview");
+  preview.innerHTML = "";
 
-  if (!escola || !avaliador) {
-    alert("Preencha a escola e o avaliador");
-    return;
-  }
+  [...e.target.files].forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      imagensBase64.push(ev.target.result);
+      const img = document.createElement("img");
+      img.src = ev.target.result;
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+});
+
+function gerarDiagnostico() {
+  const escola = escola.value;
+  const avaliador = avaliador.value;
+  if (!escola || !avaliador) return alert("Preencha os campos");
 
   let score = 0;
-
-  document.querySelectorAll("input[type=checkbox]").forEach(cb => {
-    if (cb.checked) score += Number(cb.dataset.peso);
+  document.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+    if(cb.checked) score+=Number(cb.dataset.peso);
   });
 
-  let status = "Condição adequada";
-  let classe = "ok";
+  let status="Condição adequada", classe="ok";
+  if(score>=9){status="Condição crítica";classe="critico";}
+  else if(score>=4){status="Situação de alerta";classe="alerta";}
 
-  if (score >= 9) {
-    status = "Condição crítica";
-    classe = "critico";
-  } else if (score >= 4) {
-    status = "Situação de alerta";
-    classe = "alerta";
-  }
+  const r=document.getElementById("resultado");
+  r.className="resultado "+classe;
+  r.style.display="block";
+  r.innerHTML=`${escola}<br>${avaliador}<br>Pontuação: ${score}<br>${status}<br><br>Redirecionando…`;
 
-  const r = document.getElementById("resultado");
-  r.className = "resultado " + classe;
-  r.style.display = "block";
-  r.innerHTML = `
-    Escola: ${escola}<br>
-    Avaliador: ${avaliador}<br>
-    Pontuação técnica: ${score}<br>
-    Status: ${status}<br><br>
-    Avaliação registrada. Redirecionando…
-  `;
+  // 👉 imagensBase64 já prontas para entrar no PDF depois
 
-  setTimeout(() => {
-    window.location.href = "./index.html";
-  }, 3000);
+  setTimeout(()=>window.location.href="./index.html",3000);
 }
 </script>
 

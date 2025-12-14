@@ -13,17 +13,15 @@ body { font-family: Arial; background:#f4f6f8; padding:20px; }
 .grid { display:grid; grid-template-columns: 1fr 1fr; gap:20px; }
 h2 { margin:0 0 10px; }
 small { color:#666; }
-.grafico {
-  max-width: 500px;
-  margin: 30px auto;
-}
+.grafico { max-width:500px; margin:auto; }
 </style>
 </head>
 
 <body>
+
 <div class="card">
   <h2>Painel da Secretaria</h2>
-  <small>Dados consolidados das avaliações</small>
+  <small>Dados consolidados das avaliações sanitárias</small>
 </div>
 
 <div class="card grid">
@@ -32,10 +30,10 @@ small { color:#666; }
     <div class="grafico">
       <canvas id="graficoStatus"></canvas>
     </div>
-      
   </div>
+
   <div>
-    <h3>Principais Problemas</h3>
+    <h3>Principais Problemas (estimativa técnica)</h3>
     <canvas id="graficoProblemas"></canvas>
   </div>
 </div>
@@ -50,13 +48,12 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLn1sjEP0_bbw8slY_8
 
 fetch(SCRIPT_URL)
   .then(r => r.json())
-  .then(dados => {
-    montarGraficos(dados);
-  })
+  .then(dados => montarGraficos(dados))
   .catch(() => alert("Erro ao carregar dados do painel"));
 
 function montarGraficos(dados) {
-  /* ---------- STATUS ---------- */
+
+  /* ===== STATUS ===== */
   const statusCount = { adequada:0, alerta:0, critica:0 };
 
   dados.forEach(d => {
@@ -66,30 +63,34 @@ function montarGraficos(dados) {
     else statusCount.adequada++;
   });
 
-  new Chart(document.getElementById("graficoStatus"), {
+  new Chart(graficoStatus, {
     type: "pie",
     data: {
-      labels: ["Adequada", "Alerta", "Crítica"],
+      labels: ["Adequada","Alerta","Crítica"],
       datasets: [{
-        data: [statusCount.adequada, statusCount.alerta, statusCount.critica],
+        data: [
+          statusCount.adequada,
+          statusCount.alerta,
+          statusCount.critica
+        ],
         backgroundColor: ["#4caf50","#ff9800","#f44336"]
       }]
     }
   });
 
-  /* ---------- PROBLEMAS ---------- */
-  const problemasCount = {};
+  /* ===== PRINCIPAIS PROBLEMAS (DERIVADOS) ===== */
+  const problemasCount = {
+    "Problemas estruturais graves": 0,
+    "Problemas sanitários recorrentes": 0
+  };
 
   dados.forEach(d => {
-    if (!d.problemas) return;
-    d.problemas.split(";").forEach(p => {
-      const key = p.trim();
-      if (!key) return;
-      problemasCount[key] = (problemasCount[key] || 0) + 1;
-    });
+    const p = Number(d.pontuacao || 0);
+    if (p >= 9) problemasCount["Problemas estruturais graves"]++;
+    else if (p >= 4) problemasCount["Problemas sanitários recorrentes"]++;
   });
 
-  new Chart(document.getElementById("graficoProblemas"), {
+  new Chart(graficoProblemas, {
     type: "bar",
     data: {
       labels: Object.keys(problemasCount),
@@ -99,19 +100,23 @@ function montarGraficos(dados) {
         backgroundColor: "#1f4fd8"
       }]
     },
-    options: { indexAxis: 'y' }
+    options: {
+      indexAxis: "y",
+      scales: { x: { beginAtZero: true } }
+    }
   });
 
-  /* ---------- TEMPO (CRÍTICO POR DIA) ---------- */
+  /* ===== CRÍTICOS POR DIA ===== */
   const porDia = {};
+
   dados.forEach(d => {
     if (!d.timestamp || !d.status) return;
     if (!d.status.toLowerCase().includes("crítica")) return;
-    const dia = d.timestamp.split("T")[0];
+    const dia = d.timestamp.toString().split("T")[0];
     porDia[dia] = (porDia[dia] || 0) + 1;
   });
 
-  new Chart(document.getElementById("graficoTempo"), {
+  new Chart(graficoTempo, {
     type: "line",
     data: {
       labels: Object.keys(porDia),

@@ -109,5 +109,3 @@ window.escolas = [
   { nome: "SANTA CRUZ", lat: -3.787771992, lng: -38.55511877 }
 ];
 
-// Evento global para avisar que as escolas carregaram
-document.dispatchEvent(new Event("escolasCarregadas"));

@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <title>CheckInfra – Diagnóstico Sanitário Escolar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  
+  <meta name="theme-color" content="#1f4fd8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="CheckInfra">
 
   <style>
     body {
@@ -124,5 +131,13 @@
 <footer style="text-align:center;font-size:12px;color:#666;margin:40px 0;">
   © 2025 CheckInfra — Código licenciado sob MIT License
 </footer>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js")
+    .then(() => console.log("Service Worker registrado"))
+    .catch(err => console.error("Erro no Service Worker", err));
+}
+</script>
+  
 </body>
 </html>

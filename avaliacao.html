@@ -1,3 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>CheckInfra – Avaliação Sanitária</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<meta name="theme-color" content="#1f4fd8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CheckInfra">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body{font-family:Arial,sans-serif;background:#f4f6f8;margin:0;}
+.header{background:#1f4fd8;color:#fff;padding:16px;text-align:center;}
+.container{max-width:900px;margin:30px auto;padding:0 16px;}
+h1{text-align:center;margin-bottom:24px;}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.08);}
+label{font-weight:bold;margin-bottom:6px;display:block;}
+select,input[type="text"],input[type="file"]{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:14px;}
+.categoria{margin-bottom:26px;}
+.categoria h3{color:#1f4fd8;margin-bottom:12px;}
+.checklist{display:flex;flex-direction:column;gap:12px;}
+.check-card{border:2px solid #e0e0e0;border-radius:12px;padding:16px;cursor:pointer;transition:.2s;background:#fafafa;font-weight:500;}
+.check-card input{display:none;}
+.check-card:hover{border-color:#1f4fd8;background:#f0f5ff;}
+.check-card:has(input:checked){border-color:#1f4fd8;background:#eaf0ff;font-weight:bold;}
+.preview{display:flex;gap:10px;flex-wrap:wrap;}
+.preview img{width:120px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #ccc;}
+button{width:100%;padding:16px;background:#1f4fd8;color:#fff;font-size:16px;font-weight:bold;border:none;border-radius:12px;cursor:pointer;}
+button:hover{background:#163ca6;}
+.resultado{margin-top:20px;padding:20px;border-radius:12px;display:none;font-weight:bold;}
+.ok{background:#e8f7ee;color:#1e7e34;}
+.alerta{background:#fff3cd;color:#856404;}
+.critico{background:#f8d7da;color:#721c24;}
+</style>
+</head>
+
+<body>
+
+<div class="header"><strong>CheckInfra – Avaliação Sanitária</strong></div>
+
+<div class="container">
+<h1>Avaliação Sanitária Escolar</h1>
+
 <form id="form-avaliacao">
 
   <!-- CARD 1 -->
@@ -15,39 +64,25 @@
     <div class="categoria">
       <h3>🏗️ Estrutura</h3>
       <div class="checklist">
-        <label class="check-card">
-          <input type="checkbox" data-peso="3"> Mofo ou umidade excessiva
-        </label>
-        <label class="check-card">
-          <input type="checkbox" data-peso="2"> Piso quebrado ou escorregadio
-        </label>
-        <label class="check-card">
-          <input type="checkbox" data-peso="2"> Infiltrações visíveis
-        </label>
+        <label class="check-card"><input type="checkbox" data-peso="3"> Mofo ou umidade excessiva</label>
+        <label class="check-card"><input type="checkbox" data-peso="2"> Piso quebrado ou escorregadio</label>
+        <label class="check-card"><input type="checkbox" data-peso="2"> Infiltrações visíveis</label>
       </div>
     </div>
 
     <div class="categoria">
       <h3>🧹 Higiene</h3>
       <div class="checklist">
-        <label class="check-card">
-          <input type="checkbox" data-peso="2"> Limpeza inadequada
-        </label>
-        <label class="check-card">
-          <input type="checkbox" data-peso="2"> Mau cheiro persistente
-        </label>
+        <label class="check-card"><input type="checkbox" data-peso="2"> Limpeza inadequada</label>
+        <label class="check-card"><input type="checkbox" data-peso="2"> Mau cheiro persistente</label>
       </div>
     </div>
 
     <div class="categoria">
       <h3>💡 Conforto</h3>
       <div class="checklist">
-        <label class="check-card">
-          <input type="checkbox" data-peso="1"> Iluminação insuficiente
-        </label>
-        <label class="check-card">
-          <input type="checkbox" data-peso="1"> Ventilação inadequada
-        </label>
+        <label class="check-card"><input type="checkbox" data-peso="1"> Iluminação insuficiente</label>
+        <label class="check-card"><input type="checkbox" data-peso="1"> Ventilação inadequada</label>
       </div>
     </div>
 
@@ -60,9 +95,15 @@
     <div class="preview" id="preview"></div>
   </div>
 
-  <!-- BOTÃO -->
   <button type="submit">Gerar Diagnóstico</button>
 
 </form>
 
 <div id="resultado" class="resultado"></div>
+</div>
+
+<script src="./mapa/escolas.js"></script>
+<script src="./avaliacao-offline.js"></script>
+
+</body>
+</html>

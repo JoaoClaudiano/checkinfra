@@ -39,71 +39,94 @@ button:hover{background:#163ca6;}
 .critico{background:#f8d7da;color:#721c24;}
 </style>
 </head>
-
 <body>
 
-<div class="header"><strong>CheckInfra – Avaliação Sanitária</strong></div>
-
-<div class="container">
-<h1>Avaliação Sanitária Escolar</h1>
-
-<form id="form-avaliacao">
-
-  <!-- CARD 1 -->
-  <div class="card">
-    <label>Escola</label>
-    <select id="escola"></select>
-
-    <label>Avaliador</label>
-    <input type="text" id="avaliador" placeholder="Nome do avaliador">
-  </div>
-
-  <!-- CARD 2 -->
-  <div class="card">
-
-    <div class="categoria">
-      <h3>🏗️ Estrutura</h3>
-      <div class="checklist">
-        <label class="check-card"><input type="checkbox" data-peso="3"> Mofo ou umidade excessiva</label>
-        <label class="check-card"><input type="checkbox" data-peso="2"> Piso quebrado ou escorregadio</label>
-        <label class="check-card"><input type="checkbox" data-peso="2"> Infiltrações visíveis</label>
-      </div>
-    </div>
-
-    <div class="categoria">
-      <h3>🧹 Higiene</h3>
-      <div class="checklist">
-        <label class="check-card"><input type="checkbox" data-peso="2"> Limpeza inadequada</label>
-        <label class="check-card"><input type="checkbox" data-peso="2"> Mau cheiro persistente</label>
-      </div>
-    </div>
-
-    <div class="categoria">
-      <h3>💡 Conforto</h3>
-      <div class="checklist">
-        <label class="check-card"><input type="checkbox" data-peso="1"> Iluminação insuficiente</label>
-        <label class="check-card"><input type="checkbox" data-peso="1"> Ventilação inadequada</label>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- CARD 3 -->
-  <div class="card">
-    <h3>📷 Registro Fotográfico</h3>
-    <input type="file" id="fotos" accept="image/*" multiple>
-    <div class="preview" id="preview"></div>
-  </div>
-
-  <button type="submit">Gerar Diagnóstico</button>
-
-</form>
-
-<div id="resultado" class="resultado"></div>
+<div class="header">
+  <strong>CheckInfra – Avaliação Sanitária</strong>
 </div>
 
-<script src="./mapa/escolas.js"></script>
-<script src="./avaliacao-offline.js"></script>
+<div class="container">
+  <h1>Avaliação Sanitária Escolar</h1>
+
+  <form id="form-avaliacao">
+
+    <!-- CARD 1 -->
+    <div class="card">
+      <label>Escola</label>
+      <select id="escola">
+        <option value="">Selecione a escola</option>
+      </select>
+
+      <label>Avaliador</label>
+      <input type="text" id="avaliador" placeholder="Nome do avaliador">
+    </div>
+
+    <!-- CARD 2 -->
+    <div class="card">
+
+      <div class="categoria">
+        <h3>🏗️ Estrutura</h3>
+        <div class="checklist">
+          <label class="check-card">
+            <input type="checkbox" data-peso="3">
+            Mofo ou umidade excessiva
+          </label>
+          <label class="check-card">
+            <input type="checkbox" data-peso="2">
+            Piso quebrado ou escorregadio
+          </label>
+          <label class="check-card">
+            <input type="checkbox" data-peso="2">
+            Infiltrações visíveis
+          </label>
+        </div>
+      </div>
+
+      <div class="categoria">
+        <h3>🧹 Higiene</h3>
+        <div class="checklist">
+          <label class="check-card">
+            <input type="checkbox" data-peso="2">
+            Limpeza inadequada
+          </label>
+          <label class="check-card">
+            <input type="checkbox" data-peso="2">
+            Mau cheiro persistente
+          </label>
+        </div>
+      </div>
+
+      <div class="categoria">
+        <h3>💡 Conforto</h3>
+        <div class="checklist">
+          <label class="check-card">
+            <input type="checkbox" data-peso="1">
+            Iluminação insuficiente
+          </label>
+          <label class="check-card">
+            <input type="checkbox" data-peso="1">
+            Ventilação inadequada
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CARD 3 -->
+    <div class="card">
+      <h3>📷 Registro Fotográfico</h3>
+      <input type="file" id="fotos" accept="image/*" multiple>
+      <div class="preview" id="preview"></div>
+    </div>
+
+    <!-- BOTÃO -->
+    <button type="submit">Gerar Diagnóstico</button>
+
+  </form>
+
+  <div id="resultado" class="resultado"></div>
+</div>
 
 </body>
+
 </html>

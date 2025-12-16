@@ -130,6 +130,31 @@ button:hover{background:#163ca6;}
 <script src="./js/avaliacao-offline.js">
   
 </script>
+<script src="./mapa/escolas.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const select = document.getElementById("escola");
+
+  if (!window.escolas || !Array.isArray(window.escolas)) {
+    console.error("window.escolas não encontrada");
+    return;
+  }
+
+  // remove opções antigas (menos a primeira)
+  while (select.options.length > 1) {
+    select.remove(1);
+  }
+
+  window.escolas.forEach(escola => {
+    const option = document.createElement("option");
+    option.value = escola.nome;
+    option.textContent = escola.nome;
+    select.appendChild(option);
+  });
+});
+</script>
+  
 </body>
 
 </html>

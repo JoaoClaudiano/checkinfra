@@ -1,4 +1,5 @@
 # CheckInfra
+[![Licença MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 CheckInfra é uma ferramenta digital de apoio à avaliação sanitária e de infraestrutura
 em escolas públicas, com foco especial em ambientes de uso coletivo, como banheiros escolares.

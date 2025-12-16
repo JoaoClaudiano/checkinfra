@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>CheckInfra — Metodologia Técnica</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background: #1f4fd8;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    h1, h2, h3 {
+      color: #1f4fd8;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      font-weight: bold;
+    }
+
+    /* ===== CLASSIFICAÇÃO ===== */
+    .classificacao li {
+      list-style: none;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .verde { background: #e8f7ee; }
+    .amarelo { background: #fff3cd; }
+    .laranja { background: #ffe5d0; }
+    .vermelho { background: #f8d7da; }
+
+    /* ===== CICLO ===== */
+    .ciclo-checkinfra {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      gap: 10px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+
+    .etapa {
+      background: #ffffff;
+      border: 2px solid #1f4fd8;
+      border-radius: 12px;
+      padding: 14px;
+      width: 180px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .etapa .icone {
+      font-size: 28px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .seta {
+      font-size: 26px;
+      align-self: center;
+      color: #555;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      margin: 40px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Metodologia Técnica — CheckInfra</h1>
+  <p>Diagnóstico Sanitário de Banheiros Escolares</p>
+</header>
+
+<main>
+
+  <!-- INTRODUÇÃO -->
+  <div class="card">
+    <h2>Objetivo da Metodologia</h2>
+    <p>
+      A metodologia do CheckInfra foi desenvolvida por estudantes de Engenharia Civil
+      no contexto da disciplina de Empreendedorismo, com o objetivo de estruturar
+      um <strong>diagnóstico técnico, simples e replicável</strong> das condições sanitárias
+      de banheiros escolares.
+    </p>
+    <p>
+      O sistema não substitui inspeções prediais formais, mas atua como uma
+      <strong>ferramenta de apoio à decisão</strong>, permitindo identificar riscos,
+      priorizar intervenções e orientar a gestão pública com base em evidências.
+    </p>
+  </div>
+
+  <!-- CATEGORIA 1 -->
+  <div class="card">
+    <h2>Categoria 1 — Estrutura Física</h2>
+    <ul>
+      <li>Mofo ou umidade excessiva <span class="badge">(peso 3)</span></li>
+      <li>Piso quebrado ou escorregadio <span class="badge">(peso 2)</span></li>
+      <li>Infiltrações visíveis <span class="badge">(peso 2)</span></li>
+    </ul>
+    <p>
+      Avalia condições que impactam a durabilidade da edificação e a segurança dos usuários.
+      Inspirada em boas práticas de manutenção predial e salubridade.
+    </p>
+  </div>
+
+  <!-- CATEGORIA 2 -->
+  <div class="card">
+    <h2>Categoria 2 — Higiene e Salubridade</h2>
+    <ul>
+      <li>Limpeza inadequada <span class="badge">(peso 2)</span></li>
+      <li>Mau cheiro persistente <span class="badge">(peso 2)</span></li>
+    </ul>
+    <p>
+      Relacionada à saúde pública e ao uso adequado dos ambientes sanitários,
+      alinhada a princípios da vigilância sanitária.
+    </p>
+  </div>
+
+  <!-- CATEGORIA 3 -->
+  <div class="card">
+    <h2>Categoria 3 — Instalações Hidrossanitárias</h2>
+    <ul>
+      <li>Vazamentos aparentes <span class="badge">(peso 3)</span></li>
+      <li>Descarga ou torneiras defeituosas <span class="badge">(peso 2)</span></li>
+    </ul>
+    <p>
+      Foca no funcionamento básico dos sistemas prediais,
+      prevenindo desperdício de água e falhas operacionais.
+    </p>
+  </div>
+
+  <!-- CATEGORIA 4 -->
+  <div class="card">
+    <h2>Categoria 4 — Conforto Ambiental</h2>
+    <ul>
+      <li>Iluminação insuficiente <span class="badge">(peso 1)</span></li>
+      <li>Ventilação inadequada <span class="badge">(peso 1)</span></li>
+    </ul>
+    <p>
+      Considera aspectos de conforto e bem-estar que influenciam o uso adequado
+      dos sanitários, mesmo não sendo estruturalmente críticos.
+    </p>
+  </div>
+
+  <!-- CLASSIFICAÇÃO -->
+  <div class="card">
+    <h2>Classificação Final</h2>
+    <ul class="classificacao">
+      <li class="verde">🟢 <strong>0 a 3 pontos</strong> — Condição adequada</li>
+      <li class="amarelo">🟡 <strong>4 a 6 pontos</strong> — Situação de alerta</li>
+      <li class="laranja">🟠 <strong>7 a 8 pontos</strong> — Atenção elevada</li>
+      <li class="vermelho">🔴 <strong>9 pontos ou mais</strong> — Condição crítica</li>
+    </ul>
+  </div>
+
+  <!-- CICLO -->
+  <div class="card">
+    <h2>Ciclo Metodológico do CheckInfra</h2>
+
+    <div class="ciclo-checkinfra">
+      <div class="etapa">
+        <span class="icone">📝</span>
+        Avaliação
+      </div>
+      <div class="seta">➡️</div>
+      <div class="etapa">
+        <span class="icone">🎯</span>
+        Classificação
+      </div>
+      <div class="seta">➡️</div>
+      <div class="etapa">
+        <span class="icone">📊</span>
+        Priorização
+      </div>
+      <div class="seta">➡️</div>
+      <div class="etapa">
+        <span class="icone">🛠️</span>
+        Intervenção
+      </div>
+      <div class="seta">➡️</div>
+      <div class="etapa">
+        <span class="icone">🔄</span>
+        Reavaliação
+      </div>
+    </div>
+
+    <p>
+      O CheckInfra opera como um ciclo contínuo, permitindo acompanhar a evolução
+      das condições sanitárias ao longo do tempo.
+    </p>
+  </div>
+
+</main>
+
+<footer>
+  © 2025 CheckInfra — Metodologia desenvolvida para fins acadêmicos e de apoio à gestão pública
+</footer>
+
+</body>
+</html>

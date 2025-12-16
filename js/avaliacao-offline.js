@@ -1,3 +1,4 @@
+alert("OFFLINE JS CARREGADO");
 document.getElementById("form-avaliacao").addEventListener("submit", async (e) => {
   e.preventDefault();
 

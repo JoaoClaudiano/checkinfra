@@ -4,40 +4,25 @@ const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./avaliacao.html",
-
-  // Subpáginas
-  "./mapa/index.html",
-  "./painel/index.html",
-
-  // Manifest e ícones
   "./manifest.json",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-
-  // Assets reais
-  "./assets/logo-checkinfra.png"
+  "./mapa/escolas.js"
 ];
 
-// Instalação
 self.addEventListener("install", event => {
+  console.log("[SW] Install");
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log("Cacheando arquivos do CheckInfra");
-      return cache.addAll(FILES_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
   self.skipWaiting();
 });
 
-// Ativação
 self.addEventListener("activate", event => {
+  console.log("[SW] Activate");
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
         keys.map(key => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
+          if (key !== CACHE_NAME) return caches.delete(key);
         })
       )
     )
@@ -45,7 +30,6 @@ self.addEventListener("activate", event => {
   self.clients.claim();
 });
 
-// Intercepta requisições
 self.addEventListener("fetch", event => {
   event.respondWith(
     caches.match(event.request).then(response => {

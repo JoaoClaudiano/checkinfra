@@ -1,30 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  alert("OFFLINE JS CARREGADO");
-
   const form = document.getElementById("form-avaliacao");
-  if (!form) {
-    alert("FORM NÃO ENCONTRADO");
-    return;
-  }
+  const resultado = document.getElementById("resultado");
 
-  form.addEventListener("submit", async (e) => {
+  if (!form || !resultado) return;
+
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const r = document.getElementById("resultado");
-
     if (!navigator.onLine) {
-      r.className = "resultado alerta";
-      r.style.display = "block";
-      r.innerHTML = "📴 Offline: avaliação salva no dispositivo.";
+      resultado.className = "resultado alerta";
+      resultado.style.display = "block";
+      resultado.innerHTML = "📴 Offline: avaliação salva no dispositivo.";
     } else {
-      r.className = "resultado ok";
-      r.style.display = "block";
-      r.innerHTML = "✅ Avaliação online.";
+      resultado.className = "resultado ok";
+      resultado.style.display = "block";
+      resultado.innerHTML = "✅ Online: avaliação enviada.";
     }
 
-    // chama o fluxo normal
-    gerarDiagnostico();
+    // deixa o script principal continuar
+    setTimeout(() => {
+      gerarDiagnostico();
+    }, 300);
   });
 
 });

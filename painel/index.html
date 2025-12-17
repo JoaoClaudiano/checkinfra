@@ -25,6 +25,36 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+  .nav-global {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+  z-index: 9999;
+}
+
+.nav-global button,
+.nav-global a {
+  background: rgba(31,79,216,0.95);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+.nav-global button:hover,
+.nav-global a:hover {
+  background: #163aa9;
+}
 body { font-family: Arial; background:#f4f6f8; padding:20px; }
 .card { background:#fff; max-width:1100px; margin:20px auto; padding:20px; border-radius:8px; }
 .grid { display:grid; grid-template-columns: 1fr 1fr; gap:20px; }
@@ -34,7 +64,15 @@ small { color:#666; }
 </style>
 </head>
 <body>
+<div class="nav-global">
+  <button onclick="history.back()" title="Voltar">
+    ⬅️
+  </button>
 
+  <a href="./index.html" title="Início">
+    🏠
+  </a>
+</div>
 <div class="card">
   <h2>Painel da Secretaria</h2>
   <small>Dados consolidados das avaliações sanitárias</small>

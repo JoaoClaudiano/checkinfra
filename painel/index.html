@@ -2,30 +2,24 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8" />
-<!-- Google tag (gtag.js) -->
+
+<!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DD4SQ88NVT"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-DD4SQ88NVT');
 </script>
-  
-<title>Painel da Secretaria</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<title>Painel Gerencial – CheckInfra</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#1f4fd8">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="CheckInfra">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-  .nav-global {
+.nav-global {
   position: fixed;
   top: 12px;
   left: 12px;
@@ -33,9 +27,7 @@
   gap: 8px;
   z-index: 9999;
 }
-
-.nav-global button,
-.nav-global a {
+.nav-global button, .nav-global a {
   background: rgba(31,79,216,0.95);
   color: #fff;
   border: none;
@@ -44,144 +36,166 @@
   height: 38px;
   cursor: pointer;
   font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25);
 }
 
-.nav-global button:hover,
-.nav-global a:hover {
-  background: #163aa9;
+body {
+  font-family: Arial, sans-serif;
+  background:#f4f6f8;
+  padding:20px;
 }
-body { font-family: Arial; background:#f4f6f8; padding:20px; }
-.card { background:#fff; max-width:1100px; margin:20px auto; padding:20px; border-radius:8px; }
-.grid { display:grid; grid-template-columns: 1fr 1fr; gap:20px; }
-h2 { margin:0 0 10px; }
-small { color:#666; }
-.grafico { max-width:500px; margin:auto; }
+.card {
+  background:#fff;
+  max-width:1100px;
+  margin:20px auto;
+  padding:20px;
+  border-radius:8px;
+}
+.grid {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:20px;
+}
+table {
+  width:100%;
+  border-collapse: collapse;
+  font-size:14px;
+}
+th, td {
+  padding:8px;
+  border-bottom:1px solid #eee;
+}
+th { background:#f4f6f8; text-align:left; }
+.badge {
+  padding:4px 8px;
+  border-radius:12px;
+  color:#fff;
+  font-size:12px;
+}
+.critica { background:#f44336; }
+.alerta { background:#ff9800; }
+.adequada { background:#4caf50; }
+
+@media(max-width:800px){
+  .grid { grid-template-columns:1fr; }
+}
 </style>
 </head>
-<body>
-<div class="nav-global">
-  <button onclick="history.back()" title="Voltar">
-    ⬅️
-  </button>
 
-  <a href="./index.html" title="Início">
-    🏠
-  </a>
+<body>
+
+<div class="nav-global">
+  <button onclick="history.back()">⬅️</button>
+  <a href="./index.html">🏠</a>
 </div>
+
 <div class="card">
-  <h2>Painel da Secretaria</h2>
-  <small>Dados consolidados das avaliações sanitárias</small>
+  <h2>Painel Gerencial – CheckInfra</h2>
+  <small>Dashboard executivo para apoio à decisão e priorização de intervenções.</small>
+</div>
+
+<div class="card">
+  <strong>📌 Leitura rápida</strong>
+  <div id="textoExecutivo">Carregando...</div>
 </div>
 
 <div class="card grid">
   <div>
     <h3>Status das Avaliações</h3>
-    <div class="grafico">
-      <canvas id="graficoStatus"></canvas>
-    </div>
+    <canvas id="graficoStatus"></canvas>
   </div>
 
   <div>
-    <h3>Principais Problemas (estimativa técnica)</h3>
-    <canvas id="graficoProblemas"></canvas>
+    <h3>Distribuição do Índice de Prioridade</h3>
+    <canvas id="graficoIndice"></canvas>
   </div>
 </div>
 
 <div class="card">
-  <h3>Dias em Situação Crítica</h3>
-  <canvas id="graficoTempo"></canvas>
+  <h3>🏆 Top 10 Escolas Prioritárias</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Escola</th>
+        <th>Status</th>
+        <th>Índice</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaRanking"></tbody>
+  </table>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyt4wD8LQ67NOD-Zz7EEvfc7RuYEhKDYE50gkK7rp-47idg6STKUGqk5pYVDclamentdQ/exec";
+const URL = "https://script.google.com/macros/s/AKfycbyt4wD8LQ67NOD-Zz7EEvfc7RuYEhKDYE50gkK7rp-47idg6STKUGqk5pYVDclamentdQ/exec";
 
-  
-fetch(SCRIPT_URL)
-  .then(r => r.json())
-  .then(dados => montarGraficos(dados))
-  .catch(() => alert("Erro ao carregar dados do painel"));
+fetch(URL)
+.then(r=>r.json())
+.then(dados => montarDashboard(dados));
 
-function montarGraficos(dados) {
+function montarDashboard(dados) {
 
-  /* ===== STATUS ===== */
   const statusCount = { adequada:0, alerta:0, critica:0 };
+  const ranking = [];
 
   dados.forEach(d => {
-    const s = (d.status || "").toLowerCase();
-    if (s.includes("crítica")) statusCount.critica++;
-    else if (s.includes("alerta")) statusCount.alerta++;
+    const s = (d.status||"").toLowerCase();
+    let pesoStatus = 1;
+    if (s.includes("crít")) { statusCount.critica++; pesoStatus = 3; }
+    else if (s.includes("alerta")) { statusCount.alerta++; pesoStatus = 2; }
     else statusCount.adequada++;
+
+    const pont = Number(d.pontuacao||0);
+    const dias = Number(d.dias_criticos||0);
+
+    const IPT = (pesoStatus*0.5)+(pont*0.3)+(dias*0.2);
+
+    ranking.push({
+      escola: d.escola||"Sem nome",
+      status: s,
+      indice: IPT.toFixed(2)
+    });
   });
 
-  new Chart(graficoStatus, {
-    type: "pie",
-    data: {
-      labels: ["Adequada","Alerta","Crítica"],
-      datasets: [{
-        data: [
-          statusCount.adequada,
-          statusCount.alerta,
-          statusCount.critica
-        ],
-        backgroundColor: ["#4caf50","#ff9800","#f44336"]
-      }]
+  ranking.sort((a,b)=>b.indice-a.indice);
+
+  document.getElementById("textoExecutivo").innerHTML =
+    `${Math.round((statusCount.critica/dados.length)*100)}% das unidades estão em situação crítica. 
+     O ranking abaixo indica prioridades objetivas de intervenção.`;
+
+  new Chart(graficoStatus,{
+    type:"pie",
+    data:{
+      labels:["Adequada","Alerta","Crítica"],
+      datasets:[{data:Object.values(statusCount),
+      backgroundColor:["#4caf50","#ff9800","#f44336"]}]
     }
   });
 
-  /* ===== PRINCIPAIS PROBLEMAS (DERIVADOS) ===== */
-  const problemasCount = {
-    "Problemas estruturais graves": 0,
-    "Problemas sanitários recorrentes": 0
-  };
-
-  dados.forEach(d => {
-    const p = Number(d.pontuacao || 0);
-    if (p >= 9) problemasCount["Problemas estruturais graves"]++;
-    else if (p >= 4) problemasCount["Problemas sanitários recorrentes"]++;
-  });
-
-  new Chart(graficoProblemas, {
-    type: "bar",
-    data: {
-      labels: Object.keys(problemasCount),
-      datasets: [{
-        label: "Ocorrências",
-        data: Object.values(problemasCount),
-        backgroundColor: "#1f4fd8"
+  new Chart(graficoIndice,{
+    type:"bar",
+    data:{
+      labels: ranking.slice(0,10).map(r=>r.escola),
+      datasets:[{
+        label:"Índice de Prioridade",
+        data: ranking.slice(0,10).map(r=>r.indice),
+        backgroundColor:"#1f4fd8"
       }]
     },
-    options: {
-      indexAxis: "y",
-      scales: { x: { beginAtZero: true } }
-    }
+    options:{ plugins:{ legend:{ display:false } } }
   });
 
-  /* ===== CRÍTICOS POR DIA ===== */
-  const porDia = {};
-
-  dados.forEach(d => {
-    if (!d.timestamp || !d.status) return;
-    if (!d.status.toLowerCase().includes("crítica")) return;
-    const dia = d.timestamp.toString().split("T")[0];
-    porDia[dia] = (porDia[dia] || 0) + 1;
-  });
-
-  new Chart(graficoTempo, {
-    type: "line",
-    data: {
-      labels: Object.keys(porDia),
-      datasets: [{
-        label: "Registros críticos",
-        data: Object.values(porDia),
-        borderColor: "#f44336",
-        fill: false
-      }]
-    }
+  const tbody = document.getElementById("tabelaRanking");
+  ranking.slice(0,10).forEach((r,i)=>{
+    const classe = r.status.includes("crít")?"critica":r.status.includes("alerta")?"alerta":"adequada";
+    tbody.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${r.escola}</td>
+        <td><span class="badge ${classe}">${classe}</span></td>
+        <td>${r.indice}</td>
+      </tr>`;
   });
 }
 </script>

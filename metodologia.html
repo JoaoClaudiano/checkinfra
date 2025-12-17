@@ -6,49 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    .nav-global {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      display: flex;
-      gap: 8px;
-      z-index: 9999;
-    }
-
-    .nav-global button,
-    .nav-global a {
-      background: rgba(31,79,216,0.95);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 38px;
-      height: 38px;
-      cursor: pointer;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-    }
-
-    .nav-global button:hover,
-    .nav-global a:hover {
-      background: #163aa9;
-    }
-
     body {
       font-family: Arial, sans-serif;
       background: #f4f6f8;
       margin: 0;
       color: #333;
       line-height: 1.6;
+      text-align: justify;
     }
 
     header {
       background: #1f4fd8;
       color: #fff;
-      padding: 20px;
+      padding: 24px;
       text-align: center;
     }
 
@@ -60,13 +30,14 @@
 
     h1, h2, h3 {
       color: #1f4fd8;
+      text-align: left;
     }
 
     .card {
       background: #fff;
       border-radius: 14px;
-      padding: 24px;
-      margin-bottom: 24px;
+      padding: 26px;
+      margin-bottom: 26px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
@@ -74,12 +45,12 @@
       padding-left: 20px;
     }
 
-    li {
-      margin-bottom: 8px;
-    }
-
-    .badge {
-      font-weight: bold;
+    .equacao {
+      background: #f1f4ff;
+      padding: 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      margin: 12px 0;
     }
 
     .classificacao li {
@@ -94,34 +65,8 @@
     .laranja { background: #ffe5d0; }
     .vermelho { background: #f8d7da; }
 
-    .ciclo-checkinfra {
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      gap: 10px;
-      margin: 30px 0;
-      flex-wrap: wrap;
-    }
-
-    .etapa {
-      background: #ffffff;
-      border: 2px solid #1f4fd8;
-      border-radius: 12px;
-      padding: 14px;
-      width: 180px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-
-    .etapa .icone {
-      font-size: 28px;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    .seta {
-      font-size: 26px;
-      align-self: center;
+    .info {
+      font-size: 13px;
       color: #555;
     }
 
@@ -136,148 +81,225 @@
 
 <body>
 
-<div class="nav-global">
-  <button onclick="history.back()" title="Voltar">⬅️</button>
-  <a href="./index.html" title="Início">🏠</a>
-</div>
-
 <header>
   <h1>Metodologia Técnica — CheckInfra</h1>
-  <p>Diagnóstico Sanitário e Priorização de Intervenções em Escolas Públicas</p>
+  <p>Diagnóstico Sanitário, Priorização Técnica e Leitura Territorial</p>
 </header>
 
 <main>
 
-  <!-- INTRODUÇÃO -->
+  <!-- 1 OBJETIVO -->
   <div class="card">
-    <h2>Objetivo da Metodologia</h2>
+    <h2>1. Objetivo da Metodologia</h2>
     <p>
-      A metodologia do CheckInfra foi desenvolvida no contexto acadêmico da Engenharia Civil
-      com o objetivo de estruturar um <strong>instrumento técnico, simples e replicável</strong>
-      para avaliação das condições sanitárias de banheiros escolares.
+      A metodologia do CheckInfra foi desenvolvida no campo da Engenharia Civil
+      como um <strong>instrumento estruturado de diagnóstico e priorização</strong>
+      das condições sanitárias de banheiros escolares, visando apoiar a tomada
+      de decisão na gestão pública.
     </p>
     <p>
-      O sistema atua como <strong>ferramenta de apoio à decisão</strong>,
-      permitindo identificar riscos, comparar unidades e orientar a priorização de
-      intervenções no âmbito da gestão pública.
+      O método permite identificar riscos, comparar unidades e orientar
+      intervenções, sem substituir inspeções prediais formais ou projetos técnicos.
+    </p>
+    <p class="info">ℹ️ Fundamentação geral: ABNT NBR 15575, ISO 31000</p>
+  </div>
+
+  <!-- 2 CHECKLIST -->
+  <div class="card">
+    <h2>2. Metodologia do Checklist Técnico</h2>
+    <p>
+      O checklist do CheckInfra é baseado em <strong>avaliação observacional estruturada</strong>,
+      método amplamente utilizado em inspeções preliminares, manutenção predial
+      e vigilância sanitária.
     </p>
     <p>
-      Ressalta-se que o CheckInfra <strong>não substitui inspeções prediais formais</strong>,
-      funcionando como etapa preliminar de triagem e leitura territorial.
+      Cada item representa uma condição que, segundo normas técnicas,
+      compromete a segurança, a salubridade ou o desempenho da edificação.
+    </p>
+
+    <h3>Lógica de Pontuação</h3>
+    <ul>
+      <li>Pesos maiores indicam maior risco técnico ou sanitário</li>
+      <li>A soma gera a pontuação bruta da unidade</li>
+    </ul>
+
+    <p>
+      O checklist fornece o <strong>estado atual</strong> da unidade.
+      Já o IPT (ver seção 4) transforma esse diagnóstico em
+      <strong>priorização comparativa</strong>.
+    </p>
+
+    <p class="info">
+      ℹ️ Inspirado em: ABNT NBR 15575, ABNT NBR 5674, FUNASA – Manual de Saneamento
     </p>
   </div>
 
-  <!-- CATEGORIAS -->
+  <!-- 3 CLASSIFICACAO -->
   <div class="card">
-    <h2>Estrutura de Avaliação Técnica</h2>
-    <p>A avaliação é organizada em quatro categorias principais:</p>
-  </div>
+    <h2>3. Classificação da Infraestrutura Sanitária</h2>
+    <p>
+      A classificação sanitária traduz a pontuação do checklist
+      em faixas interpretáveis, prática comum em engenharia de manutenção
+      e avaliação de desempenho.
+    </p>
 
-  <div class="card">
-    <h3>Categoria 1 — Estrutura Física</h3>
-    <ul>
-      <li>Mofo ou umidade excessiva <span class="badge">(peso 3)</span></li>
-      <li>Piso quebrado ou escorregadio <span class="badge">(peso 2)</span></li>
-      <li>Infiltrações visíveis <span class="badge">(peso 2)</span></li>
-    </ul>
-    <p>Relaciona-se à segurança, durabilidade e salubridade da edificação.</p>
-  </div>
-
-  <div class="card">
-    <h3>Categoria 2 — Higiene e Salubridade</h3>
-    <ul>
-      <li>Limpeza inadequada <span class="badge">(peso 2)</span></li>
-      <li>Mau cheiro persistente <span class="badge">(peso 2)</span></li>
-    </ul>
-    <p>Associada à saúde pública e condições mínimas de uso dos sanitários.</p>
-  </div>
-
-  <div class="card">
-    <h3>Categoria 3 — Instalações Hidrossanitárias</h3>
-    <ul>
-      <li>Vazamentos aparentes <span class="badge">(peso 3)</span></li>
-      <li>Descarga ou torneiras defeituosas <span class="badge">(peso 2)</span></li>
-    </ul>
-    <p>Foca no funcionamento dos sistemas prediais e prevenção de falhas operacionais.</p>
-  </div>
-
-  <div class="card">
-    <h3>Categoria 4 — Conforto Ambiental</h3>
-    <ul>
-      <li>Iluminação insuficiente <span class="badge">(peso 1)</span></li>
-      <li>Ventilação inadequada <span class="badge">(peso 1)</span></li>
-    </ul>
-    <p>Aspectos que influenciam o uso adequado e o bem-estar dos usuários.</p>
-  </div>
-
-  <!-- CLASSIFICAÇÃO -->
-  <div class="card">
-    <h2>Classificação Sanitária</h2>
     <ul class="classificacao">
-      <li class="verde">🟢 <strong>0 a 3 pontos</strong> — Condição adequada</li>
-      <li class="amarelo">🟡 <strong>4 a 6 pontos</strong> — Situação de alerta</li>
-      <li class="laranja">🟠 <strong>7 a 8 pontos</strong> — Atenção elevada</li>
-      <li class="vermelho">🔴 <strong>9 pontos ou mais</strong> — Condição crítica</li>
+      <li class="verde">🟢 0–3 pontos — Condição adequada</li>
+      <li class="amarelo">🟡 4–6 pontos — Situação de alerta</li>
+      <li class="laranja">🟠 7–8 pontos — Atenção elevada</li>
+      <li class="vermelho">🔴 ≥ 9 pontos — Condição crítica</li>
     </ul>
-  </div>
 
-  <!-- IPT -->
-  <div class="card">
-    <h2>Índice de Prioridade Técnica (IPT)</h2>
     <p>
-      O Índice de Prioridade Técnica (IPT) é um <strong>indicador composto</strong>
-      desenvolvido pelo CheckInfra para ordenar as unidades escolares
-      segundo a urgência técnica de intervenção.
+      Essa estrutura é coerente com abordagens de classificação por níveis de risco
+      utilizadas em normas de desempenho e manutenção predial.
     </p>
 
-    <h3>Componentes do IPT</h3>
+    <p class="info">ℹ️ Referência: ABNT NBR 15575, ABNT NBR 5674</p>
+  </div>
+
+  <!-- 4 IPT -->
+  <div class="card">
+    <h2>4. Índice de Prioridade Técnica (IPT)</h2>
+    <p>
+      O IPT é um <strong>indicador de análise multicritério</strong>, isto é,
+      um índice que combina diferentes critérios técnicos em um único valor
+      para apoiar decisões complexas.
+    </p>
+
+    <p>
+      A análise multicritério é amplamente utilizada em engenharia,
+      planejamento urbano e políticas públicas quando múltiplos fatores
+      precisam ser ponderados simultaneamente.
+    </p>
+
+    <h3>Componentes</h3>
     <ul>
-      <li><strong>Gravidade Sanitária (GS)</strong> — classificação final da unidade</li>
-      <li><strong>Intensidade Técnica (IT)</strong> — pontuação obtida na avaliação</li>
-      <li><strong>Recorrência Temporal (RT)</strong> — persistência de situações críticas</li>
+      <li><strong>GS</strong> — Gravidade sanitária (status)</li>
+      <li><strong>IT</strong> — Intensidade técnica (pontuação)</li>
+      <li><strong>RT</strong> — Recorrência temporal (persistência)</li>
     </ul>
 
-    <h3>Fórmula</h3>
-    <p>
-      <strong>IPT = (GS × 0,5) + (IT × 0,3) + (RT × 0,2)</strong>
-    </p>
-
-    <p>
-      Quanto maior o IPT, maior a prioridade técnica da unidade no ranking gerencial.
-      O índice permite diferenciar problemas pontuais de situações crônicas.
-    </p>
-
-    <p style="font-size:13px;color:#555;">
-      Metodologia inspirada em abordagens de análise multicritério, gestão de riscos
-      e priorização de ativos em engenharia e políticas públicas.
-    </p>
-  </div>
-
-  <!-- CICLO -->
-  <div class="card">
-    <h2>Ciclo Metodológico do CheckInfra</h2>
-
-    <div class="ciclo-checkinfra">
-      <div class="etapa"><span class="icone">📝</span>Avaliação</div>
-      <div class="seta">➡️</div>
-      <div class="etapa"><span class="icone">🎯</span>Classificação</div>
-      <div class="seta">➡️</div>
-      <div class="etapa"><span class="icone">📊</span>Priorização</div>
-      <div class="seta">➡️</div>
-      <div class="etapa"><span class="icone">🛠️</span>Intervenção</div>
-      <div class="seta">➡️</div>
-      <div class="etapa"><span class="icone">🔄</span>Reavaliação</div>
+    <div class="equacao">
+      IPT = (GS × 0,4) + (IT × 0,4) + (RT × 0,2)
     </div>
 
     <p>
-      O ciclo permite acompanhamento contínuo e avaliação da efetividade das intervenções.
+      <strong>Exemplo:</strong> uma escola em status crítico recente pode ter IPT
+      menor que outra em status de alerta, mas com problemas recorrentes
+      há vários meses.
     </p>
+
+    <p class="info">
+      ℹ️ Referências: ISO 31000, Saaty (AHP), literatura de análise multicritério
+    </p>
+  </div>
+
+  <!-- 5 IPT MEDIO -->
+  <div class="card">
+    <h2>5. IPT Médio</h2>
+    <p>
+      O IPT médio representa o <strong>nível médio de criticidade técnica</strong>
+      de um conjunto de unidades.
+    </p>
+
+    <div class="equacao">
+      IPT médio = Σ(IPTᵢ) / n
+    </div>
+
+    <p>
+      Ele permite comparar territórios, acompanhar evolução temporal
+      e avaliar o impacto de políticas de manutenção.
+    </p>
+
+    <p class="info">
+      ℹ️ Referência: indicadores agregados em gestão de ativos e planejamento público
+    </p>
+  </div>
+
+  <!-- 6 DENSIDADE -->
+  <div class="card">
+    <h2>6. Densidade Crítica</h2>
+    <p>
+      A densidade crítica mede quantas unidades críticas existem
+      em determinada área territorial.
+    </p>
+
+    <div class="equacao">
+      Densidade Crítica = Nº de unidades críticas / Área
+    </div>
+
+    <p>
+      <strong>Exemplo:</strong> dois bairros podem ter o mesmo número
+      de escolas críticas, mas o menor apresentará maior densidade crítica.
+    </p>
+
+    <p class="info">
+      ℹ️ Referência: análise espacial, saúde pública e planejamento urbano
+    </p>
+  </div>
+
+  <!-- 7 CONCENTRACAO -->
+  <div class="card">
+    <h2>7. Concentração Relativa</h2>
+    <p>
+      A concentração relativa compara a proporção de unidades críticas
+      de um território com a média geral da cidade.
+    </p>
+
+    <div class="equacao">
+      CR = (Críticas no território / Total no território) ÷
+           (Críticas totais / Total geral)
+    </div>
+
+    <p>
+      Valores acima de 1 indicam concentração acima da média,
+      sugerindo desigualdade territorial.
+    </p>
+
+    <p class="info">
+      ℹ️ Referência: indicadores de desigualdade espacial
+    </p>
+  </div>
+
+  <!-- 8 ZONAS -->
+  <div class="card">
+    <h2>8. Zonas Prioritárias</h2>
+    <p>
+      As zonas prioritárias resultam da combinação de:
+      IPT, densidade crítica e concentração relativa.
+    </p>
+
+    <p>
+      Elas indicam territórios onde problemas são
+      <strong>numerosos, concentrados e recorrentes</strong>,
+      orientando ações integradas.
+    </p>
+
+    <p class="info">
+      ℹ️ Referência: planejamento territorial e gestão integrada de riscos
+    </p>
+  </div>
+
+  <!-- 9 REFERENCIAS -->
+  <div class="card">
+    <h2>9. Referências Técnicas</h2>
+    <ul>
+      <li>ABNT NBR 15575 — Desempenho de edificações</li>
+      <li>ABNT NBR 5674 — Manutenção de edificações</li>
+      <li>ABNT NBR 5626 — Instalações prediais de água</li>
+      <li>ABNT NBR 8160 — Esgoto sanitário</li>
+      <li>FUNASA — Manual de Saneamento</li>
+      <li>ISO 31000 — Gestão de riscos</li>
+      <li>Saaty, T. L. — Analytic Hierarchy Process (AHP)</li>
+      <li>WHO — Guidelines on sanitation and health</li>
+    </ul>
   </div>
 
 </main>
 
 <footer>
-  © 2025 CheckInfra — Metodologia desenvolvida para fins acadêmicos e apoio à gestão pública
+  © 2025 CheckInfra — Metodologia técnica para apoio à gestão pública
 </footer>
 
 </body>

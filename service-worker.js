@@ -1,35 +1,67 @@
-const CACHE_NAME = "checkinfra-v1";
+/* =========================================
+   CHECKINFRA — SERVICE WORKER
+   Versionamento automático por build
+========================================= */
 
+// 🔁 ATUALIZE APENAS ESTA LINHA A CADA DEPLOY
+const BUILD_VERSION = "2025-12-16-01"; 
+// Exemplo: YYYY-MM-DD-XX
+
+const CACHE_NAME = `checkinfra-${BUILD_VERSION}`;
+
+/* =========================================
+   ARQUIVOS ESSENCIAIS
+========================================= */
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./avaliacao.html",
+  "./analise-espacial.html",
   "./manifest.json",
   "./mapa/escolas.js"
 ];
 
+/* =========================================
+   INSTALL
+========================================= */
 self.addEventListener("install", event => {
-  console.log("[SW] Install");
+  console.log("[SW] Install:", CACHE_NAME);
+
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+    caches.open(CACHE_NAME).then(cache => {
+      console.log("[SW] Cacheando arquivos");
+      return cache.addAll(FILES_TO_CACHE);
+    })
   );
-  self.skipWaiting();
+
+  self.skipWaiting(); // força ativação imediata
 });
 
+/* =========================================
+   ACTIVATE — LIMPA CACHES ANTIGOS
+========================================= */
 self.addEventListener("activate", event => {
   console.log("[SW] Activate");
+
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
         keys.map(key => {
-          if (key !== CACHE_NAME) return caches.delete(key);
+          if (key !== CACHE_NAME) {
+            console.log("[SW] Removendo cache antigo:", key);
+            return caches.delete(key);
+          }
         })
       )
     )
   );
+
   self.clients.claim();
 });
 
+/* =========================================
+   FETCH — CACHE FIRST COM FALLBACK
+========================================= */
 self.addEventListener("fetch", event => {
   event.respondWith(
     caches.match(event.request).then(response => {

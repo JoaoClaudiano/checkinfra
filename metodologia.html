@@ -76,6 +76,106 @@
       color: #666;
       margin: 40px 0;
     }
+    <style>
+  /* ... TODO O SEU CSS ATUAL ... */
+
+  /* ===== ACORDEON – MOBILE FIRST (PARETO) ===== */
+
+  .accordion-item {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 6px;
+  }
+
+  .accordion-header {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 14px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1f4fd8;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .accordion-header span {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+  }
+
+  .accordion-header.active span {
+    transform: rotate(90deg);
+  }
+
+  .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+
+  .accordion-content p,
+  .accordion-content ul {
+    margin: 10px 0 14px 0;
+  }
+
+  /* ===== AJUSTE DESKTOP ===== */
+  @media (min-width: 768px) {
+    .accordion-header {
+      font-size: 17px;
+    }
+  }
+</style>
+    /* ===== ACCORDION (PARETO) ===== */
+
+.accordion-item {
+  border-top: 1px solid #e0e0e0;
+  margin-top: 10px;
+}
+
+.accordion-header {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #1f4fd8;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.accordion-header span {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.accordion-header.active span {
+  transform: rotate(90deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.accordion-content p,
+.accordion-content ul {
+  margin-top: 10px;
+}
+
+/* Mobile first */
+@media (max-width: 600px) {
+  .accordion-header {
+    font-size: 15px;
+  }
+}
   </style>
 </head>
 
@@ -281,143 +381,150 @@
     </p>
   </div>
 <!-- ANÁLISE DE PARETO -->
+<!-- 9 PARETO -->
 <div class="card">
   <h2>9. Análise de Pareto</h2>
 
   <p>
     A Análise de Pareto é uma metodologia utilizada para identificar
     <strong>quais poucos fatores concentram a maior parte dos problemas</strong>.
-    Ela é amplamente aplicada em engenharia, gestão da qualidade e políticas públicas
+    É amplamente aplicada em engenharia, gestão da qualidade e políticas públicas
     para apoiar decisões quando os recursos são limitados.
   </p>
 
   <p>
-    No CheckInfra, a análise de Pareto é utilizada como uma
-    <strong>ferramenta de priorização</strong>, ajudando a responder à pergunta:
+    No CheckInfra, a análise de Pareto funciona como uma
+    <strong>ferramenta de priorização técnica</strong>,
+    ajudando a responder à pergunta:
     <em>por onde começar para gerar maior impacto?</em>
   </p>
 
-  <!-- ABA 1 -->
-  <details>
-    <summary><strong>O que é o Princípio de Pareto (80/20)?</strong></summary>
-    <p>
-      O Princípio de Pareto parte da observação de que, em muitos sistemas,
-      cerca de <strong>20% das causas são responsáveis por aproximadamente 80% dos efeitos</strong>.
-    </p>
+  <!-- ITEM 1 -->
+  <div class="accordion-item">
+    <button class="accordion-header">
+      O que é o Princípio de Pareto (80/20)?
+      <span>›</span>
+    </button>
+    <div class="accordion-content">
+      <p>
+        O Princípio de Pareto parte da observação de que, em muitos sistemas,
+        cerca de <strong>20% das causas são responsáveis por aproximadamente 80% dos efeitos</strong>.
+      </p>
 
-    <p>
-      Esse padrão foi observado inicialmente pelo economista Vilfredo Pareto
-      ao estudar a distribuição de renda, e posteriormente validado em diversos
-      campos da engenharia e da administração.
-    </p>
+      <p>
+        Esse padrão foi identificado pelo economista Vilfredo Pareto
+        ao estudar a distribuição de renda e posteriormente validado
+        em diversas áreas da engenharia e da administração.
+      </p>
 
-    <p>
-      Na prática, isso significa que nem todos os problemas têm o mesmo peso:
-      alguns poucos costumam concentrar a maior parte do impacto negativo.
-    </p>
+      <p>
+        Na prática, isso significa que nem todos os problemas
+        possuem o mesmo peso ou impacto.
+      </p>
 
-    <p class="info">
-      ℹ️ Referências: Juran (Quality Control), Montgomery (Statistical Quality Control)
-    </p>
-  </details>
+      <p class="info">
+        ℹ️ Referências: Juran (Quality Control Handbook), Montgomery (Statistical Quality Control)
+      </p>
+    </div>
+  </div>
 
-  <!-- ABA 2 -->
-  <details>
-    <summary><strong>Como a Análise de Pareto funciona?</strong></summary>
-    <p>
-      A metodologia segue uma lógica simples:
-    </p>
+  <!-- ITEM 2 -->
+  <div class="accordion-item">
+    <button class="accordion-header">
+      Como a Análise de Pareto funciona?
+      <span>›</span>
+    </button>
+    <div class="accordion-content">
+      <p>A metodologia segue uma lógica simples:</p>
 
-    <ul>
-      <li>listar os problemas ou unidades avaliadas</li>
-      <li>quantificar seu impacto (frequência, gravidade ou pontuação)</li>
-      <li>ordenar do maior para o menor impacto</li>
-      <li>calcular o impacto acumulado</li>
-    </ul>
+      <ul>
+        <li>listar os problemas ou unidades avaliadas</li>
+        <li>quantificar seu impacto (frequência, gravidade ou pontuação)</li>
+        <li>ordenar do maior para o menor impacto</li>
+        <li>analisar o impacto acumulado</li>
+      </ul>
 
-    <p>
-      O resultado permite identificar quais itens devem ser tratados primeiro,
-      pois sua correção gera maior efeito sobre o conjunto analisado.
-    </p>
+      <p>
+        O objetivo não é ignorar os demais problemas,
+        mas definir uma <strong>ordem racional de atuação</strong>.
+      </p>
+    </div>
+  </div>
 
-    <p>
-      A análise não elimina os demais problemas, mas ajuda a
-      <strong>definir uma ordem racional de atuação</strong>.
-    </p>
-  </details>
+  <!-- ITEM 3 -->
+  <div class="accordion-item">
+    <button class="accordion-header">
+      Exemplo prático aplicado ao CheckInfra
+      <span>›</span>
+    </button>
+    <div class="accordion-content">
+      <p>
+        Imagine uma rede com 100 escolas avaliadas:
+      </p>
 
-  <!-- ABA 3 -->
-  <details>
-    <summary><strong>Exemplo prático simplificado</strong></summary>
-    <p>
-      Imagine uma rede com 100 escolas avaliadas:
-    </p>
+      <ul>
+        <li>20 escolas concentram 55% da criticidade total</li>
+        <li>80 escolas concentram os 45% restantes</li>
+      </ul>
 
-    <ul>
-      <li>20 escolas concentram 55% da criticidade total</li>
-      <li>as outras 80 escolas concentram os 45% restantes</li>
-    </ul>
+      <p>
+        A análise de Pareto indica que intervir primeiro nessas 20 escolas
+        tende a gerar uma melhoria mais rápida e perceptível
+        nas condições gerais da rede.
+      </p>
+    </div>
+  </div>
 
-    <p>
-      A análise de Pareto indica que atuar primeiro nessas 20 escolas
-      tende a gerar uma melhora mais rápida e significativa nas condições gerais
-      da rede.
-    </p>
+  <!-- ITEM 4 -->
+  <div class="accordion-item">
+    <button class="accordion-header">
+      Por que usar Pareto na gestão pública?
+      <span>›</span>
+    </button>
+    <div class="accordion-content">
+      <ul>
+        <li>recursos financeiros limitados</li>
+        <li>grande número de unidades</li>
+        <li>necessidade de justificar decisões técnicas</li>
+      </ul>
 
-    <p>
-      Esse tipo de leitura é especialmente útil quando o orçamento
-      não permite intervenções simultâneas em todas as unidades.
-    </p>
-  </details>
+      <p>
+        A metodologia contribui para:
+      </p>
 
-  <!-- ABA 4 -->
-  <details>
-    <summary><strong>Por que usar Pareto na gestão pública?</strong></summary>
-    <p>
-      A gestão pública lida constantemente com:
-    </p>
+      <ul>
+        <li>reduzir decisões arbitrárias</li>
+        <li>aumentar a transparência</li>
+        <li>priorizar ações de maior impacto social</li>
+      </ul>
+    </div>
+  </div>
 
-    <ul>
-      <li>recursos financeiros limitados</li>
-      <li>grande número de unidades a atender</li>
-      <li>necessidade de justificar escolhas técnicas</li>
-    </ul>
+  <!-- ITEM 5 -->
+  <div class="accordion-item">
+    <button class="accordion-header">
+      Limitações da metodologia
+      <span>›</span>
+    </button>
+    <div class="accordion-content">
+      <p>
+        A Análise de Pareto depende diretamente da qualidade dos dados coletados
+        e não substitui inspeções técnicas detalhadas.
+      </p>
 
-    <p>
-      A Análise de Pareto contribui para:
-    </p>
-
-    <ul>
-      <li>reduzir decisões arbitrárias</li>
-      <li>aumentar a transparência</li>
-      <li>priorizar ações de maior impacto social</li>
-    </ul>
-
-    <p>
-      Por ser simples, rastreável e amplamente reconhecida,
-      a metodologia fortalece decisões diante de órgãos de controle.
-    </p>
-  </details>
-
-  <!-- ABA 5 -->
-  <details>
-    <summary><strong>Limitações da metodologia</strong></summary>
-    <p>
-      A Análise de Pareto depende da qualidade dos dados coletados
-      e não substitui avaliações técnicas detalhadas.
-    </p>
-
-    <p>
-      Ela deve ser utilizada como uma
-      <strong>ferramenta de apoio à decisão</strong>,
-      sempre em conjunto com outros indicadores e análises técnicas.
-    </p>
-  </details>
+      <p>
+        No CheckInfra, ela deve ser utilizada como
+        <strong>instrumento de apoio à decisão</strong>,
+        sempre combinada com outros indicadores técnicos e territoriais.
+      </p>
+    </div>
+  </div>
 
   <p class="info">
     ℹ️ Referências: JURAN (Quality Control Handbook), ISO 9001, ISO 31000
   </p>
 </div>
+
   <!-- 9 REFERENCIAS -->
   <div class="card">
     <h2>10. Referências Técnicas</h2>

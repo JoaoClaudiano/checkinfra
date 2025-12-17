@@ -48,8 +48,44 @@ th { background:#f4f6f8; text-align:left; }
 .atencao { background:#ff7043; }
 .critica { background:#f44336; }
 
+/* KPIs */
+.kpi-grid {
+  display:grid;
+  grid-template-columns: repeat(4,1fr);
+  gap:16px;
+}
+.kpi {
+  background:#f9fafb;
+  padding:16px;
+  border-radius:8px;
+  text-align:center;
+}
+.kpi strong {
+  display:block;
+  font-size:26px;
+}
+.kpi span {
+  font-size:13px;
+  color:#555;
+}
+.kpi-critica strong { color:#f44336; }
+.kpi-atencao strong { color:#ff7043; }
+.kpi-ipt strong { color:#1f4fd8; }
+.kpi-total strong { color:#333; }
+
+button.download {
+  background:#1f4fd8;
+  color:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+
 @media(max-width:800px){
   .grid { grid-template-columns:1fr; }
+  .kpi-grid { grid-template-columns:1fr 1fr; }
 }
 </style>
 </head>
@@ -61,6 +97,26 @@ th { background:#f4f6f8; text-align:left; }
   <small>Síntese executiva e priorização técnica</small>
 </div>
 
+<!-- KPIs -->
+<div class="card kpi-grid">
+  <div class="kpi kpi-critica">
+    <strong id="kpiCritica">0</strong>
+    <span>Unidades Críticas</span>
+  </div>
+  <div class="kpi kpi-atencao">
+    <strong id="kpiAtencao">0</strong>
+    <span>Atenção Elevada</span>
+  </div>
+  <div class="kpi kpi-ipt">
+    <strong id="kpiIPT">0</strong>
+    <span>IPT médio</span>
+  </div>
+  <div class="kpi kpi-total">
+    <strong id="kpiTotal">0</strong>
+    <span>Unidades avaliadas</span>
+  </div>
+</div>
+
 <div class="card">
   <strong>📌 Leitura rápida</strong>
   <div id="textoExecutivo">Carregando...</div>
@@ -68,13 +124,11 @@ th { background:#f4f6f8; text-align:left; }
 
 <div class="card">
   <h3>📘 Como ler este Dashboard</h3>
+  <p>🟢 Adequada &nbsp; 🟡 Alerta &nbsp; 🟠 Atenção Elevada &nbsp; 🔴 Crítica</p>
   <p>
-    🟢 Adequada &nbsp; 🟡 Alerta &nbsp; 🟠 Atenção Elevada &nbsp; 🔴 Crítica
-  </p>
-  <p>
-    O Índice de Prioridade Técnica (IPT) combina gravidade do status,
+    O <strong>Índice de Prioridade Técnica (IPT)</strong> combina gravidade do status,
     pontuação técnica e persistência temporal, permitindo hierarquizar
-    intervenções de forma objetiva.
+    intervenções de forma objetiva e transparente.
   </p>
 </div>
 
@@ -83,7 +137,6 @@ th { background:#f4f6f8; text-align:left; }
     <h3>Status das Unidades</h3>
     <canvas id="graficoStatus"></canvas>
   </div>
-
   <div>
     <h3>Top Prioridades (IPT)</h3>
     <canvas id="graficoIndice"></canvas>
@@ -92,6 +145,8 @@ th { background:#f4f6f8; text-align:left; }
 
 <div class="card">
   <h3>🏆 Ranking Geral de Prioridade Técnica (Top 20)</h3>
+  <button class="download" onclick="baixarCSV()">⬇️ Baixar ranking completo</button>
+  <br><br>
   <table>
     <thead>
       <tr>
@@ -107,6 +162,7 @@ th { background:#f4f6f8; text-align:left; }
 
 <script>
 const URL = "https://script.google.com/macros/s/AKfycbyt4wD8LQ67NOD-Zz7EEvfc7RuYEhKDYE50gkK7rp-47idg6STKUGqk5pYVDclamentdQ/exec";
+let rankingGlobal = [];
 
 fetch(URL)
 .then(r=>r.json())
@@ -116,6 +172,7 @@ function montarDashboard(dados) {
 
   const statusCount = { adequada:0, alerta:0, atencao:0, critica:0 };
   const ranking = [];
+  let somaIPT = 0;
 
   dados.forEach(d => {
     const s = (d.status || "").toLowerCase();
@@ -131,6 +188,7 @@ function montarDashboard(dados) {
     const dias = Math.min(Number(d.dias_criticos || 0), 30);
 
     const IPT = (pesoStatus*0.4)+(pont*0.4)+(dias*0.2);
+    somaIPT += IPT;
 
     ranking.push({
       escola: d.escola || "Sem nome",
@@ -144,6 +202,12 @@ function montarDashboard(dados) {
   });
 
   ranking.sort((a,b)=>b.IPT-a.IPT);
+  rankingGlobal = ranking;
+
+  document.getElementById("kpiCritica").innerText = statusCount.critica;
+  document.getElementById("kpiAtencao").innerText = statusCount.atencao;
+  document.getElementById("kpiTotal").innerText = dados.length;
+  document.getElementById("kpiIPT").innerText = (somaIPT/dados.length).toFixed(2);
 
   document.getElementById("textoExecutivo").innerHTML =
     `${statusCount.critica} unidades críticas e ${statusCount.atencao} em atenção elevada.
@@ -182,6 +246,19 @@ function montarDashboard(dados) {
         <td>${r.IPT.toFixed(2)}</td>
       </tr>`;
   });
+}
+
+function baixarCSV(){
+  let csv = "Posição;Escola;Status;IPT\n";
+  rankingGlobal.forEach((r,i)=>{
+    csv += `${i+1};${r.escola};${r.statusLabel};${r.IPT.toFixed(2)}\n`;
+  });
+
+  const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "ranking_IPT_CheckInfra.csv";
+  link.click();
 }
 </script>
 

@@ -22,7 +22,7 @@ header {
   font-weight:bold;
 }
 
-#map { height: calc(100vh - 210px); }
+#map { height: calc(100vh - 260px); }
 
 .painel {
   padding:10px;
@@ -40,12 +40,46 @@ header {
   gap:6px;
 }
 
+.abas {
+  display:flex;
+  justify-content:center;
+  background:#e9ecef;
+  border-bottom:1px solid #ccc;
+}
+
+.abas button {
+  padding:10px 16px;
+  border:none;
+  background:none;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.abas button.ativa {
+  background:#fff;
+  border-bottom:3px solid #1f4fd8;
+}
+
+.secao { display:none; }
+.secao.ativa { display:block; }
+
 .legenda {
   background:#fff;
   padding:10px;
   font-size:13px;
   border-radius:6px;
   box-shadow:0 1px 5px rgba(0,0,0,.3);
+}
+
+#ranking {
+  padding:12px;
+  font-size:14px;
+}
+
+#metodologia {
+  padding:16px;
+  font-size:14px;
+  line-height:1.6;
 }
 </style>
 </head>
@@ -59,28 +93,81 @@ header {
   </div>
 </header>
 
-<div style="padding:10px;font-size:13px;background:#f8f9fa;border-bottom:1px solid #ddd;text-align:center;">
-  Visualizações exploratórias. Não indicam causalidade nem substituem vistorias técnicas presenciais.
+<div class="abas">
+  <button class="ativa" onclick="abrirAba('mapa')">🗺️ Mapa</button>
+  <button onclick="abrirAba('ranking')">📊 Ranking</button>
+  <button onclick="abrirAba('metodologia')">📘 Metodologia</button>
 </div>
 
-<div class="painel">
-  <label>
-    Indicador:
-    <select id="seletorIndicador">
-      <option value="1">Indicador 1 — Densidade Crítica</option>
-      <option value="2">Indicador 2 — Concentração Relativa</option>
-    </select>
-  </label>
+<!-- ===== MAPA ===== -->
+<div id="mapa" class="secao ativa">
 
-  <label>
-    <input type="checkbox" id="toggleZonas" checked>
-    🟥 Zonas prioritárias
-  </label>
+  <div class="painel">
+    <label>
+      Indicador:
+      <select id="seletorIndicador">
+        <option value="1">Indicador 1 — Densidade Crítica</option>
+        <option value="2">Indicador 2 — Concentração Relativa</option>
+      </select>
+    </label>
+
+    <label>
+      <input type="checkbox" id="toggleZonas" checked>
+      🟥 Zonas prioritárias
+    </label>
+  </div>
+
+  <div id="map"></div>
 </div>
 
-<div id="map"></div>
+<!-- ===== RANKING ===== -->
+<div id="ranking" class="secao">
+  <h3>📊 Ranking Territorial — Zonas Prioritárias</h3>
+  <ol id="listaRanking"></ol>
+</div>
+
+<!-- ===== METODOLOGIA ===== -->
+<div id="metodologia" class="secao">
+  <h3>📘 Metodologia e Indicadores</h3>
+
+  <p>
+    Esta análise utiliza <strong>unidades territoriais regulares</strong>
+    (células espaciais de aproximadamente 1 km²) para identificar padrões
+    de concentração relativa das condições sanitárias das escolas.
+  </p>
+
+  <h4>Indicadores</h4>
+  <ul>
+    <li><strong>Indicador 1 – Densidade Crítica:</strong> enfatiza a presença absoluta de escolas em situação crítica.</li>
+    <li><strong>Indicador 2 – Concentração Relativa:</strong> pondera criticidade e alerta de forma equilibrada.</li>
+  </ul>
+
+  <h4>Índice Territorial (0–100)</h4>
+  <p>
+    O índice territorial representa a intensidade relativa da condição sanitária
+    em cada célula, normalizada em uma escala de 0 a 100, permitindo comparação
+    entre áreas.
+  </p>
+
+  <p><em>
+    As análises são exploratórias e não substituem vistorias técnicas presenciais.
+  </em></p>
+</div>
 
 <script>
+/* =====================
+   ABAS
+===================== */
+function abrirAba(id) {
+  document.querySelectorAll(".secao").forEach(s => s.classList.remove("ativa"));
+  document.querySelectorAll(".abas button").forEach(b => b.classList.remove("ativa"));
+  document.getElementById(id).classList.add("ativa");
+  event.target.classList.add("ativa");
+}
+
+/* =====================
+   MAPA E DADOS
+===================== */
 const API_URL = "https://script.google.com/macros/s/AKfycbyt4wD8LQ67NOD-Zz7EEvfc7RuYEhKDYE50gkK7rp-47idg6STKUGqk5pYVDclamentdQ/exec";
 
 const map = L.map("map").setView([-3.7319, -38.5267], 12);
@@ -90,98 +177,88 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 let modoIndicador = 1;
-let dadosHeatmap = [];
+let dadosOriginais = [];
 
-const camadaHeatmap = L.heatLayer(dadosHeatmap, {
-  radius: 35,
-  blur: 25,
-  maxZoom: 18,
-  minOpacity: 0.35
+const camadaHeatmap = L.heatLayer([], {
+  radius: 35, blur: 25, minOpacity: 0.35
 }).addTo(map);
 
 const camadaZonas = L.layerGroup().addTo(map);
 
-// 🔄 Adaptação ao zoom
-function atualizarHeatmapPorZoom() {
-  const zoom = map.getZoom();
-  let raio = 35;
-
-  if (zoom <= 11) raio = 60;
-  else if (zoom <= 13) raio = 45;
-  else if (zoom <= 15) raio = 30;
-  else raio = 20;
-
-  camadaHeatmap.setOptions({ radius: raio });
+/* =====================
+   GRID
+===================== */
+function gerarGrid(bounds, tamanho) {
+  const grid = [];
+  for (let lat = bounds.getSouth(); lat < bounds.getNorth(); lat += tamanho) {
+    for (let lng = bounds.getWest(); lng < bounds.getEast(); lng += tamanho) {
+      grid.push({ bounds: [[lat,lng],[lat+tamanho,lng+tamanho]], peso:0 });
+    }
+  }
+  return grid;
 }
-map.on("zoomend", atualizarHeatmapPorZoom);
 
-// 🔁 Recalcular tudo
+/* =====================
+   RECALCULAR
+===================== */
 function recalcularMapa(dados) {
-  dadosHeatmap.length = 0;
   camadaZonas.clearLayers();
+  camadaHeatmap.setLatLngs([]);
+
+  const grid = gerarGrid(map.getBounds(), 0.01);
+  let maxPeso = 0;
 
   dados.forEach(e => {
     if (!e.lat || !e.lng) return;
 
     let peso = 0.3;
+    if (modoIndicador === 1) peso = e.status.includes("crítica") ? 1.5 : e.status.includes("alerta") ? 1.0 : 0.3;
+    if (modoIndicador === 2) peso = e.status.includes("crítica") ? 1.2 : e.status.includes("alerta") ? 0.8 : 0.3;
 
-    if (modoIndicador === 1) {
-      if (e.status.includes("crítica")) peso = 1.5;
-      else if (e.status.includes("alerta")) peso = 1.0;
-    }
+    camadaHeatmap.addLatLng([e.lat, e.lng, peso]);
 
-    if (modoIndicador === 2) {
-      if (e.status.includes("crítica")) peso = 1.2;
-      else if (e.status.includes("alerta")) peso = 0.8;
-    }
-
-    dadosHeatmap.push([e.lat, e.lng, peso]);
-
-    // Zona prioritária simples
-    if (peso >= 1.2) {
-      L.circle([e.lat, e.lng], {
-        radius: 500,
-        color: "red",
-        fillColor: "red",
-        fillOpacity: 0.08,
-        weight: 1
-      }).addTo(camadaZonas);
-    }
-  });
-
-  camadaHeatmap.setLatLngs(dadosHeatmap);
-}
-
-// 🔄 Carregar dados
-fetch(API_URL)
-  .then(res => res.json())
-  .then(dados => {
-    recalcularMapa(dados);
-
-    document.getElementById("seletorIndicador").addEventListener("change", e => {
-      modoIndicador = Number(e.target.value);
-      recalcularMapa(dados);
+    grid.forEach(c => {
+      const [[a,b],[c2,d]] = c.bounds;
+      if (e.lat>=a && e.lat<c2 && e.lng>=b && e.lng<d) c.peso += peso;
+      maxPeso = Math.max(maxPeso, c.peso);
     });
   });
 
-// Toggle zonas
-document.getElementById("toggleZonas").addEventListener("change", e => {
-  e.target.checked ? map.addLayer(camadaZonas) : map.removeLayer(camadaZonas);
+  const ranking = grid
+    .filter(c => c.peso > 0)
+    .sort((a,b) => b.peso - a.peso)
+    .slice(0,5);
+
+  const lista = document.getElementById("listaRanking");
+  lista.innerHTML = "";
+
+  ranking.forEach((c,i) => {
+    const indice = Math.round((c.peso / maxPeso) * 100);
+
+    lista.innerHTML += `<li>Zona ${i+1} — Índice Territorial: ${indice}</li>`;
+
+    L.rectangle(c.bounds,{
+      color:"#de2d26", fillOpacity:0.4, weight:1
+    }).addTo(camadaZonas);
+  });
+}
+
+/* =====================
+   EVENTOS
+===================== */
+fetch(API_URL).then(r=>r.json()).then(d=>{
+  dadosOriginais = d;
+  recalcularMapa(dadosOriginais);
 });
 
-// Legenda
-const legenda = L.control({ position: "bottomright" });
-legenda.onAdd = function () {
-  const div = L.DomUtil.create("div", "legenda");
-  div.innerHTML = `
-    <strong>Indicadores</strong><br>
-    🔥 Intensidade = concentração territorial<br>
-    🟥 Zonas = áreas prioritárias<br><br>
-    <small>Leitura exploratória.</small>
-  `;
-  return div;
-};
-legenda.addTo(map);
+document.getElementById("seletorIndicador").addEventListener("change",e=>{
+  modoIndicador = Number(e.target.value);
+  recalcularMapa(dadosOriginais);
+});
+
+document.getElementById("toggleZonas").addEventListener("change",e=>{
+  e.target.checked ? map.addLayer(camadaZonas) : map.removeLayer(camadaZonas);
+});
 </script>
 
 </body>

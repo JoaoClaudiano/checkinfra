@@ -1,30 +1,43 @@
-<footer style="
-  background: #1f4fd8;
-  color: #fff;
-  text-align: center;
-  padding: 12px 8px;
-  font-size: 13px;
+<footer id="footer-checkinfra">
+  <div class="footer-content">
+    <p>© 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License</p>
+    <p>🔒 O CheckInfra realiza tratamento mínimo de dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), exclusivamente para fins técnicos, institucionais e de prestação do serviço licenciado.</p>
+  </div>
+</footer>
+
+<style>
+/* Footer fixo e responsivo */
+#footer-checkinfra {
   position: fixed;
   bottom: 0;
   left: 0;
-  right: 0;
-  z-index: 9999;
+  width: 100%;
+  background: #1f4fd8; /* mesma cor do header */
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 10px 20px;
   box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
-">
-  <p style="margin:4px 0;">
-    <a href="pages/sobre.html" style="color:#fff; text-decoration:underline;">Sobre</a> |
-    <a href="pages/contato.html" style="color:#fff; text-decoration:underline;">Contato</a> |
-    <a href="pages/politica-privacidade.html" style="color:#fff; text-decoration:underline;">Política de Privacidade</a> |
-    <a href="pages/termos-de-uso.html" style="color:#fff; text-decoration:underline;">Termos de Uso</a>
-  </p>
-  <p style="margin:2px 0; font-size:12px;">
-    © 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License
-  </p>
-  <a href="opensource.org">
-  <img src="img.shields.io" alt="License: MIT">
-</a>
+  z-index: 9999;
+  box-sizing: border-box;
+}
 
-  <p style="margin:2px 0; font-size:11px;">
-    🔒 O CheckInfra realiza tratamento mínimo de dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), exclusivamente para fins técnicos, institucionais e de prestação do serviço licenciado.
-  </p>
-</footer>
+#footer-checkinfra .footer-content p {
+  margin: 4px 0;
+}
+
+/* Padding automático para todo o conteúdo do body */
+body {
+  padding-bottom: calc(70px + 1vh); /* altura do footer + folga relativa à viewport */
+  box-sizing: border-box;
+}
+
+/* Ajustes para dispositivos móveis */
+@media (max-width: 600px){
+  #footer-checkinfra {
+    font-size: 11px;
+    padding: 12px 10px;
+    line-height: 1.3;
+  }
+}
+</style>

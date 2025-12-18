@@ -10,176 +10,141 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
-  projectId: "checkinfra-adf3c",
-  storageBucket: "checkinfra-adf3c.appspot.com",
-  messagingSenderId: "206434271838",
-  appId: "1:206434271838:web:347d68e6956fe26ee1eacf"
+  projectId: "checkinfra-adf3c"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ================= ID CHECKINFRA =================
+// ================= ID =================
 function gerarIdCheckInfra() {
   const d = new Date();
-  const ano = d.getFullYear();
-  const mes = String(d.getMonth() + 1).padStart(2, "0");
-  const dia = String(d.getDate()).padStart(2, "0");
-  const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
-  return `CI-${ano}-${mes}-${dia}-${rand}`;
+  return `CI-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}-${Math.random().toString(36).substring(2,8).toUpperCase()}`;
+}
+
+// ================= OFFLINE =================
+const STORAGE_KEY = "checkinfra_pendentes";
+
+function salvarOffline(dados){
+  const l = JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  l.push(dados);
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(l));
+}
+
+async function sincronizarOffline(){
+  if(!navigator.onLine) return;
+  const l = JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  if(!l.length) return;
+
+  for(const d of l){
+    await setDoc(doc(db,"avaliacoes",d.id),{...d,createdAt:serverTimestamp()});
+  }
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 // ================= PDF =================
-function gerarPDF(d) {
+async function gerarPDF(d) {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
 
   pdf.setFontSize(14);
-  pdf.text("CheckInfra – Avaliação Sanitária", 20, 20);
-
+  pdf.text("CHECKINFRA – AVALIAÇÃO SANITÁRIA",105,15,{align:"center"});
   pdf.setFontSize(11);
-  pdf.text(`Código: ${d.id}`, 20, 35);
-  pdf.text(`Escola: ${d.escola}`, 20, 45);
-  pdf.text(`Avaliador: ${d.avaliador}`, 20, 55);
-  pdf.text(`Pontuação: ${d.pontuacao}`, 20, 65);
-  pdf.text(`Status: ${d.status}`, 20, 75);
+  pdf.text(`Escola: ${d.escola}`,20,30);
+  pdf.text(`Avaliador: ${d.avaliador}`,20,38);
+  pdf.text(`Código: ${d.id}`,20,46);
+  pdf.text(`Pontuação: ${d.pontuacao}`,20,54);
+  pdf.text(`Status: ${d.status}`,20,62);
 
-  let y = 90;
-  pdf.text("Problemas identificados:", 20, y);
-  y += 10;
-
-  d.problemas.forEach(p => {
-    pdf.text(`- ${p}`, 25, y);
-    y += 8;
+  let y = 75;
+  pdf.text("Problemas:",20,y); y+=8;
+  d.problemas.forEach(p=>{
+    pdf.text(`- ${p}`,25,y);
+    y+=7;
   });
 
-  pdf.text(`Data: ${new Date().toLocaleDateString()}`, 20, y + 10);
-  pdf.save(`${d.id}.pdf`);
-}
-
-// ================= OFFLINE (localStorage) =================
-const STORAGE_KEY = "checkinfra_pendentes";
-
-function salvarOffline(dados) {
-  const lista = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  lista.push(dados);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
-}
-
-async function sincronizarOffline(retries = 3) {
-  if (!navigator.onLine) return;
-
-  const pendentes = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  if (!pendentes.length) return;
-
-  const restantes = [];
-
-  for (const dados of pendentes) {
-    try {
-      await setDoc(
-        doc(db, "avaliacoes", dados.id),
-        { ...dados, createdAt: serverTimestamp() }
-      );
-    } catch (err) {
-      console.warn("Falha ao sincronizar:", dados.id);
-      restantes.push(dados);
-    }
+  if(d.fotos.length){
+    pdf.addPage();
+    pdf.text("Registro fotográfico",105,15,{align:"center"});
+    let x=20,yImg=25;
+    d.fotos.forEach(img=>{
+      pdf.addImage(img,"JPEG",x,yImg,80,60);
+      x+=90;
+      if(x>120){x=20;yImg+=70;}
+    });
   }
 
-  if (restantes.length && retries > 0) {
-    console.log(`Retry em 5s… Tentativas restantes: ${retries}`);
-    setTimeout(() => sincronizarOffline(retries - 1), 5000);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(restantes));
-  } else {
-    localStorage.removeItem(STORAGE_KEY);
-  }
-}
+  pdf.addPage();
+  pdf.setFontSize(10);
+  pdf.text(
+    "Este relatório é um diagnóstico preliminar e não substitui vistoria técnica presencial "
+    +"ou laudo de engenharia.",
+    20,30,{maxWidth:170}
+  );
 
-// ================= UI OFFLINE =================
-function atualizarOfflineUI() {
-  const card = document.getElementById("offlineCard");
-  if (card) {
-    card.style.display = navigator.onLine ? "none" : "block";
-  }
+  pdf.save(`CheckInfra-${d.id}.pdf`);
 }
-
-window.addEventListener("online", () => {
-  atualizarOfflineUI();
-  sincronizarOffline();
-});
-window.addEventListener("offline", atualizarOfflineUI);
 
 // ================= MAIN =================
-document.addEventListener("DOMContentLoaded", () => {
-  atualizarOfflineUI();
+document.addEventListener("DOMContentLoaded",()=>{
+
   sincronizarOffline();
 
-  // popula escolas
-  const select = document.getElementById("escola");
-  if (window.escolas && select) {
-    window.escolas.forEach(e => {
-      const opt = document.createElement("option");
-      opt.value = e.nome;
-      opt.textContent = e.nome;
-      select.appendChild(opt);
+  const fotosInput = document.getElementById("fotos");
+  const preview = document.getElementById("preview");
+  let fotosBase64 = [];
+
+  fotosInput.addEventListener("change",()=>{
+    preview.innerHTML="";
+    fotosBase64=[];
+
+    [...fotosInput.files].forEach(file=>{
+      const reader=new FileReader();
+      reader.onload=e=>{
+        fotosBase64.push(e.target.result);
+        const img=document.createElement("img");
+        img.src=e.target.result;
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
     });
-  }
+  });
 
-  const form = document.getElementById("form-avaliacao");
-  const resultado = document.getElementById("resultado");
-
-  form.addEventListener("submit", async e => {
+  document.getElementById("form-avaliacao").addEventListener("submit",async e=>{
     e.preventDefault();
 
-    const escola = document.getElementById("escola").value;
-    const avaliador = document.getElementById("avaliador").value;
-
-    let pontuacao = 0;
-    let problemas = [];
-
-    document.querySelectorAll(".check-card input:checked").forEach(cb => {
-      pontuacao += Number(cb.dataset.peso);
-      problemas.push(cb.parentElement.innerText.trim());
+    let pontuacao=0,problemas=[];
+    document.querySelectorAll(".check-card input:checked").forEach(c=>{
+      pontuacao+=Number(c.dataset.peso);
+      problemas.push(c.parentElement.innerText.trim());
     });
 
-    let status = "Adequada";
-    let classe = "ok";
-    if (pontuacao >= 8) { status = "Crítica"; classe = "critico"; }
-    else if (pontuacao >= 4) { status = "Alerta"; classe = "alerta"; }
+    let status="Adequada",classe="ok";
+    if(pontuacao>=8){status="Crítica";classe="critico";}
+    else if(pontuacao>=4){status="Alerta";classe="alerta";}
 
-    const dados = {
-      id: gerarIdCheckInfra(),
-      escola,
-      avaliador,
+    const dados={
+      id:gerarIdCheckInfra(),
+      escola:escola.value,
+      avaliador:avaliador.value,
       pontuacao,
       status,
-      problemas
+      classe,
+      problemas,
+      fotos:fotosBase64
     };
 
-    try {
-      if (navigator.onLine) {
-        await setDoc(
-          doc(db, "avaliacoes", dados.id),
-          { ...dados, createdAt: serverTimestamp() }
-        );
-      } else {
-        salvarOffline(dados);
-      }
-    } catch {
+    try{
+      if(navigator.onLine){
+        await setDoc(doc(db,"avaliacoes",dados.id),{...dados,createdAt:serverTimestamp()});
+      }else salvarOffline(dados);
+    }catch{
       salvarOffline(dados);
     }
 
     gerarPDF(dados);
-
-    resultado.className = "resultado " + classe;
-    resultado.style.display = "block";
-    resultado.innerHTML = `
-      <strong>Código:</strong> ${dados.id}<br>
-      <strong>Status:</strong> ${status}<br>
-      <strong>Pontuação:</strong> ${pontuacao}<br>
-      ${navigator.onLine ? "☁️ Enviado" : "📴 Salvo offline"}
-    `;
-
-    form.reset();
+    e.target.reset();
+    preview.innerHTML="";
+    fotosBase64=[];
   });
 });

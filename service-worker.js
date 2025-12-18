@@ -4,7 +4,7 @@
 ========================================= */
 
 // 🔁 ATUALIZE APENAS ESTA LINHA A CADA DEPLOY
-const BUILD_VERSION = "2025-12-16-01"; 
+const BUILD_VERSION = "2025-12-17-01"; 
 // Exemplo: YYYY-MM-DD-XX
 
 const CACHE_NAME = `checkinfra-${BUILD_VERSION}`;
@@ -19,6 +19,7 @@ const FILES_TO_CACHE = [
   "./analise-espacial.html",
   "./manifest.json",
   "./mapa/escolas.js"
+   "./painel/index.html"
 ];
 
 /* =========================================

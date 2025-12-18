@@ -534,6 +534,14 @@ document.getElementById("toggleZonas").addEventListener("change",e=>{
   e.target.checked ? map.addLayer(camadaZonas) : map.removeLayer(camadaZonas);
 });
 </script>
-
+    <!-- Footer -->
+<div id="footer-container"></div>
+<script>
+fetch('pages/footer.html')
+  .then(response => response.text())
+  .then(html => {
+    document.getElementById('footer-container').innerHTML = html;
+  });
+</script>
 </body>
 </html>

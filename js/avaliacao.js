@@ -66,20 +66,33 @@ function salvarOffline(dados) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
 }
 
-async function sincronizarOffline() {
+async function sincronizarOffline(retries = 3) {
   if (!navigator.onLine) return;
 
   const pendentes = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
   if (!pendentes.length) return;
 
+  const restantes = [];
+
   for (const dados of pendentes) {
-    await setDoc(
-      doc(db, "avaliacoes", dados.id),
-      { ...dados, createdAt: serverTimestamp() }
-    );
+    try {
+      await setDoc(
+        doc(db, "avaliacoes", dados.id),
+        { ...dados, createdAt: serverTimestamp() }
+      );
+    } catch (err) {
+      console.warn("Falha ao sincronizar:", dados.id);
+      restantes.push(dados);
+    }
   }
 
-  localStorage.removeItem(STORAGE_KEY);
+  if (restantes.length && retries > 0) {
+    console.log(`Retry em 5s… Tentativas restantes: ${retries}`);
+    setTimeout(() => sincronizarOffline(retries - 1), 5000);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(restantes));
+  } else {
+    localStorage.removeItem(STORAGE_KEY);
+  }
 }
 
 // ================= UI OFFLINE =================

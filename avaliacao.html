@@ -28,7 +28,10 @@ h1 { text-align: center; margin: 20px 0; }
 
 .card { background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,.08); transition: all .2s ease; }
 .card-grande h3 { margin-bottom: 12px; color: #1f4fd8; }
-.check-card { padding: 12px; border-radius: 12px; background: #fafafa; border: 2px solid #e0e0e0; margin-bottom: 8px; cursor: pointer; transition: all .2s ease; }
+
+.checklist { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.check-card { padding: 12px; border-radius: 12px; background: #fafafa; border: 2px solid #e0e0e0; cursor: pointer; transition: all .2s ease; text-align: center; font-weight: normal; }
+.check-card:hover { transform: translateY(-2px); box-shadow: 0 3px 6px rgba(0,0,0,.1); }
 .check-card.selected { border-color: #1f4fd8; background: #eaf0ff; font-weight: bold; }
 
 label { font-weight: bold; display: block; margin-bottom: 6px; }
@@ -42,11 +45,12 @@ select, input { width: 100%; padding: 10px; border-radius: 8px; border: 1px soli
 button { width: 100%; padding: 16px; background: #1f4fd8; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
 button:hover { background: #163ca6; }
 
-.resultado { padding: 20px; border-radius: 12px; font-weight: bold; margin-top: 20px; display: none; }
+.resultado { padding: 20px; border-radius: 14px; font-weight: bold; margin-top: 20px; display: none; color: #000; }
+.resultado-ok { background: #d4edda; color: #155724; }
+.resultado-alerta { background: #fff3cd; color: #856404; }
+.resultado-critico { background: #f8d7da; color: #721c24; }
+
 .selo { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; margin-bottom: 10px; }
-.selo-ok { background: #d4edda; color: #155724; }
-.selo-alerta { background: #fff3cd; color: #856404; }
-.selo-critico { background: #f8d7da; color: #721c24; }
 </style>
 </head>
 
@@ -73,21 +77,27 @@ button:hover { background: #163ca6; }
   <!-- CARD 2 — CHECKLIST -->
   <div class="card card-grande">
     <h3>🏗️ Estrutura</h3>
-    <div class="check-card" data-peso="3">Mofo ou umidade excessiva</div>
-    <div class="check-card" data-peso="2">Piso quebrado ou escorregadio</div>
-    <div class="check-card" data-peso="2">Infiltrações visíveis</div>
+    <div class="checklist">
+      <div class="check-card" data-peso="3">Mofo ou umidade excessiva</div>
+      <div class="check-card" data-peso="2">Piso quebrado ou escorregadio</div>
+      <div class="check-card" data-peso="2">Infiltrações visíveis</div>
+    </div>
   </div>
 
   <div class="card card-grande">
     <h3>🧹 Higiene</h3>
-    <div class="check-card" data-peso="2">Limpeza inadequada</div>
-    <div class="check-card" data-peso="2">Mau cheiro persistente</div>
+    <div class="checklist">
+      <div class="check-card" data-peso="2">Limpeza inadequada</div>
+      <div class="check-card" data-peso="2">Mau cheiro persistente</div>
+    </div>
   </div>
 
   <div class="card card-grande">
     <h3>💡 Conforto</h3>
-    <div class="check-card" data-peso="1">Iluminação insuficiente</div>
-    <div class="check-card" data-peso="1">Ventilação inadequada</div>
+    <div class="checklist">
+      <div class="check-card" data-peso="1">Iluminação insuficiente</div>
+      <div class="check-card" data-peso="1">Ventilação inadequada</div>
+    </div>
   </div>
 
   <!-- CARD 3 — UPLOAD DE FOTOS -->
@@ -166,17 +176,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const dados = { id: window.idcheckinfra || Math.floor(Math.random()*9000+1000) };
     const avaliador = document.getElementById("avaliador").value;
 
-    // Atualiza card resultado
+    // Atualiza card resultado com fundo colorido
     const resultado = document.getElementById("resultado");
-    resultado.className = "resultado";
     resultado.style.display = "block";
+    resultado.className = "resultado resultado-" + status;
     resultado.innerHTML = `
-      <div class="selo selo-${status}">
+      <div class="selo">
         ${status === "ok" ? "🟢 Condição adequada" :
           status === "alerta" ? "🟡 Situação de alerta" :
           "🔴 Condição crítica"}
       </div>
-      <strong>Código:</strong> ${dados.id}<br>
+      <strong>IDCHECKINFRA:</strong> ${dados.id}<br>
       <strong>Pontuação:</strong> ${pontuacao}<br>
       <strong>Avaliador:</strong> ${avaliador}<br>
       ${navigator.onLine ? "☁️ Enviado ao sistema" : "📴 Salvo offline — será sincronizado"}
@@ -188,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
     doc.setFontSize(16);
     doc.text("CheckInfra – Avaliação Sanitária Escolar", 20, 20);
     doc.setFontSize(14);
-    doc.text(`Código: ${dados.id}`, 20, 40);
+    doc.text(`IDCHECKINFRA: ${dados.id}`, 20, 40);
     doc.text(`Status: ${status}`, 20, 50);
     doc.text(`Pontuação: ${pontuacao}`, 20, 60);
     doc.text(`Avaliador: ${avaliador}`, 20, 70);

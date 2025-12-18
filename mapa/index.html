@@ -26,14 +26,18 @@ header { background:#1f4fd8; color:#fff; padding:50px 12px 12px; text-align:cent
 .bola { width:12px; height:12px; border-radius:50%; display:inline-block; }
 .verde { background:green; }
 .laranja { background:orange; }
+.amarela { background:orangered; }
 .vermelho { background:red; }
+
 /* Pulso animado */
 .pulse-critico { animation: pulse-red 2.4s ease-out infinite; }
 .pulse-alerta  { animation: pulse-orange 2.4s ease-out infinite; }
+.pulse-atencao { animation: pulse-orange 2.4s ease-out infinite; }
 .pulse-adequado{ animation: pulse-green 2.4s ease-out infinite; }
 @keyframes pulse-red { 0% { r:8; opacity:.9; } 70% { r:18; opacity:0; } 100% { opacity:0; } }
 @keyframes pulse-orange { 0% { r:8; opacity:.8; } 70% { r:16; opacity:0; } 100% { opacity:0; } }
 @keyframes pulse-green { 0% { r:8; opacity:.7; } 70% { r:14; opacity:0; } 100% { opacity:0; } }
+
 /* Legenda */
 .legenda { background:#fff; padding:10px; font-size:13px; border-radius:6px; box-shadow:0 1px 5px rgba(0,0,0,.3); }
 .legenda h4 { margin:0 0 6px; font-size:14px; }
@@ -52,6 +56,7 @@ header { background:#1f4fd8; color:#fff; padding:50px 12px 12px; text-align:cent
 <div class="painel">
   <label><input type="checkbox" id="filtroAdequado" checked><span class="bola verde"></span> Adequado</label>
   <label><input type="checkbox" id="filtroAlerta" checked><span class="bola laranja"></span> Alerta</label>
+  <label><input type="checkbox" id="filtroAtencao" checked><span class="bola amarela"></span> Atenção</label>
   <label><input type="checkbox" id="filtroCritico" checked><span class="bola vermelho"></span> Crítico</label>
   <label><input type="checkbox" id="togglePulso" checked> Mapa vivo</label>
 </div>
@@ -80,23 +85,29 @@ document.getElementById("togglePulso").addEventListener("change", e=>{
   atualizarMapa();
 });
 
+// Layers por status
 const camadaAdequado = L.layerGroup().addTo(map);
 const camadaAlerta = L.layerGroup().addTo(map);
+const camadaAtencao = L.layerGroup().addTo(map);
 const camadaCritico = L.layerGroup().addTo(map);
 
 function corPorStatus(status){
   status = status.toLowerCase();
   if(status.includes("crítica")) return "red";
+  if(status.includes("atenção")) return "orangered";
   if(status.includes("alerta")) return "orange";
   return "green";
 }
+
 function classePulso(status){
   if(!pulsoAtivo) return "";
   status = status.toLowerCase();
   if(status.includes("crítica")) return "pulse-critico";
+  if(status.includes("atenção")) return "pulse-atencao";
   if(status.includes("alerta")) return "pulse-alerta";
   return "pulse-adequado";
 }
+
 function criarMarker(d){
   return L.circleMarker([d.lat,d.lng],{
     radius:8, color:corPorStatus(d.status), fillColor:corPorStatus(d.status),
@@ -122,8 +133,9 @@ function atualizarMapa(){
 
   const filtrar = (d)=>{
     if(d.status.toLowerCase().includes("crítica") && !document.getElementById("filtroCritico").checked) return false;
+    if(d.status.toLowerCase().includes("atenção") && !document.getElementById("filtroAtencao").checked) return false;
     if(d.status.toLowerCase().includes("alerta") && !document.getElementById("filtroAlerta").checked) return false;
-    if(d.status.toLowerCase().includes("adequada") && !document.getElementById("filtroAdequado").checked) return false;
+    if(d.status.toLowerCase().includes("adequado") && !document.getElementById("filtroAdequado").checked) return false;
     return true;
   };
 
@@ -136,6 +148,7 @@ function atualizarMapa(){
   } else {
     avaliFiltradas.forEach(d=>{
       const layer = d.status.toLowerCase().includes("crítica") ? camadaCritico :
+                    d.status.toLowerCase().includes("atenção") ? camadaAtencao :
                     d.status.toLowerCase().includes("alerta") ? camadaAlerta : camadaAdequado;
       criarMarker(d).addTo(layer);
     });
@@ -144,6 +157,7 @@ function atualizarMapa(){
 
 document.getElementById("filtroAdequado").addEventListener("change", atualizarMapa);
 document.getElementById("filtroAlerta").addEventListener("change", atualizarMapa);
+document.getElementById("filtroAtencao").addEventListener("change", atualizarMapa);
 document.getElementById("filtroCritico").addEventListener("change", atualizarMapa);
 
 async function initMap(){
@@ -159,8 +173,9 @@ legenda.onAdd = function(){
   div.innerHTML = `
     <h4>Leitura do mapa</h4>
     <div><span class="bola verde"></span> Situação adequada</div>
-    <div><span class="bola laranja"></span> Requer atenção</div>
-    <div><span class="bola vermelho"></span> Prioridade de intervenção</div>
+    <div><span class="bola laranja"></span> Alerta</div>
+    <div><span class="bola amarela"></span> Atenção</div>
+    <div><span class="bola vermelho"></span> Crítico</div>
     <hr>
     <small>O pulso indica intensidade relativa de atenção territorial.<br>Não substitui inspeção técnica presencial.</small>
   `;

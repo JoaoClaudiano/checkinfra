@@ -1,4 +1,4 @@
-// ================= FIREBASE =================
+// ===================== FIREBASE =====================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getFirestore,
@@ -7,6 +7,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// 🔥 CONFIG FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
@@ -16,29 +17,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ================= ID =================
-function gerarIdCheckInfra() {
-  const d = new Date();
-  return `CI-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}-${Math.random().toString(36).substring(2,7).toUpperCase()}`;
-}
-
-// ================= PDF =================
-function gerarPDF(d) {
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-
-  pdf.text("CHECKINFRA – Avaliação Sanitária", 10, 15);
-  pdf.text(`Código: ${d.id}`, 10, 30);
-  pdf.text(`Escola: ${d.escola}`, 10, 40);
-  pdf.text(`Avaliador: ${d.avaliador}`, 10, 50);
-  pdf.text(`Status: ${d.status}`, 10, 60);
-  pdf.text(`Pontuação: ${d.score}`, 10, 70);
-
-  pdf.save(`CheckInfra-${d.id}.pdf`);
-}
-
-// ================= OFFLINE =================
-const STORAGE_KEY = "checkinfra_pendentes";
+// ===================== OFFLINE =====================
+const STORAGE_KEY = "checkinfra_avaliacoes_pendentes";
 
 function salvarOffline(dados) {
   const lista = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -50,11 +30,11 @@ async function sincronizarOffline() {
   if (!navigator.onLine) return;
 
   const pendentes = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  if (!pendentes.length) return;
+  if (pendentes.length === 0) return;
 
-  for (const dados of pendentes) {
+  for (const d of pendentes) {
     await addDoc(collection(db, "avaliacoes"), {
-      ...dados,
+      ...d,
       createdAt: serverTimestamp()
     });
   }
@@ -62,28 +42,27 @@ async function sincronizarOffline() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
-// ================= UI OFFLINE =================
-function atualizarOffline() {
+function atualizarAvisoOffline() {
   const card = document.getElementById("offlineCard");
   if (!card) return;
   card.style.display = navigator.onLine ? "none" : "block";
 }
 
 window.addEventListener("online", () => {
-  atualizarOffline();
+  atualizarAvisoOffline();
   sincronizarOffline();
 });
-window.addEventListener("offline", atualizarOffline);
+window.addEventListener("offline", atualizarAvisoOffline);
 
-// ================= SUBMIT =================
+// ===================== FORM =====================
 document.addEventListener("DOMContentLoaded", () => {
-  atualizarOffline();
+  atualizarAvisoOffline();
   sincronizarOffline();
 
   const form = document.getElementById("form-avaliacao");
   const resultado = document.getElementById("resultado");
 
-  form.addEventListener("submit", async e => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const escola = document.getElementById("escola").value;
@@ -94,42 +73,52 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // 👉 FUNÇÃO DO CORE
     const id = gerarIdCheckInfra();
-    let score = 0;
+
+    let pontuacao = 0;
     let problemas = [];
 
     document.querySelectorAll(".check-card input:checked").forEach(c => {
-      score += Number(c.dataset.peso);
+      pontuacao += Number(c.dataset.peso || 0);
       problemas.push(c.parentElement.innerText.trim());
     });
 
     let status = "Condição adequada";
     let classe = "ok";
-    if (score >= 8) { status = "Condição crítica"; classe = "critico"; }
-    else if (score >= 4) { status = "Situação de alerta"; classe = "alerta"; }
+
+    if (pontuacao >= 8) {
+      status = "Condição crítica";
+      classe = "critico";
+    } else if (pontuacao >= 4) {
+      status = "Situação de alerta";
+      classe = "alerta";
+    }
 
     const dados = {
       id,
       escola,
       avaliador,
-      score,
+      pontuacao,
       status,
       problemas
     };
 
-    try {
-      if (navigator.onLine) {
+    // ===== SALVAR =====
+    if (navigator.onLine) {
+      try {
         await addDoc(collection(db, "avaliacoes"), {
           ...dados,
           createdAt: serverTimestamp()
         });
-      } else {
+      } catch {
         salvarOffline(dados);
       }
-    } catch {
+    } else {
       salvarOffline(dados);
     }
 
+    // 👉 FUNÇÃO DO CORE
     gerarPDF(dados);
 
     resultado.className = "resultado " + classe;
@@ -137,7 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
     resultado.innerHTML = `
       <strong>Código:</strong> ${id}<br>
       <strong>Status:</strong> ${status}<br>
-      <strong>Pontuação:</strong> ${score}
+      <strong>Pontuação:</strong> ${pontuacao}<br>
+      ${navigator.onLine ? "☁️ Enviado" : "📴 Salvo offline"}
     `;
 
     form.reset();

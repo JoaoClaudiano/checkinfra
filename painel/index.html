@@ -8,6 +8,34 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script type="module">
+  // ================= FIREBASE =================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
+    authDomain: "checkinfra-adf3c.firebaseapp.com",
+    projectId: "checkinfra-adf3c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let rankingGlobal = [];
+
+  async function carregarDados() {
+    rankingGlobal = [];
+    const snapshot = await getDocs(collection(db, "avaliacoes"));
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      rankingGlobal.push(d);
+    });
+    montar(rankingGlobal);
+  }
+
+  document.addEventListener("DOMContentLoaded", carregarDados);
+</script>
 
 <style>
 body {
@@ -16,6 +44,7 @@ body {
   padding:20px;
 }
 
+/* ... Mantenha todo o CSS existente do seu painel ... */
 .card {
   background:#fff;
   max-width:1100px;
@@ -231,14 +260,10 @@ button {
 </div>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycbyt4wD8LQ67NOD-Zz7EEvfc7RuYEhKDYE50gkK7rp-47idg6STKUGqk5pYVDclamentdQ/exec";
-let rankingGlobal = [];
-
-fetch(URL).then(r=>r.json()).then(dados => montar(dados));
-
 function montar(dados){
   let critica=0, atencao=0, somaIPT=0;
   const statusCount={adequada:0,alerta:0,atencao:0,critica:0};
+  tabelaRanking.innerHTML="";
 
   dados.forEach(d=>{
     let peso=1, classe="adequada";

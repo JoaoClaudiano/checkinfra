@@ -18,6 +18,7 @@ gtag('config', 'G-DD4SQ88NVT');
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#1f4fd8">
 
+<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -30,11 +31,11 @@ h1{text-align:center;margin:20px 0}
 .card{background:#fff;border-radius:14px;padding:20px;margin-bottom:20px}
 label{font-weight:bold}
 select,input{width:100%;padding:10px;margin-bottom:14px}
-.check-card{border:2px solid #ddd;border-radius:12px;padding:16px;margin-bottom:10px}
+.check-card{border:2px solid #ddd;border-radius:12px;padding:16px;margin-bottom:10px;cursor:pointer}
 .check-card input{display:none}
 .check-card:has(input:checked){border-color:#1f4fd8;background:#eaf0ff}
-button{width:100%;padding:16px;background:#1f4fd8;color:#fff;border:none;border-radius:12px}
-.resultado{display:none;padding:20px;border-radius:12px}
+button{width:100%;padding:16px;background:#1f4fd8;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:bold}
+.resultado{display:none;padding:20px;border-radius:12px;font-weight:bold}
 .ok{background:#e8f7ee}
 .alerta{background:#fff3cd}
 .critico{background:#f8d7da}
@@ -46,14 +47,15 @@ button{width:100%;padding:16px;background:#1f4fd8;color:#fff;border:none;border-
 
 <div class="header"></div>
 <div class="logo-box">
-  <img src="./logo.png">
+  <img src="./logo.png" alt="CheckInfra">
 </div>
 
 <div class="container">
 <h1>Avaliação Sanitária Escolar</h1>
 
 <div id="offlineCard" class="card" style="display:none">
-📴 Modo offline ativo
+📴 <strong>Modo offline ativo</strong><br>
+Os dados não serão enviados.
 </div>
 
 <form id="form-avaliacao">
@@ -81,8 +83,76 @@ button{width:100%;padding:16px;background:#1f4fd8;color:#fff;border:none;border-
 <div id="resultado" class="resultado"></div>
 </div>
 
+<!-- ESCOLAS -->
 <script src="./mapa/escolas.js"></script>
-<script src="./js/avaliacao-offline.js"></script>
+
+<!-- LÓGICA COMPLETA -->
+<script>
+function gerarIdCheckInfra(){
+  const d = new Date();
+  return `CI-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}-${Math.random().toString(36).substring(2,7).toUpperCase()}`;
+}
+
+function gerarPDF(d){
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  pdf.text("CheckInfra – Avaliação Sanitária",20,20);
+  pdf.text(`Código: ${d.id}`,20,35);
+  pdf.text(`Escola: ${d.escola}`,20,45);
+  pdf.text(`Avaliador: ${d.avaliador}`,20,55);
+  pdf.text(`Pontuação: ${d.score}`,20,65);
+  pdf.text(`Status: ${d.status}`,20,75);
+  pdf.save(`${d.id}.pdf`);
+}
+
+function atualizarOffline(){
+  document.getElementById("offlineCard").style.display =
+    navigator.onLine ? "none" : "block";
+}
+window.addEventListener("online", atualizarOffline);
+window.addEventListener("offline", atualizarOffline);
+atualizarOffline();
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const select=document.getElementById("escola");
+  if(window.escolas){
+    escolas.forEach(e=>{
+      const o=document.createElement("option");
+      o.value=e.nome;
+      o.textContent=e.nome;
+      select.appendChild(o);
+    });
+  }
+
+  document.getElementById("form-avaliacao").addEventListener("submit",e=>{
+    e.preventDefault();
+
+    const id=gerarIdCheckInfra();
+    let score=0;
+
+    document.querySelectorAll("input[type=checkbox]:checked").forEach(c=>{
+      score+=Number(c.dataset.peso);
+    });
+
+    let status="Adequada", classe="ok";
+    if(score>=5){status="Crítica";classe="critico";}
+    else if(score>=3){status="Alerta";classe="alerta";}
+
+    gerarPDF({
+      id,
+      escola:escola.value,
+      avaliador:avaliador.value,
+      score,
+      status
+    });
+
+    const r=document.getElementById("resultado");
+    r.className="resultado "+classe;
+    r.style.display="block";
+    r.innerHTML=`Código: ${id}<br>Status: ${status}<br>Pontuação: ${score}`;
+  });
+});
+</script>
 
 <script>
 if("serviceWorker" in navigator){

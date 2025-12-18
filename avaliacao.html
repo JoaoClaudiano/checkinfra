@@ -46,42 +46,66 @@ select,input{
   margin-bottom:14px
 }
 
-.check-card{
-  border:2px solid #e0e0e0;
-  border-radius:12px;
-  padding:16px;
-  cursor:pointer;
-  background:#fafafa;
-  margin-bottom:10px
-}
-.check-card input{display:none}
-.check-card:has(input:checked){
-  border-color:#1f4fd8;
-  background:#eaf0ff;
-  font-weight:bold
+.check-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fafafa;
+  transition: all .2s ease;
 }
 
-button{
-  width:100%;
-  padding:16px;
-  background:#1f4fd8;
-  color:#fff;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer
+.check-card span.icon {
+  font-size: 22px;
 }
 
-.resultado{
-  display:none;
-  padding:20px;
-  border-radius:12px;
-  font-weight:bold
+.check-card:has(input:checked) {
+  border-color: #1f4fd8;
+  background: #eaf0ff;
+  font-weight: bold;
 }
-.ok{background:#e8f7ee;color:#1e7e34}
-.alerta{background:#fff3cd;color:#856404}
-.critico{background:#f8d7da;color:#721c24}
+
+.upload-box {
+  border: 2px dashed #bbb;
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  background: #fcfcfc;
+}
+
+.upload-box input {
+  display: none;
+}
+
+.upload-preview {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.upload-preview img {
+  width: 100px;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.selo {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.selo-ok { background:#e8f7ee; color:#1e7e34; }
+.selo-alerta { background:#fff3cd; color:#856404; }
+.selo-critico { background:#f8d7da; color:#721c24; }
 
 #offlineCard{
   background:#fff8e1;
@@ -136,40 +160,53 @@ Os dados serão sincronizados automaticamente quando a conexão voltar.
 
 <form id="form-avaliacao">
 
-<div class="card">
-  <label>Escola</label>
-  <select id="escola" required>
-    <option value="">Selecione</option>
-  </select>
+  <div class="card">
+    <label>Escola</label>
+    <select id="escola" required>
+      <option value="">Selecione</option>
+    </select>
 
-  <label>Avaliador</label>
-  <input type="text" id="avaliador" required>
-</div>
+    <label>Avaliador</label>
+    <input type="text" id="avaliador" required>
+  </div>
 
-<div class="card">
-  <label class="check-card">
-    <input type="checkbox" data-peso="3"> Mofo ou umidade excessiva
-  </label>
+  <div class="card">
+    <label class="check-card">
+      <span class="icon">🦠</span>
+      <input type="checkbox" data-peso="3"> Mofo ou umidade
+    </label>
 
-  <label class="check-card">
-    <input type="checkbox" data-peso="2"> Piso danificado
-  </label>
+    <label class="check-card">
+      <span class="icon">🧱</span>
+      <input type="checkbox" data-peso="2"> Piso danificado
+    </label>
 
-  <label class="check-card">
-    <input type="checkbox" data-peso="2"> Infiltrações visíveis
-  </label>
+    <label class="check-card">
+      <span class="icon">💧</span>
+      <input type="checkbox" data-peso="2"> Infiltrações
+    </label>
 
-  <label class="check-card">
-    <input type="checkbox" data-peso="2"> Limpeza inadequada
-  </label>
+    <label class="check-card">
+      <span class="icon">🧹</span>
+      <input type="checkbox" data-peso="2"> Limpeza inadequada
+    </label>
 
-  <label class="check-card">
-    <input type="checkbox" data-peso="1"> Iluminação insuficiente
-  </label>
-</div>
+    <label class="check-card">
+      <span class="icon">💡</span>
+      <input type="checkbox" data-peso="1"> Iluminação ruim
+    </label>
+  </div>
 
-<button type="submit">Gerar Diagnóstico</button>
+  <div class="card upload-box">
+    <label for="fotos">
+      📷 <strong>Anexar fotos do ambiente</strong><br>
+      <small>(opcional — não substitui vistoria técnica)</small>
+    </label>
+    <input type="file" id="fotos" accept="image/*" multiple>
+    <div id="preview" class="upload-preview"></div>
+  </div>
 
+  <button type="submit">Gerar Diagnóstico</button>
 </form>
 
 <div id="resultado" class="resultado"></div>

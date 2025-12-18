@@ -123,8 +123,13 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(pontuacao>=8){status="Crítica";classe="critico";}
     else if(pontuacao>=4){status="Alerta";classe="alerta";}
 
+    // =================== NOVO ===================
+    const id = gerarIdCheckInfra();
+    window.idcheckinfra = id; // <- define o ID global
+    // ============================================
+
     const dados={
-      id:gerarIdCheckInfra(),
+      id,
       escola:document.getElementById("escola").value,
       avaliador:document.getElementById("avaliador").value,
       pontuacao,
@@ -133,9 +138,6 @@ document.addEventListener("DOMContentLoaded",()=>{
       problemas,
       fotos:fotosBase64
     };
-
-    // **Define global ID para HTML**
-    window.idcheckinfra = dados.id;
 
     try{
       if(navigator.onLine){

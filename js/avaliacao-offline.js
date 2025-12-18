@@ -1,14 +1,14 @@
-// ===================== ID CHECKINFRA =====================
+/* ============================
+   CHECKINFRA — AVALIAÇÃO
+============================ */
+
+/* ===== ID ===== */
 function gerarIdCheckInfra() {
   const d = new Date();
-  const ano = d.getFullYear();
-  const mes = String(d.getMonth() + 1).padStart(2, "0");
-  const dia = String(d.getDate()).padStart(2, "0");
-  const rand = Math.random().toString(36).substring(2, 7).toUpperCase();
-  return `CI-${ano}-${mes}-${dia}-${rand}`;
+  return `CI-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}-${Math.random().toString(36).substring(2,7).toUpperCase()}`;
 }
 
-// ===================== PDF =====================
+/* ===== PDF ===== */
 function gerarPDF(d) {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
@@ -23,67 +23,81 @@ function gerarPDF(d) {
   pdf.text(`Pontuação: ${d.score}`, 20, 65);
   pdf.text(`Status: ${d.status}`, 20, 75);
 
+  let y = 90;
+  pdf.text("Problemas:", 20, y);
+  y += 10;
+
+  d.problemas.forEach(p => {
+    pdf.text(`- ${p}`, 25, y);
+    y += 8;
+  });
+
   pdf.save(`${d.id}.pdf`);
 }
 
-// ===================== OFFLINE UI =====================
+/* ===== OFFLINE UI ===== */
 function atualizarOffline() {
   const card = document.getElementById("offlineCard");
-  if (card) card.style.display = navigator.onLine ? "none" : "block";
+  if (!card) return;
+  card.style.display = navigator.onLine ? "none" : "block";
 }
 
 window.addEventListener("online", atualizarOffline);
 window.addEventListener("offline", atualizarOffline);
 
-// ===================== INIT =====================
+/* ===== FORM ===== */
 document.addEventListener("DOMContentLoaded", () => {
   atualizarOffline();
 
-  // popula escolas
-  const select = document.getElementById("escola");
-  if (window.escolas) {
-    window.escolas.forEach(e => {
-      const o = document.createElement("option");
-      o.value = e.nome;
-      o.textContent = e.nome;
-      select.appendChild(o);
-    });
-  }
+  const form = document.getElementById("form-avaliacao");
+  const resultado = document.getElementById("resultado");
 
-  document.getElementById("form-avaliacao").addEventListener("submit", e => {
+  if (!form || !resultado) return;
+
+  form.addEventListener("submit", e => {
     e.preventDefault();
 
+    const id = gerarIdCheckInfra();
     const escola = document.getElementById("escola").value;
     const avaliador = document.getElementById("avaliador").value;
 
     let score = 0;
+    let problemas = [];
+
     document.querySelectorAll("input[type=checkbox]:checked").forEach(c => {
       score += Number(c.dataset.peso);
+      problemas.push(c.parentElement.innerText.trim());
     });
 
-    let status = "Adequada";
+    let status = "Condição adequada";
     let classe = "ok";
-    if (score >= 8) { status = "Crítica"; classe = "critico"; }
-    else if (score >= 4) { status = "Alerta"; classe = "alerta"; }
 
-    const dados = {
-      id: gerarIdCheckInfra(),
+    if (score >= 8) {
+      status = "Condição crítica";
+      classe = "critico";
+    } else if (score >= 4) {
+      status = "Situação de alerta";
+      classe = "alerta";
+    }
+
+    gerarPDF({
+      id,
       escola,
       avaliador,
       score,
-      status
-    };
+      status,
+      problemas
+    });
 
-    gerarPDF(dados);
-
-    const r = document.getElementById("resultado");
-    r.className = "resultado " + classe;
-    r.style.display = "block";
-    r.innerHTML = `
-      Código: ${dados.id}<br>
-      Status: ${status}<br>
-      Pontuação: ${score}<br>
+    resultado.className = "resultado " + classe;
+    resultado.style.display = "block";
+    resultado.innerHTML = `
+      <strong>Código:</strong> ${id}<br>
+      <strong>Status:</strong> ${status}<br>
+      <strong>Pontuação:</strong> ${score}<br>
       ${navigator.onLine ? "☁️ Online" : "📴 Offline"}
     `;
+
+    form.reset();
   });
 });

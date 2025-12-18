@@ -114,9 +114,9 @@ document.addEventListener("DOMContentLoaded",()=>{
     e.preventDefault();
 
     let pontuacao=0,problemas=[];
-    document.querySelectorAll(".check-card input:checked").forEach(c=>{
+    document.querySelectorAll(".check-card.selected").forEach(c=>{
       pontuacao+=Number(c.dataset.peso);
-      problemas.push(c.parentElement.innerText.trim());
+      problemas.push(c.innerText.trim());
     });
 
     let status="Adequada",classe="ok";
@@ -125,14 +125,17 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     const dados={
       id:gerarIdCheckInfra(),
-      escola:escola.value,
-      avaliador:avaliador.value,
+      escola:document.getElementById("escola").value,
+      avaliador:document.getElementById("avaliador").value,
       pontuacao,
       status,
       classe,
       problemas,
       fotos:fotosBase64
     };
+
+    // **Define global ID para HTML**
+    window.idcheckinfra = dados.id;
 
     try{
       if(navigator.onLine){

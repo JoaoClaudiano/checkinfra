@@ -2,216 +2,332 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-  <!-- Google tag (gtag.js) -->
+
+<!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DD4SQ88NVT"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-DD4SQ88NVT');
 </script>
-  
+
 <title>CheckInfra – Avaliação Sanitária</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 <meta name="theme-color" content="#1f4fd8">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="CheckInfra">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-  .nav-global {
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  display: flex;
-  gap: 8px;
-  z-index: 9999;
+body{
+  font-family:Arial,sans-serif;
+  background:#f4f6f8;
+  margin:0;
 }
 
+.nav-global{
+  position:fixed;
+  top:12px;
+  left:12px;
+  display:flex;
+  gap:8px;
+  z-index:9999;
+}
 .nav-global button,
-.nav-global a {
-  background: rgba(31,79,216,0.95);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  cursor: pointer;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+.nav-global a{
+  background:#1f4fd8;
+  color:#fff;
+  border:none;
+  border-radius:50%;
+  width:38px;
+  height:38px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
 }
 
-.nav-global button:hover,
-.nav-global a:hover {
-  background: #163aa9;
+.header{
+  background:#1f4fd8;
+  height:80px;
 }
-body{font-family:Arial,sans-serif;background:#f4f6f8;margin:0;}
-.header{background:#1f4fd8;color:#fff;padding:16px;text-align:center;}
-.container{max-width:900px;margin:30px auto;padding:0 16px;}
-h1{text-align:center;margin-bottom:24px;}
-.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.08);}
-label{font-weight:bold;margin-bottom:6px;display:block;}
-select,input[type="text"],input[type="file"]{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;margin-bottom:14px;}
-.categoria{margin-bottom:26px;}
-.categoria h3{color:#1f4fd8;margin-bottom:12px;}
-.checklist{display:flex;flex-direction:column;gap:12px;}
-.check-card{border:2px solid #e0e0e0;border-radius:12px;padding:16px;cursor:pointer;transition:.2s;background:#fafafa;font-weight:500;}
+
+.logo-box{
+  display:flex;
+  justify-content:center;
+  margin-top:-40px;
+}
+.logo-box img{
+  height:90px;
+}
+
+.container{
+  max-width:900px;
+  margin:20px auto;
+  padding:0 16px;
+}
+
+h1{
+  text-align:center;
+  margin:20px 0;
+}
+
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+}
+
+label{
+  font-weight:bold;
+  display:block;
+  margin-bottom:6px;
+}
+
+select,input[type="text"],input[type="file"]{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  margin-bottom:14px;
+}
+
+.categoria{
+  margin-bottom:26px;
+}
+.categoria h3{
+  color:#1f4fd8;
+  margin-bottom:12px;
+}
+
+.checklist{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.check-card{
+  border:2px solid #e0e0e0;
+  border-radius:12px;
+  padding:16px;
+  cursor:pointer;
+  background:#fafafa;
+  transition:.2s;
+}
 .check-card input{display:none;}
-.check-card:hover{border-color:#1f4fd8;background:#f0f5ff;}
-.check-card:has(input:checked){border-color:#1f4fd8;background:#eaf0ff;font-weight:bold;}
-.preview{display:flex;gap:10px;flex-wrap:wrap;}
-.preview img{width:120px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #ccc;}
-button{width:100%;padding:16px;background:#1f4fd8;color:#fff;font-size:16px;font-weight:bold;border:none;border-radius:12px;cursor:pointer;}
+.check-card:hover{
+  border-color:#1f4fd8;
+  background:#f0f5ff;
+}
+.check-card:has(input:checked){
+  border-color:#1f4fd8;
+  background:#eaf0ff;
+  font-weight:bold;
+}
+
+.preview{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.preview img{
+  width:120px;
+  height:90px;
+  object-fit:cover;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button{
+  width:100%;
+  padding:16px;
+  background:#1f4fd8;
+  color:#fff;
+  font-size:16px;
+  font-weight:bold;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+}
 button:hover{background:#163ca6;}
-.resultado{margin-top:20px;padding:20px;border-radius:12px;display:none;font-weight:bold;}
+
+.resultado{
+  margin-top:20px;
+  padding:20px;
+  border-radius:12px;
+  display:none;
+  font-weight:bold;
+}
 .ok{background:#e8f7ee;color:#1e7e34;}
 .alerta{background:#fff3cd;color:#856404;}
 .critico{background:#f8d7da;color:#721c24;}
 </style>
-  
 </head>
-  
-<body>
-<div class="nav-global">
-  <button onclick="history.back()" title="Voltar">
-    ⬅️
-  </button>
 
-  <a href="./index.html" title="Início">
-    🏠
-  </a>
+<body>
+
+<div class="nav-global">
+  <button onclick="history.back()">⬅️</button>
+  <a href="./index.html">🏠</a>
 </div>
-<div class="header">
-  <strong>CheckInfra – Avaliação Sanitária</strong>
+
+<div class="header"></div>
+
+<div class="logo-box">
+  <img src="./logo.png" alt="CheckInfra">
 </div>
 
 <div class="container">
-  <h1>Avaliação Sanitária Escolar</h1>
+<h1>Avaliação Sanitária Escolar</h1>
 
-  <form id="form-avaliacao">
+<form id="form-avaliacao">
 
-    <!-- CARD 1 -->
-    <div class="card">
-      <label>Escola</label>
-      <select id="escola">
-        <option value="">Selecione a escola</option>
-      </select>
+<div class="card">
+  <label>Escola</label>
+  <select id="escola">
+    <option value="">Selecione a escola</option>
+  </select>
 
-      <label>Avaliador</label>
-      <input type="text" id="avaliador" placeholder="Nome do avaliador">
-    </div>
-
-    <!-- CARD 2 -->
-    <div class="card">
-
-      <div class="categoria">
-        <h3>🏗️ Estrutura</h3>
-        <div class="checklist">
-          <label class="check-card">
-            <input type="checkbox" data-peso="3">
-            Mofo ou umidade excessiva
-          </label>
-          <label class="check-card">
-            <input type="checkbox" data-peso="2">
-            Piso quebrado ou escorregadio
-          </label>
-          <label class="check-card">
-            <input type="checkbox" data-peso="2">
-            Infiltrações visíveis
-          </label>
-        </div>
-      </div>
-
-      <div class="categoria">
-        <h3>🧹 Higiene</h3>
-        <div class="checklist">
-          <label class="check-card">
-            <input type="checkbox" data-peso="2">
-            Limpeza inadequada
-          </label>
-          <label class="check-card">
-            <input type="checkbox" data-peso="2">
-            Mau cheiro persistente
-          </label>
-        </div>
-      </div>
-
-      <div class="categoria">
-        <h3>💡 Conforto</h3>
-        <div class="checklist">
-          <label class="check-card">
-            <input type="checkbox" data-peso="1">
-            Iluminação insuficiente
-          </label>
-          <label class="check-card">
-            <input type="checkbox" data-peso="1">
-            Ventilação inadequada
-          </label>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- CARD 3 -->
-    <div class="card">
-      <h3>📷 Registro Fotográfico</h3>
-      <input type="file" id="fotos" accept="image/*" multiple>
-      <div class="preview" id="preview"></div>
-    </div>
-
-    <!-- BOTÃO -->
-    <button type="submit">Gerar Diagnóstico</button>
-
-  </form>
-
-  <div id="resultado" class="resultado"></div>
+  <label>Avaliador</label>
+  <input type="text" id="avaliador" placeholder="Nome do avaliador">
 </div>
-  
-<script src="./js/avaliacao-offline.js">
-  
-</script>
+
+<div class="card">
+
+<div class="categoria">
+<h3>🏗️ Estrutura</h3>
+<div class="checklist">
+<label class="check-card">
+<input type="checkbox" data-peso="3"> Mofo ou umidade excessiva
+</label>
+<label class="check-card">
+<input type="checkbox" data-peso="2"> Piso quebrado ou escorregadio
+</label>
+<label class="check-card">
+<input type="checkbox" data-peso="2"> Infiltrações visíveis
+</label>
+</div>
+</div>
+
+<div class="categoria">
+<h3>🧹 Higiene</h3>
+<div class="checklist">
+<label class="check-card">
+<input type="checkbox" data-peso="2"> Limpeza inadequada
+</label>
+<label class="check-card">
+<input type="checkbox" data-peso="2"> Mau cheiro persistente
+</label>
+</div>
+</div>
+
+<div class="categoria">
+<h3>💡 Conforto</h3>
+<div class="checklist">
+<label class="check-card">
+<input type="checkbox" data-peso="1"> Iluminação insuficiente
+</label>
+<label class="check-card">
+<input type="checkbox" data-peso="1"> Ventilação inadequada
+</label>
+</div>
+</div>
+
+</div>
+
+<div class="card">
+<h3>📷 Registro Fotográfico</h3>
+<input type="file" id="fotos" accept="image/*" multiple>
+<div class="preview" id="preview"></div>
+</div>
+
+<button type="submit">Gerar Diagnóstico</button>
+
+</form>
+
+<div id="resultado" class="resultado"></div>
+</div>
+
 <script src="./mapa/escolas.js"></script>
+<script src="./js/avaliacao-offline.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const select = document.getElementById("escola");
-
-  if (!window.escolas || !Array.isArray(window.escolas)) {
-    console.error("window.escolas não encontrada");
-    return;
+document.addEventListener("DOMContentLoaded",()=>{
+  const select=document.getElementById("escola");
+  if(window.escolas){
+    window.escolas.forEach(e=>{
+      const o=document.createElement("option");
+      o.value=e.nome;
+      o.textContent=e.nome;
+      select.appendChild(o);
+    });
   }
-
-  // remove opções antigas (menos a primeira)
-  while (select.options.length > 1) {
-    select.remove(1);
-  }
-
-  window.escolas.forEach(escola => {
-    const option = document.createElement("option");
-    option.value = escola.nome;
-    option.textContent = escola.nome;
-    select.appendChild(option);
-  });
 });
 </script>
+
 <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js")
-    .then(() => console.log("Service Worker registrado"))
-    .catch(err => console.error("Erro no SW", err));
+document.getElementById("form-avaliacao").addEventListener("submit",async e=>{
+  e.preventDefault();
+
+  const escola=escola.value;
+  const avaliador=avaliador.value;
+
+  let score=0, problemas=[];
+  document.querySelectorAll("input[type=checkbox]:checked").forEach(c=>{
+    score+=parseInt(c.dataset.peso);
+    problemas.push(c.parentElement.innerText.trim());
+  });
+
+  let status="ok";
+  if(score>=6) status="critico";
+  else if(score>=3) status="alerta";
+
+  if(window.salvarAvaliacao){
+    await salvarAvaliacao({escola,avaliador,score,status,problemas});
+  }
+
+  const r=document.getElementById("resultado");
+  r.className="resultado "+status;
+  r.style.display="block";
+  r.innerHTML=`Status: ${status.toUpperCase()}<br>Pontuação: ${score}`;
+});
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
+  authDomain:"checkinfra-adf3c.firebaseapp.com",
+  projectId:"checkinfra-adf3c",
+  storageBucket:"checkinfra-adf3c.appspot.com",
+  messagingSenderId:"206434271838",
+  appId:"1:206434271838:web:347d68e6956fe26ee1eacf"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+window.salvarAvaliacao=async dados=>{
+  await addDoc(collection(db,"avaliacoes"),{
+    ...dados,
+    createdAt:serverTimestamp()
+  });
+};
+</script>
+
+<script>
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("./service-worker.js");
 }
 </script>
-  
-</body>
 
+</body>
 </html>

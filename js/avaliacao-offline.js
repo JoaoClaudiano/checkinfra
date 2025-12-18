@@ -1,12 +1,78 @@
+// ===================== ID CHECKINFRA =====================
+function gerarIdCheckInfra() {
+  const agora = new Date();
+  const ano = agora.getFullYear();
+  const mes = String(agora.getMonth() + 1).padStart(2, "0");
+  const dia = String(agora.getDate()).padStart(2, "0");
+  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return `CI-${ano}-${mes}-${dia}-${random}`;
+}
+
+// ===================== STORAGE OFFLINE =====================
+const STORAGE_KEY = "checkinfra_avaliacoes_pendentes";
+
+function salvarOffline(dados) {
+  const lista = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  lista.push(dados);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+}
+
+function carregarOffline() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+}
+
+function limparOffline() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+// ===================== SINCRONIZAÇÃO =====================
+async function sincronizarAvaliacoes() {
+  if (!navigator.onLine || !window.salvarAvaliacao) return;
+
+  const pendentes = carregarOffline();
+  if (pendentes.length === 0) return;
+
+  console.log("🔄 Sincronizando avaliações offline:", pendentes.length);
+
+  for (const avaliacao of pendentes) {
+    try {
+      await window.salvarAvaliacao(avaliacao);
+    } catch (e) {
+      console.error("Erro ao sincronizar", avaliacao.id);
+      return; // para tudo se falhar
+    }
+  }
+
+  limparOffline();
+  console.log("✅ Sincronização concluída");
+}
+
+// ===================== UI OFFLINE =====================
+function atualizarStatusOffline() {
+  const card = document.getElementById("offlineCard");
+  if (!card) return;
+
+  card.style.display = navigator.onLine ? "none" : "block";
+}
+
+// ===================== EVENTOS =====================
+window.addEventListener("online", () => {
+  atualizarStatusOffline();
+  sincronizarAvaliacoes();
+});
+
+window.addEventListener("offline", atualizarStatusOffline);
+
+// ===================== FORM =====================
 document.addEventListener("DOMContentLoaded", () => {
+
+  atualizarStatusOffline();
+  sincronizarAvaliacoes();
 
   const form = document.getElementById("form-avaliacao");
   const resultado = document.getElementById("resultado");
 
-  if (!form || !resultado) {
-    console.error("Formulário ou resultado não encontrados");
-    return;
-  }
+  if (!form || !resultado) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -19,7 +85,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // ===== CALCULA SCORE =====
+    const avaliacaoId = gerarIdCheckInfra();
+
     let score = 0;
     let problemas = [];
 
@@ -39,80 +106,45 @@ document.addEventListener("DOMContentLoaded", () => {
       classe = "alerta";
     }
 
-    // ===== FEEDBACK VISUAL =====
+    const dados = {
+      id: avaliacaoId,
+      escola,
+      avaliador,
+      pontuacao: score,
+      status,
+      problemas,
+      createdAt: new Date().toISOString()
+    };
+
     resultado.className = "resultado " + classe;
     resultado.style.display = "block";
     resultado.innerHTML = `
+      <strong>Código:</strong> ${avaliacaoId}<br>
       <strong>Status:</strong> ${status}<br>
-      <strong>Pontuação:</strong> ${score}
+      <strong>Pontuação:</strong> ${score}<br>
+      ${navigator.onLine ? "☁️ Enviado" : "📴 Salvo offline"}
     `;
 
-    // ===== SALVAR ONLINE =====
-    try {
-      const avaliacaoId = await window.salvarAvaliacao({
-        escola,
-        avaliador,
-        pontuacao: score,
-        status,
-        problemas
-      });
-
-      // guarda ID global
-      window.__avaliacaoId = avaliacaoId;
-
-      // ===== GERA PDF COM ID =====
-      gerarPDF({
-        escola,
-        avaliador,
-        score,
-        status,
-        problemas,
-        avaliacaoId
-      });
-
-    } catch (err) {
-      alert("Erro ao salvar avaliação");
-      console.error(err);
+    if (navigator.onLine && window.salvarAvaliacao) {
+      try {
+        await window.salvarAvaliacao(dados);
+      } catch {
+        salvarOffline(dados);
+      }
+    } else {
+      salvarOffline(dados);
     }
 
+    gerarPDF({
+      id: avaliacaoId,
+      escola,
+      avaliador,
+      score,
+      status,
+      problemas
+    });
+
+    form.reset();
   });
 
 });
-
-
-// ===================== PDF =====================
-function gerarPDF(dados) {
-
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-
-  const data = new Date().toLocaleDateString("pt-BR");
-
-  pdf.setFontSize(16);
-  pdf.text("CheckInfra – Diagnóstico Sanitário", 14, 20);
-
-  pdf.setFontSize(11);
-  pdf.text(`Escola: ${dados.escola}`, 14, 35);
-  pdf.text(`Avaliador: ${dados.avaliador}`, 14, 42);
-  pdf.text(`Data: ${data}`, 14, 49);
-  pdf.text(`Avaliação ID: ${dados.avaliacaoId}`, 14, 56);
-
-  pdf.setFontSize(12);
-  pdf.text("Problemas identificados:", 14, 72);
-
-  let y = 82;
-  if (dados.problemas.length === 0) {
-    pdf.text("Nenhum problema crítico identificado.", 18, y);
-  } else {
-    dados.problemas.forEach(p => {
-      pdf.text("• " + p, 18, y);
-      y += 8;
-    });
-  }
-
-  pdf.setFontSize(12);
-  pdf.text(`Pontuação técnica: ${dados.score}`, 14, y + 10);
-  pdf.text(`Status: ${dados.status}`, 14, y + 18);
-
-  pdf.save(`checkinfra_${dados.escola}_${dados.avaliacaoId}.pdf`);
-}

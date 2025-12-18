@@ -2,7 +2,6 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-
 <title>Mapa Sanitário – Escolas Municipais</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -41,9 +40,7 @@ body { margin:0; font-family: Arial, sans-serif; }
 }
 
 .nav-global button:hover,
-.nav-global a:hover {
-  background: #163aa9;
-}
+.nav-global a:hover { background: #163aa9; }
 
 header {
   background:#1f4fd8;
@@ -72,38 +69,27 @@ header {
   cursor:pointer;
 }
 
-.bola {
-  width:12px;
-  height:12px;
-  border-radius:50%;
-  display:inline-block;
-}
+.bola { width:12px; height:12px; border-radius:50%; display:inline-block; }
 .verde { background:green; }
 .laranja { background:orange; }
 .vermelho { background:red; }
 
-/* ===== PULSO CARTOGRÁFICO ===== */
+/* Pulso cartográfico */
 .pulse-critico { animation: pulse-red 2.4s ease-out infinite; }
 .pulse-alerta  { animation: pulse-orange 2.4s ease-out infinite; }
 .pulse-adequado{ animation: pulse-green 2.4s ease-out infinite; }
 
 @keyframes pulse-red {
-  0% { r:8; opacity:.9; }
-  70% { r:18; opacity:0; }
-  100% { opacity:0; }
+  0% { r:8; opacity:.9; } 70% { r:18; opacity:0; } 100% { opacity:0; }
 }
 @keyframes pulse-orange {
-  0% { r:8; opacity:.8; }
-  70% { r:16; opacity:0; }
-  100% { opacity:0; }
+  0% { r:8; opacity:.8; } 70% { r:16; opacity:0; } 100% { opacity:0; }
 }
 @keyframes pulse-green {
-  0% { r:8; opacity:.7; }
-  70% { r:14; opacity:0; }
-  100% { opacity:0; }
+  0% { r:8; opacity:.7; } 70% { r:14; opacity:0; } 100% { opacity:0; }
 }
 
-/* ===== LEGENDA ===== */
+/* Legenda */
 .legenda {
   background:#fff;
   padding:10px;
@@ -111,79 +97,55 @@ header {
   border-radius:6px;
   box-shadow:0 1px 5px rgba(0,0,0,.3);
 }
-.legenda h4 {
-  margin:0 0 6px;
-  font-size:14px;
-}
-.legenda div {
-  display:flex;
-  align-items:center;
-  gap:6px;
-  margin-bottom:4px;
-}
+.legenda h4 { margin:0 0 6px; font-size:14px; }
+.legenda div { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
 </style>
 </head>
-
 <body>
+
 <div class="nav-global">
   <button onclick="history.back()" title="Voltar">⬅️</button>
   <a href="./index.html" title="Início">🏠</a>
 </div>
 
-<header>
-  Mapa Sanitário das Escolas – Secretaria de Educação
-</header>
+<header>Mapa Sanitário das Escolas – Secretaria de Educação</header>
 
 <div class="painel">
-  <label><input type="checkbox" id="filtroAdequado" checked>
-    <span class="bola verde"></span> Adequado
-  </label>
-
-  <label><input type="checkbox" id="filtroAlerta" checked>
-    <span class="bola laranja"></span> Alerta
-  </label>
-
-  <label><input type="checkbox" id="filtroCritico" checked>
-    <span class="bola vermelho"></span> Crítico
-  </label>
-
-  <label>
-    <input type="checkbox" id="togglePulso" checked>
-    🌐 Mapa vivo
-  </label>
+  <label><input type="checkbox" id="filtroAdequado" checked> <span class="bola verde"></span> Adequado</label>
+  <label><input type="checkbox" id="filtroAlerta" checked> <span class="bola laranja"></span> Alerta</label>
+  <label><input type="checkbox" id="filtroCritico" checked> <span class="bola vermelho"></span> Crítico</label>
+  <label><input type="checkbox" id="togglePulso" checked> 🌐 Mapa vivo</label>
 </div>
 
 <div id="map"></div>
 
-<!-- Carrega os dados das escolas -->
-<script src="./mapa/escolas.js"></script>
+<!-- Inclui lista de escolas -->
+<script src="./escolas.js"></script>
 
 <script>
 const map = L.map("map").setView([-3.7319, -38.5267], 12);
+
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "©️ OpenStreetMap"
 }).addTo(map);
 
-// Layers por status
 const camadaAdequado = L.layerGroup().addTo(map);
 const camadaAlerta = L.layerGroup().addTo(map);
 const camadaCritico = L.layerGroup().addTo(map);
 
 let pulsoAtivo = true;
 
-// Funções utilitárias
+// Determina camada e cor
 function camadaPorStatus(status) {
   if (status.includes("crítica")) return camadaCritico;
   if (status.includes("alerta")) return camadaAlerta;
   return camadaAdequado;
 }
-
 function corPorStatus(status) {
   if (status.includes("crítica")) return "red";
   if (status.includes("alerta")) return "orange";
   return "green";
 }
-
 function classePulso(status) {
   if (!pulsoAtivo) return "";
   if (status.includes("crítica")) return "pulse-critico";
@@ -191,40 +153,29 @@ function classePulso(status) {
   return "pulse-adequado";
 }
 
-// Gera os pontos a partir do escolas.js
-escolas.forEach(e => {
-  if (!e.lat || !e.lng) return;
-
-  const layer = camadaPorStatus(e.status);
-  const cor = corPorStatus(e.status);
-
-  L.circleMarker([e.lat, e.lng], {
-    radius:8,
-    color:cor,
-    fillColor:cor,
-    fillOpacity:.8,
-    className: classePulso(e.status)
-  })
-  .bindPopup(`
-    <strong>${e.nome}</strong><br>
-    Status: ${e.status}<br>
-    Pontuação: ${e.pontuacao || 0}
-  `)
-  .addTo(layer);
+// Desenha escolas quando o array estiver carregado
+document.addEventListener("escolasCarregadas", function() {
+  window.escolas.forEach(e => {
+    if (!e.lat || !e.lng) return;
+    let status = "adequada"; // status default, pode ser atualizado com Firebase depois
+    L.circleMarker([e.lat, e.lng], {
+      radius: 8,
+      color: corPorStatus(status),
+      fillColor: corPorStatus(status),
+      fillOpacity: 0.8,
+      className: classePulso(status)
+    })
+    .bindPopup(`<strong>${e.nome}</strong><br>Status: ${status}`)
+    .addTo(camadaPorStatus(status));
+  });
 });
 
-// Filtros
-document.getElementById("filtroAdequado").addEventListener("change", e => {
-  e.target.checked ? camadaAdequado.addTo(map) : camadaAdequado.remove();
-});
-document.getElementById("filtroAlerta").addEventListener("change", e => {
-  e.target.checked ? camadaAlerta.addTo(map) : camadaAlerta.remove();
-});
-document.getElementById("filtroCritico").addEventListener("change", e => {
-  e.target.checked ? camadaCritico.addTo(map) : camadaCritico.remove();
-});
+// Filtragem de camadas
+document.getElementById("filtroAdequado").addEventListener("change", e => { e.target.checked ? map.addLayer(camadaAdequado) : map.removeLayer(camadaAdequado); });
+document.getElementById("filtroAlerta").addEventListener("change", e => { e.target.checked ? map.addLayer(camadaAlerta) : map.removeLayer(camadaAlerta); });
+document.getElementById("filtroCritico").addEventListener("change", e => { e.target.checked ? map.addLayer(camadaCritico) : map.removeLayer(camadaCritico); });
 
-// Pulso animado
+// Pulso vivo
 document.getElementById("togglePulso").addEventListener("change", e => {
   pulsoAtivo = e.target.checked;
   location.reload();
@@ -240,10 +191,7 @@ legenda.onAdd = function () {
     <div><span class="bola laranja"></span> Requer atenção</div>
     <div><span class="bola vermelho"></span> Prioridade de intervenção</div>
     <hr>
-    <small>
-      O pulso indica intensidade relativa de atenção territorial.
-      Não substitui inspeção técnica presencial.
-    </small>
+    <small>O pulso indica intensidade relativa de atenção territorial.<br>Não substitui inspeção técnica presencial.</small>
   `;
   return div;
 };

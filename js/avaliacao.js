@@ -52,7 +52,7 @@ async function gerarPDF(d) {
 
   // Logo
   if(d.logo){
-    pdf.addImage(d.logo,"PNG",80,y,50,30); // ajuste de tamanho
+    pdf.addImage(d.logo,"PNG",80,y,50,30);
   }
   y += 35;
   pdf.setFontSize(14);
@@ -170,24 +170,12 @@ document.addEventListener("DOMContentLoaded",()=>{
       problemas.push(c.innerText.trim());
     });
 
-    // Status
-// Determinar status e classe
-let status = "Adequada";
-let classe = "ok";
-
-if(pontuacao >= 8){
-  status = "Crítica";
-  classe = "critico";
-} else if(pontuacao >= 6){
-  status = "Atenção";
-  classe = "atencao";
-} else if(pontuacao >= 4){
-  status = "Alerta";
-  classe = "alerta";
-} else {
-  status = "Adequada";
-  classe = "ok";
-}
+    // Status baseado nos quatro níveis
+    let status="Adequada",classe="ok";
+    if(pontuacao >= 12){ status="Crítica"; classe="critico"; }
+    else if(pontuacao >= 8){ status="Atenção"; classe="atencao"; }
+    else if(pontuacao >= 4){ status="Alerta"; classe="alerta"; }
+    else { status="Adequada"; classe="ok"; }
 
     // Escola selecionada e lat/lng da lista escolas.js
     const escolaSelecionada = document.getElementById("escola").value;
@@ -216,6 +204,7 @@ if(pontuacao >= 8){
       <div class="selo">
         ${classe === "ok" ? "Condição adequada" :
           classe === "alerta" ? "Situação de alerta" :
+          classe === "atencao" ? "Atenção Elevada" :
           "Condição crítica"}
       </div>
       <strong>ID:</strong> ${dados.id}<br>

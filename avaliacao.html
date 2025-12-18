@@ -17,6 +17,9 @@
   gtag('config', 'G-DD4SQ88NVT');
 </script>
 
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
 .header { background: #1f4fd8; color: #fff; text-align: center; padding: 20px; font-size: 18px; font-weight: bold; }
@@ -49,9 +52,8 @@ button:hover { background: #163ca6; }
 
 .selo { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; margin-bottom: 10px; }
 
-/* Media Query para dispositivos móveis */
-@media (max-width: 600px){
-  .resultado { margin-top: 80px; }
+@media (max-width: 600px) {
+  .resultado { margin-top: 80px; } /* Sobe o card de diagnóstico em telas pequenas */
 }
 </style>
 </head>
@@ -109,9 +111,10 @@ button:hover { background: #163ca6; }
     <div id="preview" class="upload-preview"></div>
   </div>
 
-  <button type="submit">Gerar Diagnóstico</button>
+  <button type="submit">Gerar Diagnóstico e PDF</button>
 </form>
 
+<!-- CARD DE DIAGNÓSTICO -->
 <div id="resultado" class="resultado"></div>
 
 </div>
@@ -163,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Submit
+  // Submit: apenas exibe resultado (ID real vem do avaliacao.js)
   const form = document.getElementById("form-avaliacao");
   form.addEventListener("submit", e => {
     e.preventDefault();
@@ -179,6 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (pontuacao >= 6 && pontuacao < 10) status = "alerta";
     else if (pontuacao >= 10) status = "critico";
 
+    // ID real do avaliacao.js
     const avaliador = document.getElementById("avaliador").value;
     const idCheckInfra = window.idcheckinfra || "ID ainda não gerado pelo sistema";
 
@@ -192,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
           status === "alerta" ? "🟡 Situação de alerta" :
           "🔴 Condição crítica"}
       </div>
-      <strong>ID:</strong> ${idCheckInfra}<br>
+      <strong>IDCHECKINFRA:</strong> ${idCheckInfra}<br>
       <strong>Pontuação:</strong> ${pontuacao}<br>
       <strong>Avaliador:</strong> ${avaliador}<br>
       ${navigator.onLine ? "☁️ Enviado ao sistema" : "📴 Salvo offline — será sincronizado"}

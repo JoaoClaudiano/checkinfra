@@ -2,30 +2,20 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Mapa Sanitário – Escolas Municipais</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1f4fd8">
 
-  window.firebaseConfig = {
-    apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
-    authDomain: "checkinfra-adf3c.firebaseapp.com",
-    projectId: "checkinfra-adf3c"
-  };
-  window.app = initializeApp(window.firebaseConfig);
-  window.db = getFirestore(window.app);
-</script>
-
-<!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- Leaflet MarkerCluster -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <style>
@@ -38,8 +28,7 @@ body { margin:0; font-family: Arial, sans-serif; }
   gap: 8px;
   z-index: 9999;
 }
-.nav-global button,
-.nav-global a {
+.nav-global button, .nav-global a {
   background: rgba(31,79,216,0.95);
   color: #fff;
   border: none;
@@ -54,9 +43,9 @@ body { margin:0; font-family: Arial, sans-serif; }
   text-decoration: none;
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
-.nav-global button:hover,
-.nav-global a:hover { background: #163aa9; }
-
+.nav-global button:hover, .nav-global a:hover {
+  background: #163aa9;
+}
 header {
   background:#1f4fd8;
   color:#fff;
@@ -92,7 +81,7 @@ header {
 .laranja { background:orange; }
 .vermelho { background:red; }
 
-/* Pulso Cartográfico */
+/* ===== PULSO CARTOGRÁFICO ===== */
 .pulse-critico { animation: pulse-red 2.4s ease-out infinite; }
 .pulse-alerta  { animation: pulse-orange 2.4s ease-out infinite; }
 .pulse-adequado{ animation: pulse-green 2.4s ease-out infinite; }
@@ -113,7 +102,7 @@ header {
   100% { opacity:0; }
 }
 
-/* Legenda */
+/* ===== LEGENDA ===== */
 .legenda {
   background:#fff;
   padding:10px;
@@ -121,132 +110,145 @@ header {
   border-radius:6px;
   box-shadow:0 1px 5px rgba(0,0,0,.3);
 }
-.legenda h4 {
-  margin:0 0 6px;
-  font-size:14px;
-}
-.legenda div {
-  display:flex;
-  align-items:center;
-  gap:6px;
-  margin-bottom:4px;
-}
+.legenda h4 { margin:0 0 6px; font-size:14px; }
+.legenda div { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
 </style>
 </head>
 
 <body>
-
 <div class="nav-global">
   <button onclick="history.back()" title="Voltar">⬅️</button>
-  <a href="../index.html" title="Início">🏠</a>
+  <a href="./index.html" title="Início">🏠</a>
 </div>
 
 <header>Mapa Sanitário das Escolas – Secretaria de Educação</header>
 
 <div class="painel">
-  <label><input type="checkbox" id="filtroAdequado" checked>
-    <span class="bola verde"></span> Adequado
-  </label>
-  <label><input type="checkbox" id="filtroAlerta" checked>
-    <span class="bola laranja"></span> Alerta
-  </label>
-  <label><input type="checkbox" id="filtroCritico" checked>
-    <span class="bola vermelho"></span> Crítico
-  </label>
-  <label>
-    <input type="checkbox" id="togglePulso" checked> 🌐 Mapa vivo
-  </label>
+  <label><input type="checkbox" id="filtroAdequado" checked><span class="bola verde"></span> Adequado</label>
+  <label><input type="checkbox" id="filtroAlerta" checked><span class="bola laranja"></span> Alerta</label>
+  <label><input type="checkbox" id="filtroCritico" checked><span class="bola vermelho"></span> Crítico</label>
+  <label><input type="checkbox" id="togglePulso" checked> 🌐 Mapa vivo</label>
 </div>
 
 <div id="map"></div>
 
-<!-- Escolas -->
-<script src="./escolas.js"></script>
-
 <script type="module">
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
+  authDomain: "checkinfra-adf3c.firebaseapp.com",
+  projectId: "checkinfra-adf3c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const map = L.map("map").setView([-3.7319, -38.5267], 12);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "©️ OpenStreetMap" }).addTo(map);
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap"
-}).addTo(map);
-
-const markersCluster = L.markerClusterGroup();
+const camadaAdequado = L.layerGroup().addTo(map);
+const camadaAlerta = L.layerGroup().addTo(map);
+const camadaCritico = L.layerGroup().addTo(map);
 
 let pulsoAtivo = true;
+let markerCluster = null;
 
+function camadaPorStatus(status) {
+  if (status.includes("crítica")) return camadaCritico;
+  if (status.includes("alerta")) return camadaAlerta;
+  return camadaAdequado;
+}
 function corPorStatus(status) {
-  if(status?.toLowerCase().includes("crítica")) return "red";
-  if(status?.toLowerCase().includes("alerta")) return "orange";
+  if (status.includes("crítica")) return "red";
+  if (status.includes("alerta")) return "orange";
   return "green";
 }
-
 function classePulso(status) {
   if (!pulsoAtivo) return "";
-  if(status?.toLowerCase().includes("crítica")) return "pulse-critico";
-  if(status?.toLowerCase().includes("alerta")) return "pulse-alerta";
+  if (status.includes("crítica")) return "pulse-critico";
+  if (status.includes("alerta")) return "pulse-alerta";
   return "pulse-adequado";
 }
 
-async function carregarDados(){
-  // 1. Primeiro, dados do Firebase
-  const firebaseDocs = await getDocs(collection(window.db,"avaliacoes"));
-  const firebaseData = firebaseDocs.docs.map(d=>d.data());
+async function carregarAvaliacoes() {
+  const dados = await getDocs(collection(db,"avaliacoes"));
+  let pontos = [];
 
-  // 2. Para cada escola da lista, verifica se já tem avaliação; senão, pega da escolas.js
-  window.escolas.forEach(escola=>{
-    let avaliacao = firebaseData.find(f=>f.escola===escola.nome);
-    const lat = escola.lat;
-    const lng = escola.lng;
-    const status = avaliacao?.status || "Adequada";
-    const pontuacao = avaliacao?.pontuacao || 0;
-
-    const marker = L.circleMarker([lat,lng],{
-      radius:8,
-      color: corPorStatus(status),
-      fillColor: corPorStatus(status),
-      fillOpacity: 0.8,
-      className: classePulso(status)
-    }).bindPopup(`
-      <strong>${escola.nome}</strong><br>
-      Status: ${status}<br>
-      Pontuação: ${pontuacao}
-    `);
-
-    markersCluster.addLayer(marker);
+  dados.forEach(doc => {
+    const d = doc.data();
+    if (!d.lat || !d.lng) return;
+    pontos.push({
+      escola: d.escola,
+      status: d.status,
+      pontuacao: d.pontuacao,
+      lat: d.lat,
+      lng: d.lng
+    });
   });
 
-  map.addLayer(markersCluster);
+  return pontos;
 }
 
-carregarDados();
+async function atualizarMapa() {
+  camadaAdequado.clearLayers();
+  camadaAlerta.clearLayers();
+  camadaCritico.clearLayers();
 
-document.getElementById("togglePulso").addEventListener("change", e=>{
+  const pontos = await carregarAvaliacoes();
+
+  if(pulsoAtivo) {
+    if(markerCluster) map.removeLayer(markerCluster);
+    markerCluster = L.markerClusterGroup();
+    pontos.forEach(p => {
+      const marker = L.circleMarker([p.lat,p.lng],{
+        radius:8,
+        color: corPorStatus(p.status),
+        fillColor: corPorStatus(p.status),
+        fillOpacity:.8,
+        className: classePulso(p.status)
+      }).bindPopup(`<strong>${p.escola}</strong><br>Status: ${p.status}<br>Pontuação: ${p.pontuacao}`);
+      markerCluster.addLayer(marker);
+    });
+    map.addLayer(markerCluster);
+  } else {
+    pontos.forEach(p => {
+      const layer = camadaPorStatus(p.status);
+      L.circleMarker([p.lat,p.lng],{
+        radius:8,
+        color: corPorStatus(p.status),
+        fillColor: corPorStatus(p.status),
+        fillOpacity:.8
+      }).bindPopup(`<strong>${p.escola}</strong><br>Status: ${p.status}<br>Pontuação: ${p.pontuacao}`)
+      .addTo(layer);
+    });
+  }
+}
+
+// Inicializa mapa
+atualizarMapa();
+
+document.getElementById("togglePulso").addEventListener("change", e => {
   pulsoAtivo = e.target.checked;
-  markersCluster.clearLayers();
-  carregarDados();
+  atualizarMapa();
 });
 
-/* Filtros */
-document.getElementById("filtroAdequado").addEventListener("change", ()=>markersCluster.clearLayers()||carregarDados());
-document.getElementById("filtroAlerta").addEventListener("change", ()=>markersCluster.clearLayers()||carregarDados());
-document.getElementById("filtroCritico").addEventListener("change", ()=>markersCluster.clearLayers()||carregarDados());
+document.getElementById("filtroAdequado").addEventListener("change", atualizarMapa);
+document.getElementById("filtroAlerta").addEventListener("change", atualizarMapa);
+document.getElementById("filtroCritico").addEventListener("change", atualizarMapa);
 
-/* Legenda */
+// ===== LEGENDA =====
 const legenda = L.control({ position: "bottomright" });
-legenda.onAdd = function(){
-  const div = L.DomUtil.create("div","legenda");
+legenda.onAdd = function () {
+  const div = L.DomUtil.create("div", "legenda");
   div.innerHTML = `
     <h4>Leitura do mapa</h4>
     <div><span class="bola verde"></span> Situação adequada</div>
     <div><span class="bola laranja"></span> Requer atenção</div>
     <div><span class="bola vermelho"></span> Prioridade de intervenção</div>
     <hr>
-    <small>
-      O pulso indica intensidade relativa de atenção territorial.
-      Não substitui inspeção técnica presencial.
-    </small>
+    <small>O pulso indica intensidade relativa de atenção territorial. Não substitui inspeção técnica presencial.</small>
   `;
   return div;
 };

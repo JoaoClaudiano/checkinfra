@@ -10,10 +10,25 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <style>
-body { font-family: Arial, sans-serif; background:#f4f6f8; padding:20px; }
+body { 
+  font-family: Arial, sans-serif; 
+  background:#f4f6f8; 
+  margin:0; 
+  display:flex; 
+  flex-direction:column; 
+  min-height:100vh; 
+}
 
-.card { background:#fff; max-width:1100px; margin:20px auto; padding:20px; border-radius:10px; }
+/* Cards */
+.card { 
+  background:#fff; 
+  max-width:1100px; 
+  margin:20px auto; 
+  padding:20px; 
+  border-radius:10px; 
+}
 
+/* Grid e KPI */
 .grid { display:grid; grid-template-columns: repeat(3,1fr); gap:16px; }
 
 .kpi { background:#f9fafb; border-radius:10px; padding:16px; }
@@ -24,7 +39,7 @@ body { font-family: Arial, sans-serif; background:#f4f6f8; padding:20px; }
 
 .badge { padding:4px 8px; border-radius:12px; color:#fff; font-size:12px; }
 .adequada { background:#4caf50; }
-.alerta { background:yellow; color:#000; }  /* ALTERAÇÃO: ALERTA amarelo com texto preto */
+.alerta { background:yellow; color:#000; }
 .atencao { background:#ff7043; }
 .critica { background:#f44336; }
 
@@ -34,11 +49,25 @@ th { background:#f4f6f8; text-align:left; }
 
 button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-radius:6px; cursor:pointer; }
 
-/* ===== MODAL ===== */
+/* Modal */
 .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); align-items:center; justify-content:center; }
 .modal-content { background:#fff; padding:20px; border-radius:10px; max-width:500px; }
 
-/* ===== MOBILE ADAPTAÇÃO ===== */
+/* Footer fixo no final */
+footer {
+  background:#1f4fd8;
+  color:#fff;
+  text-align:center;
+  padding:16px 10px;
+  font-size:12px;
+  line-height:1.4;
+  box-sizing:border-box;
+  width:100vw;
+  position:relative;
+  left:0;
+}
+
+/* Mobile */
 @media (max-width: 600px){
   .grid { grid-template-columns:1fr; }
   .kpi strong { font-size:34px; }
@@ -51,6 +80,12 @@ button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-
   table td:nth-child(3)::before { content:"Status"; }
   table td:nth-child(4)::before { content:"IPT"; }
   .modal-content { width:90%; }
+}
+
+@media (max-width: 480px) {
+  footer div { padding:0 8px; }
+  footer p { font-size:10px; }
+  footer img { width:50%; max-width:80px; }
 }
 </style>
 </head>
@@ -67,12 +102,10 @@ button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-
     <h4>Unidades Críticas</h4>
     <strong id="kpiCritica">–</strong>
   </div>
-
   <div class="kpi">
     <h4>Unidades em Atenção</h4>
     <strong id="kpiAtencao">–</strong>
   </div>
-
   <div class="kpi">
     <h4>IPT Médio
       <span class="info" onclick="abrirModal()">i</span>
@@ -98,9 +131,7 @@ button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-
   <br><br>
   <table>
     <thead>
-      <tr>
-        <th>#</th><th>Escola</th><th>Status</th><th>IPT</th>
-      </tr>
+      <tr><th>#</th><th>Escola</th><th>Status</th><th>IPT</th></tr>
     </thead>
     <tbody id="tabelaRanking"></tbody>
   </table>
@@ -253,51 +284,28 @@ function fecharModal(){ modalIPT.style.display="none"; }
 
 carregarAvaliacoes();
 </script>
-<!-- ===== FOOTER FAIXA AZUL ===== -->
-<footer style="
-  background:#1f4fd8;
-  color:#fff;
-  text-align:center;
-  padding:16px 10px;
-  font-size:12px;
-  line-height:1.4;
-  box-sizing:border-box;
-  width:100%;
-  margin-top:40px;
-">
-  <div style="max-width:1100px; margin:0 auto;">
-    
-    <!-- Copyright -->
+
+<!-- ===== FOOTER FIXO NO FINAL DA PÁGINA ===== -->
+<footer>
+  <div style="max-width:600px; margin:0 auto;">
     <p style="margin:0 0 6px;">
       © 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License
     </p>
-    <!-- Links institucionais -->
     <p style="margin:0 0 6px;">
       <a href="./pages/contato.html" style="color:#fff; text-decoration:underline;">Contato</a> | 
       <a href="./pages/politica-privacidade.html" style="color:#fff; text-decoration:underline;">Política de Privacidade</a> | 
       <a href="./pages/termos-de-uso.html" style="color:#fff; text-decoration:underline;">Termos de Uso</a>
     </p>
-
-    <!-- Badge MIT License menor -->
     <p style="margin:0 0 6px;">
       <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">
-        <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" style="max-width:70px; width:35%;">
+        <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" style="max-width:80px; width:35%;">
       </a>
     </p>
-
-    <!-- Aviso LGPD -->
     <p style="margin:0; font-size:11px;">
       🔒 O CheckInfra realiza tratamento mínimo de dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), exclusivamente para fins técnicos, institucionais e de prestação do serviço licenciado.
     </p>
   </div>
 </footer>
 
-<style>
-  @media (max-width: 480px) {
-    footer div { padding: 0 8px; }
-    footer p { font-size: 10px; }
-    footer img { width: 50%; }
-  }
-</style>
 </body>
 </html>

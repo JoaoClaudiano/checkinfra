@@ -154,66 +154,67 @@ const kpiCritica = document.getElementById("kpiCritica");
 const kpiAtencao = document.getElementById("kpiAtencao");
 const kpiMedio = document.getElementById("kpiMedio");
 
-async function carregarAvaliacoes() {
-  const snapshot = await getDocs(collection(db, "avaliacoes"));
+function calcularDiasCriticos(createdAt) {
+  if (!createdAt) return 0;
+  const hoje = new Date();
+  const dataAvaliacao = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
+  const diffTime = hoje - dataAvaliacao;
+  return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+}
+
+async function carregarAvaliacoes(){
+  const snapshot = await getDocs(collection(db,"avaliacoes"));
   const dados = [];
-  snapshot.forEach(doc => {
+  snapshot.forEach(doc=>{
     const d = doc.data();
-    if (d.status && d.createdAt) dados.push(d);
+    if(d.status && d.createdAt) dados.push(d);
   });
   montar(dados);
 }
 
-function calcularDiasCriticos(dataAvaliacao) {
-  const hoje = new Date();
-  const avaliacao = new Date(dataAvaliacao);
-  const diffTime = hoje - avaliacao;
-  return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-}
-
-function montar(dados) {
+function montar(dados){
   rankingGlobal = [];
   tabelaRanking.innerHTML = "";
 
-  let critica = 0, atencao = 0, somaIPT = 0;
-  const statusCount = { adequada: 0, alerta: 0, atencao: 0, critica: 0 };
-  const problemasCount = {};
-  const diasMap = {};
+  let critica=0, atencao=0, somaIPT=0;
+  const statusCount={adequada:0,alerta:0,atencao:0,critica:0};
+  const problemasCount={};
+  const diasMap={};
 
-  dados.forEach(d => {
-    let peso = 1, classe = "adequada";
-    const s = (d.status || "").toLowerCase();
+  dados.forEach(d=>{
+    let peso=1, classe="adequada";
+    const s=(d.status||"").toLowerCase();
 
-    if (s.includes("crít")) { peso = 4; classe = "critica"; critica++; statusCount.critica++; }
-    else if (s.includes("aten")) { peso = 3; classe = "atencao"; atencao++; statusCount.atencao++; }
-    else if (s.includes("alerta")) { peso = 2; classe = "alerta"; statusCount.alerta++; }
+    if(s.includes("crít")){peso=4;classe="critica";critica++;statusCount.critica++;}
+    else if(s.includes("aten")){peso=3;classe="atencao";atencao++;statusCount.atencao++;}
+    else if(s.includes("alerta")){peso=2;classe="alerta";statusCount.alerta++;}
     else statusCount.adequada++;
 
-    const pont = Number(d.pontuacao || 0);
+    const pont=Number(d.pontuacao||0);
     const dias = Math.min(calcularDiasCriticos(d.createdAt), 30);
-    const IPT = (peso * 0.4) + (pont * 0.4) + (dias * 0.2);
-    somaIPT += IPT;
+    const IPT=(peso*0.4)+(pont*0.4)+(dias*0.2);
+    somaIPT+=IPT;
 
-    if (d.problemas && Array.isArray(d.problemas)) {
-      d.problemas.forEach(p => {
-        problemasCount[p] = (problemasCount[p] || 0) + 1;
+    if(d.problemas && Array.isArray(d.problemas)){
+      d.problemas.forEach(p=>{
+        problemasCount[p] = (problemasCount[p]||0)+1;
       });
     }
 
-    const dia = new Date(d.createdAt).toISOString().slice(0,10);
-    if (!diasMap[dia]) diasMap[dia] = { critica: [], atencao: [], alerta: [], adequada: [] };
+    const dia = d.createdAt.toDate ? d.createdAt.toDate().toISOString().split("T")[0] : new Date(d.createdAt).toISOString().split("T")[0];
+    if(!diasMap[dia]) diasMap[dia]={critica:[],atencao:[],alerta:[],adequada:[]};
     diasMap[dia][classe].push(d.escola);
 
     rankingGlobal.push({
-      escola: d.escola || "Sem nome",
+      escola:d.escola||"Sem nome",
       classe,
-      statusLabel: classe === "critica" ? "Crítica" : classe === "atencao" ? "Atenção Elevada" : classe === "alerta" ? "Alerta" : "Adequada",
+      statusLabel:classe==="critica"?"Crítica":classe==="atencao"?"Atenção Elevada":classe==="alerta"?"Alerta":"Adequada",
       IPT,
       diasCriticos: dias
     });
   });
 
-  rankingGlobal.sort((a, b) => b.IPT - a.IPT);
+  rankingGlobal.sort((a,b)=>b.IPT-a.IPT);
 
   rankingGlobal.forEach((r,i)=>{
     tabelaRanking.innerHTML += `
@@ -299,7 +300,7 @@ function montar(dados) {
   });
 }
 
-function exportarXLSX() {
+function exportarXLSX(){
   if(rankingGlobal.length===0){ alert("Nenhum dado disponível para exportação."); return; }
   const ws = XLSX.utils.json_to_sheet(rankingGlobal);
   const wb = XLSX.utils.book_new();

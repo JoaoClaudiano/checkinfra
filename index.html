@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DD4SQ88NVT"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-DD4SQ88NVT');
-  </script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DD4SQ88NVT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-DD4SQ88NVT');
+</script>
   
   <title>CheckInfra – Diagnóstico Sanitário Escolar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,6 +55,7 @@
       align-items: center;
       justify-content: center;
       text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
     }
 
     .nav-global button:hover,
@@ -148,7 +149,6 @@
       font-size:12px;
       line-height:1.4;
       box-sizing:border-box;
-      width:100%;
     }
 
     footer div {
@@ -161,6 +161,11 @@
       text-decoration:underline;
     }
 
+    footer img {
+      max-width:90px;
+      width:40%;
+    }
+
     /* ===== MOBILE ===== */
     @media (max-width: 480px) {
       footer div {
@@ -171,6 +176,11 @@
       }
       footer img {
         width: 60%;
+      }
+      footer p[style*="display:flex"] {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
       }
     }
   </style>
@@ -215,22 +225,22 @@
   </div>
 </main>
 
-<!-- ===== FOOTER ===== -->
+<!-- ===== FOOTER FIXO NO FINAL DA PÁGINA ===== -->
 <footer>
   <div>
     <!-- Copyright -->
-    <p style="margin:0 0 6px;">
+    <p style="margin:0 0 6px; font-size:12px;">
       © 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License
     </p>
 
     <!-- Links institucionais -->
-    <p style="margin:0 0 16px;">
-      <a href="./pages/contato.html" style="color:#fff; text-decoration:underline;">Contato</a> | 
-      <a href="./pages/politica-privacidade.html" style="color:#fff; text-decoration:underline;">Política de Privacidade</a> | 
-      <a href="./pages/termos-de-uso.html" style="color:#fff; text-decoration:underline;">Termos de Uso</a>
+    <p style="margin:0 0 16px; font-size:12px;">
+      <a href="./pages/contato.html">Contato</a> | 
+      <a href="./pages/politica-privacidade.html">Política de Privacidade</a> | 
+      <a href="./pages/termos-de-uso.html">Termos de Uso</a>
     </p>
 
-    <!-- Badges alinhados horizontalmente -->
+    <!-- Badges MIT + GitHub -->
     <p style="margin:0 0 6px; display:flex; justify-content:center; align-items:center; gap:12px;">
       <!-- MIT License -->
       <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">
@@ -255,21 +265,6 @@
   </div>
 </footer>
 
-<!-- ===== MEDIA QUERY PARA MOBILE ===== -->
-<style>
-  @media (max-width: 480px) {
-    footer div {
-      padding: 0 8px;
-    }
-    footer p {
-      font-size: 10px;
-    }
-    footer img {
-      width: 60%;
-    }
-  }
-</style>
-
 <!-- ===== SERVICE WORKER ===== -->
 <script>
 if ("serviceWorker" in navigator) {
@@ -278,6 +273,5 @@ if ("serviceWorker" in navigator) {
     .catch(err => console.error("Erro no Service Worker", err));
 }
 </script>
-
 </body>
 </html>

@@ -26,7 +26,7 @@ body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; display:fle
 table { width:100%; border-collapse: collapse; font-size:14px; }
 th, td { padding:8px; border-bottom:1px solid #eee; }
 th { background:#f4f6f8; text-align:left; }
-button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-radius:6px; cursor:pointer; }
+button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-radius:6px; cursor:pointer; margin-bottom:10px; }
 .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); align-items:center; justify-content:center; }
 .modal-content { background:#fff; padding:20px; border-radius:10px; max-width:500px; }
 footer { background:#1f4fd8; color:#fff; text-align:center; padding:16px 10px; font-size:12px; line-height:1.4; box-sizing:border-box; width:100vw; position:relative; left:0; }
@@ -154,20 +154,23 @@ const kpiCritica = document.getElementById("kpiCritica");
 const kpiAtencao = document.getElementById("kpiAtencao");
 const kpiMedio = document.getElementById("kpiMedio");
 
-function calcularDiasCriticos(createdAt) {
+function calcularDiasCriticos(createdAt){
   if (!createdAt) return 0;
   const hoje = new Date();
-  const dataAvaliacao = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
-  const diffTime = hoje - dataAvaliacao;
+  const avaliacao = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
+  const diffTime = hoje - avaliacao;
   return Math.floor(diffTime / (1000 * 60 * 60 * 24));
 }
 
 async function carregarAvaliacoes(){
   const snapshot = await getDocs(collection(db,"avaliacoes"));
   const dados = [];
-  snapshot.forEach(doc=>{
-    const d = doc.data();
-    if(d.status && d.createdAt) dados.push(d);
+  snapshot.forEach(docSnap=>{
+    const d = docSnap.data();
+    if(d.status && d.createdAt) {
+      d.dias_criticos = calcularDiasCriticos(d.createdAt);
+      dados.push(d);
+    }
   });
   montar(dados);
 }
@@ -191,7 +194,7 @@ function montar(dados){
     else statusCount.adequada++;
 
     const pont=Number(d.pontuacao||0);
-    const dias = Math.min(calcularDiasCriticos(d.createdAt), 30);
+    const dias=Math.min(Number(d.dias_criticos||0),30);
     const IPT=(peso*0.4)+(pont*0.4)+(dias*0.2);
     somaIPT+=IPT;
 
@@ -201,9 +204,10 @@ function montar(dados){
       });
     }
 
-    const dia = d.createdAt.toDate ? d.createdAt.toDate().toISOString().split("T")[0] : new Date(d.createdAt).toISOString().split("T")[0];
-    if(!diasMap[dia]) diasMap[dia]={critica:[],atencao:[],alerta:[],adequada:[]};
-    diasMap[dia][classe].push(d.escola);
+    const dia = d.createdAt;
+    const diaStr = dia.toDate ? dia.toDate().toISOString().split("T")[0] : dia;
+    if(!diasMap[diaStr]) diasMap[diaStr]={critica:[],atencao:[],alerta:[],adequada:[]};
+    diasMap[diaStr][classe].push(d.escola);
 
     rankingGlobal.push({
       escola:d.escola||"Sem nome",
@@ -216,6 +220,7 @@ function montar(dados){
 
   rankingGlobal.sort((a,b)=>b.IPT-a.IPT);
 
+  // Tabela
   rankingGlobal.forEach((r,i)=>{
     tabelaRanking.innerHTML += `
       <tr>
@@ -231,6 +236,7 @@ function montar(dados){
   kpiAtencao.innerText = atencao;
   kpiMedio.innerText = (somaIPT/dados.length).toFixed(2);
 
+  // Gráficos (igual ao original)
   new Chart(document.getElementById("graficoStatus"),{
     type:"pie",
     data:{ labels:["Adequada","Alerta","Atenção","Crítica"], datasets:[{ data:Object.values(statusCount), backgroundColor:["#4caf50","yellow","#ff7043","#f44336"] }] }

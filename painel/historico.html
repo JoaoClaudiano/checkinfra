@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<title>Histórico por Escola – CheckInfra</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#1f4fd8">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f4f6f8;
+  margin:0;
+  padding:20px;
+}
+
+.card {
+  background:#fff;
+  max-width:1100px;
+  margin:20px auto;
+  padding:20px;
+  border-radius:10px;
+}
+
+h2, h3 { margin-top:0; }
+
+select {
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  min-width:250px;
+}
+
+table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+
+th, td {
+  padding:8px;
+  border-bottom:1px solid #eee;
+}
+
+th {
+  background:#f4f6f8;
+  text-align:left;
+}
+
+.badge {
+  padding:4px 8px;
+  border-radius:12px;
+  color:#fff;
+  font-size:12px;
+}
+.adequada { background:#4caf50; }
+.alerta { background:yellow; color:#000; }
+.atencao { background:#ff7043; }
+.critica { background:#f44336; }
+
+small {
+  color:#666;
+}
+
+footer {
+  margin-top:40px;
+  text-align:center;
+  font-size:12px;
+  color:#666;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>📊 Histórico por Escola</h2>
+  <p>
+    Esta visão apresenta <strong>todas as avaliações registradas</strong> por unidade escolar,
+    preservando o histórico técnico e temporal.
+  </p>
+  <small>
+    O painel gerencial considera apenas a avaliação mais recente por escola.
+  </small>
+</div>
+
+<div class="card">
+  <label for="filtroEscola"><strong>Selecionar escola:</strong></label><br><br>
+  <select id="filtroEscola">
+    <option value="">— Todas —</option>
+  </select>
+</div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Escola</th>
+        <th>Status</th>
+        <th>Pontuação</th>
+        <th>RT</th>
+        <th>IPT</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaHistorico"></tbody>
+  </table>
+</div>
+
+<footer>
+  © 2025 CheckInfra — Histórico técnico preservado para fins de acompanhamento e auditoria
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  Timestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
+  authDomain: "checkinfra-adf3c.firebaseapp.com",
+  projectId: "checkinfra-adf3c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const tabela = document.getElementById("tabelaHistorico");
+const filtro = document.getElementById("filtroEscola");
+
+let avaliacoes = [];
+
+function calcularIPT(d){
+  const s = (d.status || "").toLowerCase();
+  let GS = 1;
+  if(s.includes("crít")) GS = 4;
+  else if(s.includes("aten")) GS = 3;
+  else if(s.includes("alerta")) GS = 2;
+
+  const IT = Number(d.pontuacao || 0);
+
+  // RT = persistência (quantidade de dias no status)
+  const RT = Math.min(Number(d.dias_criticos || 0), 30);
+
+  return (GS * 0.4) + (IT * 0.4) + (RT * 0.2);
+}
+
+function classeStatus(status){
+  const s = status.toLowerCase();
+  if(s.includes("crít")) return "critica";
+  if(s.includes("aten")) return "atencao";
+  if(s.includes("alerta")) return "alerta";
+  return "adequada";
+}
+
+function renderTabela(){
+  tabela.innerHTML = "";
+  const escolaSelecionada = filtro.value;
+
+  avaliacoes
+    .filter(a => !escolaSelecionada || a.escola === escolaSelecionada)
+    .forEach(a=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${a.data}</td>
+        <td>${a.escola}</td>
+        <td><span class="badge ${classeStatus(a.status)}">${a.status}</span></td>
+        <td>${a.pontuacao}</td>
+        <td>${a.RT}</td>
+        <td>${a.IPT.toFixed(2)}</td>
+      `;
+      tabela.appendChild(tr);
+    });
+}
+
+async function carregar(){
+  const snap = await getDocs(collection(db,"avaliacoes"));
+  const escolasSet = new Set();
+
+  avaliacoes = [];
+
+  snap.forEach(doc=>{
+    const d = doc.data();
+    if(!d.escola || !d.status) return;
+
+    const data = d.createdAt instanceof Timestamp
+      ? d.createdAt.toDate().toLocaleDateString()
+      : "—";
+
+    const RT = Number(d.dias_criticos || 0);
+
+    avaliacoes.push({
+      escola: d.escola,
+      status: d.status,
+      pontuacao: d.pontuacao || 0,
+      RT,
+      IPT: calcularIPT(d),
+      data,
+      timestamp: d.createdAt?.seconds || 0
+    });
+
+    escolasSet.add(d.escola);
+  });
+
+  // ordena do mais recente para o mais antigo
+  avaliacoes.sort((a,b)=>b.timestamp - a.timestamp);
+
+  // popula filtro
+  [...escolasSet].sort().forEach(e=>{
+    const opt = document.createElement("option");
+    opt.value = e;
+    opt.textContent = e;
+    filtro.appendChild(opt);
+  });
+
+  renderTabela();
+}
+
+filtro.addEventListener("change", renderTabela);
+
+carregar();
+</script>
+
+</body>
+</html>

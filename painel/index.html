@@ -163,6 +163,20 @@ function calcularDiasCriticos(createdAt){
 }
 
 async function carregarAvaliacoes(){
+  async function carregarAvaliacoes(){
+  const snapshot = await getDocs(collection(db,"avaliacoes"));
+  const dados = [];
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
+    console.log("Documento carregado do Firebase:", d); // <- log
+    if(d.status && d.createdAt){
+      d.dias_criticos = calcularDiasCriticos(d.createdAt);
+      dados.push(d);
+    }
+  });
+  console.log("Total de avaliações carregadas:", dados.length); // <- log
+  montar(dados);
+}
   const snapshot = await getDocs(collection(db,"avaliacoes"));
   const dados = [];
   snapshot.forEach(docSnap=>{

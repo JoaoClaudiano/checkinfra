@@ -14,6 +14,9 @@ body {
   font-family: Arial, sans-serif;
   background:#f4f6f8;
   margin:0;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
 }
 
 /* Cards */
@@ -25,132 +28,62 @@ body {
   border-radius:10px;
 }
 
-/* ===== KPIs RESPONSIVOS ===== */
-.kpi-grid {
-  display:flex;
-  gap:12px;
-  overflow-x:auto;
-}
-
-.kpi {
-  min-width:160px;
-  background:#f9fafb;
-  border-radius:10px;
-  padding:16px;
-}
-
+/* Grid e KPI */
+.grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:16px; }
+.kpi { background:#f9fafb; border-radius:10px; padding:16px; text-align:center; }
 .kpi h4 { margin:0; font-size:14px; color:#555; }
-.kpi strong { font-size:26px; display:block; margin-top:6px; }
+.kpi strong { font-size:30px; display:block; margin-top:6px; }
 
-@media (min-width:768px){
-  .kpi-grid {
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    overflow:visible;
-  }
-}
+.info { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:#1f4fd8; color:#fff; font-size:12px; cursor:pointer; margin-left:6px; }
 
-/* ===== ABAS ===== */
-.tabs {
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  margin-bottom:16px;
-}
-
-.tab {
-  padding:8px 14px;
-  border-radius:20px;
-  border:none;
-  background:#e5e7eb;
-  font-size:13px;
-  cursor:pointer;
-  white-space:nowrap;
-}
-
-.tab.active {
-  background:#1f4fd8;
-  color:#fff;
-}
-
-.tab.link {
-  text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  color:#000;
-}
-
-/* ===== BOTÕES ===== */
-.actions {
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:12px;
-}
-
-button {
-  padding:10px 14px;
-  background:#1f4fd8;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-/* ===== TABELA ===== */
-table { width:100%; border-collapse:collapse; font-size:14px; }
-th,td { padding:8px; border-bottom:1px solid #eee; }
-th { background:#f4f6f8; text-align:left; }
-
-.badge {
-  padding:4px 8px;
-  border-radius:12px;
-  color:#fff;
-  font-size:12px;
-}
+.badge { padding:4px 8px; border-radius:12px; color:#fff; font-size:12px; }
 .adequada { background:#4caf50; }
-.alerta { background:gold; color:#000; }
+.alerta { background:yellow; color:#000; }
 .atencao { background:#ff7043; }
 .critica { background:#f44336; }
 
-/* ===== MOBILE TABELA ===== */
-@media (max-width:600px){
-  table thead { display:none; }
-  table tr {
-    display:block;
-    border:1px solid #eee;
-    border-radius:8px;
-    margin-bottom:12px;
-    padding:10px;
-  }
-  table td {
-    display:block;
-    border:none;
-    padding:4px 0;
-  }
-  table td::before {
-    font-weight:bold;
-    color:#666;
-    display:inline-block;
-    width:90px;
-  }
-  table td:nth-child(1)::before { content:"#"; }
-  table td:nth-child(2)::before { content:"Escola"; }
-  table td:nth-child(3)::before { content:"Status"; }
-  table td:nth-child(4)::before { content:"IPT"; }
-}
+table { width:100%; border-collapse: collapse; font-size:14px; }
+th, td { padding:8px; border-bottom:1px solid #eee; }
+th { background:#f4f6f8; text-align:left; }
 
-/* ===== SEÇÕES ===== */
-.section { display:none; }
-.section.active { display:block; }
+button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-radius:6px; cursor:pointer; margin-right:8px; }
 
+.tabs { display:flex; gap:10px; margin-bottom:12px; flex-wrap: wrap; }
+.tab { padding:8px 16px; background:#e0e0e0; border-radius:6px; cursor:pointer; }
+.tab.active { background:#1f4fd8; color:#fff; }
+
+/* Modal */
+.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); align-items:center; justify-content:center; }
+.modal-content { background:#fff; padding:20px; border-radius:10px; max-width:500px; }
+
+/* Footer fixo no final */
 footer {
   background:#1f4fd8;
   color:#fff;
   text-align:center;
   padding:16px 10px;
   font-size:12px;
-  margin-top:30px;
+  line-height:1.4;
+  box-sizing:border-box;
+  width:100vw;
+  position:relative;
+  left:0;
+}
+
+/* Mobile */
+@media (max-width: 600px){
+  .grid { grid-template-columns:1fr; }
+  .kpi strong { font-size:28px; }
+  table thead { display:none; }
+  table tr { display:block; margin-bottom:12px; border:1px solid #eee; border-radius:8px; padding:10px; }
+  table td { display:block; border:none; padding:4px 0; }
+  table td::before { font-weight:bold; color:#666; display:inline-block; width:90px; }
+  table td:nth-child(1)::before { content:"#"; }
+  table td:nth-child(2)::before { content:"Escola"; }
+  table td:nth-child(3)::before { content:"Status"; }
+  table td:nth-child(4)::before { content:"IPT"; }
+  table td:nth-child(5)::before { content:"Dias no Status"; }
+  .modal-content { width:90%; }
 }
 </style>
 </head>
@@ -162,8 +95,7 @@ footer {
   <small>Síntese executiva e priorização técnica</small>
 </div>
 
-<!-- KPIs -->
-<div class="card kpi-grid">
+<div class="card grid">
   <div class="kpi">
     <h4>Unidades Críticas</h4>
     <strong id="kpiCritica">–</strong>
@@ -173,61 +105,83 @@ footer {
     <strong id="kpiAtencao">–</strong>
   </div>
   <div class="kpi">
-    <h4>IPT Médio</h4>
+    <h4>IPT Médio
+      <span class="info" onclick="abrirModal()">i</span>
+    </h4>
     <strong id="kpiMedio">–</strong>
   </div>
+  <div class="kpi">
+    <h4>Problemas Frequentes</h4>
+    <strong id="kpiProblemas">–</strong>
+  </div>
 </div>
 
-<!-- Gráficos -->
-<div class="card">
-  <h3>Status das Unidades</h3>
-  <canvas id="graficoStatus"></canvas>
+<div class="card grid">
+  <div>
+    <h3>Status das Unidades</h3>
+    <canvas id="graficoStatus"></canvas>
+  </div>
+  <div>
+    <h3>Top Prioridades (IPT)</h3>
+    <canvas id="graficoIndice"></canvas>
+  </div>
+  <div>
+    <h3>Frequência de Problemas</h3>
+    <canvas id="graficoProblemas"></canvas>
+  </div>
 </div>
 
-<div class="card">
-  <h3>Top Prioridades (IPT)</h3>
-  <canvas id="graficoIndice"></canvas>
-</div>
-
-<div class="card">
-  <h3>📌 Frequência de Problemas</h3>
-  <canvas id="graficoProblemas"></canvas>
-</div>
-
-<!-- Ranking + Histórico -->
 <div class="card">
   <div class="tabs">
-    <button class="tab active" data-tab="ranking">📊 Ranking</button>
-    <button class="tab" data-tab="historico">🕘 Histórico</button>
-    <a href="metodo.html" class="tab link">📘 Método</a>
+    <div class="tab active" onclick="mostrarAba('ranking')">Ranking</div>
+    <div class="tab" onclick="mostrarAba('historico')">Histórico</div>
+    <div class="tab" onclick="mostrarAba('metodologia')">Metodologia</div>
   </div>
 
-  <div class="actions">
-    <button onclick="exportarXLSX()">⬇️ Baixar XLSX</button>
-  </div>
-
-  <div id="ranking" class="section active">
+  <div id="aba-ranking">
+    <button onclick="exportarXLSX()">⬇️ Baixar Ranking</button>
+    <button onclick="exportarHistorico()">⬇️ Baixar Histórico</button>
+    <br><br>
     <table>
       <thead>
-        <tr><th>#</th><th>Escola</th><th>Status</th><th>IPT</th></tr>
+        <tr><th>#</th><th>Escola</th><th>Status</th><th>IPT</th><th>Dias no Status</th></tr>
       </thead>
       <tbody id="tabelaRanking"></tbody>
     </table>
   </div>
 
-  <div id="historico" class="section">
+  <div id="aba-historico" style="display:none;">
     <table>
       <thead>
-        <tr><th>Data</th><th>Escola</th><th>Status</th><th>IPT</th></tr>
+        <tr><th>#</th><th>Escola</th><th>Status</th><th>IPT</th><th>Data</th></tr>
       </thead>
       <tbody id="tabelaHistorico"></tbody>
     </table>
+  </div>
+
+  <div id="aba-metodologia" style="display:none;">
+    <iframe src="metodo.html" style="width:100%;height:500px;border:none;"></iframe>
+  </div>
+</div>
+
+<div class="modal" id="modalIPT" onclick="fecharModal()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <h3>O que é o IPT médio?</h3>
+    <p>
+      O IPT médio expressa o grau médio de urgência técnica da rede escolar.
+      Ele não aponta uma escola específica, mas indica o <strong>estado geral
+      da infraestrutura</strong>.
+    </p>
+    <button onclick="fecharModal()">Fechar</button>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { Chart, registerables } from "https://cdn.jsdelivr.net/npm/chart.js";
+
+Chart.register(...registerables);
 
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
@@ -238,138 +192,199 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+let rankingGlobal = [];
+let rankingHistorico = [];
+
 const tabelaRanking = document.getElementById("tabelaRanking");
 const tabelaHistorico = document.getElementById("tabelaHistorico");
-
 const kpiCritica = document.getElementById("kpiCritica");
 const kpiAtencao = document.getElementById("kpiAtencao");
 const kpiMedio = document.getElementById("kpiMedio");
-
-let rankingGlobal = [];
-let historicoGlobal = [];
+const kpiProblemas = document.getElementById("kpiProblemas");
 
 async function carregarAvaliacoes(){
-  const snap = await getDocs(collection(db,"avaliacoes"));
-  const todas = [];
-  snap.forEach(doc=>todas.push(doc.data()));
-
-  // ===== HISTÓRICO =====
-  historicoGlobal = todas.sort((a,b)=>b.createdAt?.seconds - a.createdAt?.seconds);
-
-  tabelaHistorico.innerHTML = "";
-  historicoGlobal.forEach(d=>{
-    tabelaHistorico.innerHTML += `
-      <tr>
-        <td>${d.createdAt ? new Date(d.createdAt.seconds*1000).toLocaleDateString() : "-"}</td>
-        <td>${d.escola}</td>
-        <td>${d.status}</td>
-        <td>${d.pontuacao}</td>
-      </tr>`;
+  const snapshot = await getDocs(collection(db,"avaliacoes"));
+  const dados = [];
+  snapshot.forEach(doc=>{
+    const d = doc.data();
+    if(d.status){
+      if(d.createdAt instanceof Timestamp){
+        d.data_avaliacao = d.createdAt.toDate().toISOString().split("T")[0];
+      } else d.data_avaliacao = new Date().toISOString().split("T")[0];
+      dados.push(d);
+    }
   });
-
-  // ===== AGRUPA POR ESCOLA (mais recente) =====
-  const porEscola = {};
-  historicoGlobal.forEach(d=>{
-    if(!porEscola[d.escola]) porEscola[d.escola] = d;
-  });
-
-  montarPainel(Object.values(porEscola));
+  montar(dados);
 }
 
-function montarPainel(dados){
+function montar(dados){
   rankingGlobal = [];
+  rankingHistorico = [];
   tabelaRanking.innerHTML = "";
+  tabelaHistorico.innerHTML = "";
 
-  let critica=0, atencao=0, somaIPT=0;
   const statusCount={adequada:0,alerta:0,atencao:0,critica:0};
-  const freqProblemas={};
+  const problemasCount={};
+  const escolasMap = {}; // para pegar apenas a avaliação mais recente
+
+  let somaIPT=0, critica=0, atencao=0;
 
   dados.forEach(d=>{
-    let GS=1,classe="adequada";
-    const s=d.status.toLowerCase();
-
-    if(s.includes("crít")){GS=4;classe="critica";critica++;statusCount.critica++}
-    else if(s.includes("aten")){GS=3;classe="atencao";atencao++;statusCount.atencao++}
-    else if(s.includes("alerta")){GS=2;statusCount.alerta++}
+    let peso=1, classe="adequada";
+    const s=(d.status||"").toLowerCase();
+    if(s.includes("crít")){peso=4;classe="critica";critica++;statusCount.critica++;}
+    else if(s.includes("aten")){peso=3;classe="atencao";atencao++;statusCount.atencao++;}
+    else if(s.includes("alerta")){peso=2;classe="alerta";statusCount.alerta++;}
     else statusCount.adequada++;
 
-    const IT=Number(d.pontuacao||0);
-    const RT=Math.min(Number(d.pontuacao||0),30);
-    const IPT=(GS*0.4)+(IT*0.4)+(RT*0.2);
+    const pont = Number(d.pontuacao||0);
+    const dias = Math.min(Number(d.dias_criticos||0),30); 
+    const IPT = (peso*0.4)+(pont*0.4)+(dias*0.2);
+    somaIPT += IPT;
 
-    somaIPT+=IPT;
+    // problemas
+    if(d.problemas && Array.isArray(d.problemas)){
+      d.problemas.forEach(p=>{
+        problemasCount[p] = (problemasCount[p]||0)+1;
+      });
+    }
 
-    (d.problemas||[]).forEach(p=>{
-      freqProblemas[p]=(freqProblemas[p]||0)+1;
-    });
+    const registro = {
+      escola:d.escola||"Sem nome",
+      classe,
+      statusLabel:classe==="critica"?"Crítica":classe==="atencao"?"Atenção Elevada":classe==="alerta"?"Alerta":"Adequada",
+      IPT,
+      diasNoStatus:d.dias_criticos||0,
+      data:d.data_avaliacao
+    };
 
-    rankingGlobal.push({escola:d.escola,classe,status:d.status,IPT});
+    rankingHistorico.push(registro);
+
+    // somente a mais recente por escola
+    if(!escolasMap[registro.escola] || new Date(registro.data) > new Date(escolasMap[registro.escola].data)){
+      escolasMap[registro.escola] = registro;
+    }
   });
 
-  rankingGlobal.sort((a,b)=>b.IPT-a.IPT);
+  rankingGlobal = Object.values(escolasMap);
 
+  // KPIs
+  kpiCritica.innerText = critica;
+  kpiAtencao.innerText = atencao;
+  kpiMedio.innerText = (somaIPT/dados.length).toFixed(2);
+  kpiProblemas.innerText = Object.keys(problemasCount).length;
+
+  // tabela ranking
+  rankingGlobal.sort((a,b)=>b.IPT-a.IPT);
   rankingGlobal.forEach((r,i)=>{
-    tabelaRanking.innerHTML+=`
+    tabelaRanking.innerHTML += `
       <tr>
         <td>${i+1}</td>
         <td>${r.escola}</td>
-        <td><span class="badge ${r.classe}">${r.status}</span></td>
+        <td><span class="badge ${r.classe}">${r.statusLabel}</span></td>
         <td>${r.IPT.toFixed(2)}</td>
+        <td>${r.diasNoStatus}</td>
       </tr>`;
   });
 
-  kpiCritica.innerText=critica;
-  kpiAtencao.innerText=atencao;
-  kpiMedio.innerText=(somaIPT/dados.length).toFixed(2);
+  // tabela histórico
+  rankingHistorico.sort((a,b)=>new Date(b.data)-new Date(a.data));
+  rankingHistorico.forEach((r,i)=>{
+    tabelaHistorico.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${r.escola}</td>
+        <td><span class="badge ${r.classe}">${r.statusLabel}</span></td>
+        <td>${r.IPT.toFixed(2)}</td>
+        <td>${r.data}</td>
+      </tr>`;
+  });
 
-  new Chart(graficoStatus,{
+  // gráficos
+  new Chart(document.getElementById("graficoStatus"),{
     type:"pie",
-    data:{labels:["Adequada","Alerta","Atenção","Crítica"],
-    datasets:[{data:Object.values(statusCount),
-    backgroundColor:["#4caf50","gold","#ff7043","#f44336"]}]}
+    data:{
+      labels:["Adequada","Alerta","Atenção","Crítica"],
+      datasets:[{ data:Object.values(statusCount), backgroundColor:["#4caf50","yellow","#ff7043","#f44336"] }]
+    }
   });
 
-  const top=rankingGlobal.slice(0,10);
-  new Chart(graficoIndice,{
+  new Chart(document.getElementById("graficoIndice"),{
     type:"bar",
-    data:{labels:top.map(r=>r.escola),
-    datasets:[{data:top.map(r=>r.IPT),backgroundColor:"#1f4fd8"}]},
-    options:{indexAxis:"y",plugins:{legend:{display:false}}}
+    data:{
+      labels: rankingGlobal.slice(0,10).map(r=>r.escola),
+      datasets:[{ data: rankingGlobal.slice(0,10).map(r=>r.IPT.toFixed(2)), backgroundColor:"#1f4fd8" }]
+    },
+    options:{ indexAxis:"y", plugins:{ legend:{ display:false } } }
   });
 
-  const freq=Object.entries(freqProblemas).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  new Chart(graficoProblemas,{
+  new Chart(document.getElementById("graficoProblemas"),{
     type:"bar",
-    data:{labels:freq.map(f=>f[0]),
-    datasets:[{data:freq.map(f=>f[1]),backgroundColor:"#ff7043"}]},
-    options:{indexAxis:"y",plugins:{legend:{display:false}}}
+    data:{ labels:Object.keys(problemasCount), datasets:[{ label:"Ocorrências", data:Object.values(problemasCount), backgroundColor:"#ff9800" }] },
+    options:{ indexAxis:"y", plugins:{ legend:{ display:false } } }
   });
 }
 
-window.exportarXLSX=function(){
-  const ws=XLSX.utils.json_to_sheet(rankingGlobal.map(r=>({
-    Escola:r.escola,Status:r.status,IPT:r.IPT.toFixed(2)
-  })));
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Ranking");
-  XLSX.writeFile(wb,"ranking_checkinfra.xlsx");
+// export ranking
+window.exportarXLSX = function() {
+  if(rankingGlobal.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
+  const exportData = rankingGlobal.map(r => ({
+    Escola:r.escola,
+    Status:r.statusLabel,
+    IPT:r.IPT.toFixed(2),
+    DiasNoStatus:r.diasNoStatus
+  }));
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Ranking IPT");
+  XLSX.writeFile(wb, "ranking_checkinfra.xlsx");
 };
 
-// Abas
-document.querySelectorAll(".tab[data-tab]").forEach(btn=>{
-  btn.onclick=()=>{
-    document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-    document.getElementById(btn.dataset.tab).classList.add("active");
-  };
-});
+// export histórico
+window.exportarHistorico = function(){
+  if(rankingHistorico.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
+  const exportData = rankingHistorico.map(r => ({
+    Escola:r.escola,
+    Status:r.statusLabel,
+    IPT:r.IPT.toFixed(2),
+    Data:r.data
+  }));
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Historico Completo");
+  XLSX.writeFile(wb, "historico_checkinfra.xlsx");
+};
+
+function abrirModal(){ modalIPT.style.display="flex"; }
+function fecharModal(){ modalIPT.style.display="none"; }
+
+function mostrarAba(aba){
+  document.getElementById("aba-ranking").style.display = "none";
+  document.getElementById("aba-historico").style.display = "none";
+  document.getElementById("aba-metodologia").style.display = "none";
+  document.getElementById("aba-"+aba).style.display = "block";
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelector(`.tab[onclick="mostrarAba('${aba}')"]`).classList.add("active");
+}
 
 carregarAvaliacoes();
 </script>
 
 <footer>
-  © 2025 CheckInfra — Projeto acadêmico e tecnológico — Licença MIT
+  <div style="max-width:600px; margin:0 auto;">
+    <p style="margin:0 0 6px;">© 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License</p>
+    <p style="margin:0 0 6px;">
+      <a href="./pages/sobre.html" style="color:#fff; text-decoration:underline;">Sobre</a> | 
+      <a href="./pages/contato.html" style="color:#fff; text-decoration:underline;">Contato</a> | 
+      <a href="./pages/politica-privacidade.html" style="color:#fff; text-decoration:underline;">Política de Privacidade</a> | 
+      <a href="./pages/termos-de-uso.html" style="color:#fff; text-decoration:underline;">Termos de Uso</a>
+    </p>
+    <p style="margin:0 0 6px;">
+      <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">
+        <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" style="max-width:80px; width:35%;">
+      </a>
+    </p>
+  </div>
 </footer>
 
 </body>

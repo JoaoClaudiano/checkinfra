@@ -1,109 +1,156 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Painel Gerencial — CheckInfra</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<title>Painel Gerencial – CheckInfra</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#1f4fd8">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <style>
-body{
+body {
   font-family: Arial, sans-serif;
   background:#f4f6f8;
   margin:0;
-  display:flex;
-  flex-direction:column;
-  min-height:100vh;
 }
-.card{
+
+/* Cards */
+.card {
   background:#fff;
   max-width:1100px;
   margin:20px auto;
   padding:20px;
   border-radius:10px;
 }
-.grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:16px;
+
+/* ===== KPIs RESPONSIVOS ===== */
+.kpi-grid {
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
 }
-.kpi{
+
+.kpi {
+  min-width:160px;
   background:#f9fafb;
   border-radius:10px;
   padding:16px;
 }
-.kpi h4{margin:0;font-size:14px;color:#555}
-.kpi strong{font-size:30px;display:block;margin-top:6px}
 
-.badge{
-  padding:4px 8px;
-  border-radius:12px;
-  font-size:12px;
-  color:#fff;
+.kpi h4 { margin:0; font-size:14px; color:#555; }
+.kpi strong { font-size:26px; display:block; margin-top:6px; }
+
+@media (min-width:768px){
+  .kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    overflow:visible;
+  }
 }
-.adequada{background:#4caf50}
-.alerta{background:#fbc02d;color:#000}
-.atencao{background:#ff7043}
-.critica{background:#f44336}
 
-.selo{
-  font-size:11px;
-  padding:3px 8px;
-  border-radius:10px;
+/* ===== ABAS ===== */
+.tabs {
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  margin-bottom:16px;
+}
+
+.tab {
+  padding:8px 14px;
+  border-radius:20px;
+  border:none;
+  background:#e5e7eb;
+  font-size:13px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.tab.active {
   background:#1f4fd8;
   color:#fff;
-  margin-left:6px;
 }
 
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:8px;border-bottom:1px solid #eee}
-th{background:#f4f6f8;text-align:left}
+.tab.link {
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  color:#000;
+}
 
-button,.btn{
+/* ===== BOTÕES ===== */
+.actions {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+
+button {
   padding:10px 14px;
   background:#1f4fd8;
   color:#fff;
   border:none;
   border-radius:6px;
   cursor:pointer;
-  margin-right:8px;
-  text-decoration:none;
-  display:inline-block;
-  font-size:14px;
 }
 
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.5);
-  align-items:center;
-  justify-content:center;
-  z-index:1000;
+/* ===== TABELA ===== */
+table { width:100%; border-collapse:collapse; font-size:14px; }
+th,td { padding:8px; border-bottom:1px solid #eee; }
+th { background:#f4f6f8; text-align:left; }
+
+.badge {
+  padding:4px 8px;
+  border-radius:12px;
+  color:#fff;
+  font-size:12px;
 }
-.modal-content{
-  background:#fff;
-  padding:20px;
-  border-radius:10px;
-  max-width:800px;
-  width:90%;
-  max-height:80vh;
-  overflow:auto;
+.adequada { background:#4caf50; }
+.alerta { background:gold; color:#000; }
+.atencao { background:#ff7043; }
+.critica { background:#f44336; }
+
+/* ===== MOBILE TABELA ===== */
+@media (max-width:600px){
+  table thead { display:none; }
+  table tr {
+    display:block;
+    border:1px solid #eee;
+    border-radius:8px;
+    margin-bottom:12px;
+    padding:10px;
+  }
+  table td {
+    display:block;
+    border:none;
+    padding:4px 0;
+  }
+  table td::before {
+    font-weight:bold;
+    color:#666;
+    display:inline-block;
+    width:90px;
+  }
+  table td:nth-child(1)::before { content:"#"; }
+  table td:nth-child(2)::before { content:"Escola"; }
+  table td:nth-child(3)::before { content:"Status"; }
+  table td:nth-child(4)::before { content:"IPT"; }
 }
 
-footer{
-  margin-top:auto;
+/* ===== SEÇÕES ===== */
+.section { display:none; }
+.section.active { display:block; }
+
+footer {
   background:#1f4fd8;
   color:#fff;
   text-align:center;
-  padding:16px;
+  padding:16px 10px;
   font-size:12px;
-}
-@media(max-width:600px){
-  .grid{grid-template-columns:1fr}
+  margin-top:30px;
 }
 </style>
 </head>
@@ -111,11 +158,12 @@ footer{
 <body>
 
 <div class="card">
-  <h2>Painel Gerencial — CheckInfra</h2>
+  <h2>Painel Gerencial – CheckInfra</h2>
   <small>Síntese executiva e priorização técnica</small>
 </div>
 
-<div class="card grid">
+<!-- KPIs -->
+<div class="card kpi-grid">
   <div class="kpi">
     <h4>Unidades Críticas</h4>
     <strong id="kpiCritica">–</strong>
@@ -130,61 +178,56 @@ footer{
   </div>
 </div>
 
-<div class="card grid">
-  <div>
-    <h3>Status das Unidades</h3>
-    <canvas id="graficoStatus"></canvas>
-  </div>
-  <div>
-    <h3>Top Prioridades (IPT)</h3>
-    <canvas id="graficoIndice"></canvas>
-  </div>
+<!-- Gráficos -->
+<div class="card">
+  <h3>Status das Unidades</h3>
+  <canvas id="graficoStatus"></canvas>
 </div>
 
 <div class="card">
-  <h3>🏆 Ranking Geral de Prioridade Técnica</h3>
-  <div style="margin-bottom:10px">
-    <button onclick="exportarXLSX()">⬇️ Baixar XLSX</button>
-    <button onclick="abrirHistorico()">📊 Histórico das Escolas</button>
-    <a href="metodo.html" class="btn" target="_blank">📘 Metodologia</a>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Escola</th>
-        <th>Status</th>
-        <th>IPT</th>
-      </tr>
-    </thead>
-    <tbody id="tabelaRanking"></tbody>
-  </table>
+  <h3>Top Prioridades (IPT)</h3>
+  <canvas id="graficoIndice"></canvas>
 </div>
 
-<!-- MODAL HISTÓRICO -->
-<div class="modal" id="modalHistorico" onclick="fecharHistorico()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <h3>📊 Histórico de Avaliações</h3>
+<div class="card">
+  <h3>📌 Frequência de Problemas</h3>
+  <canvas id="graficoProblemas"></canvas>
+</div>
+
+<!-- Ranking + Histórico -->
+<div class="card">
+  <div class="tabs">
+    <button class="tab active" data-tab="ranking">📊 Ranking</button>
+    <button class="tab" data-tab="historico">🕘 Histórico</button>
+    <a href="metodo.html" class="tab link">📘 Método</a>
+  </div>
+
+  <div class="actions">
+    <button onclick="exportarXLSX()">⬇️ Baixar XLSX</button>
+  </div>
+
+  <div id="ranking" class="section active">
     <table>
       <thead>
-        <tr>
-          <th>Escola</th>
-          <th>Data</th>
-          <th>Status</th>
-          <th>Pontuação</th>
-        </tr>
+        <tr><th>#</th><th>Escola</th><th>Status</th><th>IPT</th></tr>
+      </thead>
+      <tbody id="tabelaRanking"></tbody>
+    </table>
+  </div>
+
+  <div id="historico" class="section">
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Escola</th><th>Status</th><th>IPT</th></tr>
       </thead>
       <tbody id="tabelaHistorico"></tbody>
     </table>
-    <br>
-    <button onclick="fecharHistorico()">Fechar</button>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
@@ -195,68 +238,72 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let rankingGlobal = [];
-let historicoGlobal = [];
-
 const tabelaRanking = document.getElementById("tabelaRanking");
 const tabelaHistorico = document.getElementById("tabelaHistorico");
 
+const kpiCritica = document.getElementById("kpiCritica");
+const kpiAtencao = document.getElementById("kpiAtencao");
+const kpiMedio = document.getElementById("kpiMedio");
+
+let rankingGlobal = [];
+let historicoGlobal = [];
+
 async function carregarAvaliacoes(){
-  const snapshot = await getDocs(collection(db,"avaliacoes"));
+  const snap = await getDocs(collection(db,"avaliacoes"));
   const todas = [];
+  snap.forEach(doc=>todas.push(doc.data()));
 
-  snapshot.forEach(doc=>{
-    const d = doc.data();
-    if(d.escola && d.status && d.createdAt instanceof Timestamp){
-      d.data = d.createdAt.toDate();
-      todas.push(d);
-    }
+  // ===== HISTÓRICO =====
+  historicoGlobal = todas.sort((a,b)=>b.createdAt?.seconds - a.createdAt?.seconds);
+
+  tabelaHistorico.innerHTML = "";
+  historicoGlobal.forEach(d=>{
+    tabelaHistorico.innerHTML += `
+      <tr>
+        <td>${d.createdAt ? new Date(d.createdAt.seconds*1000).toLocaleDateString() : "-"}</td>
+        <td>${d.escola}</td>
+        <td>${d.status}</td>
+        <td>${d.pontuacao}</td>
+      </tr>`;
   });
 
-  historicoGlobal = todas.slice();
-
-  // AGRUPA POR ESCOLA → PEGA A MAIS RECENTE
+  // ===== AGRUPA POR ESCOLA (mais recente) =====
   const porEscola = {};
-  todas.forEach(d=>{
-    if(!porEscola[d.escola] || d.data > porEscola[d.escola].data){
-      porEscola[d.escola] = d;
-    }
+  historicoGlobal.forEach(d=>{
+    if(!porEscola[d.escola]) porEscola[d.escola] = d;
   });
 
-  montar(Object.values(porEscola));
+  montarPainel(Object.values(porEscola));
 }
 
-function montar(dados){
-  tabelaRanking.innerHTML="";
-  rankingGlobal=[];
+function montarPainel(dados){
+  rankingGlobal = [];
+  tabelaRanking.innerHTML = "";
 
-  let critica=0,atencao=0,somaIPT=0;
+  let critica=0, atencao=0, somaIPT=0;
   const statusCount={adequada:0,alerta:0,atencao:0,critica:0};
+  const freqProblemas={};
 
   dados.forEach(d=>{
-    let peso=1,classe="adequada";
+    let GS=1,classe="adequada";
     const s=d.status.toLowerCase();
 
-    if(s.includes("crít")){peso=4;classe="critica";critica++;statusCount.critica++}
-    else if(s.includes("aten")){peso=3;classe="atencao";atencao++;statusCount.atencao++}
-    else if(s.includes("alerta")){peso=2;classe="alerta";statusCount.alerta++}
+    if(s.includes("crít")){GS=4;classe="critica";critica++;statusCount.critica++}
+    else if(s.includes("aten")){GS=3;classe="atencao";atencao++;statusCount.atencao++}
+    else if(s.includes("alerta")){GS=2;statusCount.alerta++}
     else statusCount.adequada++;
 
     const IT=Number(d.pontuacao||0);
-    const RT=Math.min(
-      historicoGlobal.filter(h=>h.escola===d.escola).length,
-      5
-    );
+    const RT=Math.min(Number(d.pontuacao||0),30);
+    const IPT=(GS*0.4)+(IT*0.4)+(RT*0.2);
 
-    const IPT=(peso*0.4)+(IT*0.4)+(RT*0.2);
     somaIPT+=IPT;
 
-    rankingGlobal.push({
-      escola:d.escola,
-      classe,
-      statusLabel:d.status,
-      IPT
+    (d.problemas||[]).forEach(p=>{
+      freqProblemas[p]=(freqProblemas[p]||0)+1;
     });
+
+    rankingGlobal.push({escola:d.escola,classe,status:d.status,IPT});
   });
 
   rankingGlobal.sort((a,b)=>b.IPT-a.IPT);
@@ -265,65 +312,64 @@ function montar(dados){
     tabelaRanking.innerHTML+=`
       <tr>
         <td>${i+1}</td>
-        <td>${r.escola}<span class="selo">mais recente</span></td>
-        <td><span class="badge ${r.classe}">${r.statusLabel}</span></td>
+        <td>${r.escola}</td>
+        <td><span class="badge ${r.classe}">${r.status}</span></td>
         <td>${r.IPT.toFixed(2)}</td>
       </tr>`;
   });
 
-  document.getElementById("kpiCritica").innerText=critica;
-  document.getElementById("kpiAtencao").innerText=atencao;
-  document.getElementById("kpiMedio").innerText=(somaIPT/dados.length).toFixed(2);
+  kpiCritica.innerText=critica;
+  kpiAtencao.innerText=atencao;
+  kpiMedio.innerText=(somaIPT/dados.length).toFixed(2);
 
   new Chart(graficoStatus,{
     type:"pie",
     data:{labels:["Adequada","Alerta","Atenção","Crítica"],
     datasets:[{data:Object.values(statusCount),
-    backgroundColor:["#4caf50","#fbc02d","#ff7043","#f44336"]}]}
+    backgroundColor:["#4caf50","gold","#ff7043","#f44336"]}]}
   });
 
-  const topN=window.innerWidth<600?5:10;
+  const top=rankingGlobal.slice(0,10);
   new Chart(graficoIndice,{
     type:"bar",
-    data:{
-      labels:rankingGlobal.slice(0,topN).map(r=>r.escola),
-      datasets:[{data:rankingGlobal.slice(0,topN).map(r=>r.IPT),backgroundColor:"#1f4fd8"}]
-    },
+    data:{labels:top.map(r=>r.escola),
+    datasets:[{data:top.map(r=>r.IPT),backgroundColor:"#1f4fd8"}]},
+    options:{indexAxis:"y",plugins:{legend:{display:false}}}
+  });
+
+  const freq=Object.entries(freqProblemas).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  new Chart(graficoProblemas,{
+    type:"bar",
+    data:{labels:freq.map(f=>f[0]),
+    datasets:[{data:freq.map(f=>f[1]),backgroundColor:"#ff7043"}]},
     options:{indexAxis:"y",plugins:{legend:{display:false}}}
   });
 }
 
 window.exportarXLSX=function(){
   const ws=XLSX.utils.json_to_sheet(rankingGlobal.map(r=>({
-    Escola:r.escola,Status:r.statusLabel,IPT:r.IPT.toFixed(2)
+    Escola:r.escola,Status:r.status,IPT:r.IPT.toFixed(2)
   })));
   const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Ranking IPT");
+  XLSX.utils.book_append_sheet(wb,ws,"Ranking");
   XLSX.writeFile(wb,"ranking_checkinfra.xlsx");
 };
 
-window.abrirHistorico=function(){
-  tabelaHistorico.innerHTML="";
-  historicoGlobal
-    .sort((a,b)=>b.data-a.data)
-    .forEach(h=>{
-      tabelaHistorico.innerHTML+=`
-        <tr>
-          <td>${h.escola}</td>
-          <td>${h.data.toLocaleDateString()}</td>
-          <td>${h.status}</td>
-          <td>${h.pontuacao}</td>
-        </tr>`;
-    });
-  modalHistorico.style.display="flex";
-};
-window.fecharHistorico=()=>modalHistorico.style.display="none";
+// Abas
+document.querySelectorAll(".tab[data-tab]").forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(btn.dataset.tab).classList.add("active");
+  };
+});
 
 carregarAvaliacoes();
 </script>
 
 <footer>
-© 2025 CheckInfra — Painel gerencial com consolidação temporal e rastreabilidade histórica
+  © 2025 CheckInfra — Projeto acadêmico e tecnológico — Licença MIT
 </footer>
 
 </body>

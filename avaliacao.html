@@ -21,12 +21,17 @@
 
 <style>
 body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-.header { background: #1f4fd8; color: #fff; text-align: center; padding: 20px; font-size: 18px; font-weight: bold; }
+header { background: #1f4fd8; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
+header h1 { margin: 0; font-size: 18px; }
+.nav-header { display: flex; gap: 20px; }
+.nav-header a, .nav-header button { color: #fff; text-decoration: none; font-weight: bold; background: none; border: none; cursor: pointer; font-size: 16px; }
+.nav-header a:hover, .nav-header button:hover { text-decoration: underline; }
+
 .container { max-width: 900px; margin: 20px auto; padding: 0 16px; flex: 1; display: flex; flex-direction: column; }
 h1 { text-align: center; margin: 20px 0; }
 
 .card { background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,.08); transition: all .2s ease; }
-.card-grande h3 { margin-bottom: 12px; color: #1f4fd8; }
+.card-grande h3 { margin-bottom: 12px; color: #1f4fd8; display: flex; align-items: center; gap: 6px; }
 
 .checklist { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
 .check-card { padding: 12px; border-radius: 12px; background: #fafafa; border: 2px solid #e0e0e0; cursor: pointer; transition: all .2s ease; text-align: center; font-weight: normal; }
@@ -44,7 +49,7 @@ select, input { width: 100%; padding: 10px; border-radius: 8px; border: 1px soli
 button { width: 100%; padding: 16px; background: #1f4fd8; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
 button:hover { background: #163ca6; }
 
-.resultado { padding: 20px; border-radius: 14px; font-weight: bold; margin-top: 10px; display: none; color: #000; margin-bottom: 40px; }
+.resultado { padding: 20px; border-radius: 14px; font-weight: bold; margin-top: 10px; display: none; color: #000; margin-bottom: 40px; transition: all .3s ease; }
 .resultado-ok { background: #d4edda; color: #155724; }
 .resultado-alerta { background: #fff3cd; color: #856404; }
 .resultado-critico { background: #f8d7da; color: #721c24; }
@@ -52,6 +57,44 @@ button:hover { background: #163ca6; }
 .selo { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; margin-bottom: 10px; }
 
 #resultado strong { display: inline-block; margin-top: 6px; }
+
+.legenda { list-style: none; padding-left: 0; }
+.legenda li { margin-bottom: 6px; }
+
+/* Tooltip clicável com animação */
+.info-tooltip { position: relative; cursor: pointer; display: inline-block; color: #1f4fd8; font-weight: bold; }
+.tooltip-text { 
+  visibility: hidden; 
+  width: 220px; 
+  background-color: #1f4fd8; 
+  color: #fff; 
+  text-align: left; 
+  padding: 8px; 
+  border-radius: 8px; 
+  position: absolute; 
+  z-index: 10; 
+  bottom: 125%; 
+  left: 50%; 
+  transform: translateX(-50%) translateY(10px);
+  opacity: 0; 
+  transition: opacity 0.3s, transform 0.3s; 
+  font-size: 13px;
+}
+.tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%; 
+  left: 50%; 
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #1f4fd8 transparent transparent transparent;
+}
+.info-tooltip.active .tooltip-text { 
+  visibility: visible; 
+  opacity: 1; 
+  transform: translateX(-50%) translateY(0);
+}
 
 @media(max-width:600px){
   .checklist { grid-template-columns: 1fr; }
@@ -62,11 +105,15 @@ button:hover { background: #163ca6; }
 </head>
 
 <body>
-<div class="nav-global">
-  <button onclick="history.back()" title="Voltar">⬅️</button>
-  <a href="./index.html" title="Início">🏠</a>
-</div>
-<div class="header">CheckInfra – Avaliação Sanitária</div>
+<header>
+  <h1>CheckInfra – Avaliação Sanitária</h1>
+  <nav class="nav-header">
+    <button onclick="history.back()" title="Voltar">⬅️ Voltar</button>
+    <a href="./index.html" title="Início">🏠 Início</a>
+    <a href="./mapa.html">Mapa</a>
+    <a href="./painel.html">Painel</a>
+  </nav>
+</header>
 
 <div class="container">
 <h1>Avaliação Sanitária Escolar</h1>
@@ -86,7 +133,11 @@ button:hover { background: #163ca6; }
 
   <!-- CARD 2 — CHECKLIST -->
   <div class="card card-grande">
-    <h3>🏗️ Estrutura</h3>
+    <h3>🏗️ Estrutura 
+      <span class="info-tooltip">ℹ️
+        <span class="tooltip-text">Avalia a integridade física do espaço, presença de móveis e equipamentos adequados.</span>
+      </span>
+    </h3>
     <div class="checklist">
       <div class="check-card" data-peso="3">Mofo ou umidade excessiva</div>
       <div class="check-card" data-peso="2">Piso quebrado ou escorregadio</div>
@@ -95,7 +146,11 @@ button:hover { background: #163ca6; }
   </div>
 
   <div class="card card-grande">
-    <h3>🧹 Higiene</h3>
+    <h3>🧹 Higiene 
+      <span class="info-tooltip">ℹ️
+        <span class="tooltip-text">Verifica limpeza, manutenção e presença de materiais sanitários.</span>
+      </span>
+    </h3>
     <div class="checklist">
       <div class="check-card" data-peso="2">Limpeza inadequada</div>
       <div class="check-card" data-peso="2">Mau cheiro persistente</div>
@@ -103,7 +158,11 @@ button:hover { background: #163ca6; }
   </div>
 
   <div class="card card-grande">
-    <h3>💡 Conforto</h3>
+    <h3>💡 Conforto 
+      <span class="info-tooltip">ℹ️
+        <span class="tooltip-text">Analisa iluminação, ventilação e conforto térmico do ambiente.</span>
+      </span>
+    </h3>
     <div class="checklist">
       <div class="check-card" data-peso="1">Iluminação insuficiente</div>
       <div class="check-card" data-peso="1">Ventilação inadequada</div>
@@ -115,6 +174,17 @@ button:hover { background: #163ca6; }
     <h3>Registro Fotográfico</h3>
     <input type="file" id="fotos" accept="image/*" multiple>
     <div id="preview" class="upload-preview"></div>
+  </div>
+
+  <!-- LEGENDA -->
+  <div class="card">
+    <h3>Legenda de Pontuação</h3>
+    <ul class="legenda">
+      <li class="verde">🟢 0–3 pontos — Condição adequada</li>
+      <li class="amarelo">🟡 4–6 pontos — Situação de alerta</li>
+      <li class="laranja">🟠 7–8 pontos — Atenção elevada</li>
+      <li class="vermelho">🔴 ≥ 9 pontos — Condição crítica</li>
+    </ul>
   </div>
 
   <button type="submit">Gerar Diagnóstico e PDF</button>
@@ -130,14 +200,12 @@ button:hover { background: #163ca6; }
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Aviso offline inicial
   if (!navigator.onLine) {
     if (!confirm("⚠️ Você está OFFLINE. O sistema irá sincronizar automaticamente quando a conexão voltar. Deseja continuar?")) {
       return;
     }
   }
 
-  // Preencher select de escolas
   const select = document.getElementById("escola");
   if (window.escolas) {
     window.escolas.forEach(e => {
@@ -148,14 +216,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Seleção por card
   document.querySelectorAll(".check-card").forEach(card => {
     card.addEventListener("click", () => {
       card.classList.toggle("selected");
     });
   });
 
-  // Preview de fotos
   const fotosInput = document.getElementById("fotos");
   const preview = document.getElementById("preview");
   fotosInput.addEventListener("change", () => {
@@ -171,13 +237,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Submit: exibe resultado e define ID global
   const form = document.getElementById("form-avaliacao");
   const resultado = document.getElementById("resultado");
   form.addEventListener("submit", e => {
     e.preventDefault();
 
-    // Pontuação baseada nos check-cards selecionados
     let pontuacao = 0;
     let problemas = [];
     document.querySelectorAll(".check-card.selected").forEach(card => {
@@ -185,16 +249,13 @@ document.addEventListener("DOMContentLoaded", () => {
       problemas.push(card.innerText.trim());
     });
 
-    // Status
     let status = "ok";
     if (pontuacao >= 6 && pontuacao < 10) status = "alerta";
     else if (pontuacao >= 10) status = "critico";
 
-    // ID real do avaliacao.js
     const avaliador = document.getElementById("avaliador").value;
     const idCheckInfra = window.idcheckinfra || "ID ainda não gerado pelo sistema";
 
-    // Atualiza card de resultado
     resultado.style.display = "block";
     resultado.className = "resultado resultado-" + status;
     resultado.innerHTML = `
@@ -209,9 +270,29 @@ document.addEventListener("DOMContentLoaded", () => {
       ${navigator.onLine ? "☁️ Enviado ao sistema" : "📴 Salvo offline — será sincronizado"}
     `;
 
-    // Redireciona após 5 segundos
-    setTimeout(()=>{ window.scrollTo(0,0); },5000);
+    // Redireciona automaticamente após 4 segundos
+    setTimeout(() => {
+      window.scrollTo(0,0);
+      window.location.href = './index.html';
+    }, 4000);
   });
+
+  // Tooltip clicável
+  document.querySelectorAll('.info-tooltip').forEach(item => {
+    item.addEventListener('click', e => {
+      e.stopPropagation();
+      document.querySelectorAll('.info-tooltip.active').forEach(open => {
+        if (open !== item) open.classList.remove('active');
+      });
+      item.classList.toggle('active');
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.info-tooltip.active').forEach(open => {
+      open.classList.remove('active');
+    });
+  });
+
 });
 </script>
 
@@ -220,7 +301,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register("./service-worker.js");
 }
 </script>
-<!-- ===== FOOTER FIXO ===== -->
+
 <footer style="
   background:#1f4fd8; 
   color:#fff; 
@@ -231,14 +312,11 @@ if ('serviceWorker' in navigator) {
 ">
   <div style="max-width:600px; margin:0 auto;">
     <p style="margin:0 0 8px;">
-      © 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License
+      ©️ 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License
     </p>
-
-    <!-- Badge MIT License -->
     <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">
       <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
     </a>
-
     <p style="margin:8px 0 0; font-size:11px;">
       🔒 O CheckInfra realiza tratamento mínimo de dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), exclusivamente para fins técnicos, institucionais e de prestação do serviço licenciado.
     </p>

@@ -63,6 +63,12 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,.08);
 }
 
+.card h3 {
+  margin-top: 0;
+  color: #1f4fd8;
+}
+
+/* ===== CHECKLIST ===== */
 .checklist {
   display: flex;
   flex-direction: column;
@@ -95,7 +101,7 @@ label {
   display: block;
 }
 
-input, select {
+input {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
@@ -115,6 +121,22 @@ input, select {
 .amarelo { background:#fff3cd; color:#856404; }
 .laranja { background:#ffe8cc; color:#a55b00; }
 .vermelho { background:#f8d7da; color:#721c24; }
+
+/* ===== SELO EXPLICATIVO ===== */
+.selo-explicativo {
+  font-size: 13px;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+.selo-explicativo ul {
+  padding-left: 18px;
+  margin: 8px 0 0;
+}
+
+.selo-explicativo li {
+  margin-bottom: 4px;
+}
 
 /* ===== BOTÃO ===== */
 button.primary {
@@ -144,6 +166,7 @@ button.primary {
 
 <form id="form-avaliacao">
 
+  <!-- IDENTIFICAÇÃO -->
   <div class="card">
     <label>Escola</label>
     <input id="escola" required>
@@ -152,6 +175,7 @@ button.primary {
     <input id="avaliador" required>
   </div>
 
+  <!-- ESTRUTURA -->
   <div class="card">
     <h3>🏗️ Estrutura</h3>
     <div class="checklist">
@@ -161,90 +185,140 @@ button.primary {
     </div>
   </div>
 
-  <button class="primary" type="submit">Gerar Diagnóstico e PDF</button>
+  <!-- HIGIENE -->
+  <div class="card">
+    <h3>🧹 Higiene</h3>
+    <div class="checklist">
+      <div class="check-card" data-peso="2">Limpeza inadequada</div>
+      <div class="check-card" data-peso="2">Mau cheiro persistente</div>
+      <div class="check-card" data-peso="1">Presença de pragas</div>
+    </div>
+  </div>
+
+  <!-- CONFORTO -->
+  <div class="card">
+    <h3>💡 Conforto</h3>
+    <div class="checklist">
+      <div class="check-card" data-peso="1">Iluminação insuficiente</div>
+      <div class="check-card" data-peso="1">Ventilação inadequada</div>
+      <div class="check-card" data-peso="1">Ruído excessivo</div>
+    </div>
+  </div>
+
+  <button class="primary" type="submit">Gerar diagnóstico e PDF</button>
 </form>
 
+<!-- RESULTADO -->
 <div id="resultado" class="resultado" style="display:none;"></div>
+
+<!-- SELO EXPLICATIVO -->
+<div class="card selo-explicativo">
+  <strong>📘 Legenda de classificação</strong>
+  <ul>
+    <li>🟢 0–3 pontos — Condição adequada</li>
+    <li>🟡 4–6 pontos — Situação de alerta</li>
+    <li>🟠 7–8 pontos — Atenção elevada</li>
+    <li>🔴 ≥ 9 pontos — Condição crítica</li>
+  </ul>
+  <p style="margin-top:8px;font-size:12px;">
+    Este diagnóstico é orientativo e não substitui inspeção técnica especializada.
+  </p>
+</div>
 
 </div>
 
 <script>
-/* ===== INTERAÇÃO VISUAL ===== */
-document.querySelectorAll(".check-card").forEach(card=>{
-  card.addEventListener("click",()=>{
+/* ===== INTERAÇÃO DOS CARDS ===== */
+document.querySelectorAll(".check-card").forEach(card => {
+  card.addEventListener("click", () => {
     card.classList.toggle("selected");
   });
 });
 
-/* ===== INDEXED DB ===== */
+/* ===== INDEXEDDB ===== */
 let db;
-const request = indexedDB.open("checkinfra-db",1);
-request.onupgradeneeded = e=>{
+const request = indexedDB.open("checkinfra-db", 1);
+
+request.onupgradeneeded = e => {
   db = e.target.result;
-  db.createObjectStore("avaliacoes",{keyPath:"id"});
+  db.createObjectStore("avaliacoes", { keyPath: "id" });
 };
-request.onsuccess = e=> db = e.target.result;
+
+request.onsuccess = e => db = e.target.result;
 
 /* ===== SUBMIT ===== */
-document.getElementById("form-avaliacao").addEventListener("submit",e=>{
+document.getElementById("form-avaliacao").addEventListener("submit", e => {
   e.preventDefault();
 
   let pontuacao = 0;
   let problemas = [];
 
-  document.querySelectorAll(".check-card.selected").forEach(c=>{
-    pontuacao += parseInt(c.dataset.peso);
-    problemas.push(c.innerText);
+  document.querySelectorAll(".check-card.selected").forEach(card => {
+    pontuacao += parseInt(card.dataset.peso);
+    problemas.push(card.innerText);
   });
 
-  let status = "verde", texto="🟢 Condição adequada";
-  if(pontuacao>=4&&pontuacao<=6){status="amarelo";texto="🟡 Situação de alerta";}
-  else if(pontuacao>=7&&pontuacao<=8){status="laranja";texto="🟠 Atenção elevada";}
-  else if(pontuacao>=9){status="vermelho";texto="🔴 Condição crítica";}
+  let status = "verde";
+  let texto = "🟢 Condição adequada";
 
-  const dados={
-    id:"CHK-"+Date.now(),
-    escola:escola.value,
-    avaliador:avaliador.value,
+  if (pontuacao >= 4 && pontuacao <= 6) {
+    status = "amarelo";
+    texto = "🟡 Situação de alerta";
+  } else if (pontuacao >= 7 && pontuacao <= 8) {
+    status = "laranja";
+    texto = "🟠 Atenção elevada";
+  } else if (pontuacao >= 9) {
+    status = "vermelho";
+    texto = "🔴 Condição crítica";
+  }
+
+  const dados = {
+    id: "CHK-" + Date.now(),
+    escola: escola.value,
+    avaliador: avaliador.value,
     pontuacao,
     status,
     problemas,
-    data:new Date().toISOString(),
-    sincronizado:navigator.onLine
+    data: new Date().toISOString(),
+    sincronizado: navigator.onLine
   };
 
-  if(!navigator.onLine){
-    const tx=db.transaction("avaliacoes","readwrite");
+  if (!navigator.onLine) {
+    const tx = db.transaction("avaliacoes", "readwrite");
     tx.objectStore("avaliacoes").add(dados);
   }
 
-  const res=document.getElementById("resultado");
-  res.style.display="block";
-  res.className="resultado "+status;
-  res.innerHTML=`
+  const resultado = document.getElementById("resultado");
+  resultado.style.display = "block";
+  resultado.className = "resultado " + status;
+  resultado.innerHTML = `
     ${texto}<br>
     <strong>Escola:</strong> ${dados.escola}<br>
     <strong>Avaliador:</strong> ${dados.avaliador}<br>
     <strong>Pontuação:</strong> ${pontuacao}<br>
-    ${navigator.onLine?"☁️ Enviado":"📴 Salvo offline"}
+    ${navigator.onLine ? "☁️ Enviado ao sistema" : "📴 Salvo offline — será sincronizado"}
   `;
 
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF();
-  pdf.text(`CheckInfra\n${texto}\nPontuação: ${pontuacao}`,10,10);
-  pdf.save("checkinfra.pdf");
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  pdf.text("CheckInfra – Avaliação Sanitária", 10, 10);
+  pdf.text(texto, 10, 20);
+  pdf.text(`Escola: ${dados.escola}`, 10, 30);
+  pdf.text(`Avaliador: ${dados.avaliador}`, 10, 40);
+  pdf.text(`Pontuação: ${pontuacao}`, 10, 50);
+  pdf.save("checkinfra-avaliacao.pdf");
 
-  setTimeout(()=>location.href="index.html",4000);
+  setTimeout(() => location.href = "index.html", 4000);
 });
 
 /* ===== SINCRONIZAÇÃO ===== */
-window.addEventListener("online",()=>{
-  const tx=db.transaction("avaliacoes","readwrite");
-  const store=tx.objectStore("avaliacoes");
-  store.getAll().onsuccess=e=>{
-    e.target.result.forEach(r=>{
-      store.delete(r.id);
-      console.log("Sincronizado:",r);
+window.addEventListener("online", () => {
+  const tx = db.transaction("avaliacoes", "readwrite");
+  const store = tx.objectStore("avaliacoes");
+  store.getAll().onsuccess = e => {
+    e.target.result.forEach(av => {
+      store.delete(av.id);
+      console.log("Sincronizado:", av);
     });
   };
 });

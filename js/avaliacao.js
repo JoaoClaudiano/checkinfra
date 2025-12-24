@@ -29,15 +29,10 @@ async function sincronizarOffline(){
   if(!l.length) return;
 
   for(const d of l){
-    try{
-      await db.collection("avaliacoes").doc(d.id).set({
-        ...d,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      console.log("✅ Sincronizado do offline:", d.id);
-    }catch(err){
-      console.error("❌ Erro ao sincronizar offline:", err);
-    }
+    await db.collection("avaliacoes").doc(d.id).set({
+      ...d,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
   }
   localStorage.removeItem(STORAGE_KEY);
 }
@@ -236,13 +231,10 @@ document.addEventListener("DOMContentLoaded",()=>{
           ...dados,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        console.log("✅ Avaliação salva no Firebase:", dados.id);
       } else {
         salvarOffline(dados);
-        console.log("📴 Offline, salvo localmente:", dados.id);
       }
-    }catch(err){
-      console.error("❌ Erro ao salvar no Firebase:", err);
+    }catch{
       salvarOffline(dados);
     }
 

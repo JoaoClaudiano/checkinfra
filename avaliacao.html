@@ -12,7 +12,7 @@ body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; min-heigh
 header { background: #1f4fd8; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: center; position: relative; }
 header h1 { margin: 0; font-size: 18px; text-align: center; }
 .nav-header { position: absolute; left: 20px; display: flex; gap: 15px; }
-.nav-header button { color: #fff; text-decoration: none; background: none; border: none; cursor: pointer; font-size: 20px; padding: 0; }
+.nav-header button { color: #fff; background: none; border: none; cursor: pointer; font-size: 20px; padding: 0; }
 
 .container { max-width: 900px; margin: 20px auto; padding: 0 16px; flex: 1; display: flex; flex-direction: column; }
 h1 { text-align: center; margin: 20px 0; }
@@ -98,7 +98,6 @@ button:hover { background: #163ca6; }
   .checklist { grid-template-columns: 1fr; }
   .resultado { font-size: 14px; padding: 16px; }
   .upload-preview img { width: 80px; }
-  .nav-header a { display: none; }
 }
 </style>
 </head>
@@ -197,9 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.querySelectorAll(".check-card").forEach(card => {
-    card.addEventListener("click", () => {
-      card.classList.toggle("selected");
-    });
+    card.addEventListener("click", () => card.classList.toggle("selected"));
   });
 
   const uploadBox = document.getElementById('uploadBox');
@@ -211,11 +208,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   fotosInput.addEventListener("change", () => {
     preview.innerHTML = "";
-    if (fotosInput.files.length > 0) {
-      placeholder.style.display = "none";
-    } else {
-      placeholder.style.display = "block";
-    }
+    if (fotosInput.files.length > 0) placeholder.style.display = "none";
+    else placeholder.style.display = "block";
     Array.from(fotosInput.files).forEach(file => {
       const reader = new FileReader();
       reader.onload = e => {
@@ -237,9 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
   document.addEventListener('click', () => {
-    document.querySelectorAll('.info-tooltip.active').forEach(open => {
-      open.classList.remove('active');
-    });
+    document.querySelectorAll('.info-tooltip.active').forEach(open => open.classList.remove('active'));
   });
 
 });

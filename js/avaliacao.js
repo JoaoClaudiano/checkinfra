@@ -181,10 +181,10 @@ document.addEventListener("DOMContentLoaded",()=>{
     resultado.style.display = "block";
     resultado.className = "resultado resultado-" + classe;
     resultado.innerHTML = `
-      <div class="selo">${status} ${corBolinha}</div>
-      <strong>ID:</strong> ${dados.id}<br>
-      <strong>Pontuação:</strong> ${pontuacao}<br>
-      <strong>Avaliador:</strong> ${dados.avaliador}<br>
+      <div class="selo">${status}${corBolinha}</div>
+      <strong>ID:</strong>${dados.id}<br>
+      <strong>Pontuação:</strong>${pontuacao}<br>
+      <strong>Avaliador:</strong>${dados.avaliador}<br>
       ${navigator.onLine?"☁️ Enviado ao sistema":"📴 Salvo offline"}
     `;
 

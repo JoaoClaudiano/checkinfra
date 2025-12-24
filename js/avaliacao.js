@@ -21,9 +21,7 @@ function salvarOffline(dados){
   const l = JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
   l.push(dados);
   localStorage.setItem(STORAGE_KEY,JSON.stringify(l));
-
-  // Pop-up offline
-  showOfflinePopup();
+  // Pop-offline removido
 }
 
 async function sincronizarOffline(){
@@ -32,42 +30,13 @@ async function sincronizarOffline(){
   if(!l.length) return;
 
   for(const d of l){
-    try{
-      await db.collection("avaliacoes").doc(d.id).set({
-        ...d,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      console.log("Sincronizado:", d.id);
-    } catch(err){
-      console.error("Erro ao sincronizar offline:", err);
-    }
+    await db.collection("avaliacoes").doc(d.id).set({
+      ...d,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    console.log("Sincronizado do offline para Firebase:", d.id);
   }
   localStorage.removeItem(STORAGE_KEY);
-}
-
-// ================= POP-UP OFFLINE =================
-function showOfflinePopup(){
-  const popup = document.createElement("div");
-  popup.style.position = "fixed";
-  popup.style.top = "50%";
-  popup.style.left = "50%";
-  popup.style.transform = "translate(-50%, -50%)";
-  popup.style.background = "#fff3cd";
-  popup.style.color = "#856404";
-  popup.style.padding = "20px 30px";
-  popup.style.borderRadius = "12px";
-  popup.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
-  popup.style.zIndex = "9999";
-  popup.style.fontWeight = "bold";
-  popup.style.textAlign = "center";
-  popup.innerHTML = `Você está offline! A avaliação será sincronizada quando a conexão voltar.
-    <button id="closePopup" style="margin-left:10px; background:none; border:none; font-size:16px; cursor:pointer;">❌</button>`;
-  document.body.appendChild(popup);
-
-  const closeBtn = document.getElementById("closePopup");
-  closeBtn.addEventListener("click", () => popup.remove());
-
-  setTimeout(()=>{ popup.remove(); },3000);
 }
 
 // ================= PDF =================
@@ -78,91 +47,87 @@ function gerarPDF(d) {
   const margin = 20;
   let y = margin;
 
-  // Logo centralizada sem distorcer
+  // Logo fixa, sem distorção
   if(d.logo){
-    const img = new Image();
-    img.src = d.logo;
-    img.onload = function(){
-      const ratio = img.width / img.height;
-      const w = 50;
-      const h = w / ratio;
-      pdf.addImage(img, "PNG", (210-w)/2, y, w, h);
-      addContent();
-    };
-  } else addContent();
-
-  function addContent(){
-    y += 35;
-    pdf.setFont("times", "bold").setFontSize(14);
-    pdf.text("CheckInfra",105,y,{align:"center"});
-    y += 10;
-
-    // Identificação
-    pdf.setFillColor(240,240,240);
-    pdf.roundedRect(margin,y,170,35,5,5,"F");
-    pdf.setFont("times","bold").setFontSize(12);
-    pdf.text("Identificação",margin+3,y+7);
-    pdf.setFont("times","normal");
-    pdf.text(`Escola: ${d.escola}`,margin+3,y+15);
-    pdf.text(`Avaliador: ${d.avaliador}`,margin+3,y+22);
-    pdf.text(`ID: ${d.id}`,margin+3,y+29);
-    y += 40;
-
-    // Problemas apontados
-    pdf.setFillColor(240,240,240);
-    pdf.roundedRect(margin,y,170,d.problemas.length*7 + 20,5,5,"F");
-    pdf.setFont("times","bold").setFontSize(12);
-    pdf.text("Problemas apontados",margin+3,y+7);
-    pdf.setFont("times","normal");
-    let yP = y + 14;
-    d.problemas.forEach(p=>{
-      pdf.text(`- ${p}`,margin+5,yP);
-      yP += 7;
-    });
-    y = yP + 5;
-
-    // Resultado
-    pdf.setFillColor(240,240,240);
-    pdf.roundedRect(margin,y,170,22,5,5,"F");
-    pdf.setFont("times","bold").setFontSize(12);
-    pdf.text("Resultado",margin+3,y+7);
-    pdf.setFont("times","normal");
-    pdf.text(`Status: ${d.status}`,margin+3,y+15);
-    pdf.text(`Pontuação: ${d.pontuacao}`,margin+3,y+22);
-    y += 27;
-
-    // Registro fotográfico
-    pdf.setFillColor(240,240,240);
-    pdf.roundedRect(margin,y,170,40,5,5,"F");
-    pdf.setFont("times","bold").setFontSize(12);
-    pdf.text("Registro fotográfico",margin+3,y+7);
-    pdf.setFont("times","normal");
-    let yFoto = y + 14;
-    d.fotos.forEach(f=>{
-      pdf.addImage(f,"JPEG",margin+5,yFoto,40,40);
-      yFoto += 45;
-    });
-    y += Math.max(yFoto - y, 40) + 5;
-
-    // Aviso legal
-    pdf.setFillColor(240,240,240);
-    pdf.roundedRect(margin,y,170,15,5,5,"F");
-    pdf.setFont("times","normal").setFontSize(9);
-    pdf.text("Diagnóstico preliminar. Não substitui vistoria técnica presencial ou laudo de engenharia.",margin+85,y+10,{align:"center"});
-    y += 20;
-
-    // Data lateral direita
-    pdf.setTextColor(255,0,0);
-    pdf.setFontSize(10);
-    pdf.text(`Gerado em: ${new Date().toLocaleString()}`, 200, 290, {align:"right"});
-    pdf.setTextColor(0,0,0);
-
-    // Numeração de página
-    pdf.setFontSize(9);
-    pdf.text(`Página 1 de 1`, 105, 295,{align:"center"});
-
-    pdf.save(`CheckInfra-${d.id}.pdf`);
+    pdf.addImage(d.logo,"PNG",80,20,50,30); // 50x30mm fixo
   }
+
+  y += 35;
+  pdf.setFontSize(14).setFont("times","bold");
+  pdf.text("CheckInfra",105,y,{align:"center"});
+  y += 7;
+
+  pdf.setFontSize(12).setFont("times","normal");
+  pdf.text(
+    "RELATÓRIO DE DIAGNÓSTICO DE INFRAESTRUTURA SANITÁRIA ESCOLAR",
+    105,y,{align:"center"}
+  );
+  y += 12;
+
+  // Card Identificação
+  pdf.setFillColor(240,240,240);
+  pdf.roundedRect(margin,y,170,35,5,5,"F");
+  pdf.setFont("times","bold");
+  pdf.text("Identificação",margin+3,y+7);
+  pdf.setFont("times","normal");
+  pdf.text(`Escola: ${d.escola}`,margin+3,y+15);
+  pdf.text(`Avaliador: ${d.avaliador}`,margin+3,y+22);
+  pdf.text(`ID: ${d.id}`,margin+3,y+29);
+  y += 40;
+
+  // Card Problemas apontados
+  pdf.setFillColor(240,240,240);
+  pdf.roundedRect(margin,y,170,d.problemas.length*7 + 20,5,5,"F");
+  pdf.setFont("times","bold");
+  pdf.text("Problemas apontados",margin+3,y+7);
+  pdf.setFont("times","normal");
+  let yP = y + 14;
+  d.problemas.forEach(p=>{
+    pdf.text(`- ${p}`,margin+5,yP);
+    yP += 7;
+  });
+  y = yP + 5;
+
+  // Card Resultado
+  pdf.setFillColor(255, 255, 255); // fundo branco
+  pdf.roundedRect(margin,y,170,30,5,5,"F");
+  pdf.setFont("times","bold");
+  pdf.text("Resultado",margin+3,y+7);
+  pdf.setFont("times","normal");
+  pdf.text(`Situação: ${d.status}`,margin+3,y+15);
+  pdf.text(`Pontuação: ${d.pontuacao}`,margin+3,y+22);
+  y += 35;
+
+  // Card Registro fotográfico
+  pdf.setFillColor(240,240,240);
+  let fotoCardAltura = d.fotos.length>0 ? d.fotos.length*55 + 20 : 30;
+  pdf.roundedRect(margin,y,170,fotoCardAltura,5,5,"F");
+  pdf.setFont("times","bold");
+  pdf.text("Registro Fotográfico",margin+3,y+7);
+  pdf.setFont("times","normal");
+  let yF = y + 14;
+  d.fotos.forEach(file => {
+    pdf.addImage(file,'JPEG',margin+3,yF,50,50);
+    yF += 55;
+  });
+  y += fotoCardAltura + 5;
+
+  // Card Aviso legal
+  pdf.setFillColor(255,255,255);
+  pdf.roundedRect(margin,y,170,20,5,5,"F");
+  pdf.setFont("times","normal");
+  pdf.text("Diagnóstico preliminar. Não substitui vistoria técnica presencial ou laudo de engenharia.",105,y+10,{align:"center"});
+  y += 25;
+
+  // Data da geração na lateral direita
+  pdf.setFont("times","normal").setTextColor(255,0,0);
+  pdf.text(`Data: ${new Date().toLocaleString()}`,200,280,{align:"right"});
+
+  // Número da página
+  pdf.setTextColor(0,0,0);
+  pdf.text(`Página 1`,105,295,{align:"center"});
+
+  pdf.save(`CheckInfra-${d.id}.pdf`);
 }
 
 // ================= MAIN =================
@@ -203,10 +168,10 @@ document.addEventListener("DOMContentLoaded",()=>{
       problemas.push(c.innerText.trim());
     });
 
-    let status="Condição adequada",classe="ok";
-    if(pontuacao >= 12){ status="Condição crítica"; classe="critico"; }
-    else if(pontuacao >= 8){ status="Atenção elevada"; classe="atencao"; }
-    else if(pontuacao >= 4){ status="Situação de alerta"; classe="alerta"; }
+    let status="Condição adequada",classe="ok",corBolinha="🟢";
+    if(pontuacao >= 12){ status="Condição crítica"; classe="critico"; corBolinha="🔴"; }
+    else if(pontuacao >= 8){ status="Atenção elevada"; classe="atencao"; corBolinha="🟠"; }
+    else if(pontuacao >= 4){ status="Situação de alerta"; classe="alerta"; corBolinha="🟡"; }
 
     const escolaSelecionada = document.getElementById("escola").value;
     const objEscola = window.escolas.find(e=>e.nome===escolaSelecionada) || {};
@@ -221,6 +186,9 @@ document.addEventListener("DOMContentLoaded",()=>{
       pontuacao,
       status,
       classe,
+      corBolinha,
+
+      rt: 0,
       problemas,
       fotos: fotosBase64,
       logo: "./assets/logo-checkinfra.png"
@@ -237,12 +205,13 @@ document.addEventListener("DOMContentLoaded",()=>{
     `;
 
     try{
+      console.log("Tentando salvar no Firebase:", dados.id, navigator.onLine);
       if(navigator.onLine){
         await db.collection("avaliacoes").doc(dados.id).set({
           ...dados,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        console.log("Salvo no Firebase:", dados.id);
+        console.log("Salvo com sucesso no Firebase:", dados.id);
       } else salvarOffline(dados);
     }catch(err){
       console.error("Erro ao salvar no Firebase:", err);
@@ -251,12 +220,12 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     gerarPDF(dados);
 
-    // Redirecionamento automático após 4s
+    form.reset();
+    preview.innerHTML="";
+
+    // Redirecionamento automático após 4 segundos
     setTimeout(() => {
       window.location.href = './index.html';
     }, 4000);
-
-    form.reset();
-    preview.innerHTML="";
   });
 });

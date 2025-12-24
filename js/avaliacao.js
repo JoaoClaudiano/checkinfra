@@ -43,6 +43,7 @@ async function gerarPDF(d) {
   const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
 
   const margin = 15;
+  const cardWidth = 180;
   let y = margin;
 
   // ================= LOGO =================
@@ -52,9 +53,9 @@ async function gerarPDF(d) {
     await new Promise(resolve => {
       img.onload = () => {
         const ratio = img.width / img.height;
-        const width = 50;
+        const width = 40; // reduzir logo
         const height = width / ratio;
-        pdf.addImage(img, "PNG", 80, y, width, height);
+        pdf.addImage(img, "PNG", (210 - width)/2, y, width, height);
         resolve();
       };
     });
@@ -66,27 +67,26 @@ async function gerarPDF(d) {
   y += 7;
 
   pdf.setFontSize(12).setFont("helvetica","normal");
-  pdf.text(
-    "RELATÓRIO DE DIAGNÓSTICO DE INFRAESTRUTURA SANITÁRIA ESCOLAR",
-    105,y,{align:"center"}
-  );
+  pdf.text("RELATÓRIO DE DIAGNÓSTICO DE INFRAESTRUTURA SANITÁRIA ESCOLAR",105,y,{align:"center"});
   y += 12;
 
   // ================= CARD 1: Identificação =================
+  const card1Height = 40;
   pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,180,35,"F");
+  pdf.rect(margin,y,cardWidth,card1Height,"F");
   pdf.setFont("helvetica","bold");
   pdf.text("Identificação",margin+3,y+7);
   pdf.setFont("helvetica","normal");
   pdf.text(`Escola: ${d.escola}`,margin+3,y+15);
   pdf.text(`Avaliador: ${d.avaliador}`,margin+3,y+22);
   pdf.text(`Data da Avaliação: ${new Date().toLocaleDateString()}`,margin+3,y+29);
-  y += 40;
+  y += card1Height + 5;
 
   // ================= CARD 2: Problemas apontados =================
+  const minCard2Height = 30;
+  const problemasHeight = Math.max(d.problemas.length*7 + 15, minCard2Height);
   pdf.setFillColor(240,240,240);
-  const problemasHeight = d.problemas.length*7 + 15;
-  pdf.rect(margin,y,180, problemasHeight, "F");
+  pdf.rect(margin,y,cardWidth,problemasHeight,"F");
   pdf.setFont("helvetica","bold");
   pdf.text("Problemas apontados",margin+3,y+7);
   pdf.setFont("helvetica","normal");
@@ -95,23 +95,25 @@ async function gerarPDF(d) {
     pdf.text(`- ${p}`,margin+5,yP);
     yP += 7;
   });
-  y = y + problemasHeight + 5;
+  y += problemasHeight + 5;
 
   // ================= CARD 3: Resultado =================
+  const card3Height = 35;
   pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,180,22,"F");
+  pdf.rect(margin,y,cardWidth,card3Height,"F");
   pdf.setFont("helvetica","bold");
   pdf.text("Resultado",margin+3,y+7);
   pdf.setFont("helvetica","normal");
   pdf.text(`Status: ${d.status} ${d.corBolinha}`,margin+3,y+15);
-  pdf.text(`Pontuação: ${d.pontuacao}`,margin+60,y+15);
-  pdf.text(`ID: ${d.id}`,margin+120,y+15);
-  y += 27;
+  pdf.text(`Pontuação: ${d.pontuacao}`,margin+3,y+22);
+  pdf.text(`ID: ${d.id}`,margin+3,y+29);
+  y += card3Height + 5;
 
   // ================= CARD 4: Registro fotográfico =================
+  const minFotoHeight = 25;
+  const fotoHeight = d.fotos.length ? d.fotos.length * 55 : minFotoHeight;
   pdf.setFillColor(240,240,240);
-  const fotoHeight = d.fotos.length ? 60 : 25;
-  pdf.rect(margin,y,180,fotoHeight,"F");
+  pdf.rect(margin,y,cardWidth,fotoHeight,"F");
   pdf.setFont("helvetica","bold");
   pdf.text("Registro fotográfico",margin+3,y+7);
   pdf.setFont("helvetica","normal");
@@ -123,18 +125,19 @@ async function gerarPDF(d) {
   y += fotoHeight + 5;
 
   // ================= CARD 5: Aviso legal =================
+  const card5Height = 15;
   pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,180,15,"F");
+  pdf.rect(margin,y,cardWidth,card5Height,"F");
   pdf.setFont("helvetica","normal");
   pdf.setFontSize(8);
   pdf.text("Diagnóstico preliminar. Não substitui vistoria técnica presencial ou laudo de engenharia.",margin+3,y+10);
-  y += 20;
+  y += card5Height + 5;
 
-  // ================= Data de impressão lateral =================
+  // ================= Data lateral direita =================
   pdf.setTextColor(255,0,0);
   pdf.setFontSize(8);
-  pdf.text(`Gerado em: ${new Date().toLocaleString()}`, 190, 10, {align:"right", baseline:"top"});
-  pdf.setTextColor(0,0,0); // volta para preto
+  pdf.text(`Gerado em: ${new Date().toLocaleString()}`, 205, 10, {align:"right", baseline:"top"});
+  pdf.setTextColor(0,0,0);
 
   pdf.save(`CheckInfra-${d.id}.pdf`);
 }

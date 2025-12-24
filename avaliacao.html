@@ -4,179 +4,88 @@
 <meta charset="UTF-8">
 <title>CheckInfra – Avaliação Sanitária</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1f4fd8">
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DD4SQ88NVT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-DD4SQ88NVT');
+</script>
 
 <!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f6f8;
-  margin: 0;
-  min-height: 100vh;
-}
+body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+.header { background: #1f4fd8; color: #fff; text-align: center; padding: 20px; font-size: 18px; font-weight: bold; }
+.container { max-width: 900px; margin: 20px auto; padding: 0 16px; flex: 1; display: flex; flex-direction: column; }
+h1 { text-align: center; margin: 20px 0; }
 
-/* ===== HEADER ===== */
-.header-app {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: #1f4fd8;
-  color: #fff;
-}
+.card { background: #fff; border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,.08); transition: all .2s ease; }
+.card-grande h3 { margin-bottom: 12px; color: #1f4fd8; }
 
-.header-app h1 {
-  flex: 1;
-  text-align: center;
-  font-size: 16px;
-  margin: 0;
-}
+.checklist { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.check-card { padding: 12px; border-radius: 12px; background: #fafafa; border: 2px solid #e0e0e0; cursor: pointer; transition: all .2s ease; text-align: center; font-weight: normal; }
+.check-card:hover { transform: translateY(-2px); box-shadow: 0 3px 6px rgba(0,0,0,.1); }
+.check-card.selected { border-color: #1f4fd8; background: #eaf0ff; font-weight: bold; }
 
-.nav-left {
-  display: flex;
-  gap: 10px;
-}
+label { font-weight: bold; display: block; margin-bottom: 6px; }
+select, input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 14px; }
 
-.nav-left button,
-.nav-left a {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 18px;
-  cursor: pointer;
-}
+.upload-box { border: 2px dashed #bbb; border-radius: 14px; padding: 20px; text-align: center; background: #fcfcfc; margin-bottom: 20px; }
+.upload-box input { display: none; }
+.upload-preview { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.upload-preview img { width: 100px; height: auto; border-radius: 8px; border: 1px solid #ccc; }
 
-/* ===== CONTAINER ===== */
-.container {
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 0 16px;
-}
+button { width: 100%; padding: 16px; background: #1f4fd8; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+button:hover { background: #163ca6; }
 
-/* ===== CARDS ===== */
-.card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
-}
+.resultado { padding: 20px; border-radius: 14px; font-weight: bold; margin-top: 10px; display: none; color: #000; margin-bottom: 40px; }
+.resultado-ok { background: #d4edda; color: #155724; }
+.resultado-alerta { background: #fff3cd; color: #856404; }
+.resultado-critico { background: #f8d7da; color: #721c24; }
 
-.card h3 {
-  margin-top: 0;
-  color: #1f4fd8;
-}
+.selo { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; margin-bottom: 10px; }
 
-/* ===== CHECKLIST ===== */
-.checklist {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+#resultado strong { display: inline-block; margin-top: 6px; }
 
-.check-card {
-  padding: 14px;
-  border-radius: 12px;
-  background: #fafafa;
-  border: 2px solid #e0e0e0;
-  cursor: pointer;
-  transition: all .2s ease;
-}
-
-.check-card:hover {
-  transform: translateY(-1px);
-}
-
-.check-card.selected {
-  border-color: #1f4fd8;
-  background: #eaf0ff;
-  font-weight: bold;
-}
-
-/* ===== INPUTS ===== */
-label {
-  font-weight: bold;
-  margin-bottom: 6px;
-  display: block;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  margin-bottom: 14px;
-}
-
-/* ===== RESULTADO ===== */
-.resultado {
-  padding: 20px;
-  border-radius: 14px;
-  margin-top: 20px;
-  font-weight: bold;
-}
-
-.verde { background:#d4edda; color:#155724; }
-.amarelo { background:#fff3cd; color:#856404; }
-.laranja { background:#ffe8cc; color:#a55b00; }
-.vermelho { background:#f8d7da; color:#721c24; }
-
-/* ===== SELO EXPLICATIVO ===== */
-.selo-explicativo {
-  font-size: 13px;
-  margin-top: 12px;
-  line-height: 1.6;
-}
-
-.selo-explicativo ul {
-  padding-left: 18px;
-  margin: 8px 0 0;
-}
-
-.selo-explicativo li {
-  margin-bottom: 4px;
-}
-
-/* ===== BOTÃO ===== */
-button.primary {
-  width: 100%;
-  padding: 16px;
-  background: #1f4fd8;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  cursor: pointer;
+@media(max-width:600px){
+  .checklist { grid-template-columns: 1fr; }
+  .resultado { font-size: 14px; padding: 16px; }
+  .upload-preview img { width: 80px; }
 }
 </style>
 </head>
 
 <body>
-
-<header class="header-app">
-  <div class="nav-left">
-    <button onclick="history.back()">⬅️</button>
-    <a href="index.html">🏠</a>
-  </div>
-  <h1>Avaliação Sanitária</h1>
-</header>
+<div class="nav-global">
+  <button onclick="history.back()" title="Voltar">⬅️</button>
+  <a href="./index.html" title="Início">🏠</a>
+</div>
+<div class="header">CheckInfra – Avaliação Sanitária</div>
 
 <div class="container">
+<h1>Avaliação Sanitária Escolar</h1>
 
 <form id="form-avaliacao">
 
-  <!-- IDENTIFICAÇÃO -->
+  <!-- CARD 1 — IDENTIFICAÇÃO -->
   <div class="card">
     <label>Escola</label>
-    <input id="escola" required>
+    <select id="escola" required>
+      <option value="">Selecione a escola</option>
+    </select>
 
     <label>Avaliador</label>
-    <input id="avaliador" required>
+    <input type="text" id="avaliador" placeholder="Nome do avaliador" required>
   </div>
 
-  <!-- ESTRUTURA -->
-  <div class="card">
+  <!-- CARD 2 — CHECKLIST -->
+  <div class="card card-grande">
     <h3>🏗️ Estrutura</h3>
     <div class="checklist">
       <div class="check-card" data-peso="3">Mofo ou umidade excessiva</div>
@@ -185,144 +94,155 @@ button.primary {
     </div>
   </div>
 
-  <!-- HIGIENE -->
-  <div class="card">
+  <div class="card card-grande">
     <h3>🧹 Higiene</h3>
     <div class="checklist">
       <div class="check-card" data-peso="2">Limpeza inadequada</div>
       <div class="check-card" data-peso="2">Mau cheiro persistente</div>
-      <div class="check-card" data-peso="1">Presença de pragas</div>
     </div>
   </div>
 
-  <!-- CONFORTO -->
-  <div class="card">
+  <div class="card card-grande">
     <h3>💡 Conforto</h3>
     <div class="checklist">
       <div class="check-card" data-peso="1">Iluminação insuficiente</div>
       <div class="check-card" data-peso="1">Ventilação inadequada</div>
-      <div class="check-card" data-peso="1">Ruído excessivo</div>
     </div>
   </div>
 
-  <button class="primary" type="submit">Gerar diagnóstico e PDF</button>
+  <!-- CARD 3 — UPLOAD DE FOTOS -->
+  <div class="card upload-box">
+    <h3>Registro Fotográfico</h3>
+    <input type="file" id="fotos" accept="image/*" multiple>
+    <div id="preview" class="upload-preview"></div>
+  </div>
+
+  <button type="submit">Gerar Diagnóstico e PDF</button>
 </form>
 
-<!-- RESULTADO -->
-<div id="resultado" class="resultado" style="display:none;"></div>
-
-<!-- SELO EXPLICATIVO -->
-<div class="card selo-explicativo">
-  <strong>📘 Legenda de classificação</strong>
-  <ul>
-    <li>🟢 0–3 pontos — Condição adequada</li>
-    <li>🟡 4–6 pontos — Situação de alerta</li>
-    <li>🟠 7–8 pontos — Atenção elevada</li>
-    <li>🔴 ≥ 9 pontos — Condição crítica</li>
-  </ul>
-  <p style="margin-top:8px;font-size:12px;">
-    Este diagnóstico é orientativo e não substitui inspeção técnica especializada.
-  </p>
-</div>
+<div id="resultado" class="resultado"></div>
 
 </div>
+
+<script src="./mapa/escolas.js"></script>
+<script type="module" src="./js/avaliacao.js"></script>
 
 <script>
-/* ===== INTERAÇÃO DOS CARDS ===== */
-document.querySelectorAll(".check-card").forEach(card => {
-  card.addEventListener("click", () => {
-    card.classList.toggle("selected");
-  });
-});
+document.addEventListener("DOMContentLoaded", () => {
 
-/* ===== INDEXEDDB ===== */
-let db;
-const request = indexedDB.open("checkinfra-db", 1);
-
-request.onupgradeneeded = e => {
-  db = e.target.result;
-  db.createObjectStore("avaliacoes", { keyPath: "id" });
-};
-
-request.onsuccess = e => db = e.target.result;
-
-/* ===== SUBMIT ===== */
-document.getElementById("form-avaliacao").addEventListener("submit", e => {
-  e.preventDefault();
-
-  let pontuacao = 0;
-  let problemas = [];
-
-  document.querySelectorAll(".check-card.selected").forEach(card => {
-    pontuacao += parseInt(card.dataset.peso);
-    problemas.push(card.innerText);
-  });
-
-  let status = "verde";
-  let texto = "🟢 Condição adequada";
-
-  if (pontuacao >= 4 && pontuacao <= 6) {
-    status = "amarelo";
-    texto = "🟡 Situação de alerta";
-  } else if (pontuacao >= 7 && pontuacao <= 8) {
-    status = "laranja";
-    texto = "🟠 Atenção elevada";
-  } else if (pontuacao >= 9) {
-    status = "vermelho";
-    texto = "🔴 Condição crítica";
-  }
-
-  const dados = {
-    id: "CHK-" + Date.now(),
-    escola: escola.value,
-    avaliador: avaliador.value,
-    pontuacao,
-    status,
-    problemas,
-    data: new Date().toISOString(),
-    sincronizado: navigator.onLine
-  };
-
+  // Aviso offline inicial
   if (!navigator.onLine) {
-    const tx = db.transaction("avaliacoes", "readwrite");
-    tx.objectStore("avaliacoes").add(dados);
+    if (!confirm("⚠️ Você está OFFLINE. O sistema irá sincronizar automaticamente quando a conexão voltar. Deseja continuar?")) {
+      return;
+    }
   }
 
-  const resultado = document.getElementById("resultado");
-  resultado.style.display = "block";
-  resultado.className = "resultado " + status;
-  resultado.innerHTML = `
-    ${texto}<br>
-    <strong>Escola:</strong> ${dados.escola}<br>
-    <strong>Avaliador:</strong> ${dados.avaliador}<br>
-    <strong>Pontuação:</strong> ${pontuacao}<br>
-    ${navigator.onLine ? "☁️ Enviado ao sistema" : "📴 Salvo offline — será sincronizado"}
-  `;
-
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-  pdf.text("CheckInfra – Avaliação Sanitária", 10, 10);
-  pdf.text(texto, 10, 20);
-  pdf.text(`Escola: ${dados.escola}`, 10, 30);
-  pdf.text(`Avaliador: ${dados.avaliador}`, 10, 40);
-  pdf.text(`Pontuação: ${pontuacao}`, 10, 50);
-  pdf.save("checkinfra-avaliacao.pdf");
-
-  setTimeout(() => location.href = "index.html", 4000);
-});
-
-/* ===== SINCRONIZAÇÃO ===== */
-window.addEventListener("online", () => {
-  const tx = db.transaction("avaliacoes", "readwrite");
-  const store = tx.objectStore("avaliacoes");
-  store.getAll().onsuccess = e => {
-    e.target.result.forEach(av => {
-      store.delete(av.id);
-      console.log("Sincronizado:", av);
+  // Preencher select de escolas
+  const select = document.getElementById("escola");
+  if (window.escolas) {
+    window.escolas.forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e.nome;
+      opt.textContent = e.nome;
+      select.appendChild(opt);
     });
-  };
+  }
+
+  // Seleção por card
+  document.querySelectorAll(".check-card").forEach(card => {
+    card.addEventListener("click", () => {
+      card.classList.toggle("selected");
+    });
+  });
+
+  // Preview de fotos
+  const fotosInput = document.getElementById("fotos");
+  const preview = document.getElementById("preview");
+  fotosInput.addEventListener("change", () => {
+    preview.innerHTML = "";
+    Array.from(fotosInput.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // Submit: exibe resultado e define ID global
+  const form = document.getElementById("form-avaliacao");
+  const resultado = document.getElementById("resultado");
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+
+    // Pontuação baseada nos check-cards selecionados
+    let pontuacao = 0;
+    let problemas = [];
+    document.querySelectorAll(".check-card.selected").forEach(card => {
+      pontuacao += parseInt(card.dataset.peso || 0);
+      problemas.push(card.innerText.trim());
+    });
+
+    // Status
+    let status = "ok";
+    if (pontuacao >= 6 && pontuacao < 10) status = "alerta";
+    else if (pontuacao >= 10) status = "critico";
+
+    // ID real do avaliacao.js
+    const avaliador = document.getElementById("avaliador").value;
+    const idCheckInfra = window.idcheckinfra || "ID ainda não gerado pelo sistema";
+
+    // Atualiza card de resultado
+    resultado.style.display = "block";
+    resultado.className = "resultado resultado-" + status;
+    resultado.innerHTML = `
+      <div class="selo">
+        ${status === "ok" ? "Condição adequada" :
+          status === "alerta" ? "Situação de alerta" :
+          "Condição crítica"}
+      </div>
+      <div><strong>IDCHECKINFRA:</strong> ${idCheckInfra}</div>
+      <div><strong>Pontuação:</strong> ${pontuacao}</div>
+      <div><strong>Avaliador:</strong> ${avaliador}</div>
+      ${navigator.onLine ? "☁️ Enviado ao sistema" : "📴 Salvo offline — será sincronizado"}
+    `;
+
+    // Redireciona após 5 segundos
+    setTimeout(()=>{ window.scrollTo(0,0); },5000);
+  });
 });
 </script>
 
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register("./service-worker.js");
+}
+</script>
+<!-- ===== FOOTER FIXO ===== -->
+<footer style="
+  background:#1f4fd8; 
+  color:#fff; 
+  text-align:center; 
+  padding:16px 10px; 
+  font-size:12px; 
+  line-height:1.4;
+">
+  <div style="max-width:600px; margin:0 auto;">
+    <p style="margin:0 0 8px;">
+      © 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License
+    </p>
+
+    <!-- Badge MIT License -->
+    <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
+    </a>
+
+    <p style="margin:8px 0 0; font-size:11px;">
+      🔒 O CheckInfra realiza tratamento mínimo de dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), exclusivamente para fins técnicos, institucionais e de prestação do serviço licenciado.
+    </p>
+  </div>
+</footer>
 </body>
 </html>

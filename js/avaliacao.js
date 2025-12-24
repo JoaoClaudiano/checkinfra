@@ -102,7 +102,7 @@ async function gerarPDF(d) {
   pdf.setFont("helvetica","normal");
   pdf.text(`Pontuação: ${d.pontuacao}`,margin+3,y+15);
   pdf.text(`Status: ${d.status}`,margin+60,y+15);
-  pdf.text(`ID: ${d.id}`,margin+120,y+15);
+  pdf.text(`ID: ${d.id}`,margin+3,y+22);
   y += 27;
 
   pdf.setFontSize(9);
@@ -152,10 +152,10 @@ document.addEventListener("DOMContentLoaded",()=>{
       problemas.push(c.innerText.trim());
     });
 
-    let status="Adequada",classe="ok";
-    if(pontuacao >= 12){ status="Crítica"; classe="critico"; }
-    else if(pontuacao >= 8){ status="Atenção"; classe="atencao"; }
-    else if(pontuacao >= 4){ status="Alerta"; classe="alerta"; }
+    let status="Condição adequada",classe="ok",corBolinha="🟢";
+    if(pontuacao >= 12){ status="Condição crítica"; classe="critico"; corBolinha="🔴"; }
+    else if(pontuacao >= 8){ status="Atenção elevada"; classe="atencao"; corBolinha="🟠"; }
+    else if(pontuacao >= 4){ status="Situação de alerta"; classe="alerta"; corBolinha="🟡"; }
 
     const escolaSelecionada = document.getElementById("escola").value;
     const objEscola = window.escolas.find(e=>e.nome===escolaSelecionada) || {};
@@ -170,12 +170,9 @@ document.addEventListener("DOMContentLoaded",()=>{
       pontuacao,
       status,
       classe,
+      corBolinha,
 
-      // ================= METODOLOGIA IPT =================
-      // RT = Persistência recorrente
-      // Regra: inicia em 0 e é acumulado posteriormente pelo sistema
       rt: 0,
-
       problemas,
       fotos: fotosBase64,
       logo: "./assets/logo-checkinfra.png"
@@ -184,12 +181,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     resultado.style.display = "block";
     resultado.className = "resultado resultado-" + classe;
     resultado.innerHTML = `
-      <div class="selo">
-        ${classe==="ok"?"Condição adequada":
-          classe==="alerta"?"Situação de alerta":
-          classe==="atencao"?"Atenção Elevada":
-          "Condição crítica"}
-      </div>
+      <div class="selo">${status} ${corBolinha}</div>
       <strong>ID:</strong> ${dados.id}<br>
       <strong>Pontuação:</strong> ${pontuacao}<br>
       <strong>Avaliador:</strong> ${dados.avaliador}<br>

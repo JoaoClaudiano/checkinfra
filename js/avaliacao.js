@@ -39,106 +39,115 @@ async function sincronizarOffline(){
 
 // ================= PDF =================
 async function gerarPDF(d) {
-  const { jsPDF } = window.jspdf; 
-  const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
   const margin = 15;
-  const cardWidth = 180;
   let y = margin;
 
-  // ================= LOGO =================
+  // Logo proporcional
   if(d.logo){
-    const img = new Image();
-    img.src = d.logo;
-    await new Promise(resolve => {
-      img.onload = () => {
-        const ratio = img.width / img.height;
-        const width = 40; // reduzir logo
-        const height = width / ratio;
-        pdf.addImage(img, "PNG", (210 - width)/2, y, width, height);
+    const imgProps = pdf.getImageProperties(d.logo);
+    const maxWidth = 40;
+    const ratio = imgProps.width / imgProps.height;
+    const width = maxWidth;
+    const height = width / ratio;
+    pdf.addImage(d.logo,"PNG",(210-width)/2,y,width,height);
+    y += height + 5;
+  }
+
+  // Título central
+  pdf.setFont("times","bold");
+  pdf.setFontSize(16);
+  pdf.text("CheckInfra",105,y,{align:"center"});
+  y += 8;
+
+  pdf.setFontSize(12);
+  pdf.setFont("times","normal");
+  pdf.text(
+    "RELATÓRIO DE DIAGNÓSTICO DE INFRAESTRUTURA SANITÁRIA ESCOLAR",
+    105,y,{align:"center"}
+  );
+  y += 12;
+
+  // Data lateral direita em vermelho
+  const dataGeracao = new Date().toLocaleString();
+  pdf.setFontSize(9);
+  pdf.setTextColor(255,0,0);
+  pdf.text(`Gerado em: ${dataGeracao}`, 200, margin, {align:"right"});
+  pdf.setTextColor(0,0,0);
+
+  // ---------------- CARD 1 — IDENTIFICAÇÃO ----------------
+  pdf.setFillColor(220,235,255); // azul clarinho
+  pdf.roundedRect(margin,y,180,30,5,5,"F");
+  pdf.setFont("times","bold"); pdf.setFontSize(12);
+  pdf.text("Identificação", margin+3, y+7);
+  pdf.setFont("times","normal"); pdf.setFontSize(10);
+  pdf.text(`Escola: ${d.escola}`, margin+3, y+15);
+  pdf.text(`Avaliador: ${d.avaliador}`, margin+3, y+22);
+  pdf.text(`ID: ${d.id}`, margin+3, y+29);
+  y += 35;
+
+  // ---------------- CARD 2 — PROBLEMAS APONTADOS ----------------
+  pdf.setFillColor(255,250,200); // amarelo suave
+  const alturaProblemas = Math.max(20, d.problemas.length * 7 + 10);
+  pdf.roundedRect(margin,y,180,alturaProblemas,5,5,"F");
+  pdf.setFont("times","bold"); pdf.setFontSize(12);
+  pdf.text("Problemas Apontados", margin+3, y+7);
+  pdf.setFont("times","normal"); pdf.setFontSize(10);
+  let yP = y+14;
+  d.problemas.forEach(p=>{
+    pdf.text(`- ${p}`, margin+5, yP);
+    yP += 7;
+  });
+  y += alturaProblemas + 5;
+
+  // ---------------- CARD 3 — RESULTADO ----------------
+  let corResultado;
+  switch(d.classe){
+    case "ok": corResultado = [200,255,200]; break; // verde
+    case "alerta": corResultado = [255,245,200]; break; // amarelo
+    case "atencao": corResultado = [255,230,180]; break; // laranja
+    case "critico": corResultado = [255,200,200]; break; // vermelho
+    default: corResultado=[240,240,240];
+  }
+  pdf.setFillColor(...corResultado);
+  pdf.roundedRect(margin,y,180,30,5,5,"F");
+  pdf.setFont("times","bold"); pdf.setFontSize(12);
+  pdf.text("Resultado", margin+3, y+7);
+  pdf.setFont("times","normal"); pdf.setFontSize(10);
+  pdf.text(`Status: ${d.status} ${d.corBolinha}`, margin+3, y+15);
+  pdf.text(`Pontuação: ${d.pontuacao}`, margin+3, y+22);
+  y += 35;
+
+  // ---------------- CARD 4 — REGISTRO FOTOGRÁFICO ----------------
+  const alturaFotos = d.fotos.length ? 55*d.fotos.length : 20;
+  pdf.setFillColor(230,230,230); // cinza neutro
+  pdf.roundedRect(margin,y,180,alturaFotos,5,5,"F");
+  pdf.setFont("times","bold"); pdf.setFontSize(12);
+  pdf.text("Registro Fotográfico", margin+3, y+7);
+  pdf.setFont("times","normal"); pdf.setFontSize(10);
+  let yF = y + 14;
+  for(let i=0;i<d.fotos.length;i++){
+    await new Promise(resolve=>{
+      const reader = new Image();
+      reader.src = d.fotos[i];
+      reader.onload = ()=>{
+        pdf.addImage(d.fotos[i],'JPEG',margin+3, yF, 50, 50);
+        yF += 55;
         resolve();
       };
     });
   }
+  y += alturaFotos + 5;
 
-  y += 35;
-  pdf.setFontSize(14).setFont("helvetica","bold");
-  pdf.text("CheckInfra",105,y,{align:"center"});
-  y += 7;
+  // ---------------- CARD 5 — AVISO LEGAL ----------------
+  pdf.setFillColor(245,245,245); // cinza claro
+  pdf.roundedRect(margin,y,180,15,5,5,"F");
+  pdf.setFont("times","bold"); pdf.setFontSize(10);
+  pdf.text("Diagnóstico preliminar. Não substitui vistoria técnica presencial ou laudo de engenharia.", margin+3, y+10);
 
-  pdf.setFontSize(12).setFont("helvetica","normal");
-  pdf.text("RELATÓRIO DE DIAGNÓSTICO DE INFRAESTRUTURA SANITÁRIA ESCOLAR",105,y,{align:"center"});
-  y += 12;
-
-  // ================= CARD 1: Identificação =================
-  const card1Height = 40;
-  pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,cardWidth,card1Height,"F");
-  pdf.setFont("helvetica","bold");
-  pdf.text("Identificação",margin+3,y+7);
-  pdf.setFont("helvetica","normal");
-  pdf.text(`Escola: ${d.escola}`,margin+3,y+15);
-  pdf.text(`Avaliador: ${d.avaliador}`,margin+3,y+22);
-  pdf.text(`Data da Avaliação: ${new Date().toLocaleDateString()}`,margin+3,y+29);
-  y += card1Height + 5;
-
-  // ================= CARD 2: Problemas apontados =================
-  const minCard2Height = 30;
-  const problemasHeight = Math.max(d.problemas.length*7 + 15, minCard2Height);
-  pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,cardWidth,problemasHeight,"F");
-  pdf.setFont("helvetica","bold");
-  pdf.text("Problemas apontados",margin+3,y+7);
-  pdf.setFont("helvetica","normal");
-  let yP = y + 14;
-  d.problemas.forEach(p=>{
-    pdf.text(`- ${p}`,margin+5,yP);
-    yP += 7;
-  });
-  y += problemasHeight + 5;
-
-  // ================= CARD 3: Resultado =================
-  const card3Height = 35;
-  pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,cardWidth,card3Height,"F");
-  pdf.setFont("helvetica","bold");
-  pdf.text("Resultado",margin+3,y+7);
-  pdf.setFont("helvetica","normal");
-  pdf.text(`Status: ${d.status} ${d.corBolinha}`,margin+3,y+15);
-  pdf.text(`Pontuação: ${d.pontuacao}`,margin+3,y+22);
-  pdf.text(`ID: ${d.id}`,margin+3,y+29);
-  y += card3Height + 5;
-
-  // ================= CARD 4: Registro fotográfico =================
-  const minFotoHeight = 25;
-  const fotoHeight = d.fotos.length ? d.fotos.length * 55 : minFotoHeight;
-  pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,cardWidth,fotoHeight,"F");
-  pdf.setFont("helvetica","bold");
-  pdf.text("Registro fotográfico",margin+3,y+7);
-  pdf.setFont("helvetica","normal");
-  let yF = y + 14;
-  for(const f of d.fotos){
-    pdf.addImage(f, "JPEG", margin+5, yF, 50, 50);
-    yF += 55;
-  }
-  y += fotoHeight + 5;
-
-  // ================= CARD 5: Aviso legal =================
-  const card5Height = 15;
-  pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,cardWidth,card5Height,"F");
-  pdf.setFont("helvetica","normal");
-  pdf.setFontSize(8);
-  pdf.text("Diagnóstico preliminar. Não substitui vistoria técnica presencial ou laudo de engenharia.",margin+3,y+10);
-  y += card5Height + 5;
-
-  // ================= Data lateral direita =================
-  pdf.setTextColor(255,0,0);
-  pdf.setFontSize(8);
-  pdf.text(`Gerado em: ${new Date().toLocaleString()}`, 205, 10, {align:"right", baseline:"top"});
-  pdf.setTextColor(0,0,0);
-
+  // Salvar PDF
   pdf.save(`CheckInfra-${d.id}.pdf`);
 }
 
@@ -206,7 +215,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       logo: "./assets/logo-checkinfra.png"
     };
 
-    // Exibe card diagnóstico
+    // Mostrar card diagnóstico
     resultado.style.display = "block";
     resultado.className = "resultado resultado-" + classe;
     resultado.innerHTML = `
@@ -228,14 +237,14 @@ document.addEventListener("DOMContentLoaded",()=>{
       salvarOffline(dados);
     }
 
-    // Gera PDF
+    // Gerar PDF
     await gerarPDF(dados);
 
-    // Limpa formulário e preview
+    // Reset formulário e preview
     form.reset();
     preview.innerHTML="";
 
-    // Redirecionamento automático após 4s
+    // Redirecionamento automático após 4 segundos
     setTimeout(() => {
       window.location.href = './index.html';
     }, 4000);

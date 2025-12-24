@@ -57,8 +57,6 @@ body {
   margin: 20px auto;
   padding: 0 16px;
   flex: 1;
-  display: flex;
-  flex-direction: column;
 }
 
 h1 { text-align: center; margin: 20px 0; }
@@ -71,21 +69,25 @@ h1 { text-align: center; margin: 20px 0; }
   box-shadow: 0 2px 6px rgba(0,0,0,.08);
 }
 
-.card-grande h3 { color: #1f4fd8; }
+.card-grande h3 { color: #1f4fd8; margin-bottom: 12px; }
 
 .checklist {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
 .check-card {
-  padding: 12px;
+  padding: 14px;
   border-radius: 12px;
   background: #fafafa;
   border: 2px solid #e0e0e0;
   cursor: pointer;
-  text-align: center;
+  transition: .2s;
+}
+
+.check-card:hover {
+  transform: translateY(-2px);
 }
 
 .check-card.selected {
@@ -143,7 +145,6 @@ footer {
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="nav-left">
     <button onclick="history.back()">⬅️</button>
@@ -192,7 +193,7 @@ footer {
   </div>
 </div>
 
-<button type="submit">Gerar Diagnóstico</button>
+<button type="submit">Gerar Diagnóstico e PDF</button>
 </form>
 
 <div id="resultado" class="resultado"></div>
@@ -220,31 +221,48 @@ document.addEventListener("DOMContentLoaded", () => {
     card.onclick = () => card.classList.toggle("selected");
   });
 
-  window.idcheckinfra = "CI-" + Date.now();
-
+  const { jsPDF } = window.jspdf;
   const form = document.getElementById("form-avaliacao");
   const resultado = document.getElementById("resultado");
 
   form.onsubmit = e => {
     e.preventDefault();
 
+    const id = "CI-" + Date.now();
+    const avaliador = document.getElementById("avaliador").value;
+
     let pontuacao = 0;
-    document.querySelectorAll(".check-card.selected")
-      .forEach(c => pontuacao += Number(c.dataset.peso));
+    let problemas = [];
+
+    document.querySelectorAll(".check-card.selected").forEach(c => {
+      pontuacao += Number(c.dataset.peso);
+      problemas.push(c.innerText);
+    });
 
     let status = pontuacao >= 10 ? "critico" : pontuacao >= 6 ? "alerta" : "ok";
 
     resultado.style.display = "block";
     resultado.className = "resultado resultado-" + status;
     resultado.innerHTML = `
-      IDCHECKINFRA: ${window.idcheckinfra}<br>
-      Pontuação: ${pontuacao}<br>
-      Status: ${status.toUpperCase()}
+      <strong>IDCHECKINFRA:</strong> ${id}<br>
+      <strong>Pontuação:</strong> ${pontuacao}<br>
+      <strong>Status:</strong> ${status.toUpperCase()}
     `;
 
     const historico = JSON.parse(localStorage.getItem("checkinfra") || "[]");
-    historico.push({ id: window.idcheckinfra, pontuacao, status, data: new Date() });
+    historico.push({ id, avaliador, pontuacao, status, data: new Date() });
     localStorage.setItem("checkinfra", JSON.stringify(historico));
+
+    const pdf = new jsPDF();
+    pdf.text("CHECKINFRA — AVALIAÇÃO SANITÁRIA", 10, 10);
+    pdf.text(`ID: ${id}`, 10, 20);
+    pdf.text(`Avaliador: ${avaliador}`, 10, 30);
+    pdf.text(`Pontuação: ${pontuacao}`, 10, 40);
+    pdf.text(`Status: ${status.toUpperCase()}`, 10, 50);
+    pdf.text("Problemas:", 10, 60);
+    problemas.forEach((p, i) => pdf.text(`- ${p}`, 10, 70 + i * 8));
+
+    pdf.save(`CheckInfra_${id}.pdf`);
   };
 });
 </script>

@@ -40,97 +40,114 @@ async function sincronizarOffline(){
 // ================= PDF =================
 async function gerarPDF(d) {
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
   const margin = 15;
   let y = margin;
 
-  // ================= LOGO =================
+  // LOGO
   if(d.logo){
-    const img = new Image();
-    img.src = d.logo;
-    await new Promise(res=>{
-      img.onload = ()=>{
-        const w = 50; // largura fixa
-        const h = (img.height/img.width)*w; // manter proporção
-        pdf.addImage(img.src, "PNG", 80, y, w, h);
-        y += h + 5;
-        res();
-      };
+    const imgProps = await new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => resolve({ w: img.width, h: img.height });
+      img.src = d.logo;
     });
+    const scale = Math.min(50 / imgProps.w, 30 / imgProps.h);
+    pdf.addImage(d.logo, "PNG", 80, y, imgProps.w * scale, imgProps.h * scale);
   }
 
-  // ================= TÍTULO =================
-  pdf.setFont("times","normal");
+  y += 35;
+  pdf.setFont("Times","bold");
   pdf.setFontSize(14);
   pdf.text("CheckInfra",105,y,{align:"center"});
-  y += 8;
+  y += 7;
+
+  pdf.setFont("Times","normal");
   pdf.setFontSize(12);
-  pdf.text("RELATÓRIO DE DIAGNÓSTICO DE INFRAESTRUTURA SANITÁRIA ESCOLAR",105,y,{align:"center"});
+  pdf.text(
+    "RELATÓRIO DE DIAGNÓSTICO DE INFRAESTRUTURA SANITÁRIA ESCOLAR",
+    105,y,{align:"center"}
+  );
   y += 12;
 
-  // ================= CARD IDENTIFICAÇÃO =================
+  // CARD 1 — Identificação
   pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,180,35, "F");
-  pdf.setFontSize(11);
-  pdf.text("Identificação",margin+3,y+7);
-  pdf.text(`Escola: ${d.escola}`,margin+3,y+15);
-  pdf.text(`Avaliador: ${d.avaliador}`,margin+3,y+22);
-  // Espaço extra para o ID
+  pdf.roundedRect(margin, y, 180, 35, 5,5, 'F');
+  pdf.setFont("Times","bold");
+  pdf.text("Identificação", margin+3, y+7);
+  pdf.setFont("Times","normal");
+  pdf.text(`Escola: ${d.escola}`, margin+3, y+15);
+  pdf.text(`Avaliador: ${d.avaliador}`, margin+3, y+22);
   pdf.text(`ID: ${d.id}`, margin+3, y+29);
   y += 40;
 
-  // ================= CARD PROBLEMAS =================
+  // CARD 2 — Problemas
   pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,180,d.problemas.length*7 + 10,"F");
+  pdf.roundedRect(margin, y, 180, d.problemas.length*7 + 20, 5,5,'F');
+  pdf.setFont("Times","bold");
   pdf.text("Problemas apontados", margin+3, y+7);
-  let yP = y + 14;
+  pdf.setFont("Times","normal");
+  let yP = y+14;
   d.problemas.forEach(p=>{
     pdf.text(`- ${p}`, margin+5, yP);
     yP += 7;
   });
   y = yP + 5;
 
-  // ================= CARD RESULTADO =================
-  pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,180,25,"F");
+  // CARD 3 — Resultado
+  pdf.setFillColor(255,255,255); // padrão
+  if(d.classe==="ok") pdf.setFillColor(212,237,218);
+  else if(d.classe==="alerta") pdf.setFillColor(255,243,205);
+  else if(d.classe==="atencao") pdf.setFillColor(255,230,204);
+  else if(d.classe==="critico") pdf.setFillColor(248,215,218);
+  pdf.roundedRect(margin, y, 180, 30, 5,5,'F');
+  pdf.setFont("Times","bold");
   pdf.text("Resultado", margin+3, y+7);
-  pdf.text(`Pontuação: ${d.pontuacao}`, margin+3, y+15);
-  pdf.text(`Status: ${d.status} ${d.corBolinha}`, margin+3, y+22);
-  y += 30;
+  pdf.setFont("Times","normal");
+  pdf.text(`Situação: ${d.status} ${d.corBolinha}`, margin+3, y+15);
+  pdf.text(`Pontuação: ${d.pontuacao}`, margin+3, y+22);
+  y += 35;
 
-  // ================= CARD REGISTRO FOTOGRÁFICO =================
+  // CARD 4 — Registro fotográfico
   pdf.setFillColor(240,240,240);
-  const fotosAltura = d.fotos.length > 0 ? 60 : 20;
-  pdf.rect(margin,y,180,fotosAltura,"F");
-  pdf.text("Registro Fotográfico", margin+3, y+7);
-  let yF = y + 12;
-  for(let i=0;i<d.fotos.length;i++){
-    pdf.addImage(d.fotos[i],'JPEG', margin+3, yF, 50, 50);
-    yF += 55;
+  let cardAltura = Math.max(60, d.fotos.length*55);
+  pdf.roundedRect(margin, y, 180, cardAltura, 5,5,'F');
+  pdf.setFont("Times","bold");
+  pdf.text("Registro fotográfico", margin+3, y+7);
+  pdf.setFont("Times","normal");
+  let yF = y+14;
+  for(let i=0; i<d.fotos.length; i++){
+    const file = d.fotos[i];
+    await new Promise(resolve=>{
+      const reader = new FileReader();
+      reader.onload = e=>{
+        pdf.addImage(e.target.result,'JPEG',margin+3,yF,50,50);
+        yF += 55;
+        resolve();
+      };
+      reader.readAsDataURL(file);
+    });
   }
-  y += fotosAltura + 5;
+  y += cardAltura + 5;
 
-  // ================= CARD AVISO LEGAL =================
+  // CARD 5 — Aviso legal
   pdf.setFillColor(240,240,240);
-  pdf.rect(margin,y,180,20,"F");
-  pdf.setFontSize(9);
-  pdf.text("Diagnóstico preliminar. Não substitui vistoria técnica presencial ou laudo de engenharia.", margin+90, y+10, {align:"center"});
+  pdf.roundedRect(margin, y, 180, 20, 5,5,'F');
+  pdf.setFont("Times","bold");
+  pdf.text("Aviso legal", margin+3, y+7);
+  pdf.setFont("Times","normal");
+  pdf.text("Diagnóstico preliminar. Não substitui vistoria técnica presencial ou laudo de engenharia.", margin+3, y+15, {maxWidth:174, align:'center'});
   y += 25;
 
-  // ================= DATA NA LATERAL =================
-  const dataStr = `Data de geração: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
+  // DATA lateral direita
   pdf.setTextColor(255,0,0);
-  pdf.setFontSize(8);
-  pdf.text(dataStr, 200, 10, {angle:90}); // vertical à direita
+  pdf.setFont("Times","normal");
+  pdf.text(`Gerado em: ${new Date().toLocaleString()}`, 195, 10, {angle:90, align:'right'});
   pdf.setTextColor(0,0,0);
 
-  // ================= NUMERAÇÃO =================
-  const totalPages = pdf.internal.getNumberOfPages();
-  for(let i=1;i<=totalPages;i++){
-    pdf.setPage(i);
-    pdf.setFontSize(8);
-    pdf.text(`Página ${i} de ${totalPages}`, 105, 290, {align:"center"});
-  }
+  // NUMERAÇÃO de página
+  pdf.setFontSize(10);
+  pdf.text(`Página 1`, 105, 290, {align:'center'});
 
   pdf.save(`CheckInfra-${d.id}.pdf`);
 }
@@ -187,12 +204,10 @@ document.addEventListener("DOMContentLoaded",()=>{
       lat: objEscola.lat || null,
       lng: objEscola.lng || null,
       avaliador: document.getElementById("avaliador").value,
-
       pontuacao,
       status,
       classe,
       corBolinha,
-
       rt: 0,
       problemas,
       fotos: fotosBase64,
@@ -222,13 +237,11 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     await gerarPDF(dados);
 
-    form.reset();
-    preview.innerHTML="";
-
-    // Redirecionamento automático
     setTimeout(() => {
       window.location.href = './index.html';
     }, 4000);
 
+    form.reset();
+    preview.innerHTML="";
   });
 });

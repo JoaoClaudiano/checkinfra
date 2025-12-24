@@ -21,11 +21,11 @@
 
 <style>
 body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
-header { background: #1f4fd8; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; }
-header h1 { margin: 0; font-size: 18px; }
-.nav-header { display: flex; gap: 20px; }
-.nav-header a, .nav-header button { color: #fff; text-decoration: none; font-weight: bold; background: none; border: none; cursor: pointer; font-size: 16px; }
-.nav-header a:hover, .nav-header button:hover { text-decoration: underline; }
+header { background: #1f4fd8; color: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: center; position: relative; }
+header h1 { margin: 0; font-size: 18px; text-align: center; }
+.nav-header { position: absolute; left: 20px; display: flex; gap: 15px; }
+.nav-header a, .nav-header button { color: #fff; text-decoration: none; background: none; border: none; cursor: pointer; font-size: 20px; padding: 0; }
+.nav-header a:hover, .nav-header button:hover { opacity: 0.8; }
 
 .container { max-width: 900px; margin: 20px auto; padding: 0 16px; flex: 1; display: flex; flex-direction: column; }
 h1 { text-align: center; margin: 20px 0; }
@@ -58,18 +58,15 @@ button:hover { background: #163ca6; }
 
 #resultado strong { display: inline-block; margin-top: 6px; }
 
-.legenda { list-style: none; padding-left: 0; }
-.legenda li { margin-bottom: 6px; }
-
-/* Tooltip clicável com animação */
-.info-tooltip { position: relative; cursor: pointer; display: inline-block; color: #1f4fd8; font-weight: bold; }
+/* Tooltip discreto */
+.info-tooltip { position: relative; cursor: pointer; display: inline-block; font-weight: bold; color: #1f4fd8; font-size: 16px; }
 .tooltip-text { 
   visibility: hidden; 
   width: 220px; 
   background-color: #1f4fd8; 
   color: #fff; 
   text-align: left; 
-  padding: 8px; 
+  padding: 6px; 
   border-radius: 8px; 
   position: absolute; 
   z-index: 10; 
@@ -96,6 +93,14 @@ button:hover { background: #163ca6; }
   transform: translateX(-50%) translateY(0);
 }
 
+/* Destaque nos check-cards selecionados */
+@keyframes highlight-card {
+  0% { box-shadow: 0 0 0 rgba(31,79,216,0); transform: scale(1); }
+  50% { box-shadow: 0 0 15px rgba(31,79,216,0.6); transform: scale(1.05); }
+  100% { box-shadow: 0 0 0 rgba(31,79,216,0); transform: scale(1); }
+}
+.check-card.highlight { animation: highlight-card 0.8s ease-in-out; }
+
 @media(max-width:600px){
   .checklist { grid-template-columns: 1fr; }
   .resultado { font-size: 14px; padding: 16px; }
@@ -108,10 +113,8 @@ button:hover { background: #163ca6; }
 <header>
   <h1>CheckInfra – Avaliação Sanitária</h1>
   <nav class="nav-header">
-    <button onclick="history.back()" title="Voltar">⬅️ Voltar</button>
-    <a href="./index.html" title="Início">🏠 Início</a>
-    <a href="./mapa.html">Mapa</a>
-    <a href="./painel.html">Painel</a>
+    <button onclick="history.back()" title="Voltar">⬅️</button>
+    <a href="./index.html" title="Início">🏠</a>
   </nav>
 </header>
 
@@ -135,7 +138,7 @@ button:hover { background: #163ca6; }
   <div class="card card-grande">
     <h3>🏗️ Estrutura 
       <span class="info-tooltip">ℹ️
-        <span class="tooltip-text">Avalia a integridade física do espaço, presença de móveis e equipamentos adequados.</span>
+        <span class="tooltip-text">Avalia integridade física do espaço, presença de móveis e equipamentos adequados.</span>
       </span>
     </h3>
     <div class="checklist">
@@ -174,17 +177,6 @@ button:hover { background: #163ca6; }
     <h3>Registro Fotográfico</h3>
     <input type="file" id="fotos" accept="image/*" multiple>
     <div id="preview" class="upload-preview"></div>
-  </div>
-
-  <!-- LEGENDA -->
-  <div class="card">
-    <h3>Legenda de Pontuação</h3>
-    <ul class="legenda">
-      <li class="verde">🟢 0–3 pontos — Condição adequada</li>
-      <li class="amarelo">🟡 4–6 pontos — Situação de alerta</li>
-      <li class="laranja">🟠 7–8 pontos — Atenção elevada</li>
-      <li class="vermelho">🔴 ≥ 9 pontos — Condição crítica</li>
-    </ul>
   </div>
 
   <button type="submit">Gerar Diagnóstico e PDF</button>
@@ -242,6 +234,11 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", e => {
     e.preventDefault();
 
+    // Remove highlights anteriores
+    document.querySelectorAll(".check-card.highlight").forEach(card => card.classList.remove("highlight"));
+    // Destaca cards selecionados
+    document.querySelectorAll(".check-card.selected").forEach(card => card.classList.add("highlight"));
+
     let pontuacao = 0;
     let problemas = [];
     document.querySelectorAll(".check-card.selected").forEach(card => {
@@ -250,8 +247,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     let status = "ok";
-    if (pontuacao >= 6 && pontuacao < 10) status = "alerta";
-    else if (pontuacao >= 10) status = "critico";
+    let bolinha = "🟢";
+    if (pontuacao >= 6 && pontuacao < 10) { status = "alerta"; bolinha="🟡"; }
+    else if (pontuacao >= 10) { status = "critico"; bolinha="🔴"; }
 
     const avaliador = document.getElementById("avaliador").value;
     const idCheckInfra = window.idcheckinfra || "ID ainda não gerado pelo sistema";
@@ -260,7 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resultado.className = "resultado resultado-" + status;
     resultado.innerHTML = `
       <div class="selo">
-        ${status === "ok" ? "Condição adequada" :
+        ${bolinha} ${status === "ok" ? "Condição adequada" :
           status === "alerta" ? "Situação de alerta" :
           "Condição crítica"}
       </div>

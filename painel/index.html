@@ -6,10 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#1f4fd8">
 
-<!-- Chart.js global -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -180,6 +177,9 @@ footer {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { Chart, registerables } from "https://cdn.jsdelivr.net/npm/chart.js";
+
+Chart.register(...registerables);
 
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
@@ -201,7 +201,7 @@ const kpiMedio = document.getElementById("kpiMedio");
 const kpiProblemas = document.getElementById("kpiProblemas");
 
 async function carregarAvaliacoes(){
-  try {
+  try{
     const snapshot = await getDocs(collection(db,"avaliacoes"));
     const dados = [];
     snapshot.forEach(doc=>{
@@ -214,20 +214,149 @@ async function carregarAvaliacoes(){
       }
     });
     montar(dados);
-    console.log("✅ Dados carregados:", dados.length);
-  } catch(err) {
+  }catch(err){
     console.error("❌ Erro ao carregar dados do Firebase:", err);
   }
 }
 
-// A função montar permanece igual
-// ... (mantém o código inteiro de montagem, KPIs, tabelas e gráficos igual ao original)
+function montar(dados){
+  rankingGlobal = [];
+  rankingHistorico = [];
+  tabelaRanking.innerHTML = "";
+  tabelaHistorico.innerHTML = "";
 
-carregarAvaliacoes();
+  const statusCount={adequada:0,alerta:0,atencao:0,critica:0};
+  const problemasCount={};
+  const escolasMap = {};
 
-// Funções auxiliares (modal, abas, exportação) permanecem iguais
+  let somaIPT=0, critica=0, atencao=0;
+
+  dados.forEach(d=>{
+    let peso=1, classe="adequada";
+    const s=(d.status||"").toLowerCase();
+    if(s.includes("crít")){peso=4;classe="critica";critica++;statusCount.critica++;}
+    else if(s.includes("aten")){peso=3;classe="atencao";atencao++;statusCount.atencao++;}
+    else if(s.includes("alerta")){peso=2;classe="alerta";statusCount.alerta++;}
+    else statusCount.adequada++;
+
+    const pont = Number(d.pontuacao||0);
+    const dias = Math.min(Number(d.dias_criticos||0),30); 
+    const IPT = (peso*0.4)+(pont*0.4)+(dias*0.2);
+    somaIPT += IPT;
+
+    if(d.problemas && Array.isArray(d.problemas)){
+      d.problemas.forEach(p=>{
+        problemasCount[p] = (problemasCount[p]||0)+1;
+      });
+    }
+
+    const registro = {
+      escola:d.escola||"Sem nome",
+      classe,
+      statusLabel:classe==="critica"?"Crítica":classe==="atencao"?"Atenção Elevada":classe==="alerta"?"Alerta":"Adequada",
+      IPT,
+      diasNoStatus:d.dias_criticos||0,
+      data:d.data_avaliacao
+    };
+
+    rankingHistorico.push(registro);
+
+    if(!escolasMap[registro.escola] || new Date(registro.data) > new Date(escolasMap[registro.escola].data)){
+      escolasMap[registro.escola] = registro;
+    }
+  });
+
+  rankingGlobal = Object.values(escolasMap);
+
+  // KPIs
+  kpiCritica.innerText = critica;
+  kpiAtencao.innerText = atencao;
+  kpiMedio.innerText = (somaIPT/dados.length).toFixed(2);
+  kpiProblemas.innerText = Object.keys(problemasCount).length;
+
+  // Tabelas
+  rankingGlobal.sort((a,b)=>b.IPT-a.IPT);
+  rankingGlobal.forEach((r,i)=>{
+    tabelaRanking.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${r.escola}</td>
+        <td><span class="badge ${r.classe}">${r.statusLabel}</span></td>
+        <td>${r.IPT.toFixed(2)}</td>
+        <td>${r.diasNoStatus}</td>
+      </tr>`;
+  });
+
+  rankingHistorico.sort((a,b)=>new Date(b.data)-new Date(a.data));
+  rankingHistorico.forEach((r,i)=>{
+    tabelaHistorico.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${r.escola}</td>
+        <td><span class="badge ${r.classe}">${r.statusLabel}</span></td>
+        <td>${r.IPT.toFixed(2)}</td>
+        <td>${r.data}</td>
+      </tr>`;
+  });
+
+  // Gráficos
+  new Chart(document.getElementById("graficoStatus"),{
+    type:"pie",
+    data:{
+      labels:["Adequada","Alerta","Atenção","Crítica"],
+      datasets:[{ data:Object.values(statusCount), backgroundColor:["#4caf50","yellow","#ff7043","#f44336"] }]
+    }
+  });
+
+  new Chart(document.getElementById("graficoIndice"),{
+    type:"bar",
+    data:{
+      labels: rankingGlobal.slice(0,10).map(r=>r.escola),
+      datasets:[{ data: rankingGlobal.slice(0,10).map(r=>r.IPT.toFixed(2)), backgroundColor:"#1f4fd8" }]
+    },
+    options:{ indexAxis:"y", plugins:{ legend:{ display:false } } }
+  });
+
+  new Chart(document.getElementById("graficoProblemas"),{
+    type:"bar",
+    data:{ labels:Object.keys(problemasCount), datasets:[{ label:"Ocorrências", data:Object.values(problemasCount), backgroundColor:"#ff9800" }] },
+    options:{ indexAxis:"y", plugins:{ legend:{ display:false } } }
+  });
+}
+
+// export ranking
+window.exportarXLSX = function() {
+  if(rankingGlobal.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
+  const exportData = rankingGlobal.map(r => ({
+    Escola:r.escola,
+    Status:r.statusLabel,
+    IPT:r.IPT.toFixed(2),
+    DiasNoStatus:r.diasNoStatus
+  }));
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Ranking IPT");
+  XLSX.writeFile(wb, "ranking_checkinfra.xlsx");
+};
+
+// export histórico
+window.exportarHistorico = function(){
+  if(rankingHistorico.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
+  const exportData = rankingHistorico.map(r => ({
+    Escola:r.escola,
+    Status:r.statusLabel,
+    IPT:r.IPT.toFixed(2),
+    Data:r.data
+  }));
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Historico Completo");
+  XLSX.writeFile(wb, "historico_checkinfra.xlsx");
+};
+
 function abrirModal(){ modalIPT.style.display="flex"; }
 function fecharModal(){ modalIPT.style.display="none"; }
+
 function mostrarAba(aba){
   document.getElementById("aba-ranking").style.display = "none";
   document.getElementById("aba-historico").style.display = "none";
@@ -236,8 +365,8 @@ function mostrarAba(aba){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.querySelector(`.tab[onclick="mostrarAba('${aba}')"]`).classList.add("active");
 }
-window.exportarXLSX = window.exportarXLSX || function(){};
-window.exportarHistorico = window.exportarHistorico || function(){};
+
+carregarAvaliacoes();
 </script>
 
 <footer>

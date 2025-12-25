@@ -18,27 +18,59 @@ body {
   flex-direction:column;
   min-height:100vh;
 }
-.card { background:#fff; max-width:1100px; margin:20px auto; padding:20px; border-radius:10px; }
+
+/* Cards */
+.card {
+  background:#fff;
+  max-width:1100px;
+  margin:20px auto;
+  padding:20px;
+  border-radius:10px;
+}
+
+/* Grid e KPI */
 .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:16px; }
 .kpi { background:#f9fafb; border-radius:10px; padding:16px; text-align:center; }
 .kpi h4 { margin:0; font-size:14px; color:#555; }
 .kpi strong { font-size:30px; display:block; margin-top:6px; }
+
 .info { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:#1f4fd8; color:#fff; font-size:12px; cursor:pointer; margin-left:6px; }
+
 .badge { padding:4px 8px; border-radius:12px; color:#fff; font-size:12px; }
 .adequada { background:#4caf50; }
 .alerta { background:yellow; color:#000; }
 .atencao { background:#ff7043; }
 .critica { background:#f44336; }
+
 table { width:100%; border-collapse: collapse; font-size:14px; }
 th, td { padding:8px; border-bottom:1px solid #eee; }
 th { background:#f4f6f8; text-align:left; }
+
 button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-radius:6px; cursor:pointer; margin-right:8px; }
+
 .tabs { display:flex; gap:10px; margin-bottom:12px; flex-wrap: wrap; }
 .tab { padding:8px 16px; background:#e0e0e0; border-radius:6px; cursor:pointer; }
 .tab.active { background:#1f4fd8; color:#fff; }
+
+/* Modal */
 .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); align-items:center; justify-content:center; }
 .modal-content { background:#fff; padding:20px; border-radius:10px; max-width:500px; }
-footer { background:#1f4fd8; color:#fff; text-align:center; padding:16px 10px; font-size:12px; line-height:1.4; box-sizing:border-box; width:100vw; position:relative; left:0; }
+
+/* Footer fixo no final */
+footer {
+  background:#1f4fd8;
+  color:#fff;
+  text-align:center;
+  padding:16px 10px;
+  font-size:12px;
+  line-height:1.4;
+  box-sizing:border-box;
+  width:100vw;
+  position:relative;
+  left:0;
+}
+
+/* Mobile */
 @media (max-width: 600px){
   .grid { grid-template-columns:1fr; }
   .kpi strong { font-size:28px; }
@@ -173,25 +205,21 @@ const kpiProblemas = document.getElementById("kpiProblemas");
 async function carregarAvaliacoes(){
   try {
     const snapshot = await getDocs(collection(db,"avaliacoes"));
-    console.log("Docs recebidos do Firebase:", snapshot.size); // log para depuração
-    const dados = [];
-    snapshot.forEach(doc=>{
+    const dados = snapshot.docs.map(doc=>{
       const d = doc.data();
-      if(d.status){
-        if(d.createdAt instanceof Timestamp){
-          d.data_avaliacao = d.createdAt.toDate().toISOString().split("T")[0];
-        } else d.data_avaliacao = new Date().toISOString().split("T")[0];
-        dados.push(d);
-      }
+      if(d.createdAt && d.createdAt.toDate) d.data_avaliacao = d.createdAt.toDate().toISOString().split("T")[0];
+      else d.data_avaliacao = new Date().toISOString().split("T")[0];
+      return d;
     });
-    console.log("Dados processados:", dados);
     montar(dados);
-  } catch(err) {
-    console.error("Erro ao carregar dados do Firebase:", err);
+  } catch(err){
+    console.error("Erro ao carregar avaliações do Firebase:", err);
   }
 }
 
-// --- Mantém todo o restante do código original ---
+// ============================
+// Mantém todo o resto igual
+// ============================
 function montar(dados){
   rankingGlobal = [];
   rankingHistorico = [];
@@ -217,9 +245,7 @@ function montar(dados){
     somaIPT += IPT;
 
     if(d.problemas && Array.isArray(d.problemas)){
-      d.problemas.forEach(p=>{
-        problemasCount[p] = (problemasCount[p]||0)+1;
-      });
+      d.problemas.forEach(p=>{ problemasCount[p] = (problemasCount[p]||0)+1; });
     }
 
     const registro = {
@@ -271,18 +297,12 @@ function montar(dados){
 
   new Chart(document.getElementById("graficoStatus"),{
     type:"pie",
-    data:{
-      labels:["Adequada","Alerta","Atenção","Crítica"],
-      datasets:[{ data:Object.values(statusCount), backgroundColor:["#4caf50","yellow","#ff7043","#f44336"] }]
-    }
+    data:{ labels:["Adequada","Alerta","Atenção","Crítica"], datasets:[{ data:Object.values(statusCount), backgroundColor:["#4caf50","yellow","#ff7043","#f44336"] }] }
   });
 
   new Chart(document.getElementById("graficoIndice"),{
     type:"bar",
-    data:{
-      labels: rankingGlobal.slice(0,10).map(r=>r.escola),
-      datasets:[{ data: rankingGlobal.slice(0,10).map(r=>r.IPT.toFixed(2)), backgroundColor:"#1f4fd8" }]
-    },
+    data:{ labels: rankingGlobal.slice(0,10).map(r=>r.escola), datasets:[{ data: rankingGlobal.slice(0,10).map(r=>r.IPT.toFixed(2)), backgroundColor:"#1f4fd8" }] },
     options:{ indexAxis:"y", plugins:{ legend:{ display:false } } }
   });
 
@@ -293,8 +313,35 @@ function montar(dados){
   });
 }
 
-window.exportarXLSX = function() { /* ...mesmo código de exportação... */ };
-window.exportarHistorico = function() { /* ...mesmo código de exportação... */ };
+// export ranking
+window.exportarXLSX = function() {
+  if(rankingGlobal.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
+  const exportData = rankingGlobal.map(r => ({
+    Escola:r.escola,
+    Status:r.statusLabel,
+    IPT:r.IPT.toFixed(2),
+    DiasNoStatus:r.diasNoStatus
+  }));
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Ranking IPT");
+  XLSX.writeFile(wb, "ranking_checkinfra.xlsx");
+};
+
+// export histórico
+window.exportarHistorico = function(){
+  if(rankingHistorico.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
+  const exportData = rankingHistorico.map(r => ({
+    Escola:r.escola,
+    Status:r.statusLabel,
+    IPT:r.IPT.toFixed(2),
+    Data:r.data
+  }));
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Historico Completo");
+  XLSX.writeFile(wb, "historico_checkinfra.xlsx");
+};
 
 function abrirModal(){ modalIPT.style.display="flex"; }
 function fecharModal(){ modalIPT.style.display="none"; }

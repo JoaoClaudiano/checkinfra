@@ -6,8 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1f4fd8">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
 html, body { margin:0; padding:0; width:100%; overflow-x:hidden; font-family: Arial; background:#f4f6f8; min-height:100vh; display:flex; flex-direction:column; }
 header { background:#1f4fd8; color:#fff; display:flex; align-items:center; justify-content:center; padding:14px 20px; position:relative; width:100%; box-sizing:border-box; }
@@ -15,46 +13,19 @@ header h1 { margin:0; font-size:20px; text-align:center; white-space:nowrap; ove
 header button { position:absolute; top:50%; transform:translateY(-50%); background:#fff; color:#1f4fd8; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; }
 header button.voltar { left:10px; }
 header button.menu { right:10px; }
-
-.sidebar { width:240px; background:#1f4fd8; color:#fff; padding:20px; position:fixed; right:-240px; top:0; bottom:0; overflow-y:auto; transition: right 0.3s ease; z-index:1000; box-sizing:border-box; }
-.sidebar.open { right:0; }
-.sidebar h3 { margin-top:0; font-size:18px; display:flex; justify-content:flex-end; align-items:center; }
-.sidebar h3 span { cursor:pointer; font-weight:bold; font-size:20px; }
-.sidebar a { display:block; color:#fff; text-decoration:none; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.2); }
-
-.main { margin:20px auto; padding:0 20px; max-width:1000px; flex:1; box-sizing:border-box; text-align:justify; }
-
-.card { background:#fff; margin:20px 0; padding:20px; border-radius:10px; box-sizing:border-box; }
+.main { margin:20px auto; padding:0 20px; max-width:1000px; flex:1; box-sizing:border-box; }
+.card { background:#fff; margin:20px 0; padding:20px; border-radius:10px; box-sizing:border-box; text-align:justify; }
 h2,h3{color:#1f4fd8;}
 p,li{line-height:1.6;font-size:14px;}
 ul{padding-left:20px;}
 .badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;color:#fff;}
-.critica{background:#f44336;}
-.atencao{background:#ff7043;}
-.alerta{background:#fbc02d;color:#000;}
-.adequada{background:#4caf50;}
-
-table { width:100%; border-collapse: collapse; margin-top:10px; }
-th, td { border:1px solid #ddd; padding:8px; text-align:center; font-size:14px; }
-th { background:#f4f6f8; }
-
-footer {
-  background:#1f4fd8;
-  color:#fff;
-  text-align:center;
-  padding:16px 10px;
-  font-size:12px;
-  line-height:1.4;
-  box-sizing:border-box;
-  width:100%;
-}
+footer { background:#1f4fd8; color:#fff; text-align:center; padding:16px 10px; font-size:12px; line-height:1.4; box-sizing:border-box; width:100%; }
 footer div { max-width:600px; margin:0 auto; }
 footer a { color:#fff; text-decoration:underline; }
-
-canvas { max-width:100%; height:auto; margin-top:10px; }
+table { border-collapse: collapse; width: 100%; font-size:14px; margin-top:10px; }
+table, th, td { border:1px solid #ccc; padding:6px; text-align:center; }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -63,60 +34,105 @@ canvas { max-width:100%; height:auto; margin-top:10px; }
   <button class="menu" onclick="toggleSidebar()">☰</button>
 </header>
 
-<div class="sidebar" id="sidebar">
-  <h3><span onclick="toggleSidebar()">×</span></h3>
-  <a href="gs.html">GS – Gravidade Sanitária</a>
-  <a href="it.html">IT – Intensidade Técnica</a>
-  <a href="rt.html">RT – Recorrência Temporal</a>
-  <a href="metodo.html">Metodologia</a>
-</div>
-
 <div class="main">
 
-  <div class="card">
-    <h2>Recorrência Temporal (RT)</h2>
-    <p>
-      O componente <strong>RT</strong> indica a persistência de problemas ao longo do tempo.
-      Permite identificar escolas com problemas crônicos ou reincidentes, independentemente de pequenas variações em avaliações pontuais.
-    </p>
-  </div>
+<!-- 1. Definição do índice RT -->
+<div class="card">
+  <h2>1. Definição do Índice de Recorrência Temporal (RT)</h2>
+  <p>
+    O Índice de Recorrência Temporal (RT) mede a frequência com que problemas detectados na infraestrutura escolar se repetem ao longo do tempo. Ele é calculado com base no histórico de avaliações de cada escola, permitindo identificar problemas crônicos ou reincidentes.  
+    O RT complementa o GS e IT no cálculo do IPT, evidenciando situações em que problemas persistem apesar de intervenções anteriores, sendo fundamental para priorização de manutenção preventiva e corretiva.
+  </p>
+</div>
 
-  <div class="card">
-    <h3>Exemplo de Valores RT</h3>
-    <ul>
-      <li>Escola A: 1 avaliação → RT = 0,2</li>
-      <li>Escola B: 3 avaliações → RT = 0,6</li>
-      <li>Escola C: 5 avaliações → RT = 1,0 (teto aplicado)</li>
-    </ul>
-    <p>
-      RT contribui com 20% do IPT: <strong>IPT = (GS × 0,4) + (IT × 0,4) + (RT × 0,2)</strong>, destacando reincidência estrutural.
-    </p>
-  </div>
+<!-- 2. O que considera e por quê -->
+<div class="card">
+  <h2>2. O que o índice RT considera e por que?</h2>
+  <p>
+    O RT considera:
+  </p>
+  <ul>
+    <li><strong>Persistência de não conformidades:</strong> mesmo após reparos, alguns problemas podem reaparecer, indicando falhas estruturais ou manutenção inadequada.</li>
+    <li><strong>Quantidade de avaliações anteriores:</strong> escolas com histórico recorrente recebem RT maior, aumentando prioridade de intervenção.</li>
+    <li><strong>Regularidade do monitoramento:</strong> escolas avaliadas frequentemente fornecem dados mais precisos sobre recorrência.</li>
+  </ul>
+  <p>
+    Essa abordagem permite que gestores identifiquem problemas crônicos que impactam diretamente a saúde, segurança e qualidade do ambiente escolar, mesmo quando o GS ou IT individualmente não são críticos.
+  </p>
+</div>
 
-  <div class="card">
-    <h3>Distribuição RT – Gráfico de Barras</h3>
-    <canvas id="graficoRT"></canvas>
-  </div>
+<!-- 3. Normas e referências -->
+<div class="card">
+  <h2>3. Normas e referências</h2>
+  <p>
+    O cálculo e interpretação do RT baseiam-se em metodologias de monitoramento de infraestrutura e normas técnicas de manutenção:
+  </p>
+  <ul>
+    <li><strong>ABNT NBR 5674:2012</strong> — Manutenção de edificações: estabelece procedimentos de manutenção preventiva, corretiva e monitoramento contínuo.¹</li>
+    <li><strong>ABNT NBR 14037:2017</strong> — Gestão de ativos em instalações escolares, orientando monitoramento e registro histórico.²</li>
+    <li>MCDA (Multi-Criteria Decision Analysis) aplicado a gestão de ativos públicos para ponderação de recorrência como critério de prioridade.³</li>
+  </ul>
+  <p>
+    O RT incorpora essas referências para indicar problemas que se repetem ao longo do tempo, ajudando gestores a direcionar recursos para intervenções sustentáveis.
+  </p>
+  <p>
+    <strong>Referências:</strong><br>
+    1. ABNT. NBR 5674:2012. Associação Brasileira de Normas Técnicas.<br>
+    2. ABNT. NBR 14037:2017. Associação Brasileira de Normas Técnicas.<br>
+    3. Saaty, T.L. Decision Making with the Analytic Hierarchy Process. International Journal of Services Sciences, 2008.
+  </p>
+</div>
 
-  <div class="card">
-    <h3>Mini Tabela Comparativa</h3>
-    <table>
-      <tr><th>Escola</th><th>RT</th><th>Status</th></tr>
-      <tr><td>Escola A</td><td>0,2</td><td><span class="badge adequada">Baixa</span></td></tr>
-      <tr><td>Escola B</td><td>0,6</td><td><span class="badge atencao">Média</span></td></tr>
-      <tr><td>Escola C</td><td>1,0</td><td><span class="badge critica">Alta</span></td></tr>
-    </table>
-  </div>
+<!-- 4. Faixas do RT -->
+<div class="card">
+  <h2>4. Faixas do Índice de Recorrência Temporal</h2>
+  <p>
+    O RT é avaliado em faixas que indicam a frequência de reincidência dos problemas:
+  </p>
+  <ul>
+    <li><strong>RT Baixo (1–2):</strong> Problemas raros ou solucionados com sucesso em intervenções anteriores.</li>
+    <li><strong>RT Médio (3–5):</strong> Problemas recorrentes moderadamente; requer acompanhamento e manutenção programada.</li>
+    <li><strong>RT Alto (6–8):</strong> Problemas frequentes, indicando falhas estruturais ou manutenção insuficiente.</li>
+    <li><strong>RT Crítico (9–10):</strong> Problemas persistentes e graves, demandando intervenção imediata e planejamento estratégico de reparos.
+    </li>
+  </ul>
+</div>
 
-  <div class="card">
-    <h3>Referências</h3>
-    <ul>
-      <li>[1] ABNT NBR ISO 31000: Gestão de riscos em ativos e infraestrutura. 2018.</li>
-      <li>[2] WHO – Water, Sanitation and Hygiene in Schools. 2018.</li>
-      <li>[3] Manual de inspeção e manutenção escolar – MEC, 2020.</li>
-    </ul>
-  </div>
-
+<!-- 5. Mini tabela comparativa RT -->
+<div class="card">
+  <h2>Mini Tabela Comparativa de RT</h2>
+  <table>
+    <tr>
+      <th>Faixa</th>
+      <th>RT</th>
+      <th>Impacto</th>
+      <th>Exemplo</th>
+    </tr>
+    <tr>
+      <td>Baixo</td>
+      <td>1–2</td>
+      <td>Pequeno</td>
+      <td>Problema detectado apenas uma vez, reparado com sucesso</td>
+    </tr>
+    <tr>
+      <td>Médio</td>
+      <td>3–5</td>
+      <td>Moderado</td>
+      <td>Problema reaparece em avaliações consecutivas</td>
+    </tr>
+    <tr>
+      <td>Alto</td>
+      <td>6–8</td>
+      <td>Alto</td>
+      <td>Reincidência frequente de falhas em múltiplos pontos da infraestrutura</td>
+    </tr>
+    <tr>
+      <td>Crítico</td>
+      <td>9–10</td>
+      <td>Extremo</td>
+      <td>Problemas persistem em todas as avaliações, risco à saúde e segurança</td>
+    </tr>
+  </table>
 </div>
 
 <footer>
@@ -124,24 +140,7 @@ canvas { max-width:100%; height:auto; margin-top:10px; }
 </footer>
 
 <script>
-function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
-}
-
-// Gráfico RT
-const ctxRT = document.getElementById('graficoRT').getContext('2d');
-new Chart(ctxRT, {
-  type: 'bar',
-  data: {
-    labels: ['Escola A', 'Escola B', 'Escola C'],
-    datasets: [{
-      label: 'Valor RT',
-      data: [0.2,0.6,1.0],
-      backgroundColor: ['#4caf50','#ff7043','#f44336']
-    }]
-  },
-  options: { indexAxis: 'y', plugins:{ legend:{ display:false } } }
-});
+function toggleSidebar(){alert("Sidebar será implementada em futuras versões.");}
 </script>
 
 </body>

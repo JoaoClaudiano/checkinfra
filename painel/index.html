@@ -15,7 +15,7 @@
 
 <style>
 * { box-sizing: border-box; }
-body { margin:0; font-family: Arial; background:#f4f6f8; display:flex; }
+body { margin:0; font-family: Arial; background:#f4f6f8; display:flex; justify-content:center; }
 
 /* SIDEBAR */
 .sidebar {
@@ -30,6 +30,7 @@ body { margin:0; font-family: Arial; background:#f4f6f8; display:flex; }
   overflow:auto;
   display:flex;
   flex-direction:column;
+  z-index:10;
 }
 .sidebar h3 { margin-top:0; font-size:18px; display:flex; justify-content:space-between; align-items:center; }
 .sidebar h3 span { cursor:pointer; font-weight:bold; }
@@ -43,8 +44,8 @@ body { margin:0; font-family: Arial; background:#f4f6f8; display:flex; }
 
 /* CONTEÚDO */
 .main {
-  margin-right:240px;
-  width:calc(100% - 240px);
+  max-width:1100px;
+  width:100%;
   padding:20px;
 }
 
@@ -53,28 +54,30 @@ body { margin:0; font-family: Arial; background:#f4f6f8; display:flex; }
   display:flex;
   align-items:center;
   justify-content:space-between;
-  max-width:1100px;
-  margin:0 auto 20px;
+  background:#1f4fd8;
+  color:#fff;
+  border-radius:10px;
+  padding:10px 20px;
+  margin-bottom:20px;
 }
 .header h2 { margin:0; flex:1; text-align:center; }
-.header button { background:none; border:none; color:#1f4fd8; font-size:20px; cursor:pointer; }
+.header button { background:none; border:none; color:#fff; font-size:20px; cursor:pointer; }
 
 /* CARDS */
 .card {
   background:#fff;
-  max-width:1100px;
-  margin:20px auto;
-  padding:20px;
   border-radius:10px;
+  padding:20px;
+  margin-bottom:20px;
 }
-.grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:16px; }
-.kpi { background:#f9fafb; border-radius:10px; padding:16px; text-align:center; }
+.grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:16px; justify-items:center; }
+.kpi { background:#f9fafb; border-radius:10px; padding:16px; text-align:center; width:180px; }
 .kpi h4 { margin:0; font-size:14px; color:#555; }
 .kpi strong { font-size:30px; display:block; margin-top:6px; }
 
 .badge { padding:4px 8px; border-radius:12px; color:#fff; font-size:12px; }
 .adequada { background:#4caf50; }
-.alerta { background:yellow; color:#000; }
+.alerta { background:orange; color:#fff; }
 .atencao { background:#ff7043; }
 .critica { background:#f44336; }
 
@@ -103,10 +106,6 @@ button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-
   <div style="width:20px;"></div>
 </div>
 
-<div class="card">
-  <small>Síntese executiva e priorização técnica</small>
-</div>
-
 <div class="card grid">
   <div class="kpi"><h4>Críticas</h4><strong id="kpiCritica">–</strong></div>
   <div class="kpi"><h4>Atenção</h4><strong id="kpiAtencao">–</strong></div>
@@ -115,14 +114,14 @@ button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-
 </div>
 
 <div class="card grid">
-  <div><h3>Status</h3><canvas id="graficoStatus"></canvas></div>
-  <div><h3>Top IPT</h3><canvas id="graficoIndice"></canvas></div>
-  <div><h3>Problemas</h3><canvas id="graficoProblemas"></canvas></div>
+  <div style="width:100%; max-width:350px;"><h3>Status</h3><canvas id="graficoStatus"></canvas></div>
+  <div style="width:100%; max-width:350px;"><h3>Top IPT</h3><canvas id="graficoIndice"></canvas></div>
+  <div style="width:100%; max-width:350px;"><h3>Problemas</h3><canvas id="graficoProblemas"></canvas></div>
 </div>
 
 <div class="card">
   <button onclick="exportarXLSX()">⬇️ Baixar Ranking</button>
-  <button onclick="exportarHistorico()">⬇️ Baixar Histórico</button>
+  <button onclick="exportarHistorico()">⬇️ Baixar Histórico Completo</button>
   <br><br>
   <table>
     <thead>
@@ -144,13 +143,12 @@ firebase.initializeApp({
 const db = firebase.firestore();
 const tabelaRanking = document.getElementById("tabelaRanking");
 let rankingGlobal = [];
+let historicoGlobal = [];
 
-// Pesos da metodologia
 const PESO_GS = 0.4;
 const PESO_IT = 0.4;
 const PESO_RT = 0.2;
 
-// Classe e cor do status
 function classeStatus(s){
   s = (s||"").toLowerCase();
   if(s.includes("crít")) return "critica";
@@ -159,29 +157,31 @@ function classeStatus(s){
   return "adequada";
 }
 
-// Calcular IPT
-function calcularIPT(d){
-  let GS=1;
-  const status = (d.status||"").toLowerCase();
-  if(status.includes("crít")) GS=4;
-  else if(status.includes("aten")) GS=3;
-  else if(status.includes("alerta")) GS=2;
-
-  const IT = Number(d.pontuacao||0);
-  const RT = Number(d.recorrencia||1); // frequência naquele status
-
-  return (GS*PESO_GS) + (IT*PESO_IT) + (RT*PESO_RT);
-}
-
 function fecharSidebar(){ document.getElementById("sidebar").style.display="none"; }
 
-db.collection("avaliacoes").get().then(snap=>{
-  let dados=[];
-  snap.forEach(d=>dados.push(d.data()));
+async function carregarDados(){
+  const avaliacoesSnap = await db.collection("avaliacoes").get();
+  const historicoSnap = await db.collection("historico").get();
+  
+  const avaliacoes=[], historico=[];
+  avaliacoesSnap.forEach(d=>avaliacoes.push(d.data()));
+  historicoSnap.forEach(d=>historico.push(d.data()));
 
-  // ranking
-  rankingGlobal = dados.map((d,i)=>{
-    const IPT = calcularIPT(d);
+  historicoGlobal = historico;
+
+  // Calcular RT (frequência no status)
+  const freqMap = {};
+  historico.forEach(h=>{
+    const key = h.escola + "|" + h.status;
+    freqMap[key] = (freqMap[key]||0)+1;
+  });
+
+  rankingGlobal = avaliacoes.map((d,i)=>{
+    const key = d.escola + "|" + d.status;
+    const RT = freqMap[key] || 1;
+    const GS = d.status.toLowerCase().includes("crít") ? 4 : d.status.toLowerCase().includes("aten") ? 3 : d.status.toLowerCase().includes("alerta") ? 2 : 1;
+    const IT = Number(d.pontuacao||0);
+    const IPT = (GS*PESO_GS) + (IT*PESO_IT) + (RT*PESO_RT);
     return {
       "#": i+1,
       Escola: d.escola,
@@ -190,30 +190,48 @@ db.collection("avaliacoes").get().then(snap=>{
     };
   });
 
-  // preencher tabela
   tabelaRanking.innerHTML="";
   rankingGlobal.forEach(r=>{
-    const cor = classeStatus(r.Status);
     tabelaRanking.innerHTML+=`
       <tr>
         <td>${r["#"]}</td>
         <td>${r.Escola}</td>
-        <td class="${cor}">${r.Status}</td>
+        <td><span class="${classeStatus(r.Status)}">${r.Status}</span></td>
         <td>${r.IPT}</td>
       </tr>`;
   });
 
   // KPIs
   const statusCount = {adequada:0,alerta:0,atencao:0,critica:0};
-  dados.forEach(d=>{
-    const c = classeStatus(d.status);
-    statusCount[c]++;
-  });
+  avaliacoes.forEach(d=>statusCount[classeStatus(d.status)]++);
   document.getElementById("kpiCritica").innerText = statusCount.critica;
   document.getElementById("kpiAtencao").innerText = statusCount.atencao;
   document.getElementById("kpiMedio").innerText = (rankingGlobal.reduce((a,b)=>a+parseFloat(b.IPT),0)/rankingGlobal.length).toFixed(2);
-  document.getElementById("kpiProblemas").innerText = dados.length;
-});
+  document.getElementById("kpiProblemas").innerText = avaliacoes.length;
+
+  // Gráficos
+  new Chart(document.getElementById("graficoStatus"),{
+    type:"pie",
+    data:{ labels:["Adequada","Alerta","Atenção","Crítica"], datasets:[{data:Object.values(statusCount), backgroundColor:["#4caf50","orange","#ff7043","#f44336"]}] }
+  });
+
+  const topIPT = [...rankingGlobal].sort((a,b)=>b.IPT - a.IPT).slice(0,10);
+  new Chart(document.getElementById("graficoIndice"),{
+    type:"bar",
+    data:{ labels: topIPT.map(r=>r.Escola), datasets:[{data: topIPT.map(r=>r.IPT), backgroundColor:"#1f4fd8"}] },
+    options:{ indexAxis:"y", plugins:{legend:{display:false}} }
+  });
+
+  const problemasCount = {};
+  avaliacoes.forEach(d=>{ problemasCount[d.status]=(problemasCount[d.status]||0)+1; });
+  new Chart(document.getElementById("graficoProblemas"),{
+    type:"bar",
+    data:{ labels:Object.keys(problemasCount), datasets:[{label:"Ocorrências", data:Object.values(problemasCount), backgroundColor:"#ff9800"}] },
+    options:{ indexAxis:"y", plugins:{legend:{display:false}} }
+  });
+}
+
+carregarDados();
 
 // Exportar XLSX
 window.exportarXLSX = function(){
@@ -225,8 +243,22 @@ window.exportarXLSX = function(){
 };
 
 window.exportarHistorico = function(){
-  if(rankingGlobal.length===0) return alert("Nenhum dado disponível");
-  const ws = XLSX.utils.json_to_sheet(rankingGlobal);
+  if(historicoGlobal.length===0) return alert("Nenhum dado disponível");
+  const exportData = historicoGlobal.map((d,i)=>{
+    const key = d.escola + "|" + d.status;
+    const RT = historicoGlobal.filter(h=>h.escola===d.escola && h.status===d.status).length;
+    const GS = d.status.toLowerCase().includes("crít") ? 4 : d.status.toLowerCase().includes("aten") ? 3 : d.status.toLowerCase().includes("alerta") ? 2 : 1;
+    const IT = Number(d.pontuacao||0);
+    const IPT = (GS*PESO_GS) + (IT*PESO_IT) + (RT*PESO_RT);
+    return {
+      "#": i+1,
+      Escola: d.escola,
+      Status: d.status,
+      IPT: IPT.toFixed(2),
+      RT
+    };
+  });
+  const ws = XLSX.utils.json_to_sheet(exportData);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Historico");
   XLSX.writeFile(wb, "historico_checkinfra.xlsx");

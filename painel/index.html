@@ -17,12 +17,12 @@
 body { font-family: Arial; background:#f4f6f8; margin:0; display:flex; flex-direction:column; min-height:100vh; }
 
 /* HEADER */
-header { background:#1f4fd8; color:#fff; display:flex; align-items:center; padding:14px 20px; }
-header h1 { margin:0; font-size:22px; flex:1; }
-header button { background:#fff; color:#1f4fd8; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; margin-right:10px; }
+header { background:#1f4fd8; color:#fff; display:flex; align-items:center; justify-content:center; padding:14px 20px; position:relative; }
+header h1 { margin:0; font-size:22px; text-align:center; }
+header button { background:#fff; color:#1f4fd8; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; position:absolute; left:20px; }
 
 /* SIDEBAR */
-.sidebar { width:240px; background:#1f4fd8; color:#fff; padding:20px; position:fixed; right:0; top:0; bottom:0; overflow-y:auto; }
+.sidebar { width:240px; background:#1f4fd8; color:#fff; padding:20px; position:fixed; right:0; top:0; bottom:0; overflow-y:auto; display:none; }
 .sidebar h3 { margin-top:0; font-size:18px; display:flex; justify-content:space-between; align-items:center; }
 .sidebar h3 span { cursor:pointer; font-weight:bold; }
 .sidebar a { display:block; color:#fff; text-decoration:none; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.2); }
@@ -71,255 +71,91 @@ footer { background:#1f4fd8; color:#fff; text-align:center; padding:16px 10px; f
 
 <div class="main">
 
-<div class="card grid">
-  <div class="kpi">
-    <h4>Unidades Críticas</h4>
-    <strong id="kpiCritica">–</strong>
+  <!-- KPIs -->
+  <div class="card grid">
+    <div class="kpi">
+      <h4>Unidades Críticas</h4>
+      <strong id="kpiCritica">–</strong>
+    </div>
+    <div class="kpi">
+      <h4>Unidades em Atenção</h4>
+      <strong id="kpiAtencao">–</strong>
+    </div>
+    <div class="kpi">
+      <h4>IPT Médio <span class="info" onclick="abrirModal()">i</span></h4>
+      <strong id="kpiMedio">–</strong>
+    </div>
+    <div class="kpi">
+      <h4>Problemas Frequentes</h4>
+      <strong id="kpiProblemas">–</strong>
+    </div>
   </div>
-  <div class="kpi">
-    <h4>Unidades em Atenção</h4>
-    <strong id="kpiAtencao">–</strong>
+
+  <!-- GRÁFICOS -->
+  <div class="card grid">
+    <div>
+      <h3>Status das Unidades</h3>
+      <canvas id="graficoStatus"></canvas>
+    </div>
+    <div>
+      <h3>Top Prioridades (IPT)</h3>
+      <canvas id="graficoIndice"></canvas>
+    </div>
+    <div>
+      <h3>Frequência de Problemas</h3>
+      <canvas id="graficoProblemas"></canvas>
+    </div>
   </div>
-  <div class="kpi">
-    <h4>IPT Médio <span class="info" onclick="abrirModal()">i</span></h4>
-    <strong id="kpiMedio">–</strong>
+
+  <!-- RANKING E HISTÓRICO -->
+  <div class="card">
+    <div class="tabs">
+      <div class="tab active" onclick="mostrarAba('ranking')">Ranking</div>
+      <div class="tab" onclick="mostrarAba('historico')">Histórico</div>
+    </div>
+
+    <div id="aba-ranking">
+      <button onclick="exportarXLSX()">⬇️ Baixar Ranking</button>
+      <br><br>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Escola</th><th>Status</th><th>IPT</th></tr>
+        </thead>
+        <tbody id="tabelaRanking"></tbody>
+      </table>
+    </div>
+
+    <div id="aba-historico" style="display:none;">
+      <button onclick="exportarHistorico()">⬇️ Baixar Histórico</button>
+      <br><br>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Escola</th><th>Status</th><th>IPT</th><th>Data</th></tr>
+        </thead>
+        <tbody id="tabelaHistorico"></tbody>
+      </table>
+    </div>
   </div>
-  <div class="kpi">
-    <h4>Problemas Frequentes</h4>
-    <strong id="kpiProblemas">–</strong>
+
+  <!-- MODAL IPT -->
+  <div class="modal" id="modalIPT" onclick="fecharModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <h3>O que é o IPT médio?</h3>
+      <p>
+        O IPT médio expressa o grau médio de urgência técnica da rede escolar.
+        Ele não aponta uma escola específica, mas indica o <strong>estado geral da infraestrutura</strong>.
+      </p>
+      <button onclick="fecharModal()">Fechar</button>
+    </div>
   </div>
+
 </div>
 
-<div class="card grid">
-  <div>
-    <h3>Status das Unidades</h3>
-    <canvas id="graficoStatus"></canvas>
-  </div>
-  <div>
-    <h3>Top Prioridades (IPT)</h3>
-    <canvas id="graficoIndice"></canvas>
-  </div>
-  <div>
-    <h3>Frequência de Problemas</h3>
-    <canvas id="graficoProblemas"></canvas>
-  </div>
-</div>
-
-<div class="card">
-  <div class="tabs">
-    <div class="tab active" onclick="mostrarAba('ranking')">Ranking</div>
-    <div class="tab" onclick="mostrarAba('historico')">Histórico</div>
-    <div class="tab" onclick="mostrarAba('metodologia')">Metodologia</div>
-  </div>
-
-  <div id="aba-ranking">
-    <button onclick="exportarXLSX()">⬇️ Baixar Ranking</button>
-    <br><br>
-    <table>
-      <thead>
-        <tr><th>#</th><th>Escola</th><th>Status</th><th>IPT</th></tr>
-      </thead>
-      <tbody id="tabelaRanking"></tbody>
-    </table>
-  </div>
-
-  <div id="aba-historico" style="display:none;">
-    <table>
-      <thead>
-        <tr><th>#</th><th>Escola</th><th>Status</th><th>IPT</th><th>Data</th></tr>
-      </thead>
-      <tbody id="tabelaHistorico"></tbody>
-    </table>
-  </div>
-
-  <div id="aba-metodologia" style="display:none;">
-    <iframe src="metodo.html" style="width:100%;height:500px;border:none;"></iframe>
-  </div>
-</div>
-
-<div class="modal" id="modalIPT" onclick="fecharModal()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <h3>O que é o IPT médio?</h3>
-    <p>
-      O IPT médio expressa o grau médio de urgência técnica da rede escolar.
-      Ele não aponta uma escola específica, mas indica o <strong>estado geral da infraestrutura</strong>.
-    </p>
-    <button onclick="fecharModal()">Fechar</button>
-  </div>
-</div>
-
-</div>
-
-<div class="sidebar">
-  <h3>☰ Menu <span onclick="document.querySelector('.sidebar').style.display='none'">×</span></h3>
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebarMenu">
+  <h3>☰ Menu <span onclick="fecharSidebar()">×</span></h3>
   <a href="metodo.html">📘 Metodologia</a>
 </div>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
-  authDomain: "checkinfra-adf3c.firebaseapp.com",
-  projectId: "checkinfra-adf3c"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// ELEMENTOS
-const tabelaRanking = document.getElementById("tabelaRanking");
-const tabelaHistorico = document.getElementById("tabelaHistorico");
-const kpiCritica = document.getElementById("kpiCritica");
-const kpiAtencao = document.getElementById("kpiAtencao");
-const kpiMedio = document.getElementById("kpiMedio");
-const kpiProblemas = document.getElementById("kpiProblemas");
-
-let rankingGlobal = [];
-let rankingHistorico = [];
-
-// Monta os dados e cálculos
-function montar(dados){
-  rankingGlobal=[]; rankingHistorico=[];
-  tabelaRanking.innerHTML=""; tabelaHistorico.innerHTML="";
-  const statusCount={adequada:0,alerta:0,atencao:0,critica:0};
-  const problemasCount={};
-  const escolasMap={};
-  let somaIPT=0, critica=0, atencao=0;
-
-  dados.forEach(d=>{
-    let peso=1, classe="adequada";
-    const s=(d.status||"").toLowerCase();
-    if(s.includes("crít")){peso=4;classe="critica";critica++; statusCount.critica++;}
-    else if(s.includes("aten")){peso=3;classe="atencao"; atencao++; statusCount.atencao++;}
-    else if(s.includes("alerta")){peso=2;classe="alerta"; statusCount.alerta++;}
-    else statusCount.adequada++;
-
-    const pont = Number(d.pontuacao||0);
-    const dias = Number(d.dias_criticos||0); // Frequência no status
-    const IPT = (peso*0.4)+(pont*0.4)+(dias*0.2);
-    somaIPT += IPT;
-
-    if(d.problemas && Array.isArray(d.problemas)){
-      d.problemas.forEach(p=>{ problemasCount[p]=(problemasCount[p]||0)+1; });
-    }
-
-    const registro = {
-      escola:d.escola||"Sem nome",
-      classe,
-      statusLabel:classe==="critica"?"Crítica":classe==="atencao"?"Atenção Elevada":classe==="alerta"?"Alerta":"Adequada",
-      IPT,
-      diasNoStatus:d.dias_criticos||0,
-      data:d.createdAt?new Date(d.createdAt.seconds*1000).toISOString().split("T")[0]:new Date().toISOString().split("T")[0]
-    };
-
-    rankingHistorico.push(registro);
-    if(!escolasMap[registro.escola] || new Date(registro.data)>new Date(escolasMap[registro.escola].data)){
-      escolasMap[registro.escola]=registro;
-    }
-  });
-
-  rankingGlobal = Object.values(escolasMap);
-
-  // KPIs
-  kpiCritica.innerText=critica;
-  kpiAtencao.innerText=atencao;
-  kpiMedio.innerText=(somaIPT/dados.length).toFixed(2);
-  kpiProblemas.innerText=Object.keys(problemasCount).length;
-
-  // Ranking
-  rankingGlobal.sort((a,b)=>b.IPT-a.IPT);
-  rankingGlobal.forEach((r,i)=>{
-    tabelaRanking.innerHTML += `<tr>
-      <td>${i+1}</td>
-      <td>${r.escola}</td>
-      <td><span class="badge ${r.classe}">${r.statusLabel}</span></td>
-      <td>${r.IPT.toFixed(2)}</td>
-    </tr>`;
-  });
-
-  // Histórico
-  rankingHistorico.sort((a,b)=>new Date(b.data)-new Date(a.data));
-  rankingHistorico.forEach((r,i)=>{
-    tabelaHistorico.innerHTML += `<tr>
-      <td>${i+1}</td>
-      <td>${r.escola}</td>
-      <td><span class="badge ${r.classe}">${r.statusLabel}</span></td>
-      <td>${r.IPT.toFixed(2)}</td>
-      <td>${r.data}</td>
-    </tr>`;
-  });
-
-  // Gráficos
-  new Chart(document.getElementById("graficoStatus"),{
-    type:"pie",
-    data:{ labels:["Adequada","Alerta","Atenção","Crítica"], datasets:[{ data:Object.values(statusCount), backgroundColor:["#4caf50","yellow","#ff7043","#f44336"] }] }
-  });
-
-  new Chart(document.getElementById("graficoIndice"),{
-    type:"bar",
-    data:{ labels: rankingGlobal.slice(0,10).map(r=>r.escola), datasets:[{ data: rankingGlobal.slice(0,10).map(r=>r.IPT.toFixed(2)), backgroundColor:"#1f4fd8" }] },
-    options:{ indexAxis:"y", plugins:{ legend:{ display:false } } }
-  });
-
-  new Chart(document.getElementById("graficoProblemas"),{
-    type:"bar",
-    data:{ labels:Object.keys(problemasCount), datasets:[{ label:"Ocorrências", data:Object.values(problemasCount), backgroundColor:"#ff9800" }] },
-    options:{ indexAxis:"y", plugins:{ legend:{ display:false } } }
-  });
-}
-
-// Carrega dados do Firebase
-async function carregarAvaliacoes(){
-  try{
-    const snapshot = await db.collection("avaliacoes").get();
-    const dados = [];
-    snapshot.forEach(doc=>{ dados.push(doc.data()); });
-    montar(dados);
-  }catch(err){ console.error("❌ Erro ao carregar dados do Firebase:", err); }
-}
-
-// Exportação
-window.exportarXLSX=function(){
-  if(!rankingGlobal.length){ alert("Nenhum dado disponível."); return; }
-  const exportData = rankingGlobal.map(r=>({
-    Escola:r.escola,
-    Status:r.statusLabel,
-    IPT:r.IPT.toFixed(2)
-  }));
-  const ws = XLSX.utils.json_to_sheet(exportData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Ranking IPT");
-  XLSX.writeFile(wb,"ranking_checkinfra.xlsx");
-};
-
-window.exportarHistorico=function(){
-  if(!rankingHistorico.length){ alert("Nenhum dado disponível."); return; }
-  const exportData = rankingHistorico.map(r=>({
-    Escola:r.escola,
-    Status:r.statusLabel,
-    IPT:r.IPT.toFixed(2),
-    Data:r.data
-  }));
-  const ws = XLSX.utils.json_to_sheet(exportData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Historico Completo");
-  XLSX.writeFile(wb,"historico_checkinfra.xlsx");
-};
-
-// Modal e abas
-function abrirModal(){ modalIPT.style.display="flex"; }
-function fecharModal(){ modalIPT.style.display="none"; }
-function mostrarAba(aba){
-  document.getElementById("aba-ranking").style.display="none";
-  document.getElementById("aba-historico").style.display="none";
-  document.getElementById("aba-metodologia").style.display="none";
-  document.getElementById("aba-"+aba).style.display="block";
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.querySelector(`.tab[onclick="mostrarAba('${aba}')"]`).classList.add("active");
-}
-
-// Inicializa
-carregarAvaliacoes();
-</script>
 
 <footer>
   <div style="max-width:600px; margin:0 auto;">

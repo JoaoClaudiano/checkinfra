@@ -6,8 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1f4fd8">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
 html, body { margin:0; padding:0; width:100%; overflow-x:hidden; font-family: Arial; background:#f4f6f8; min-height:100vh; display:flex; flex-direction:column; }
 header { background:#1f4fd8; color:#fff; display:flex; align-items:center; justify-content:center; padding:14px 20px; position:relative; width:100%; box-sizing:border-box; }
@@ -15,46 +13,17 @@ header h1 { margin:0; font-size:20px; text-align:center; white-space:nowrap; ove
 header button { position:absolute; top:50%; transform:translateY(-50%); background:#fff; color:#1f4fd8; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; }
 header button.voltar { left:10px; }
 header button.menu { right:10px; }
-
-.sidebar { width:240px; background:#1f4fd8; color:#fff; padding:20px; position:fixed; right:-240px; top:0; bottom:0; overflow-y:auto; transition: right 0.3s ease; z-index:1000; box-sizing:border-box; }
-.sidebar.open { right:0; }
-.sidebar h3 { margin-top:0; font-size:18px; display:flex; justify-content:flex-end; align-items:center; }
-.sidebar h3 span { cursor:pointer; font-weight:bold; font-size:20px; }
-.sidebar a { display:block; color:#fff; text-decoration:none; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.2); }
-
-.main { margin:20px auto; padding:0 20px; max-width:1000px; flex:1; box-sizing:border-box; text-align:justify; }
-
-.card { background:#fff; margin:20px 0; padding:20px; border-radius:10px; box-sizing:border-box; }
+.main { margin:20px auto; padding:0 20px; max-width:1000px; flex:1; box-sizing:border-box; }
+.card { background:#fff; margin:20px 0; padding:20px; border-radius:10px; box-sizing:border-box; text-align:justify; }
 h2,h3{color:#1f4fd8;}
 p,li{line-height:1.6;font-size:14px;}
 ul{padding-left:20px;}
 .badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;color:#fff;}
-.critica{background:#f44336;}
-.atencao{background:#ff7043;}
-.alerta{background:#fbc02d;color:#000;}
-.adequada{background:#4caf50;}
-
-table { width:100%; border-collapse: collapse; margin-top:10px; }
-th, td { border:1px solid #ddd; padding:8px; text-align:center; font-size:14px; }
-th { background:#f4f6f8; }
-
-footer {
-  background:#1f4fd8;
-  color:#fff;
-  text-align:center;
-  padding:16px 10px;
-  font-size:12px;
-  line-height:1.4;
-  box-sizing:border-box;
-  width:100%;
-}
+footer { background:#1f4fd8; color:#fff; text-align:center; padding:16px 10px; font-size:12px; line-height:1.4; box-sizing:border-box; width:100%; }
 footer div { max-width:600px; margin:0 auto; }
 footer a { color:#fff; text-decoration:underline; }
-
-canvas { max-width:100%; height:auto; margin-top:10px; }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -63,61 +32,104 @@ canvas { max-width:100%; height:auto; margin-top:10px; }
   <button class="menu" onclick="toggleSidebar()">☰</button>
 </header>
 
-<div class="sidebar" id="sidebar">
-  <h3><span onclick="toggleSidebar()">×</span></h3>
-  <a href="gs.html">GS – Gravidade Sanitária</a>
-  <a href="it.html">IT – Intensidade Técnica</a>
-  <a href="rt.html">RT – Recorrência Temporal</a>
-  <a href="metodo.html">Metodologia</a>
-</div>
-
 <div class="main">
 
-  <div class="card">
-    <h2>Intensidade Técnica (IT)</h2>
-    <p>
-      O componente <strong>IT</strong> representa a severidade técnica e a complexidade das não conformidades encontradas.
-      Ele é calculado com base na soma ponderada dos problemas identificados no checklist do <strong>CheckInfra</strong>.
-      Quanto maior o IT, mais complexos ou numerosos são os problemas, exigindo maior intervenção técnica.
-    </p>
-  </div>
+<!-- 1. Definição do índice de Intensidade Técnica -->
+<div class="card">
+  <h2>1. Definição do Índice de Intensidade Técnica (IT)</h2>
+  <p>
+    O Índice de Intensidade Técnica (IT) do CheckInfra mede a complexidade e extensão das não conformidades detectadas na infraestrutura sanitária escolar. Ele avalia cada item do checklist técnico, atribuindo pontuação ponderada conforme a gravidade do problema, sua extensão física e a urgência de correção. O IT indica a carga técnica de intervenção necessária e complementa o GS no cálculo do Índice de Prioridade Técnica (IPT).
+  </p>
+</div>
 
-  <div class="card">
-    <h3>Exemplo de Valores IT</h3>
-    <ul>
-      <li>Escola A: 10 pontos — Problemas leves e poucos (manutenção preventiva)</li>
-      <li>Escola B: 25 pontos — Problemas moderados, requerem reparos pontuais</li>
-      <li>Escola C: 40 pontos — Problemas graves e extensos, demandam intervenção técnica urgente</li>
-    </ul>
-    <p>
-      No IPT, o IT contribui com 40% do cálculo: <strong>IPT = (GS × 0,4) + (IT × 0,4) + (RT × 0,2)</strong>.
-    </p>
-  </div>
+<!-- 2. O que o índice considera e por que -->
+<div class="card">
+  <h2>2. O que o índice de Intensidade Técnica considera e por que?</h2>
+  <p>
+    O IT considera cada problema detectado na escola, ponderando de acordo com:
+  </p>
+  <ul>
+    <li><strong>Severidade do problema:</strong> risco à saúde ou à integridade física dos alunos.</li>
+    <li><strong>Amplitude:</strong> se afeta apenas um ponto ou toda a instalação (ex.: um vaso sanitário quebrado versus todos os banheiros).</li>
+    <li><strong>Complexidade técnica:</strong> dificuldade de reparo, necessidade de materiais especializados ou intervenção de engenharia.</li>
+  </ul>
+  <p>
+    A pontuação acumulada gera o IT, que permite priorizar escolas com problemas extensos ou complexos, mesmo que o GS não seja crítico, destacando onde a intervenção técnica é mais intensa.
+  </p>
+</div>
 
-  <div class="card">
-    <h3>Distribuição IT – Gráfico de Barras</h3>
-    <canvas id="graficoIT"></canvas>
-  </div>
+<!-- 3. Normas e referências -->
+<div class="card">
+  <h2>3. Normas e referências</h2>
+  <p>
+    O cálculo do IT se fundamenta em normas técnicas e metodologias de avaliação:
+  </p>
+  <ul>
+    <li><strong>ABNT NBR 9050:2020</strong> — acessibilidade e segurança de instalações sanitárias, garantindo atendimento adequado a todos os alunos.¹</li>
+    <li><strong>ABNT NBR 13969:1997</strong> — tanques sépticos e sistemas de esgoto, para avaliação correta de infraestrutura sanitária.²</li>
+    <li><strong>MCDA (Multi-Criteria Decision Analysis)</strong> — permite ponderar múltiplos critérios (gravidade, complexidade, extensão), gerando pontuação objetiva e auditável.³</li>
+  </ul>
+  <p>
+    A combinação dessas referências garante que o IT não apenas mede quantidade de problemas, mas avalia qualitativamente a necessidade técnica de intervenção.
+  </p>
+  <p>
+    <strong>Referências:</strong><br>
+    1. ABNT. NBR 9050:2020. Associação Brasileira de Normas Técnicas.<br>
+    2. ABNT. NBR 13969:1997. Associação Brasileira de Normas Técnicas.<br>
+    3. Saaty, T.L. Decision Making with the Analytic Hierarchy Process. International Journal of Services Sciences, 2008.
+  </p>
+</div>
 
-  <div class="card">
-    <h3>Mini Tabela Comparativa</h3>
-    <table>
-      <tr><th>Escola</th><th>IT</th><th>Severidade</th></tr>
-      <tr><td>Escola A</td><td>10</td><td><span class="badge adequada">Baixa</span></td></tr>
-      <tr><td>Escola B</td><td>25</td><td><span class="badge atencao">Moderada</span></td></tr>
-      <tr><td>Escola C</td><td>40</td><td><span class="badge critica">Alta</span></td></tr>
-    </table>
-  </div>
+<!-- 4. IT mínimo, médio e máximo -->
+<div class="card">
+  <h2>4. Faixas do Índice de Intensidade Técnica</h2>
+  <p>
+    O IT varia de acordo com a quantidade e complexidade dos problemas observados:
+  </p>
+  <ul>
+    <li><strong>IT Baixo (1–2):</strong> Problemas pequenos, facilmente solucionáveis, impacto mínimo.</li>
+    <li><strong>IT Médio (3–5):</strong> Problemas moderados, exigem reparo técnico planejado, impacto perceptível na operação.</li>
+    <li><strong>IT Alto (6–8):</strong> Problemas extensos ou complexos, requerem intervenção estruturada e recursos técnicos especializados.</li>
+    <li><strong>IT Crítico (9–10):</strong> Problemas graves e complexos, alta prioridade de intervenção, risco significativo à operação e saúde dos alunos.
+    </li>
+  </ul>
+</div>
 
-  <div class="card">
-    <h3>Referências</h3>
-    <ul>
-      <li>[1] ABNT NBR ISO 31000: Gestão de riscos em ativos e infraestrutura. 2018.</li>
-      <li>[2] Saaty, T. L. Avaliação multicritério (MCDA) aplicada a ativos públicos. 2008.</li>
-      <li>[3] Manual de manutenção escolar e boas práticas sanitárias – MEC, 2020.</li>
-    </ul>
-  </div>
-
+<!-- 5. Mini tabela comparativa IT -->
+<div class="card">
+  <h2>Mini Tabela Comparativa de IT</h2>
+  <table border="1" cellpadding="6" cellspacing="0" style="width:100%; border-collapse: collapse; font-size:14px; text-align:center;">
+    <tr>
+      <th>Faixa</th>
+      <th>IT</th>
+      <th>Impacto</th>
+      <th>Exemplo</th>
+    </tr>
+    <tr>
+      <td>Baixo</td>
+      <td>1–2</td>
+      <td>Pequeno</td>
+      <td>Pequenos reparos em um ponto específico</td>
+    </tr>
+    <tr>
+      <td>Médio</td>
+      <td>3–5</td>
+      <td>Moderado</td>
+      <td>Reparos em múltiplos banheiros ou equipamentos</td>
+    </tr>
+    <tr>
+      <td>Alto</td>
+      <td>6–8</td>
+      <td>Alto</td>
+      <td>Intervenções complexas envolvendo engenharia e materiais especializados</td>
+    </tr>
+    <tr>
+      <td>Crítico</td>
+      <td>9–10</td>
+      <td>Extremo</td>
+      <td>Falhas críticas em toda a infraestrutura sanitária</td>
+    </tr>
+  </table>
 </div>
 
 <footer>
@@ -125,24 +137,7 @@ canvas { max-width:100%; height:auto; margin-top:10px; }
 </footer>
 
 <script>
-function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
-}
-
-// Gráfico IT
-const ctxIT = document.getElementById('graficoIT').getContext('2d');
-new Chart(ctxIT, {
-  type: 'bar',
-  data: {
-    labels: ['Escola A', 'Escola B', 'Escola C'],
-    datasets: [{
-      label: 'Pontuação IT',
-      data: [10,25,40],
-      backgroundColor: ['#4caf50','#ff7043','#f44336']
-    }]
-  },
-  options: { indexAxis: 'y', plugins:{ legend:{ display:false } } }
-});
+function toggleSidebar(){alert("Sidebar será implementada em futuras versões.");}
 </script>
 
 </body>

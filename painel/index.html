@@ -6,6 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#1f4fd8">
 
+<script type="module">
+  import Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.esm.js";
+  window.Chart = Chart;
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -16,28 +23,39 @@ body {
   min-height:100vh;
 }
 
-/* Header fixo */
-header { 
-  background:#1f4fd8; 
-  color:#fff; 
-  display:flex; 
-  align-items:center; 
-  justify-content:space-between; 
-  padding:14px 20px; 
-  position: relative;
+/* Header */
+header {
+  background:#1f4fd8;
+  color:#fff;
+  padding:12px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:10;
 }
-header h1 { margin:0; font-size:18px; }
-header button { background:#fff; color:#1f4fd8; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; }
+header h2 { margin:0; font-size:18px; }
+header button { background:#fff; color:#1f4fd8; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
 
 /* Sidebar */
 #sidebar {
-  position:fixed; top:0; left:-250px; width:250px; height:100%; background:#1f4fd8; color:#fff;
-  transition:0.3s; padding:20px; box-sizing:border-box; z-index:1000;
+  position:fixed;
+  top:0; left:-250px;
+  width:250px; height:100%;
+  background:#fff;
+  box-shadow:2px 0 8px rgba(0,0,0,0.2);
+  padding:20px;
+  transition:0.3s;
+  z-index:11;
 }
 #sidebar.active { left:0; }
-#sidebar h3 { margin-top:0; }
-#sidebar a { color:#fff; text-decoration:none; display:block; margin:10px 0; }
-#overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; z-index:900; }
+#overlay {
+  display:none;
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.5);
+  z-index:10;
+}
 
 /* Cards */
 .card {
@@ -111,26 +129,24 @@ footer {
 <body>
 
 <header>
-  <h1>Painel Gerencial – CheckInfra</h1>
-  <div>
-    <button onclick="window.history.back()">← Voltar</button>
-    <button onclick="abrirSidebar()">☰</button>
-  </div>
+  <h2>Painel Gerencial – CheckInfra</h2>
+  <button onclick="abrirSidebar()">☰ Menu</button>
 </header>
 
 <div id="sidebar">
-  <h3>Menu</h3>
-  <a href="./pages/metodologia.html" target="_blank">Metodologia</a>
-  <a href="./pages/sobre.html" target="_blank">Sobre</a>
-  <a href="./pages/contato.html" target="_blank">Contato</a>
-  <a href="./pages/politica-privacidade.html" target="_blank">Política de Privacidade</a>
-  <a href="./pages/termos-de-uso.html" target="_blank">Termos de Uso</a>
-  <button onclick="fecharSidebar()">Fechar</button>
+  <button onclick="fecharSidebar()">Fechar ✖</button>
+  <hr>
+  <a href="./painel/metodo.html" target="_blank">Metodologia</a><br>
+  <a href="./pages/sobre.html" target="_blank">Sobre</a><br>
+  <a href="./pages/contato.html" target="_blank">Contato</a><br>
+  <a href="./pages/politica-privacidade.html" target="_blank">Política de Privacidade</a><br>
+  <a href="./pages/termos-de-uso.html" target="_blank">Termos de Uso</a><br>
 </div>
 <div id="overlay" onclick="fecharSidebar()"></div>
 
 <div class="card">
-  <h2>Síntese executiva e priorização técnica</h2>
+  <h2>Painel Gerencial – CheckInfra</h2>
+  <small>Síntese executiva e priorização técnica</small>
 </div>
 
 <div class="card grid">
@@ -212,9 +228,6 @@ footer {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { Chart, registerables } from "https://cdn.jsdelivr.net/npm/chart.js";
-
-Chart.register(...registerables);
 
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
@@ -225,8 +238,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let rankingGlobal = [];
-let rankingHistorico = [];
+window.abrirSidebar = function() { 
+  document.getElementById("sidebar").classList.add("active"); 
+  document.getElementById("overlay").style.display="block"; 
+}
+window.fecharSidebar = function() { 
+  document.getElementById("sidebar").classList.remove("active"); 
+  document.getElementById("overlay").style.display="none"; 
+}
 
 const tabelaRanking = document.getElementById("tabelaRanking");
 const tabelaHistorico = document.getElementById("tabelaHistorico");
@@ -235,15 +254,38 @@ const kpiAtencao = document.getElementById("kpiAtencao");
 const kpiMedio = document.getElementById("kpiMedio");
 const kpiProblemas = document.getElementById("kpiProblemas");
 
+let rankingGlobal = [];
+let rankingHistoricoData = [];
+
+async function carregarAvaliacoes(){
+  try{
+    const snapshot = await getDocs(collection(db,"avaliacoes"));
+    const dados = [];
+    snapshot.forEach(doc=>{
+      const d = doc.data();
+      if(d.status){
+        if(d.createdAt instanceof Timestamp){
+          d.data_avaliacao = d.createdAt.toDate().toISOString().split("T")[0];
+        } else d.data_avaliacao = new Date().toISOString().split("T")[0];
+        dados.push(d);
+      }
+    });
+    montar(dados);
+  }catch(err){
+    console.error("❌ Erro ao carregar dados do Firebase:", err);
+  }
+}
+
+// Função montar
 function montar(dados){
   rankingGlobal = [];
-  rankingHistorico = [];
+  rankingHistoricoData = [];
   tabelaRanking.innerHTML = "";
   tabelaHistorico.innerHTML = "";
 
   const statusCount={adequada:0,alerta:0,atencao:0,critica:0};
   const problemasCount={};
-  const escolasMap = {};
+  const escolasMap = {}; 
 
   let somaIPT=0, critica=0, atencao=0;
 
@@ -275,7 +317,7 @@ function montar(dados){
       data:d.data_avaliacao
     };
 
-    rankingHistorico.push(registro);
+    rankingHistoricoData.push(registro);
 
     if(!escolasMap[registro.escola] || new Date(registro.data) > new Date(escolasMap[registro.escola].data)){
       escolasMap[registro.escola] = registro;
@@ -284,11 +326,13 @@ function montar(dados){
 
   rankingGlobal = Object.values(escolasMap);
 
+  // KPIs
   kpiCritica.innerText = critica;
   kpiAtencao.innerText = atencao;
   kpiMedio.innerText = (somaIPT/dados.length).toFixed(2);
   kpiProblemas.innerText = Object.keys(problemasCount).length;
 
+  // tabela ranking
   rankingGlobal.sort((a,b)=>b.IPT-a.IPT);
   rankingGlobal.forEach((r,i)=>{
     tabelaRanking.innerHTML += `
@@ -301,8 +345,8 @@ function montar(dados){
       </tr>`;
   });
 
-  rankingHistorico.sort((a,b)=>new Date(b.data)-new Date(a.data));
-  rankingHistorico.forEach((r,i)=>{
+  rankingHistoricoData.sort((a,b)=>new Date(b.data)-new Date(a.data));
+  rankingHistoricoData.forEach((r,i)=>{
     tabelaHistorico.innerHTML += `
       <tr>
         <td>${i+1}</td>
@@ -337,25 +381,7 @@ function montar(dados){
   });
 }
 
-async function carregarAvaliacoes(){
-  try{
-    const snapshot = await getDocs(collection(db,"avaliacoes"));
-    const dados = [];
-    snapshot.forEach(doc=>{
-      const d = doc.data();
-      if(d.status){
-        if(d.createdAt instanceof Timestamp){
-          d.data_avaliacao = d.createdAt.toDate().toISOString().split("T")[0];
-        } else d.data_avaliacao = new Date().toISOString().split("T")[0];
-        dados.push(d);
-      }
-    });
-    montar(dados);
-  }catch(err){
-    console.error("❌ Erro ao carregar dados do Firebase:", err);
-  }
-}
-
+// export XLSX
 window.exportarXLSX = function() {
   if(rankingGlobal.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
   const exportData = rankingGlobal.map(r => ({
@@ -371,8 +397,8 @@ window.exportarXLSX = function() {
 };
 
 window.exportarHistorico = function(){
-  if(rankingHistorico.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
-  const exportData = rankingHistorico.map(r => ({
+  if(rankingHistoricoData.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
+  const exportData = rankingHistoricoData.map(r => ({
     Escola:r.escola,
     Status:r.statusLabel,
     IPT:r.IPT.toFixed(2),
@@ -394,10 +420,6 @@ function mostrarAba(aba){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.querySelector(`.tab[onclick="mostrarAba('${aba}')"]`).classList.add("active");
 }
-
-// Sidebar functions
-function abrirSidebar(){ document.getElementById("sidebar").classList.add("active"); document.getElementById("overlay").style.display="block"; }
-function fecharSidebar(){ document.getElementById("sidebar").classList.remove("active"); document.getElementById("overlay").style.display="none"; }
 
 carregarAvaliacoes();
 </script>

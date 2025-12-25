@@ -7,198 +7,168 @@
 <meta name="theme-color" content="#1f4fd8">
 
 <style>
+/* Reset e layout base */
 html, body {
-  margin:0; padding:0; width:100%; overflow-x:hidden;
-  font-family: Arial, sans-serif; background:#f4f6f8;
-  min-height:100vh; display:flex; flex-direction:column;
+  margin:0; padding:0; width:100%; font-family: Arial, sans-serif; background:#f4f6f8; min-height:100vh; display:flex; flex-direction:column;
 }
 header {
-  background:#1f4fd8; color:#fff;
-  display:flex; align-items:center; justify-content:center;
-  padding:14px 20px; position:relative; width:100%;
-  box-sizing:border-box;
+  background:#1f4fd8; color:#fff; display:flex; align-items:center; justify-content:center; padding:14px 20px; position:relative; width:100%;
 }
-header h1 { margin:0; font-size:20px; text-align:center; }
-header button {
-  position:absolute; top:50%; transform:translateY(-50%);
-  background:#fff; color:#1f4fd8; border:none; border-radius:6px;
-  padding:6px 12px; cursor:pointer;
-}
+header h1 { margin:0; font-size:20px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+header button { position:absolute; top:50%; transform:translateY(-50%); background:#fff; color:#1f4fd8; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; }
 header button.voltar { left:10px; }
 header button.menu { right:10px; }
 
-.sidebar {
-  position:fixed; right:0; top:0; height:100%; width:240px;
-  background:#eaf0ff; padding:20px; box-shadow:-2px 0 5px rgba(0,0,0,.1);
-  transform:translateX(100%); transition:transform .3s;
-  z-index:1000;
+/* Sidebar */
+#sidebar {
+  position: fixed; top:0; right:-280px; width:280px; height:100%; background:#1f4fd8; color:#fff; overflow-y:auto; transition:right 0.3s ease;
+  padding:20px; box-sizing:border-box; z-index:100;
 }
-.sidebar.active { transform:translateX(0); }
-.sidebar h3 { margin-top:0; color:#1f4fd8; font-size:16px; }
-.sidebar a {
-  display:block; color:#1f4fd8; text-decoration:none; margin:12px 0;
-  font-weight:bold;
-}
-.sidebar a:hover { text-decoration:underline; }
+#sidebar.active { right:0; }
+#sidebar h2 { margin-top:0; font-size:18px; }
+#sidebar button.closeSidebar { background:#fff; color:#1f4fd8; border:none; border-radius:6px; padding:4px 10px; cursor:pointer; position:absolute; top:10px; left:10px; }
 
-.main { margin:20px auto; padding:0 20px; max-width:1000px; flex:1; box-sizing:border-box; }
+#sidebar a { color:#fff; text-decoration:none; display:block; margin:10px 0; }
+#sidebar a:hover { text-decoration:underline; }
 
-.card { background:#fff; margin:20px 0; padding:24px; border-radius:10px; box-sizing:border-box; line-height:1.6; }
-.card h2,h3 { color:#1f4fd8; margin-bottom:10px; }
-.card p, .card li { font-size:14px; margin-bottom:12px; text-align:justify; }
-ul { padding-left:20px; margin-bottom:12px; }
+/* Main content */
+.main { margin:20px auto; padding:0 20px; max-width:1000px; flex:1; }
+.card { background:#fff; margin:20px auto; padding:24px; border-radius:10px; line-height:1.7; box-sizing:border-box; }
+h2,h3{color:#1f4fd8;}
+p,li{line-height:1.6;font-size:14px; text-align:justify;}
+ul{padding-left:20px; margin-bottom:10px;}
+.badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;color:#fff;margin:2px;}
+.baixo{background:#4caf50}
+.medio{background:#fbc02d;color:#000}
+.alto{background:#f44336}
 
-.badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;color:#fff;}
-.critica{background:#f44336;}
-.atencao{background:#ff7043;}
-.alerta{background:#fbc02d;color:#000;}
-.adequada{background:#4caf50;}
-
+/* Footer responsivo */
 footer {
-  background:#1f4fd8; color:#fff; text-align:center;
-  padding:16px 10px; font-size:12px; line-height:1.4;
-  box-sizing:border-box; width:100%;
+  background:#1f4fd8; color:#fff; text-align:center; padding:16px 10px; font-size:12px; line-height:1.4; width:100%;
 }
 footer div { max-width:600px; margin:0 auto; }
 footer a { color:#fff; text-decoration:underline; }
 
-canvas { max-width:100%; height:auto; margin-top:12px; }
-
-@media(max-width:600px){
-  .sidebar { width:180px; padding:16px; }
-}
+/* Gráfico */
+canvas { max-width:100%; height:auto; }
 </style>
 </head>
-
 <body>
 
+<!-- Header -->
 <header>
   <button class="voltar" onclick="history.back()">← Voltar</button>
   <h1>RT – Recorrência Temporal</h1>
   <button class="menu" onclick="toggleSidebar()">☰</button>
 </header>
 
-<div class="sidebar" id="sidebar">
-  <h3>Menu</h3>
-  <a href="../metodologia.html">Metodologia</a>
-  <a href="gs.html">Gravidade Sanitária (GS)</a>
-  <a href="it.html">Intensidade Técnica (IT)</a>
+<!-- Sidebar -->
+<div id="sidebar">
+  <button class="closeSidebar" onclick="toggleSidebar()">X</button>
+  <h2>Índice de Prioridade Técnica</h2>
+  <a href="metodologia.html">Metodologia Geral</a>
+  <a href="gs.html">GS – Gravidade Sanitária</a>
+  <a href="it.html">IT – Intensidade Técnica</a>
+  <a href="rt.html">RT – Recorrência Temporal</a>
 </div>
 
+<!-- Main content -->
 <div class="main">
+
   <div class="card">
-    <h2>1. Definição do Índice de Recorrência Temporal (RT)</h2>
-    <p>
-      O Índice de Recorrência Temporal (RT) mede a persistência dos problemas detectados nas avaliações de infraestrutura sanitária escolar ao longo do tempo.
-      Ele identifica questões crônicas e reincidentes, permitindo que gestores priorizem intervenções onde problemas persistem ou se repetem.
-    </p>
+    <h2>1. Definição do Índice de Recorrência Temporal</h2>
+    <p>O <strong>Índice de Recorrência Temporal (RT)</strong> mede a persistência dos problemas de infraestrutura sanitária escolar ao longo do tempo.</p>
+    <p>Ele indica se um problema identificado em avaliações anteriores continua presente, servindo como proxy para problemas crônicos e necessidade de intervenção urgente.</p>
   </div>
 
   <div class="card">
-    <h2>2. O que o RT considera?</h2>
-    <p>
-      O RT avalia a frequência de não conformidades ao longo de múltiplas inspeções. Uma escola com problemas que se repetem em várias avaliações terá um RT mais alto, sinalizando reincidência estrutural.
-      Esse índice ajuda a distinguir entre problemas pontuais e falhas crônicas, tornando o planejamento de obras mais eficiente.
-    </p>
+    <h2>2. O que o índice RT considera e por quê?</h2>
+    <p>O RT contabiliza quantas vezes uma escola apresentou não conformidades em avaliações anteriores.</p>
+    <p>Essa informação é crucial para identificar escolas que, mesmo com intervenções pontuais, continuam apresentando problemas, garantindo que reformas ou obras sejam priorizadas para casos recorrentes.</p>
   </div>
 
   <div class="card">
-    <h2>3. Normas e referências</h2>
-    <p>
-      A metodologia do RT se apoia em referências de inspeção predial e gestão de ativos públicos, incluindo:
-    </p>
+    <h2>3. Normas e referências bibliográficas</h2>
+    <p>O RT se inspira em metodologias de gestão de ativos e manutenção preventiva, como ISO 55000 e recomendações de inspeção predial periódica. Avaliações recorrentes permitem monitorar a evolução da infraestrutura e adequar recursos.</p>
+    <p>Referências:</p>
     <ul>
-      <li>ABNT NBR 15575 – Edificações habitacionais – Desempenho e manutenção (1)</li>
-      <li>Gestão de ativos públicos e manutenção preventiva: ISO 55000</li>
-      <li>MCDA – Avaliação multicritério de reincidência e priorização de ações (Saaty, 2008)</li>
+      <li>ISO 55000: Asset Management. 2014.</li>
+      <li>ABNT NBR 5674: Manutenção de edificações – Procedimentos. 2012.</li>
+      <li>Saaty, T. L. Decision Making with the Analytic Hierarchy Process. 2008.</li>
     </ul>
-    <p>
-      Essas referências permitem padronizar a análise temporal e fornecer informações objetivas para tomada de decisão.
-    </p>
   </div>
 
   <div class="card">
-    <h2>4. Interpretação dos valores do RT</h2>
-    <p>
-      O RT é categorizado de acordo com a persistência dos problemas:
-    </p>
+    <h2>4. Interpretação das faixas de Recorrência Temporal</h2>
     <ul>
-      <li>RT baixo → Problema pontual, provavelmente resolvido após intervenção.</li>
-      <li>RT médio → Problema reincidente, exige monitoramento e manutenção contínua.</li>
-      <li>RT alto → Problema crônico, requer priorização de obras e inspeções detalhadas.</li>
+      <li><span class="badge baixo">Baixo</span> (RT = 1-2): Problemas pouco recorrentes, situação isolada ou já corrigida.</li>
+      <li><span class="badge medio">Médio</span> (RT = 3-4): Problemas moderadamente recorrentes, atenção necessária para evitar agravamento.</li>
+      <li><span class="badge alto">Alto</span> (RT = 5+): Problemas recorrentes ou crônicos, alta prioridade de intervenção.</li>
     </ul>
   </div>
 
   <div class="card">
     <h2>5. Impacto do RT no IPT</h2>
-    <p>
-      Na fórmula do IPT, o RT tem peso de 0,2. Isso significa que escolas com RT elevado indicam reincidência de problemas e aumentam o IPT total.
-      Assim, mesmo que uma escola tenha GS ou IT moderado, um RT alto sinaliza necessidade de atenção prioritária na rede escolar.
-    </p>
+    <p>O RT é multiplicado por 0,2 na fórmula do IPT (<strong>IPT = GS*0,4 + IT*0,4 + RT*0,2</strong>).</p>
+    <p>Escolas com RT alto indicam problemas persistentes, elevando o IPT médio e sinalizando necessidade de acompanhamento contínuo ou intervenção estrutural.</p>
   </div>
 
   <div class="card">
-    <h2>6. Mini gráfico ilustrativo</h2>
-    <p>
-      O gráfico a seguir mostra a distribuição das escolas por RT e a linha do RT médio da rede.
-      Ele ilustra como a quantidade de escolas com problemas reincidentes impacta a prioridade de manutenção e planejamento de reformas.
-    </p>
-    <canvas id="rtChart"></canvas>
-  </div>
-
-  <div class="card">
-    <h2>7. Vantagens e limitações do RT</h2>
-    <p>
-      <strong>Vantagens:</strong> Permite identificar falhas crônicas, priorizar inspeções e otimizar recursos, complementando os índices GS e IT para uma visão completa da rede.
-    </p>
-    <p>
-      <strong>Limitações:</strong> Depende da consistência das avaliações anteriores, da precisão dos dados históricos e da interpretação correta pelo avaliador.
-    </p>
-  </div>
-
-  <div class="card">
-    <h3>Referência bibliográfica</h3>
-    <p>
-      (1) ABNT NBR 15575: Edificações habitacionais – Desempenho e manutenção, 2013.
-    </p>
+    <h2>6. Gráfico ilustrativo do RT</h2>
+    <canvas id="graficoRT"></canvas>
+    <p>O gráfico mostra a recorrência de problemas nas escolas avaliadas. A linha azul indica o <strong>RT médio</strong>. Quanto mais escolas estiverem na faixa alta, maior a prioridade de intervenção na rede escolar.</p>
   </div>
 
 </div>
 
+<!-- Footer -->
 <footer>
   <div>
-    © 2025 CheckInfra — Metodologia detalhada — Projeto acadêmico de alunos de Engenharia Civil
+    © 2025 CheckInfra — Metodologia detalhada e auditável
   </div>
 </footer>
 
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
+// Sidebar toggle
 function toggleSidebar(){
-  document.getElementById("sidebar").classList.toggle("active");
+  document.getElementById('sidebar').classList.toggle('active');
 }
 
-const ctx = document.getElementById('rtChart').getContext('2d');
-const rtChart = new Chart(ctx, {
+// Dados RT fictícios
+const rtValores = [1,2,3,1,5,4,2,3]; // RT de cada escola
+const rtMedio = rtValores.reduce((a,b)=>a+b,0)/rtValores.length;
+
+// Criação do gráfico
+const ctxRT = document.getElementById('graficoRT').getContext('2d');
+new Chart(ctxRT, {
   type: 'bar',
   data: {
-    labels: ['Baixo','Médio','Alto'],
+    labels: rtValores.map((v,i)=>`Escola ${i+1}`),
     datasets: [{
-      label: 'Número de escolas',
-      data: [15, 20, 10],
-      backgroundColor: ['#4caf50','#fbc02d','#f44336']
+      label: 'RT',
+      data: rtValores,
+      backgroundColor: rtValores.map(v=> {
+        if(v<=2) return '#4caf50';
+        if(v<=4) return '#fbc02d';
+        return '#f44336';
+      })
     },{
-      label: 'RT médio da rede',
-      type:'line',
-      data:[2.0,2.0,2.0],
-      borderColor:'#1f4fd8',
-      borderWidth:2,
-      fill:false
+      label: 'RT Médio',
+      data: Array(rtValores.length).fill(rtMedio),
+      type: 'line',
+      borderColor: '#2196f3',
+      borderWidth: 2,
+      fill:false,
+      pointRadius:0
     }]
   },
-  options: {
+  options:{
     responsive:true,
-    plugins:{ legend:{ display:true }, tooltip:{ mode:'index', intersect:false } },
-    scales:{ y:{ beginAtZero:true, title:{ display:true, text:'Número de escolas' } } }
+    plugins:{ legend:{display:true}, tooltip:{enabled:true} },
+    scales:{ y:{beginAtZero:true, max:6, title:{display:true,text:'RT'}}, x:{title:{display:true,text:'Escolas'}} }
   }
 });
 </script>

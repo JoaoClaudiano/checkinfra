@@ -42,11 +42,11 @@ table {
 th, td {
   padding:8px;
   border-bottom:1px solid #eee;
+  text-align:center;
 }
 
 th {
   background:#f4f6f8;
-  text-align:left;
 }
 
 .badge {
@@ -100,7 +100,7 @@ footer {
         <th>Data</th>
         <th>Escola</th>
         <th>Status</th>
-        <th>Pontuação</th>
+        <th>Pontuação (IT)</th>
         <th>RT</th>
         <th>IPT</th>
       </tr>
@@ -136,18 +136,19 @@ const filtro = document.getElementById("filtroEscola");
 
 let avaliacoes = [];
 
-function calcularIPT(d){
-  const s = (d.status || "").toLowerCase();
-  let GS = 1;
-  if(s.includes("crít")) GS = 4;
-  else if(s.includes("aten")) GS = 3;
-  else if(s.includes("alerta")) GS = 2;
+/* =========================
+   FUNÇÕES METODOLÓGICAS
+========================= */
 
-  const IT = Number(d.pontuacao || 0);
+function calcularGS(status){
+  const s = status.toLowerCase();
+  if(s.includes("crít")) return 4;
+  if(s.includes("aten")) return 3;
+  if(s.includes("alerta")) return 2;
+  return 1;
+}
 
-  // RT = persistência (quantidade de dias no status)
-  const RT = Math.min(Number(d.dias_criticos || 0), 30);
-
+function calcularIPT(GS, IT, RT){
   return (GS * 0.4) + (IT * 0.4) + (RT * 0.2);
 }
 
@@ -158,6 +159,10 @@ function classeStatus(status){
   if(s.includes("alerta")) return "alerta";
   return "adequada";
 }
+
+/* =========================
+   RENDERIZAÇÃO
+========================= */
 
 function renderTabela(){
   tabela.innerHTML = "";
@@ -171,7 +176,7 @@ function renderTabela(){
         <td>${a.data}</td>
         <td>${a.escola}</td>
         <td><span class="badge ${classeStatus(a.status)}">${a.status}</span></td>
-        <td>${a.pontuacao}</td>
+        <td>${a.IT}</td>
         <td>${a.RT}</td>
         <td>${a.IPT.toFixed(2)}</td>
       `;
@@ -179,40 +184,68 @@ function renderTabela(){
     });
 }
 
+/* =========================
+   CARGA DE DADOS + RT CORRETO
+========================= */
+
 async function carregar(){
   const snap = await getDocs(collection(db,"avaliacoes"));
-  const escolasSet = new Set();
-
-  avaliacoes = [];
+  let bruto = [];
 
   snap.forEach(doc=>{
     const d = doc.data();
     if(!d.escola || !d.status) return;
 
-    const data = d.createdAt instanceof Timestamp
-      ? d.createdAt.toDate().toLocaleDateString()
-      : "—";
-
-    const RT = Number(d.dias_criticos || 0);
-
-    avaliacoes.push({
+    bruto.push({
       escola: d.escola,
       status: d.status,
-      pontuacao: d.pontuacao || 0,
-      RT,
-      IPT: calcularIPT(d),
-      data,
-      timestamp: d.createdAt?.seconds || 0
+      IT: Number(d.pontuacao || 0),
+      timestamp: d.createdAt instanceof Timestamp ? d.createdAt.seconds : 0,
+      data: d.createdAt instanceof Timestamp
+        ? d.createdAt.toDate().toLocaleDateString()
+        : "—"
     });
-
-    escolasSet.add(d.escola);
   });
 
-  // ordena do mais recente para o mais antigo
+  // agrupa por escola
+  const porEscola = {};
+  bruto.forEach(a=>{
+    if(!porEscola[a.escola]) porEscola[a.escola] = [];
+    porEscola[a.escola].push(a);
+  });
+
+  avaliacoes = [];
+
+  Object.values(porEscola).forEach(lista=>{
+    // ordena por data (mais recente primeiro)
+    lista.sort((a,b)=>b.timestamp - a.timestamp);
+
+    lista.forEach(registro=>{
+      const statusAtual = registro.status;
+
+      // RT = frequência do status atual no histórico da escola
+      const RT = Math.min(
+        lista.filter(r => r.status === statusAtual).length,
+        4
+      );
+
+      const GS = calcularGS(statusAtual);
+      const IPT = calcularIPT(GS, registro.IT, RT);
+
+      avaliacoes.push({
+        ...registro,
+        GS,
+        RT,
+        IPT
+      });
+    });
+  });
+
+  // ordena histórico global por data
   avaliacoes.sort((a,b)=>b.timestamp - a.timestamp);
 
   // popula filtro
-  [...escolasSet].sort().forEach(e=>{
+  [...new Set(avaliacoes.map(a=>a.escola))].sort().forEach(e=>{
     const opt = document.createElement("option");
     opt.value = e;
     opt.textContent = e;

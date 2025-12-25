@@ -7,42 +7,19 @@
 <meta name="theme-color" content="#1f4fd8">
 
 <style>
-/* RESET E BASE */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, sans-serif; background:#f4f6f8; min-height:100vh; display:flex; flex-direction:column; }
-
-/* SIDEBAR */
-.sidebar {
-  height: 100%;
-  width: 0;
-  position: fixed;
-  z-index: 999;
-  top: 0;
-  right: 0; /* agora abre à direita */
-  background-color: #1f4fd8;
-  overflow-x: hidden;
-  transition: 0.3s;
-  padding-top: 60px;
-}
-.sidebar a {
-  padding: 12px 24px;
-  text-decoration: none;
-  font-size: 16px;
-  color: #fff;
-  display: block;
-  transition: 0.2s;
-}
-.sidebar a:hover { background: rgba(255,255,255,0.2); }
-.sidebar .closebtn {
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  font-size: 24px;
-  color: #fff;
-  cursor: pointer;
+/* Reset e layout geral */
+html, body {
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100vh;
+  font-family: Arial, sans-serif;
+  background:#f4f6f8;
+  display:flex;
+  flex-direction:column;
 }
 
-/* HEADER */
+/* Header */
 header {
   background:#1f4fd8;
   color:#fff;
@@ -51,11 +28,19 @@ header {
   justify-content:center;
   padding:14px 20px;
   position:relative;
+  width:100%;
+  box-sizing:border-box;
 }
-header h1 { font-size:20px; text-align:center; }
-header button.menu {
+header h1 {
+  margin:0;
+  font-size:20px;
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+header button {
   position:absolute;
-  right:20px;
   top:50%;
   transform:translateY(-50%);
   background:#fff;
@@ -65,19 +50,48 @@ header button.menu {
   padding:6px 12px;
   cursor:pointer;
 }
+header button.voltar { left:10px; }
+header button.menu { right:10px; }
 
-/* MAIN */
-.main { margin:20px auto; padding:0 20px; max-width:1000px; flex:1; display:flex; flex-direction:column; }
-.card { background:#fff; margin:20px 0; padding:24px; border-radius:10px; line-height:1.6; text-align:justify; }
-h2,h3{color:#1f4fd8;}
-ul{padding-left:20px;}
-.badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;color:#fff;}
-.critica{background:#f44336}
-.atencao{background:#ff7043}
-.alerta{background:#fbc02d;color:#000}
+/* Container principal */
+.main {
+  margin:20px auto;
+  padding:0 20px;
+  max-width:1000px;
+  flex:1;
+  box-sizing:border-box;
+}
+
+/* Cards */
+.card {
+  background:#fff;
+  margin:20px 0;
+  padding:24px;
+  border-radius:10px;
+  line-height:1.8;
+  text-align:justify;
+}
+.card h2, .card h3 {
+  color:#1f4fd8;
+  margin-bottom:12px;
+}
+
+/* Badges GS */
+.badge {
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:12px;
+  font-size:12px;
+  color:#fff;
+  margin-right:6px;
+  margin-bottom:6px;
+}
 .adequada{background:#4caf50}
+.alerta{background:#fbc02d;color:#000}
+.atencao{background:#ff7043}
+.critica{background:#f44336}
 
-/* FOOTER */
+/* Footer */
 footer {
   background:#1f4fd8;
   color:#fff;
@@ -85,13 +99,38 @@ footer {
   padding:16px 10px;
   font-size:12px;
   line-height:1.4;
+  box-sizing:border-box;
   width:100%;
 }
 footer div { max-width:600px; margin:0 auto; }
 footer a { color:#fff; text-decoration:underline; }
 
-/* TOOLTIP */
-.info-tooltip { position: relative; cursor: pointer; display: inline-block; font-weight: bold; color: #1f4fd8; font-size: 14px; }
+/* Gráfico simplificado */
+.mini-grafico {
+  width:100%;
+  height:200px;
+  background:#e0e0e0;
+  border-radius:8px;
+  position:relative;
+  margin:14px 0;
+}
+.grafico-bar {
+  position:absolute;
+  bottom:0;
+  width:40px;
+  background:#1f4fd8;
+  border-radius:4px 4px 0 0;
+}
+.grafico-label {
+  position:absolute;
+  bottom:-20px;
+  font-size:12px;
+  text-align:center;
+  width:100%;
+}
+
+/* Tooltip */
+.info-tooltip { position: relative; cursor: pointer; display: inline-block; font-weight: bold; color: #1f4fd8; }
 .tooltip-text { 
   visibility: hidden; 
   width: 220px; 
@@ -126,143 +165,136 @@ footer a { color:#fff; text-decoration:underline; }
 }
 
 @media(max-width:600px){
-  .main { padding:0 10px; }
+  .card { padding:16px; }
 }
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-<div id="mySidebar" class="sidebar">
-  <span class="closebtn" onclick="closeSidebar()">×</span>
-  <a href="metodologia.html">Metodologia</a>
-  <a href="gs.html">Gravidade Sanitária (GS)</a>
-  <a href="it.html">Intensidade Técnica (IT)</a>
-  <a href="rt.html">Recorrência Temporal (RT)</a>
-</div>
-
-<!-- HEADER -->
 <header>
+  <button class="voltar" onclick="history.back()">← Voltar</button>
   <h1>GS – Gravidade Sanitária</h1>
-  <button class="menu" onclick="openSidebar()">☰ Menu</button>
+  <button class="menu" onclick="toggleSidebar()">☰</button>
 </header>
 
-<!-- CONTEÚDO PRINCIPAL -->
 <div class="main">
 
+  <!-- 1. Definição -->
   <div class="card">
     <h2>1. Definição do Índice de Gravidade Sanitária (GS)</h2>
     <p>
-      O índice de Gravidade Sanitária (GS) avalia a severidade das condições da infraestrutura sanitária escolar. Ele considera os riscos à saúde, segurança e bem-estar dos estudantes, sendo fundamental para priorização de intervenções e reformas nas escolas. O GS é um componente essencial do IPT do CheckInfra, refletindo problemas críticos que impactam diretamente o uso dos banheiros escolares.
+      O <strong>GS</strong> é um índice que mensura a severidade dos problemas encontrados na infraestrutura sanitária escolar.
+      Ele avalia o impacto direto na saúde, segurança e bem-estar dos alunos, refletindo a criticidade de cada não conformidade identificada.
+      No contexto do <strong>CheckInfra</strong>, o GS é a base para priorização de reformas e inspeções prediais, auxiliando gestores a identificar quais escolas demandam atenção imediata.
     </p>
   </div>
 
+  <!-- 2. O que o índice considera -->
   <div class="card">
     <h2>2. O que o índice de Gravidade Sanitária considera?</h2>
     <p>
-      O GS considera múltiplos fatores observados na avaliação: presença de infiltrações, mofo, higiene inadequada, funcionamento de instalações sanitárias, ventilação, iluminação e outros aspectos estruturais. Ele indica a criticidade da escola, permitindo diferenciar entre problemas pontuais e situações crônicas que exigem atenção imediata.
+      O índice considera fatores críticos da infraestrutura sanitária escolar, como disponibilidade de água potável, integridade de pisos e vasos sanitários, presença de esgoto exposto, ventilação e iluminação adequadas, limpeza e condições de higiene.
+      Esses elementos impactam diretamente a saúde e segurança dos alunos e são medidos de acordo com o checklist técnico do CheckInfra.
     </p>
   </div>
 
+  <!-- 3. Normas e referências -->
   <div class="card">
-    <h2>3. Normas e Referências</h2>
+    <h2>3. Normas e Referências Bibliográficas</h2>
     <p>
-      O GS é calculado com base em normas técnicas nacionais e internacionais, incluindo:
+      A avaliação do GS é baseada em normas técnicas brasileiras e internacionais, garantindo rigor técnico e comparabilidade:
     </p>
     <ul>
-      <li>ABNT NBR 9050 – Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos (1)</li>
-      <li>WHO Guidelines on Water, Sanitation and Hygiene in Schools, 2018 (1)</li>
-      <li>Princípios de Avaliação Multicritério e Gestão de Ativos Públicos (Saaty, 2008) (1)</li>
+      <li>ABNT NBR 9050: Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos (1)</li>
+      <li>WHO – Water, Sanitation and Hygiene in Schools, 2018 (2)</li>
+      <li>Metodologias de avaliação multicritério e gestão de ativos públicos (MCDA), Saaty, 2008 (3)</li>
     </ul>
     <p>
-      Essas referências fornecem critérios de medição de higiene, segurança e acessibilidade, permitindo uma avaliação consistente da infraestrutura sanitária escolar.
+      Essas referências permitem estruturar critérios de avaliação consistentes e interpretar os resultados dentro de padrões reconhecidos globalmente.
     </p>
   </div>
 
+  <!-- 4. Significado das faixas -->
   <div class="card">
-    <h2>4. Interpretação do Índice GS</h2>
-    <p>
-      O GS assume valores de 1 a 4, sendo:
-    </p>
+    <h2>4. Faixas do Índice de Gravidade Sanitária</h2>
+    
+    <p><span class="badge adequada">Adequada</span> → GS = 1</p>
+    <p>Significa que a escola atende aos padrões mínimos de higiene, segurança e funcionalidade da infraestrutura sanitária. Não há não conformidades críticas. Recomendação: manutenção preventiva contínua.</p>
+
+    <p><span class="badge alerta">Alerta</span> → GS = 2</p>
+    <p>Indica pequenas não conformidades que precisam de atenção futura, mas não representam risco imediato. Ex.: torneiras com vazamento, lixeiras inadequadas. Recomendação: planejamento de intervenções simples.</p>
+
+    <p><span class="badge atencao">Atenção</span> → GS = 3</p>
+    <p>Problemas significativos, com risco médio à saúde ou à funcionalidade. Ex.: vasos sanitários quebrados, infiltrações moderadas. Recomendação: priorizar reparos e acompanhamento próximo.</p>
+
+    <p><span class="badge critica">Crítica</span> → GS = 4</p>
+    <p>Problemas graves, risco imediato à saúde e segurança. Ex.: ausência de água potável, esgoto exposto, falhas estruturais sérias. Recomendação: intervenção urgente, inspeção predial imediata.</p>
+  </div>
+
+  <!-- 5. Exemplo prático -->
+  <div class="card">
+    <h2>5. Exemplo Prático de Aplicação</h2>
+    <p>Suponha três escolas avaliadas:</p>
     <ul>
-      <li><span class="badge adequada">Adequada</span> – GS = 1: A escola atende aos padrões mínimos de higiene e segurança, não apresentando riscos à saúde dos alunos.</li>
-      <li><span class="badge alerta">Alerta</span> – GS = 2: Pequenas não conformidades detectadas, exigindo acompanhamento futuro para evitar agravamento.</li>
-      <li><span class="badge atencao">Atenção</span> – GS = 3: Problemas significativos, risco médio à saúde ou ao uso da infraestrutura. Necessidade de ação corretiva planejada.</li>
-      <li><span class="badge critica">Crítica</span> – GS = 4: Problemas graves, risco imediato à saúde ou segurança. Intervenção urgente necessária.</li>
+      <li>Escola A: Adequada → GS = 1</li>
+      <li>Escola B: Atenção → GS = 3</li>
+      <li>Escola C: Crítica → GS = 4</li>
     </ul>
+    <p>O GS é utilizado na fórmula do IPT: <strong>IPT = (GS × 0,4) + (IT × 0,4) + (RT × 0,2)</strong>. Quanto maior o número de escolas com GS crítico, maior o impacto no IPT médio da rede escolar.</p>
   </div>
 
+  <!-- 6. Mini gráfico ilustrativo -->
   <div class="card">
-    <h2>5. Mini-gráficos ilustrativos</h2>
-    <p>
-      Abaixo exemplificamos a distribuição das escolas por GS em uma rede hipotética. A linha azul representa o GS médio da rede. Quanto maior o número de escolas com GS Crítico, maior o IPT médio e a prioridade de intervenção.
-    </p>
-    <canvas id="graficoGS" width="400" height="150"></canvas>
+    <h2>6. Mini Gráfico Ilustrativo</h2>
+    <p>O gráfico abaixo representa a distribuição do GS das escolas em uma rede:</p>
+    <div class="mini-grafico">
+      <div class="grafico-bar" style="height:40%; left:10%;"></div>
+      <div class="grafico-bar" style="height:60%; left:30%; background:#ff7043;"></div>
+      <div class="grafico-bar" style="height:80%; left:50%; background:#f44336;"></div>
+      <div class="grafico-label" style="left:10%;">GS=1</div>
+      <div class="grafico-label" style="left:30%;">GS=3</div>
+      <div class="grafico-label" style="left:50%;">GS=4</div>
+      <!-- Linha média -->
+      <div style="position:absolute; top:50%; left:0; width:100%; border-top:2px dashed #000; color:#000; font-size:10px; text-align:right;">GS Médio</div>
+    </div>
+    <p>Observação: Quanto mais escolas com GS crítico, maior o IPT médio e mais urgente se torna a priorização de reformas e inspeções.</p>
   </div>
 
+  <!-- 7. Vantagens e Limitações -->
   <div class="card">
-    <h2>6. Vantagens e Limitações do GS</h2>
-    <p>
-      <strong>Vantagens:</strong> Permite priorizar rapidamente escolas com maior risco sanitário, fornece base objetiva para planejamento de obras e reformas, e facilita a análise comparativa entre unidades da rede. <br>
-      <strong>Limitações:</strong> É uma avaliação de triagem preliminar, não substitui inspeções técnicas detalhadas, e pode não capturar problemas ocultos ou temporários.
-    </p>
-  </div>
-
-  <div class="card">
-    <h2>Referências Bibliográficas</h2>
+    <h2>7. Vantagens e Limitações do GS</h2>
+    <p>Vantagens:</p>
     <ul>
-      <li>ABNT NBR 9050: Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos. Associação Brasileira de Normas Técnicas, 2020 (1)</li>
-      <li>WHO – Water, Sanitation and Hygiene in Schools. World Health Organization, 2018 (1)</li>
-      <li>Saaty, T. L. Decision Making with the Analytic Hierarchy Process. McGraw-Hill, 2008 (1)</li>
+      <li>Permite priorização objetiva de escolas que necessitam de intervenção imediata.</li>
+      <li>Facilita a visualização de problemas críticos e recorrentes.</li>
+      <li>Base técnica para planejamento de obras e manutenção preventiva.</li>
+    </ul>
+    <p>Limitações:</p>
+    <ul>
+      <li>É uma ferramenta de triagem, não substitui inspeções detalhadas de engenharia.</li>
+      <li>Depende da qualidade e consistência das avaliações do checklist.</li>
+      <li>Não considera fatores externos como clima ou uso dos alunos.</li>
     </ul>
   </div>
 
 </div>
 
-<!-- FOOTER -->
 <footer>
   <div>
-    <p>© 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License</p>
-    <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">
-      <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT">
-    </a>
-    <p style="margin-top:8px; font-size:11px;">
-      🔒 O CheckInfra realiza tratamento mínimo de dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), exclusivamente para fins técnicos, institucionais e de prestação do serviço licenciado.
-    </p>
+    © 2025 CheckInfra — Metodologia detalhada — Projeto acadêmico de alunos de Engenharia Civil
+    <br>
+    <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">Licença MIT</a>
+    <br>
+    🔒 Tratamento mínimo de dados pessoais em conformidade com LGPD (Lei nº 13.709/2018).
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-function openSidebar() { document.getElementById("mySidebar").style.width = "250px"; }
-function closeSidebar() { document.getElementById("mySidebar").style.width = "0"; }
-
-// GRÁFICO GS
-const ctx = document.getElementById('graficoGS').getContext('2d');
-const graficoGS = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ['Escola A','Escola B','Escola C','Escola D','Escola E'],
-        datasets: [{
-            label: 'GS',
-            data: [1,3,4,2,3],
-            backgroundColor: ['#4caf50','#ff7043','#f44336','#fbc02d','#ff7043'],
-        },{
-            label: 'GS Médio',
-            type:'line',
-            data: [2.6,2.6,2.6,2.6,2.6],
-            borderColor:'#2196f3',
-            borderWidth:2,
-            fill:false
-        }]
-    },
-    options: {
-        responsive:true,
-        plugins:{legend:{display:true}},
-        scales:{y:{beginAtZero:true, max:4}}
-    }
-});
+function toggleSidebar(){
+  // Aqui você pode implementar a abertura do sidebar à direita
+  alert("Sidebar funcional à direita será implementado aqui.");
+}
 </script>
 
 </body>

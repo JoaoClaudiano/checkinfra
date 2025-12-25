@@ -6,11 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#1f4fd8">
 
-<script type="module">
-  import Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.esm.js";
-  window.Chart = Chart;
-</script>
-
+<!-- Chart.js correto para import via module -->
+<script type="module" src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -18,9 +15,8 @@ body {
   font-family: Arial, sans-serif;
   background:#f4f6f8;
   margin:0;
-  display:flex;
-  flex-direction:column;
   min-height:100vh;
+  overflow-x:hidden; /* remove faixa branca lateral */
 }
 
 /* Header */
@@ -29,32 +25,40 @@ header {
   color:#fff;
   padding:12px 16px;
   display:flex;
-  justify-content:space-between;
+  justify-content:center;
   align-items:center;
   position:sticky;
   top:0;
   z-index:10;
 }
-header h2 { margin:0; font-size:18px; }
-header button { background:#fff; color:#1f4fd8; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
 
-/* Sidebar */
-#sidebar {
-  position:fixed;
-  top:0; left:-250px;
-  width:250px; height:100%;
-  background:#fff;
-  box-shadow:2px 0 8px rgba(0,0,0,0.2);
-  padding:20px;
-  transition:0.3s;
-  z-index:11;
+header h2 { 
+  margin:0; 
+  font-size:18px; 
+  text-align:center; 
+  flex:1;
 }
-#sidebar.active { left:0; }
-#overlay {
-  display:none;
-  position:fixed; inset:0;
-  background:rgba(0,0,0,0.5);
-  z-index:10;
+
+header button#voltar {
+  position:absolute;
+  left:16px;
+  background:#fff;
+  color:#1f4fd8;
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+header button#menu {
+  position:absolute;
+  right:16px;
+  background:#fff;
+  color:#1f4fd8;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:pointer;
 }
 
 /* Cards */
@@ -94,7 +98,22 @@ button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-
 .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); align-items:center; justify-content:center; }
 .modal-content { background:#fff; padding:20px; border-radius:10px; max-width:500px; }
 
-/* Footer fixo no final */
+/* Sidebar */
+.sidebar {
+  position:fixed;
+  top:0;
+  right:-300px;
+  width:300px;
+  height:100%;
+  background:#fff;
+  box-shadow:-3px 0 6px rgba(0,0,0,.2);
+  padding:20px;
+  transition:right .3s;
+  z-index:15;
+  overflow-y:auto;
+}
+
+/* Footer fixo */
 footer {
   background:#1f4fd8;
   color:#fff;
@@ -122,6 +141,7 @@ footer {
   table td:nth-child(4)::before { content:"IPT"; }
   table td:nth-child(5)::before { content:"Dias no Status"; }
   .modal-content { width:90%; }
+  .sidebar { width:80%; }
 }
 </style>
 </head>
@@ -129,20 +149,16 @@ footer {
 <body>
 
 <header>
+  <button id="voltar" onclick="history.back()">← Voltar</button>
   <h2>Painel Gerencial – CheckInfra</h2>
-  <button onclick="abrirSidebar()">☰ Menu</button>
+  <button id="menu" onclick="abrirSidebar()">☰</button>
 </header>
 
-<div id="sidebar">
-  <button onclick="fecharSidebar()">Fechar ✖</button>
-  <hr>
-  <a href="./painel/metodo.html" target="_blank">Metodologia</a><br>
-  <a href="./pages/sobre.html" target="_blank">Sobre</a><br>
-  <a href="./pages/contato.html" target="_blank">Contato</a><br>
-  <a href="./pages/politica-privacidade.html" target="_blank">Política de Privacidade</a><br>
-  <a href="./pages/termos-de-uso.html" target="_blank">Termos de Uso</a><br>
+<div class="sidebar" id="sidebar">
+  <h3>Metodologia</h3>
+  <iframe src="metodo.html" style="width:100%;height:500px;border:none;"></iframe>
+  <button onclick="fecharSidebar()">Fechar</button>
 </div>
-<div id="overlay" onclick="fecharSidebar()"></div>
 
 <div class="card">
   <h2>Painel Gerencial – CheckInfra</h2>
@@ -225,27 +241,38 @@ footer {
   </div>
 </div>
 
+<footer>
+  <div style="max-width:600px; margin:0 auto;">
+    <p style="margin:0 0 6px;">© 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License</p>
+    <p style="margin:0 0 6px;">
+      <a href="../pages/sobre.html" style="color:#fff; text-decoration:underline;">Sobre</a> | 
+      <a href="../pages/contato.html" style="color:#fff; text-decoration:underline;">Contato</a> | 
+      <a href="../pages/politica-privacidade.html" style="color:#fff; text-decoration:underline;">Política de Privacidade</a> | 
+      <a href="../pages/termos-de-uso.html" style="color:#fff; text-decoration:underline;">Termos de Uso</a>
+    </p>
+    <p style="margin:0 0 6px;">
+      <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">
+        <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" style="max-width:80px; width:35%;">
+      </a>
+    </p>
+  </div>
+</footer>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
   projectId: "checkinfra-adf3c"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.abrirSidebar = function() { 
-  document.getElementById("sidebar").classList.add("active"); 
-  document.getElementById("overlay").style.display="block"; 
-}
-window.fecharSidebar = function() { 
-  document.getElementById("sidebar").classList.remove("active"); 
-  document.getElementById("overlay").style.display="none"; 
-}
+let rankingGlobal = [];
+let rankingHistorico = [];
 
 const tabelaRanking = document.getElementById("tabelaRanking");
 const tabelaHistorico = document.getElementById("tabelaHistorico");
@@ -253,9 +280,6 @@ const kpiCritica = document.getElementById("kpiCritica");
 const kpiAtencao = document.getElementById("kpiAtencao");
 const kpiMedio = document.getElementById("kpiMedio");
 const kpiProblemas = document.getElementById("kpiProblemas");
-
-let rankingGlobal = [];
-let rankingHistoricoData = [];
 
 async function carregarAvaliacoes(){
   try{
@@ -271,21 +295,20 @@ async function carregarAvaliacoes(){
       }
     });
     montar(dados);
-  }catch(err){
+  } catch(err){
     console.error("❌ Erro ao carregar dados do Firebase:", err);
   }
 }
 
-// Função montar
 function montar(dados){
   rankingGlobal = [];
-  rankingHistoricoData = [];
+  rankingHistorico = [];
   tabelaRanking.innerHTML = "";
   tabelaHistorico.innerHTML = "";
 
   const statusCount={adequada:0,alerta:0,atencao:0,critica:0};
   const problemasCount={};
-  const escolasMap = {}; 
+  const escolasMap = {};
 
   let somaIPT=0, critica=0, atencao=0;
 
@@ -317,7 +340,7 @@ function montar(dados){
       data:d.data_avaliacao
     };
 
-    rankingHistoricoData.push(registro);
+    rankingHistorico.push(registro);
 
     if(!escolasMap[registro.escola] || new Date(registro.data) > new Date(escolasMap[registro.escola].data)){
       escolasMap[registro.escola] = registro;
@@ -326,13 +349,11 @@ function montar(dados){
 
   rankingGlobal = Object.values(escolasMap);
 
-  // KPIs
   kpiCritica.innerText = critica;
   kpiAtencao.innerText = atencao;
   kpiMedio.innerText = (somaIPT/dados.length).toFixed(2);
   kpiProblemas.innerText = Object.keys(problemasCount).length;
 
-  // tabela ranking
   rankingGlobal.sort((a,b)=>b.IPT-a.IPT);
   rankingGlobal.forEach((r,i)=>{
     tabelaRanking.innerHTML += `
@@ -345,8 +366,8 @@ function montar(dados){
       </tr>`;
   });
 
-  rankingHistoricoData.sort((a,b)=>new Date(b.data)-new Date(a.data));
-  rankingHistoricoData.forEach((r,i)=>{
+  rankingHistorico.sort((a,b)=>new Date(b.data)-new Date(a.data));
+  rankingHistorico.forEach((r,i)=>{
     tabelaHistorico.innerHTML += `
       <tr>
         <td>${i+1}</td>
@@ -357,6 +378,7 @@ function montar(dados){
       </tr>`;
   });
 
+  // gráficos
   new Chart(document.getElementById("graficoStatus"),{
     type:"pie",
     data:{
@@ -381,7 +403,7 @@ function montar(dados){
   });
 }
 
-// export XLSX
+// export
 window.exportarXLSX = function() {
   if(rankingGlobal.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
   const exportData = rankingGlobal.map(r => ({
@@ -397,8 +419,8 @@ window.exportarXLSX = function() {
 };
 
 window.exportarHistorico = function(){
-  if(rankingHistoricoData.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
-  const exportData = rankingHistoricoData.map(r => ({
+  if(rankingHistorico.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
+  const exportData = rankingHistorico.map(r => ({
     Escola:r.escola,
     Status:r.statusLabel,
     IPT:r.IPT.toFixed(2),
@@ -413,33 +435,18 @@ window.exportarHistorico = function(){
 function abrirModal(){ modalIPT.style.display="flex"; }
 function fecharModal(){ modalIPT.style.display="none"; }
 
+function abrirSidebar(){ document.getElementById("sidebar").style.right="0"; }
+function fecharSidebar(){ document.getElementById("sidebar").style.right="-300px"; }
+
 function mostrarAba(aba){
   document.getElementById("aba-ranking").style.display = "none";
   document.getElementById("aba-historico").style.display = "none";
-  document.getElementById("aba-"+aba).style.display = "block";
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("aba-"+aba).style.display = "block";
   document.querySelector(`.tab[onclick="mostrarAba('${aba}')"]`).classList.add("active");
 }
 
 carregarAvaliacoes();
 </script>
-
-<footer>
-  <div style="max-width:600px; margin:0 auto;">
-    <p style="margin:0 0 6px;">© 2025 CheckInfra — Projeto acadêmico e tecnológico — Código licenciado sob MIT License</p>
-    <p style="margin:0 0 6px;">
-      <a href="./pages/sobre.html" style="color:#fff; text-decoration:underline;">Sobre</a> | 
-      <a href="./pages/contato.html" style="color:#fff; text-decoration:underline;">Contato</a> | 
-      <a href="./pages/politica-privacidade.html" style="color:#fff; text-decoration:underline;">Política de Privacidade</a> | 
-      <a href="./pages/termos-de-uso.html" style="color:#fff; text-decoration:underline;">Termos de Uso</a>
-    </p>
-    <p style="margin:0 0 6px;">
-      <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">
-        <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" style="max-width:80px; width:35%;">
-      </a>
-    </p>
-  </div>
-</footer>
-
 </body>
 </html>

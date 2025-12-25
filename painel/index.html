@@ -6,69 +6,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#1f4fd8">
 
+<!-- Chart.js via script normal -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background:#f4f6f8;
-  margin:0;
-  display:flex;
-  flex-direction:column;
-  min-height:100vh;
-}
-
-/* Cards */
-.card {
-  background:#fff;
-  max-width:1100px;
-  margin:20px auto;
-  padding:20px;
-  border-radius:10px;
-}
-
-/* Grid e KPI */
+/* --- Manter todos os estilos existentes --- */
+body { font-family: Arial; background:#f4f6f8; margin:0; display:flex; flex-direction:column; min-height:100vh; }
+.card { background:#fff; max-width:1100px; margin:20px auto; padding:20px; border-radius:10px; }
 .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:16px; }
 .kpi { background:#f9fafb; border-radius:10px; padding:16px; text-align:center; }
 .kpi h4 { margin:0; font-size:14px; color:#555; }
 .kpi strong { font-size:30px; display:block; margin-top:6px; }
-
 .info { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:#1f4fd8; color:#fff; font-size:12px; cursor:pointer; margin-left:6px; }
-
 .badge { padding:4px 8px; border-radius:12px; color:#fff; font-size:12px; }
 .adequada { background:#4caf50; }
 .alerta { background:yellow; color:#000; }
 .atencao { background:#ff7043; }
 .critica { background:#f44336; }
-
 table { width:100%; border-collapse: collapse; font-size:14px; }
 th, td { padding:8px; border-bottom:1px solid #eee; }
 th { background:#f4f6f8; text-align:left; }
-
 button { padding:10px 14px; background:#1f4fd8; color:#fff; border:none; border-radius:6px; cursor:pointer; margin-right:8px; }
-
 .tabs { display:flex; gap:10px; margin-bottom:12px; flex-wrap: wrap; }
 .tab { padding:8px 16px; background:#e0e0e0; border-radius:6px; cursor:pointer; }
 .tab.active { background:#1f4fd8; color:#fff; }
-
-/* Modal */
 .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); align-items:center; justify-content:center; }
 .modal-content { background:#fff; padding:20px; border-radius:10px; max-width:500px; }
-
-/* Footer fixo no final */
-footer {
-  background:#1f4fd8;
-  color:#fff;
-  text-align:center;
-  padding:16px 10px;
-  font-size:12px;
-  line-height:1.4;
-  box-sizing:border-box;
-  width:100vw;
-  position:relative;
-  left:0;
-}
-
-/* Mobile */
+footer { background:#1f4fd8; color:#fff; text-align:center; padding:16px 10px; font-size:12px; line-height:1.4; box-sizing:border-box; width:100vw; position:relative; left:0; }
 @media (max-width: 600px){
   .grid { grid-template-columns:1fr; }
   .kpi strong { font-size:28px; }
@@ -174,24 +139,15 @@ footer {
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { Chart, registerables } from "https://cdn.jsdelivr.net/npm/chart.js";
-
-Chart.register(...registerables);
-
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
   projectId: "checkinfra-adf3c"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-let rankingGlobal = [];
-let rankingHistorico = [];
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 const tabelaRanking = document.getElementById("tabelaRanking");
 const tabelaHistorico = document.getElementById("tabelaHistorico");
@@ -200,36 +156,13 @@ const kpiAtencao = document.getElementById("kpiAtencao");
 const kpiMedio = document.getElementById("kpiMedio");
 const kpiProblemas = document.getElementById("kpiProblemas");
 
-async function carregarAvaliacoes(){
-  try{
-    const snapshot = await getDocs(collection(db,"avaliacoes"));
-    const dados = [];
-    snapshot.forEach(doc=>{
-      const d = doc.data();
-      if(d.status){
-        if(d.createdAt instanceof Timestamp){
-          d.data_avaliacao = d.createdAt.toDate().toISOString().split("T")[0];
-        } else d.data_avaliacao = new Date().toISOString().split("T")[0];
-        dados.push(d);
-      }
-    });
-    montar(dados);
-  }catch(err){
-    console.error("❌ Erro ao carregar dados do Firebase:", err);
-  }
-}
-
 function montar(dados){
-  rankingGlobal = [];
-  rankingHistorico = [];
-  tabelaRanking.innerHTML = "";
-  tabelaHistorico.innerHTML = "";
-
+  let rankingGlobal=[], rankingHistorico=[], somaIPT=0, critica=0, atencao=0;
   const statusCount={adequada:0,alerta:0,atencao:0,critica:0};
-  const problemasCount={};
-  const escolasMap = {};
+  const problemasCount={}, escolasMap={};
 
-  let somaIPT=0, critica=0, atencao=0;
+  tabelaRanking.innerHTML="";
+  tabelaHistorico.innerHTML="";
 
   dados.forEach(d=>{
     let peso=1, classe="adequada";
@@ -256,7 +189,7 @@ function montar(dados){
       statusLabel:classe==="critica"?"Crítica":classe==="atencao"?"Atenção Elevada":classe==="alerta"?"Alerta":"Adequada",
       IPT,
       diasNoStatus:d.dias_criticos||0,
-      data:d.data_avaliacao
+      data:d.createdAt?.toDate?.()?.toISOString().split("T")[0] || new Date().toISOString().split("T")[0]
     };
 
     rankingHistorico.push(registro);
@@ -268,13 +201,11 @@ function montar(dados){
 
   rankingGlobal = Object.values(escolasMap);
 
-  // KPIs
   kpiCritica.innerText = critica;
   kpiAtencao.innerText = atencao;
   kpiMedio.innerText = (somaIPT/dados.length).toFixed(2);
   kpiProblemas.innerText = Object.keys(problemasCount).length;
 
-  // Tabelas
   rankingGlobal.sort((a,b)=>b.IPT-a.IPT);
   rankingGlobal.forEach((r,i)=>{
     tabelaRanking.innerHTML += `
@@ -299,7 +230,6 @@ function montar(dados){
       </tr>`;
   });
 
-  // Gráficos
   new Chart(document.getElementById("graficoStatus"),{
     type:"pie",
     data:{
@@ -324,44 +254,27 @@ function montar(dados){
   });
 }
 
-// export ranking
-window.exportarXLSX = function() {
-  if(rankingGlobal.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
-  const exportData = rankingGlobal.map(r => ({
-    Escola:r.escola,
-    Status:r.statusLabel,
-    IPT:r.IPT.toFixed(2),
-    DiasNoStatus:r.diasNoStatus
-  }));
-  const ws = XLSX.utils.json_to_sheet(exportData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Ranking IPT");
-  XLSX.writeFile(wb, "ranking_checkinfra.xlsx");
-};
+async function carregarAvaliacoes(){
+  try{
+    const snapshot = await db.collection("avaliacoes").get();
+    const dados = snapshot.docs.map(doc=>{
+      const d = doc.data();
+      return d;
+    });
+    console.log("✅ Dados carregados do Firebase:", dados);
+    montar(dados);
+  }catch(err){
+    console.error("❌ Erro ao carregar dados do Firebase:", err);
+  }
+}
 
-// export histórico
-window.exportarHistorico = function(){
-  if(rankingHistorico.length === 0){ alert("Nenhum dado disponível para exportação."); return; }
-  const exportData = rankingHistorico.map(r => ({
-    Escola:r.escola,
-    Status:r.statusLabel,
-    IPT:r.IPT.toFixed(2),
-    Data:r.data
-  }));
-  const ws = XLSX.utils.json_to_sheet(exportData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Historico Completo");
-  XLSX.writeFile(wb, "historico_checkinfra.xlsx");
-};
-
-function abrirModal(){ modalIPT.style.display="flex"; }
-function fecharModal(){ modalIPT.style.display="none"; }
-
+function abrirModal(){ document.getElementById("modalIPT").style.display="flex"; }
+function fecharModal(){ document.getElementById("modalIPT").style.display="none"; }
 function mostrarAba(aba){
-  document.getElementById("aba-ranking").style.display = "none";
-  document.getElementById("aba-historico").style.display = "none";
-  document.getElementById("aba-metodologia").style.display = "none";
-  document.getElementById("aba-"+aba).style.display = "block";
+  document.getElementById("aba-ranking").style.display="none";
+  document.getElementById("aba-historico").style.display="none";
+  document.getElementById("aba-metodologia").style.display="none";
+  document.getElementById("aba-"+aba).style.display="block";
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.querySelector(`.tab[onclick="mostrarAba('${aba}')"]`).classList.add("active");
 }

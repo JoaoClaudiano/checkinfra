@@ -5,57 +5,33 @@
 <title>GS – Gravidade Sanitária | CheckInfra</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1f4fd8">
-
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-html, body { margin:0; padding:0; width:100%; overflow-x:hidden; font-family: Arial; background:#f4f6f8; min-height:100vh; display:flex; flex-direction:column; }
-header { background:#1f4fd8; color:#fff; display:flex; align-items:center; justify-content:center; padding:14px 20px; position:relative; width:100%; box-sizing:border-box; }
-header h1 { margin:0; font-size:20px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+html, body { margin:0; padding:0; font-family: Arial; background:#f4f6f8; text-align:justify; }
+header { background:#1f4fd8; color:#fff; display:flex; align-items:center; justify-content:center; padding:14px 20px; position:relative; }
+header h1 { margin:0; font-size:20px; text-align:center; }
 header button { position:absolute; top:50%; transform:translateY(-50%); background:#fff; color:#1f4fd8; border:none; border-radius:6px; padding:6px 12px; cursor:pointer; }
 header button.voltar { left:10px; }
 header button.menu { right:10px; }
-
-.sidebar { width:240px; background:#1f4fd8; color:#fff; padding:20px; position:fixed; right:-240px; top:0; bottom:0; overflow-y:auto; transition: right 0.3s ease; z-index:1000; box-sizing:border-box; }
-.sidebar.open { right:0; }
-.sidebar h3 { margin-top:0; font-size:18px; display:flex; justify-content:flex-end; align-items:center; }
-.sidebar h3 span { cursor:pointer; font-weight:bold; font-size:20px; }
-.sidebar a { display:block; color:#fff; text-decoration:none; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.2); }
-
-.main { margin:20px auto; padding:0 20px; max-width:1000px; flex:1; box-sizing:border-box; text-align:justify; }
-
-.card { background:#fff; margin:20px 0; padding:20px; border-radius:10px; box-sizing:border-box; }
+.main { margin:20px auto; padding:0 20px; max-width:1000px; }
+.card { background:#fff; margin:20px 0; padding:20px; border-radius:10px; }
 h2,h3{color:#1f4fd8;}
 p,li{line-height:1.6;font-size:14px;}
 ul{padding-left:20px;}
 .badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;color:#fff;}
-.critica{background:#f44336;}
-.atencao{background:#ff7043;}
-.alerta{background:#fbc02d;color:#000;}
-.adequada{background:#4caf50;}
-
-table { width:100%; border-collapse: collapse; margin-top:10px; }
-th, td { border:1px solid #ddd; padding:8px; text-align:center; font-size:14px; }
-th { background:#f4f6f8; }
-
-footer {
-  background:#1f4fd8;
-  color:#fff;
-  text-align:center;
-  padding:16px 10px;
-  font-size:12px;
-  line-height:1.4;
-  box-sizing:border-box;
-  width:100%;
-}
+.critica{background:#f44336}
+.atencao{background:#ff7043}
+.alerta{background:#fbc02d;color:#000}
+.adequada{background:#4caf50}
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+table, th, td { border: 1px solid #ccc; }
+th, td { padding: 6px; text-align: center; }
+th { background: #1f4fd8; color: #fff; }
+.chart-container { width: 100%; max-width: 400px; margin: 10px auto; }
+footer { background:#1f4fd8; color:#fff; text-align:center; padding:16px 10px; font-size:12px; line-height:1.4; width:100%; }
 footer div { max-width:600px; margin:0 auto; }
-footer a { color:#fff; text-decoration:underline; }
-
-canvas { max-width:100%; height:auto; margin-top:10px; }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -64,70 +40,76 @@ canvas { max-width:100%; height:auto; margin-top:10px; }
   <button class="menu" onclick="toggleSidebar()">☰</button>
 </header>
 
-<div class="sidebar" id="sidebar">
-  <h3><span onclick="toggleSidebar()">×</span></h3>
-  <a href="gs.html">GS – Gravidade Sanitária</a>
-  <a href="it.html">IT – Intensidade Técnica</a>
-  <a href="rt.html">RT – Recorrência Temporal</a>
-  <a href="metodo.html">Metodologia</a>
-</div>
-
 <div class="main">
 
-  <div class="card">
-    <h2>Gravidade Sanitária (GS)</h2>
-    <p>
-      O componente <strong>GS</strong> mede a severidade das condições sanitárias das escolas. Ele permite priorizar
-      aquelas que representam risco à saúde e segurança dos alunos. As escolas são classificadas em quatro faixas:
-    </p>
-    <ul>
-      <li><span class="badge adequada">Adequada (GS = 1)</span> — Infraestrutura atende a padrões mínimos. Nenhum risco significativo detectado.</li>
-      <li><span class="badge alerta">Alerta (GS = 2)</span> — Pequenas não conformidades. Monitoramento recomendado.</li>
-      <li><span class="badge atencao">Atenção (GS = 3)</span> — Problemas significativos que afetam saúde ou uso. Intervenção planejada necessária.</li>
-      <li><span class="badge critica">Crítica (GS = 4)</span> — Problemas graves, risco imediato. Prioridade máxima para intervenção.</li>
-    </ul>
-    <p>
-      Avaliar as escolas com o GS ajuda a identificar rapidamente onde há riscos sanitários mais elevados e
-      permite orientar gestores sobre intervenções urgentes.
-    </p>
-  </div>
+<div class="card">
+  <h2>Gravidade Sanitária (GS)</h2>
+  <p>
+    O componente <strong>GS</strong> mede a severidade dos problemas sanitários
+    identificados nas escolas pelo CheckInfra. Ele reflete o impacto potencial
+    sobre a saúde e segurança dos alunos e indica a urgência de ação corretiva.
+  </p>
+</div>
 
-  <div class="card">
-    <h3>Exemplo Prático</h3>
-    <ul>
-      <li>Escola A: Adequada → GS = 1</li>
-      <li>Escola B: Atenção → GS = 3</li>
-      <li>Escola C: Crítica → GS = 4</li>
-    </ul>
-    <p>
-      Na fórmula do IPT: <strong>IPT = (GS × 0,4) + (IT × 0,4) + (RT × 0,2)</strong>, 
-      o GS reflete o impacto imediato de problemas sanitários graves.
-    </p>
-  </div>
+<div class="card">
+  <h3>Faixas de GS e Significado</h3>
+  <ul>
+    <li><span class="badge adequada">Adequada</span> → GS = 1: Estrutura atende aos padrões mínimos de higiene e segurança.</li>
+    <li><span class="badge alerta">Alerta</span> → GS = 2: Pequenas não conformidades que exigem atenção futura.</li>
+    <li><span class="badge atencao">Atenção</span> → GS = 3: Problemas significativos, risco médio à saúde ou ao uso da infraestrutura.</li>
+    <li><span class="badge critica">Crítica</span> → GS = 4: Problemas graves, risco imediato à saúde ou segurança.</li>
+  </ul>
 
-  <div class="card">
-    <h3>Distribuição das Escolas por Faixa (Gráfico)</h3>
+  <table>
+    <tr>
+      <th>GS</th><th>Descrição</th><th>Impacto no IPT</th>
+    </tr>
+    <tr><td>1</td><td>Adequada</td><td>Baixo</td></tr>
+    <tr><td>2</td><td>Alerta</td><td>Médio-baixo</td></tr>
+    <tr><td>3</td><td>Atenção</td><td>Médio-alto</td></tr>
+    <tr><td>4</td><td>Crítica</td><td>Alto</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Exemplo Prático</h3>
+  <p>
+    Uma escola com torneiras vazando e vasos sanitários quebrados pode receber GS = 3 (Atenção),
+    aumentando o IPT e sinalizando necessidade de intervenção rápida.
+  </p>
+</div>
+
+<div class="card">
+  <h3>Distribuição de GS</h3>
+  <div class="chart-container">
     <canvas id="graficoGS"></canvas>
   </div>
+  <script>
+    const ctxGS = document.getElementById('graficoGS').getContext('2d');
+    new Chart(ctxGS, {
+      type: 'bar',
+      data: {
+        labels: ['Adequada','Alerta','Atenção','Crítica'],
+        datasets:[{
+          label:'Número de escolas',
+          data:[20,15,8,3],
+          backgroundColor:['#4caf50','#fbc02d','#ff7043','#f44336']
+        }]
+      },
+      options:{plugins:{legend:{display:false}},indexAxis:'y'}
+    });
+  </script>
+</div>
 
-  <div class="card">
-    <h3>Mini Tabela Comparativa</h3>
-    <table>
-      <tr><th>Escola</th><th>GS</th><th>Status</th></tr>
-      <tr><td>Escola A</td><td>1</td><td><span class="badge adequada">Adequada</span></td></tr>
-      <tr><td>Escola B</td><td>3</td><td><span class="badge atencao">Atenção</span></td></tr>
-      <tr><td>Escola C</td><td>4</td><td><span class="badge critica">Crítica</span></td></tr>
-    </table>
-  </div>
+<div class="card">
+  <h3>Referências</h3>
+  <ul>
+    <li>ABNT NBR 9050: Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos (2020)[1]</li>
+    <li>WHO – Water, Sanitation and Hygiene in Schools (2018)[2]</li>
+    <li>Saaty, T. L. Decision Making with the Analytic Hierarchy Process (2008)[3]</li>
+  </ul>
+</div>
 
-  <div class="card">
-    <h3>Referências</h3>
-    <ul>
-      <li>[1] ABNT NBR 9050: Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos. 2020.</li>
-      <li>[2] WHO – Water, Sanitation and Hygiene in Schools. 2018.</li>
-      <li>[3] Saaty, T. L. Avaliação multicritério de ativos públicos. 2008.</li>
-    </ul>
-  </div>
 </div>
 
 <footer>
@@ -135,24 +117,7 @@ canvas { max-width:100%; height:auto; margin-top:10px; }
 </footer>
 
 <script>
-function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
-}
-
-// Gráfico GS
-const ctxGS = document.getElementById('graficoGS').getContext('2d');
-new Chart(ctxGS, {
-  type: 'pie',
-  data: {
-    labels: ['Adequada', 'Alerta', 'Atenção', 'Crítica'],
-    datasets: [{
-      label: 'Número de Escolas',
-      data: [12, 5, 7, 3], // Exemplo de distribuição
-      backgroundColor: ['#4caf50','#fbc02d','#ff7043','#f44336']
-    }]
-  },
-  options: { plugins: { legend: { position: 'bottom' } } }
-});
+function toggleSidebar(){alert("Sidebar ainda não implementada nesta página.");}
 </script>
 
 </body>

@@ -24,11 +24,7 @@ header {
   z-index:1000;
 }
 
-header .voltar {
-  cursor:pointer;
-  font-size:18px;
-  user-select:none;
-}
+header .voltar { cursor:pointer; font-size:18px; user-select:none; }
 
 footer {
   background:#f4f6f8;
@@ -71,14 +67,10 @@ footer {
 .laranja { background:#FF9800; }
 .vermelho { background:#F44336; }
 
-#map {
-  height: calc(100vh - 160px);
-}
+#map { height: calc(100vh - 160px); }
 
 /* Pulso */
-.pulse {
-  animation:pulse 2.4s ease-out infinite;
-}
+.pulse { animation:pulse 2.4s ease-out infinite; }
 
 @keyframes pulse {
   0% { r:8; opacity:.8; }
@@ -114,7 +106,6 @@ footer {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Configuração Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
@@ -124,7 +115,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Mapa
 const map = L.map("map").setView([-3.7319,-38.5267],12);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{ attribution:"© OpenStreetMap"}).addTo(map);
 
@@ -132,7 +122,6 @@ let avaliacoes = [];
 let camadaPontos = L.layerGroup().addTo(map);
 let camadaBairros = L.geoJSON(null);
 
-// Status -> cores
 const statusCores = {
   "adequado":"#4CAF50",
   "alerta":"#FFD700",
@@ -141,7 +130,6 @@ const statusCores = {
   "crítico":"#F44336"
 };
 
-// Status -> bolinhas emoji
 const bola = {
   adequado: "🟢",
   alerta: "🟡",
@@ -149,32 +137,37 @@ const bola = {
   crítico: "🔴"
 };
 
-// Normaliza status
-function normalizaStatus(s){
-  if(!s) return "";
-  return s.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,"");
+// Observações automáticas
+function obsEscola(status){
+  const s = status.toLowerCase();
+  if(s.includes("crit")) return "Problema grave – intervenção imediata recomendada.";
+  if(s.includes("atenção")) return "Problema localizado, tendência de evoluir a crítico.";
+  if(s.includes("alerta")) return "Problema pontual, monitoramento recomendado.";
+  return "Situação satisfatória – manutenção do acompanhamento.";
 }
 
-// Cria marcador de escola
+function obsBairro(pCrit, pAtencao, pAlerta){
+  if(pCrit >= 0.5) return "Problema generalizado – alto risco de impacto.";
+  if(pAtencao >= 0.5) return "Problema localizado, tendência de piora.";
+  if(pAlerta >= 0.5) return "Problema pontual, monitoramento recomendado.";
+  return "Situação controlada – continuar acompanhamento rotineiro.";
+}
+
 function criarPonto(d){
   const pulso = document.getElementById("togglePulso").checked ? "pulse" : "";
-  const cor = statusCores[normalizaStatus(d.status)] || "#4CAF50"; // fallback verde
-  const dataFormatada = d.data ? new Date(d.data.seconds*1000).toLocaleDateString() : "-";
   return L.circleMarker([d.lat,d.lng],{
     radius:8,
-    color: cor,
-    fillColor: cor,
+    color:statusCores[d.status.toLowerCase()],
+    fillColor:statusCores[d.status.toLowerCase()],
     fillOpacity:.8,
     className:pulso
-  }).bindPopup(`
-    <strong>${d.escola}</strong><br>
-    Status: ${d.status}<br>
-    Pontuação: ${d.pontuacao || "-"}<br>
-    Última avaliação: ${dataFormatada}
-  `);
+  }).bindPopup(`<strong>${d.escola}</strong><br>
+                Status: ${d.status}<br>
+                Pontuação: ${d.pontuacao || "-"}<br>
+                Última avaliação: ${d.data || "-"}<br>
+                Observação: ${obsEscola(d.status)}`);
 }
 
-// Carrega avaliações do Firebase
 async function carregarAvaliacoes(){
   const snap = await getDocs(collection(db,"avaliacoes"));
   avaliacoes=[];
@@ -184,23 +177,18 @@ async function carregarAvaliacoes(){
   });
 }
 
-// Atualiza pontos no mapa
 function atualizarPontos(){
   camadaPontos.clearLayers();
   avaliacoes.forEach(d=>{
-    const s = normalizaStatus(d.status);
-    if(
-      (s==="adequado" && !fAdequado.checked) ||
-      (s==="alerta" && !fAlerta.checked) ||
-      (s==="atenção" && !fAtencao.checked) ||
-      (s==="critico" && !fCritico.checked)
-    ) return;
-
+    const s = d.status.toLowerCase();
+    if((s.includes("adequado") && !fAdequado.checked) ||
+       (s.includes("alerta") && !fAlerta.checked) ||
+       (s.includes("atenção") && !fAtencao.checked) ||
+       (s.includes("crit") && !fCritico.checked)) return;
     criarPonto(d).addTo(camadaPontos);
   });
 }
 
-// Estilo do bairro
 function estiloBairro(feature){
   const escolas = avaliacoes.filter(a =>
     feature.geometry &&
@@ -212,10 +200,10 @@ function estiloBairro(feature){
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
   escolas.forEach(e=>{
-    const s = normalizaStatus(e.status);
-    if(s==="adequado") cont.adequado++;
-    else if(s==="alerta") cont.alerta++;
-    else if(s==="atenção") cont.atenção++;
+    const s=(e.status||"").toLowerCase();
+    if(s.includes("adequado")) cont.adequado++;
+    else if(s.includes("alerta")) cont.alerta++;
+    else if(s.includes("atenção")) cont.atenção++;
     else cont.crítico++;
   });
 
@@ -224,22 +212,14 @@ function estiloBairro(feature){
   const pAtencao = cont.atenção/total;
   const pAlerta = cont.alerta/total;
 
-  let cor;
-  if(total===1){
-    // apenas uma escola → cor do bairro = cor da escola
-    cor = statusCores[normalizaStatus(escolas[0].status)] || "#4CAF50";
-  } else {
-    // múltiplas escolas → aplica regra de predominância
-    if(pCrit>=0.5) cor="#F44336";
-    else if(pCrit<0.5 && pAtencao>=0.5) cor="#FF9800";
-    else if(pCrit===0 && pAtencao<0.5 && pAlerta>=0.5) cor="#FFD700";
-    else cor="#4CAF50";
-  }
+  let cor = "#4CAF50"; // verde
+  if(pCrit >= 0.5) cor="#F44336";
+  else if(pAtencao >= 0.5) cor="#FF9800";
+  else if(pAlerta >= 0.5) cor="#FFD700";
 
   return { fillColor:cor, fillOpacity:.45, color:"#555", weight:1 };
 }
 
-// Tooltip do bairro
 function tooltipBairro(feature){
   const escolas = avaliacoes.filter(a =>
     feature.geometry &&
@@ -247,30 +227,30 @@ function tooltipBairro(feature){
       .contains([a.lat,a.lng])
   );
 
-  if(escolas.length===0) return `<strong>${feature.properties.nome}</strong><br>Sem avaliações`;
+  if(escolas.length===0) return `<strong>${feature.properties.nome}</strong><br>Sem dados – avaliação necessária.`;
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
   escolas.forEach(e=>{
-    const s = normalizaStatus(e.status);
-    if(s==="adequado") cont.adequado++;
-    else if(s==="alerta") cont.alerta++;
-    else if(s==="atenção") cont.atenção++;
+    const s=(e.status||"").toLowerCase();
+    if(s.includes("adequado")) cont.adequado++;
+    else if(s.includes("alerta")) cont.alerta++;
+    else if(s.includes("atenção")) cont.atenção++;
     else cont.crítico++;
   });
 
   const t = escolas.length;
   const p = k => Math.round((cont[k]/t)*100);
 
-  return `
-    <strong>${feature.properties.nome}</strong><br>
-    ${bola.crítico} ${p("crítico")}% crítico (${cont.crítico})<br>
-    ${bola.atenção} ${p("atenção")}% atenção (${cont.atenção})<br>
-    ${bola.alerta} ${p("alerta")}% alerta (${cont.alerta})<br>
-    ${bola.adequado} ${p("adequado")}% adequado (${cont.adequado})
-  `;
+  const obs = obsBairro(cont.crítico/t, cont.atenção/t, cont.alerta/t);
+
+  return `<strong>${feature.properties.nome}</strong><br>
+          🔴 ${p("crítico")}% crítico (${cont.crítico})<br>
+          🟠 ${p("atenção")}% atenção (${cont.atenção})<br>
+          🟡 ${p("alerta")}% alerta (${cont.alerta})<br>
+          🟢 ${p("adequado")}% adequado (${cont.adequado})<br>
+          Observação: ${obs}`;
 }
 
-// Carrega bairros
 async function carregarBairros(){
   const res = await fetch("./POLIGONAIS.geojson");
   const geo = await res.json();
@@ -281,17 +261,12 @@ async function carregarBairros(){
   });
 }
 
-// Eventos de checkbox
 document.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{
   atualizarPontos();
-  if(toggleBairros.checked){
-    camadaBairros.addTo(map);
-  } else {
-    map.removeLayer(camadaBairros);
-  }
+  if(toggleBairros.checked) camadaBairros.addTo(map);
+  else map.removeLayer(camadaBairros);
 }));
 
-// Inicializa
 await carregarAvaliacoes();
 await carregarBairros();
 atualizarPontos();

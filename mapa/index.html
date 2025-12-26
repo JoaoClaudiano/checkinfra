@@ -24,7 +24,11 @@ header {
   z-index:1000;
 }
 
-header .voltar { cursor:pointer; font-size:18px; user-select:none; }
+header .voltar {
+  cursor:pointer;
+  font-size:18px;
+  user-select:none;
+}
 
 footer {
   background:#f4f6f8;
@@ -67,10 +71,14 @@ footer {
 .laranja { background:#FF9800; }
 .vermelho { background:#F44336; }
 
-#map { height: calc(100vh - 160px); }
+#map {
+  height: calc(100vh - 160px);
+}
 
 /* Pulso */
-.pulse { animation:pulse 2.4s ease-out infinite; }
+.pulse {
+  animation:pulse 2.4s ease-out infinite;
+}
 
 @keyframes pulse {
   0% { r:8; opacity:.8; }
@@ -137,8 +145,7 @@ const bola = {
   crítico: "🔴"
 };
 
-// Observações automáticas
-function obsEscola(status){
+function observacaoEscola(status) {
   const s = status.toLowerCase();
   if(s.includes("crit")) return "Problema grave – intervenção imediata recomendada.";
   if(s.includes("atenção")) return "Problema localizado, tendência de evoluir a crítico.";
@@ -146,26 +153,21 @@ function obsEscola(status){
   return "Situação satisfatória – manutenção do acompanhamento.";
 }
 
-function obsBairro(pCrit, pAtencao, pAlerta){
-  if(pCrit >= 0.5) return "Problema generalizado – alto risco de impacto.";
-  if(pAtencao >= 0.5) return "Problema localizado, tendência de piora.";
-  if(pAlerta >= 0.5) return "Problema pontual, monitoramento recomendado.";
-  return "Situação controlada – continuar acompanhamento rotineiro.";
-}
-
 function criarPonto(d){
   const pulso = document.getElementById("togglePulso").checked ? "pulse" : "";
   return L.circleMarker([d.lat,d.lng],{
     radius:8,
-    color:statusCores[d.status.toLowerCase()],
-    fillColor:statusCores[d.status.toLowerCase()],
-    fillOpacity:.8,
+    color:"#000",
+    fillColor:"#000",
+    fillOpacity:0.8,
     className:pulso
-  }).bindPopup(`<strong>${d.escola}</strong><br>
-                Status: ${d.status}<br>
-                Pontuação: ${d.pontuacao || "-"}<br>
-                Última avaliação: ${d.data || "-"}<br>
-                Observação: ${obsEscola(d.status)}`);
+  }).bindPopup(`
+    <strong>${d.escola}</strong><br>
+    Status: ${d.status}<br>
+    Pontuação: ${d.pontuacao || "-"}<br>
+    Última avaliação: ${d.data || "-"}<br>
+    Observação: ${observacaoEscola(d.status)}
+  `);
 }
 
 async function carregarAvaliacoes(){
@@ -179,14 +181,29 @@ async function carregarAvaliacoes(){
 
 function atualizarPontos(){
   camadaPontos.clearLayers();
+
   avaliacoes.forEach(d=>{
     const s = d.status.toLowerCase();
-    if((s.includes("adequado") && !fAdequado.checked) ||
-       (s.includes("alerta") && !fAlerta.checked) ||
-       (s.includes("atenção") && !fAtencao.checked) ||
-       (s.includes("crit") && !fCritico.checked)) return;
+    if(
+      (s.includes("adequado") && !fAdequado.checked) ||
+      (s.includes("alerta") && !fAlerta.checked) ||
+      (s.includes("atenção") && !fAtencao.checked) ||
+      (s.includes("crit") && !fCritico.checked)
+    ) return;
+
     criarPonto(d).addTo(camadaPontos);
   });
+}
+
+function observacaoBairro(cont, total) {
+  const pCrit = cont.crítico/total;
+  const pAtencao = cont.atenção/total;
+  const pAlerta = cont.alerta/total;
+
+  if(pCrit>=0.5) return "Problema generalizado – alto risco de impacto.";
+  if(pCrit<0.5 && pAtencao>=0.5) return "Problema localizado, tendência de piora.";
+  if(pCrit===0 && pAtencao<0.5 && pAlerta>=0.5) return "Problema pontual, monitoramento recomendado.";
+  return "Situação controlada – continuar acompanhamento rotineiro.";
 }
 
 function estiloBairro(feature){
@@ -214,8 +231,8 @@ function estiloBairro(feature){
 
   let cor = "#4CAF50"; // verde
   if(pCrit >= 0.5) cor="#F44336";
-  else if(pAtencao >= 0.5) cor="#FF9800";
-  else if(pAlerta >= 0.5) cor="#FFD700";
+  else if(pCrit < 0.5 && pAtencao >= 0.5) cor="#FF9800";
+  else if(pCrit === 0 && pAtencao < 0.5 && pAlerta >= 0.5) cor="#FFD700";
 
   return { fillColor:cor, fillOpacity:.45, color:"#555", weight:1 };
 }
@@ -227,7 +244,7 @@ function tooltipBairro(feature){
       .contains([a.lat,a.lng])
   );
 
-  if(escolas.length===0) return `<strong>${feature.properties.nome}</strong><br>Sem dados – avaliação necessária.`;
+  if(escolas.length===0) return `<strong>${feature.properties.nome}</strong><br>Sem avaliações`;
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
   escolas.forEach(e=>{
@@ -241,14 +258,14 @@ function tooltipBairro(feature){
   const t = escolas.length;
   const p = k => Math.round((cont[k]/t)*100);
 
-  const obs = obsBairro(cont.crítico/t, cont.atenção/t, cont.alerta/t);
-
-  return `<strong>${feature.properties.nome}</strong><br>
-          🔴 ${p("crítico")}% crítico (${cont.crítico})<br>
-          🟠 ${p("atenção")}% atenção (${cont.atenção})<br>
-          🟡 ${p("alerta")}% alerta (${cont.alerta})<br>
-          🟢 ${p("adequado")}% adequado (${cont.adequado})<br>
-          Observação: ${obs}`;
+  return `
+    <strong>${feature.properties.nome}</strong><br>
+    ${bola.crítico} ${p("crítico")}% crítico (${cont.crítico})<br>
+    ${bola.atenção} ${p("atenção")}% atenção (${cont.atenção})<br>
+    ${bola.alerta} ${p("alerta")}% alerta (${cont.alerta})<br>
+    ${bola.adequado} ${p("adequado")}% adequado (${cont.adequado})<br>
+    Observação: ${observacaoBairro(cont,t)}
+  `;
 }
 
 async function carregarBairros(){
@@ -263,8 +280,11 @@ async function carregarBairros(){
 
 document.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{
   atualizarPontos();
-  if(toggleBairros.checked) camadaBairros.addTo(map);
-  else map.removeLayer(camadaBairros);
+  if(toggleBairros.checked){
+    camadaBairros.addTo(map);
+  } else {
+    map.removeLayer(camadaBairros);
+  }
 }));
 
 await carregarAvaliacoes();

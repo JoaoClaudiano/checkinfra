@@ -145,28 +145,28 @@ const bola = {
   crítico: "🔴"
 };
 
-function observacaoEscola(status) {
-  const s = status.toLowerCase();
-  if(s.includes("crit")) return "Problema grave – intervenção imediata recomendada.";
-  if(s.includes("atenção")) return "Problema localizado, tendência de evoluir a crítico.";
-  if(s.includes("alerta")) return "Problema pontual, monitoramento recomendado.";
-  return "Situação satisfatória – manutenção do acompanhamento.";
-}
-
 function criarPonto(d){
   const pulso = document.getElementById("togglePulso").checked ? "pulse" : "";
+
+  const status = (d.status||"").toLowerCase();
+  let observacao = "";
+  if(status.includes("crit")) observacao = "🔴 Problema grave – intervenção imediata recomendada.";
+  else if(status.includes("atenção")) observacao = "🟠 Problema localizado, tendência de evoluir a crítico.";
+  else if(status.includes("alerta")) observacao = "🟡 Problema pontual, monitoramento recomendado.";
+  else if(status.includes("adequado")) observacao = "🟢 Situação satisfatória – manutenção do acompanhamento.";
+
   return L.circleMarker([d.lat,d.lng],{
     radius:8,
-    color:"#000",
-    fillColor:"#000",
-    fillOpacity:0.8,
+    color:statusCores[status],
+    fillColor:statusCores[status],
+    fillOpacity:.8,
     className:pulso
   }).bindPopup(`
     <strong>${d.escola}</strong><br>
     Status: ${d.status}<br>
     Pontuação: ${d.pontuacao || "-"}<br>
     Última avaliação: ${d.data || "-"}<br>
-    Observação: ${observacaoEscola(d.status)}
+    Observação: ${observacao}
   `);
 }
 
@@ -181,7 +181,6 @@ async function carregarAvaliacoes(){
 
 function atualizarPontos(){
   camadaPontos.clearLayers();
-
   avaliacoes.forEach(d=>{
     const s = d.status.toLowerCase();
     if(
@@ -193,17 +192,6 @@ function atualizarPontos(){
 
     criarPonto(d).addTo(camadaPontos);
   });
-}
-
-function observacaoBairro(cont, total) {
-  const pCrit = cont.crítico/total;
-  const pAtencao = cont.atenção/total;
-  const pAlerta = cont.alerta/total;
-
-  if(pCrit>=0.5) return "Problema generalizado – alto risco de impacto.";
-  if(pCrit<0.5 && pAtencao>=0.5) return "Problema localizado, tendência de piora.";
-  if(pCrit===0 && pAtencao<0.5 && pAlerta>=0.5) return "Problema pontual, monitoramento recomendado.";
-  return "Situação controlada – continuar acompanhamento rotineiro.";
 }
 
 function estiloBairro(feature){
@@ -230,9 +218,9 @@ function estiloBairro(feature){
   const pAlerta = cont.alerta/total;
 
   let cor = "#4CAF50"; // verde
-  if(pCrit >= 0.5) cor="#F44336";
-  else if(pCrit < 0.5 && pAtencao >= 0.5) cor="#FF9800";
-  else if(pCrit === 0 && pAtencao < 0.5 && pAlerta >= 0.5) cor="#FFD700";
+  if(pCrit >= 0.5) cor="#F44336";          // 🔴 ≥50% crítico
+  else if(pCrit < 0.5 && pAtencao >= 0.5) cor="#FF9800"; // 🟠 atenção ≥50%
+  else if(pCrit === 0 && pAtencao < 0.5 && pAlerta >= 0.5) cor="#FFD700"; // 🟡 alerta ≥50%
 
   return { fillColor:cor, fillOpacity:.45, color:"#555", weight:1 };
 }
@@ -244,7 +232,7 @@ function tooltipBairro(feature){
       .contains([a.lat,a.lng])
   );
 
-  if(escolas.length===0) return `<strong>${feature.properties.nome}</strong><br>Sem avaliações`;
+  if(escolas.length===0) return `<strong>${feature.properties.nome}</strong><br>⚪ Sem dados – avaliação necessária.`;
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
   escolas.forEach(e=>{
@@ -258,13 +246,19 @@ function tooltipBairro(feature){
   const t = escolas.length;
   const p = k => Math.round((cont[k]/t)*100);
 
+  let observacao = "";
+  if(p("crítico")>=50) observacao = "🔴 Problema generalizado – alto risco de impacto.";
+  else if(p("atenção")>=50) observacao = "🟠 Problema localizado, tendência de piora.";
+  else if(p("alerta")>=50) observacao = "🟡 Problema pontual, monitoramento recomendado.";
+  else observacao = "🟢 Situação controlada – continuar acompanhamento rotineiro.";
+
   return `
     <strong>${feature.properties.nome}</strong><br>
     ${bola.crítico} ${p("crítico")}% crítico (${cont.crítico})<br>
     ${bola.atenção} ${p("atenção")}% atenção (${cont.atenção})<br>
     ${bola.alerta} ${p("alerta")}% alerta (${cont.alerta})<br>
     ${bola.adequado} ${p("adequado")}% adequado (${cont.adequado})<br>
-    Observação: ${observacaoBairro(cont,t)}
+    Observação: ${observacao}
   `;
 }
 

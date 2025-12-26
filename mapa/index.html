@@ -15,13 +15,13 @@ header {
   background:#1f4fd8;
   color:#fff;
   padding:14px;
-  text-align:center;
   font-weight:bold;
   position:sticky;
   top:0;
   z-index:1000;
   display:flex;
   align-items:center;
+  justify-content:center;
 }
 
 .header-back {
@@ -65,6 +65,7 @@ footer {
   width:12px;
   height:12px;
   border-radius:50%;
+  display:inline-block;
 }
 
 .verde { background:#4CAF50; }
@@ -74,6 +75,7 @@ footer {
 
 #map {
   height: calc(100vh - 160px);
+  position:relative;
 }
 
 /* Pulso */
@@ -86,6 +88,42 @@ footer {
   70% { r:18; opacity:0; }
   100% { opacity:0; }
 }
+
+/* Tooltip customizado */
+.leaflet-popup-content-wrapper {
+  font-size:13px;
+}
+.tooltip-status {
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.tooltip-status .bola {
+  width:14px;
+  height:14px;
+  border-radius:50%;
+}
+
+/* Legenda IPT */
+.info-ipt {
+  position:absolute;
+  bottom:14px;
+  right:14px;
+  background:#fff;
+  padding:10px;
+  border-radius:8px;
+  font-size:13px;
+  line-height:1.4;
+  box-shadow:0 0 6px rgba(0,0,0,0.2);
+  z-index:1000;
+}
+.info-ipt .faixa {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-bottom:4px;
+}
+.info-ipt .bola { width:14px; height:14px; }
 </style>
 </head>
 
@@ -106,6 +144,15 @@ footer {
 </div>
 
 <div id="map"></div>
+
+<!-- Legenda de IPT -->
+<div class="info-ipt">
+  <strong>Faixa IPT</strong>
+  <div class="faixa"><span class="bola verde"></span>0 – 3: Baixa criticidade</div>
+  <div class="faixa"><span class="bola laranja"></span>3 – 6: Atenção</div>
+  <div class="faixa"><span class="bola amarelo"></span>6 – 8: Alerta</div>
+  <div class="faixa"><span class="bola vermelho"></span>8 – 10: Crítica</div>
+</div>
 
 <footer>
   Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
@@ -149,8 +196,8 @@ function criarPonto(d){
     fillOpacity:.8,
     className:pulso
   }).bindPopup(`
-    <div style="display:flex; align-items:center; gap:6px;">
-      <span class="bola" style="background:${color};"></span>
+    <div class="tooltip-status">
+      <span class="bola" style="background:${color}"></span>
       <strong>${d.escola}</strong>
     </div>
     Status: ${d.status}

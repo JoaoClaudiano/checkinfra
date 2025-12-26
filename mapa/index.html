@@ -7,7 +7,6 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
 <style>
 body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
@@ -28,8 +27,9 @@ header {
 header .voltar {
   cursor:pointer;
   font-size:18px;
+  user-select:none;
   position:absolute;
-  left:10px;
+  left:14px;
 }
 
 footer {
@@ -73,8 +73,20 @@ footer {
 .laranja { background:#FF9800; }
 .vermelho { background:#F44336; }
 
-#map { height: calc(100vh - 160px); }
+#map {
+  height: calc(100vh - 160px);
+}
 
+/* Pulso */
+.pulse {
+  animation:pulse 2.4s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% { r:8; opacity:.8; }
+  70% { r:18; opacity:0; }
+  100% { opacity:0; }
+}
 </style>
 </head>
 
@@ -100,7 +112,111 @@ footer {
   Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
 </footer>
 
-<script type="module" src="mapa.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
+  authDomain: "checkinfra-adf3c.firebaseapp.com",
+  projectId: "checkinfra-adf3c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const map = L.map("map").setView([-3.7319,-38.5267],12);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{ attribution:"© OpenStreetMap"}).addTo(map);
+
+let avaliacoes = [];
+let camadaPontos = L.layerGroup().addTo(map);
+
+const statusCores = {
+  "adequado":"#4CAF50",
+  "alerta":"#FFD700",
+  "atenção":"#FF9800",
+  "critico":"#F44336",
+  "crítico":"#F44336"
+};
+
+const bola = {
+  adequado: "🟢",
+  alerta: "🟡",
+  atenção: "🟠",
+  crítico: "🔴"
+};
+
+function criarPonto(d){
+  const pulso = document.getElementById("togglePulso").checked ? "pulse" : "";
+
+  const status = (d.status||"").toLowerCase();
+  let observacao = "";
+  if(status.includes("crit")) observacao = "🔴 Problema grave – intervenção imediata recomendada.";
+  else if(status.includes("atenção")) observacao = "🟠 Problema localizado, tendência de evoluir a crítico.";
+  else if(status.includes("alerta")) observacao = "🟡 Problema pontual, monitoramento recomendado.";
+  else if(status.includes("adequado")) observacao = "🟢 Situação satisfatória – manutenção do acompanhamento.";
+
+  return L.circleMarker([d.lat,d.lng],{
+    radius:8,
+    color:statusCores[status],
+    fillColor:statusCores[status],
+    fillOpacity:.8,
+    className:pulso
+  }).bindPopup(`
+    <strong>${d.escola}</strong><br>
+    Status: ${d.status}<br>
+    Pontuação: ${d.pontuacao || "-"}<br>
+    Última avaliação: ${d.data || "-"}<br>
+    Observação: ${observacao}
+  `);
+}
+
+async function carregarAvaliacoes(){
+  const snap = await getDocs(collection(db,"avaliacoes"));
+  avaliacoes=[];
+  snap.forEach(doc=>{
+    const d = doc.data();
+    if(d.lat && d.lng && d.status) avaliacoes.push(d);
+  });
+}
+
+function atualizarPontos(){
+  camadaPontos.clearLayers();
+  avaliacoes.forEach(d=>{
+    const s = d.status.toLowerCase();
+    if(
+      (s.includes("adequado") && !fAdequado.checked) ||
+      (s.includes("alerta") && !fAlerta.checked) ||
+      (s.includes("atenção") && !fAtencao.checked) ||
+      (s.includes("crit") && !fCritico.checked)
+    ) return;
+
+    criarPonto(d).addTo(camadaPontos);
+  });
+}
+
+// Integração com mapabairros.js
+async function atualizarBairros(){
+  if(toggleBairros.checked){
+    const mod = await import('./mapabairros.js');
+    mod.exibirBairros(map, avaliacoes);
+  } else {
+    const mod = await import('./mapabairros.js');
+    mod.removerBairros();
+  }
+}
+
+// Listeners
+document.querySelectorAll("input").forEach(i => i.addEventListener("change",()=>{
+  atualizarPontos();
+  atualizarBairros();
+}));
+
+// Inicialização
+await carregarAvaliacoes();
+atualizarPontos();
+atualizarBairros();
+</script>
 
 </body>
 </html>

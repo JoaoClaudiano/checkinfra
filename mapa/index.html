@@ -2,108 +2,59 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mapa Sanitário – CheckInfra</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CheckInfra – Mapa Sanitário Escolar</title>
+<link rel="stylesheet" href="mapa.css">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<!-- Leaflet CSS/JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<style>
-body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
+<!-- MarkerCluster CSS/JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
-header {
-  background:#1f4fd8;
-  color:#fff;
-  padding:14px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  font-weight:bold;
-  position:sticky;
-  top:0;
-  z-index:1000;
-}
-
-header .voltar {
-  position:absolute;
-  left:10px;
-  cursor:pointer;
-  font-size:18px;
-  user-select:none;
-}
-
-footer {
-  background:#f4f6f8;
-  font-size:11px;
-  color:#555;
-  padding:8px;
-  text-align:center;
-  border-top:1px solid #ddd;
-}
-
-.painel {
-  background:#fff;
-  padding:8px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  justify-content:center;
-  border-bottom:1px solid #ddd;
-  position:sticky;
-  top:52px;
-  z-index:999;
-  font-size:13px;
-}
-
-.painel label {
-  display:flex;
-  align-items:center;
-  gap:4px;
-  cursor:pointer;
-}
-
-.bola {
-  width:12px;
-  height:12px;
-  border-radius:50%;
-}
-
-.verde { background:#4CAF50; }
-.amarelo { background:#FFD700; }
-.laranja { background:#FF9800; }
-.vermelho { background:#F44336; }
-
-#map {
-  height: calc(100vh - 160px);
-}
-</style>
 </head>
-
 <body>
 
-<header>
-  <span class="voltar" onclick="history.back()">←</span>
-  Mapa Sanitário das Escolas – CheckInfra
-</header>
+<div class="nav-global">
+  <button onclick="history.back()" title="Voltar">⬅️</button>
+  <a href="./index.html" title="Início">🏠</a>
+</div>
 
 <div class="painel">
-  <label><input type="checkbox" id="fAdequado" checked><span class="bola verde"></span>Adequado</label>
-  <label><input type="checkbox" id="fAlerta" checked><span class="bola amarelo"></span>Alerta</label>
-  <label><input type="checkbox" id="fAtencao" checked><span class="bola laranja"></span>Atenção</label>
-  <label><input type="checkbox" id="fCritico" checked><span class="bola vermelho"></span>Crítico</label>
-  <label><input type="checkbox" id="togglePulso" checked>Mapa vivo</label>
-  <label><input type="checkbox" id="toggleBairros">Leitura por bairro</label>
+  <label><input type="checkbox" id="fAdequado" checked> <span class="bola verde"></span> Adequado</label>
+  <label><input type="checkbox" id="fAlerta" checked> <span class="bola laranja"></span> Alerta</label>
+  <label><input type="checkbox" id="fAtencao" checked> <span class="bola amarela"></span> Atenção</label>
+  <label><input type="checkbox" id="fCritico" checked> <span class="bola vermelho"></span> Crítico</label>
+  <label><input type="checkbox" id="togglePulso" checked> Mapa vivo</label>
+  <label><input type="checkbox" id="toggleBairros"> Leitura por bairros</label>
 </div>
 
 <div id="map"></div>
 
-<footer>
-  Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
-</footer>
+<script type="module" src="mapa.js"></script>
+<script type="module" src="mapabairros.js"></script>
 
-<script type="module" src="./mapa.js"></script>
-<script type="module" src="./mapabairros.js"></script>
+<!-- Legenda -->
+<script>
+const legenda = L.control({ position: "bottomright" });
+legenda.onAdd = function(){
+  const div = L.DomUtil.create("div","legenda");
+  div.innerHTML = `
+    <h4>Leitura do mapa</h4>
+    <div><span class="bola verde"></span> Situação adequada</div>
+    <div><span class="bola laranja"></span> Alerta</div>
+    <div><span class="bola amarela"></span> Atenção</div>
+    <div><span class="bola vermelho"></span> Crítico</div>
+    <hr>
+    <small>O pulso indica intensidade relativa de atenção territorial.<br>Não substitui inspeção técnica presencial.</small>
+  `;
+  return div;
+};
+legenda.addTo(map);
+</script>
 
 </body>
 </html>

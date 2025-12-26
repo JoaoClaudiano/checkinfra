@@ -16,112 +16,75 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{ attribution:"
 let avaliacoes = [];
 let camadaPontos = L.layerGroup().addTo(map);
 
-// Mapeamento das cores por classe
-const coresClasse = {
-  ok:"#4CAF50",
-  alerta:"#FFD700",
-  atencao:"#FF9800",
-  critico:"#F44336"
+// Cores por status
+const statusCores = {
+  ok:"#4CAF50",       // verde
+  critico:"#F44336",  // vermelho
+  alerta:"#FFD700",    // amarelo
+  atencao:"#FF9800"   // laranja
 };
 
-// Frequência do pulso por classe (ms)
-const freqPulso = {
-  critico:1200,
-  atencao:2400,
-  alerta:3600,
-  ok:4800
-};
+// Frequência dos pulsos por status (ms)
+const pulsosFreq = { critico:1200, atencao:2400, alerta:3600, ok:4800 };
 
-// Função para criar o marcador
+// Cria marcador com pulso que desaparece
 function criarPonto(d){
   const classe = (d.classe || "ok").toLowerCase();
-  const cor = coresClasse[classe] || "#000";
-
-  let observacao = "";
-  if(classe === "critico") observacao = "🔴 Problema grave – intervenção imediata recomendada.";
-  else if(classe === "atencao") observacao = "🟠 Problema localizado, tendência de evoluir a crítico.";
-  else if(classe === "alerta") observacao = "🟡 Problema pontual, monitoramento recomendado.";
-  else if(classe === "ok") observacao = "🟢 Situação satisfatória – manutenção do acompanhamento.";
+  const cor = statusCores[classe] || "#000";
 
   const marker = L.circleMarker([d.lat,d.lng],{
-    radius:8,
-    color:cor,
-    fillColor:cor,
-    fillOpacity:0.8
+    radius: 4,
+    color: cor,
+    fillColor: cor,
+    fillOpacity: 0.7,
+    className: `pulse-${classe}`
   }).bindPopup(`
     <strong>${d.escola}</strong><br>
-    Classe: ${d.classe}<br>
     Status: ${d.status}<br>
     Pontuação: ${d.pontuacao || "-"}<br>
-    Última avaliação: ${d.data || "-"}<br>
-    Observação: ${observacao}
+    Última avaliação: ${d.data || "-"}
   `);
-
-  // Pulsos
-  if(document.getElementById("togglePulso").checked){
-    pulsar(marker, classe);
-  }
 
   return marker;
 }
 
-// Função para animar pulsos
-function pulsar(marker, classe){
-  const freq = freqPulso[classe] || 2400;
-  const cor = coresClasse[classe] || "#000";
-  let increasing = true;
-  let radius = 8;
-
-  setInterval(()=>{
-    radius = increasing ? 12 : 8;
-    marker.setStyle({ radius: radius, color: cor, fillColor: cor });
-    increasing = !increasing;
-  }, freq);
-}
-
-// Atualizar pontos no mapa
+// Atualiza os pontos filtrando por checkbox
 function atualizarPontos(){
   camadaPontos.clearLayers();
   avaliacoes.forEach(d=>{
     const classe = (d.classe || "ok").toLowerCase();
     if(
-      (classe==="ok" && !fAdequado.checked) ||
-      (classe==="alerta" && !fAlerta.checked) ||
-      (classe==="atencao" && !fAtencao.checked) ||
-      (classe==="critico" && !fCritico.checked)
+      (classe === "ok" && !document.getElementById("fAdequado").checked) ||
+      (classe === "alerta" && !document.getElementById("fAlerta").checked) ||
+      (classe === "atencao" && !document.getElementById("fAtencao").checked) ||
+      (classe === "critico" && !document.getElementById("fCritico").checked)
     ) return;
 
     const marker = criarPonto(d);
-    marker.addTo(camadaPontos);
+    camadaPontos.addLayer(marker);
   });
 }
 
-// Carregar dados do Firebase
+// Carrega avaliações do Firebase
 async function carregarAvaliacoes(){
   const snap = await getDocs(collection(db,"avaliacoes"));
-  avaliacoes=[];
+  avaliacoes = [];
   snap.forEach(doc=>{
     const d = doc.data();
-    if(d.lat && d.lng && d.classe) avaliacoes.push(d);
+    if(d.lat && d.lng) avaliacoes.push(d);
   });
 }
 
-// Checkbox
-const fAdequado = document.getElementById("fAdequado");
-const fAlerta = document.getElementById("fAlerta");
-const fAtencao = document.getElementById("fAtencao");
-const fCritico = document.getElementById("fCritico");
+document.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{
+  atualizarPontos();
+}));
 
-document.querySelectorAll("#fAdequado, #fAlerta, #fAtencao, #fCritico, #togglePulso").forEach(i=>{
-  i.addEventListener("change", atualizarPontos);
-});
+// Checkbox ativado por padrão
+document.getElementById("fAdequado").checked = true;
+document.getElementById("fAlerta").checked = true;
+document.getElementById("fAtencao").checked = true;
+document.getElementById("fCritico").checked = true;
 
-// Ativar mapa vivo e checkbox por padrão
-document.getElementById("togglePulso").checked = true;
-fAdequado.checked = true;
-fAlerta.checked = true;
-fAtencao.checked = true;
-fCritico.checked = true;
-
+// Inicializa mapa
 await carregarAvaliacoes();
 atualizarPontos();

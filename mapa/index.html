@@ -3,229 +3,248 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mapa Sanitário – Escolas Municipais</title>
+<title>Mapa Sanitário – CheckInfra</title>
 
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-body { margin:0; font-family: Arial, sans-serif; }
+body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
+
 header {
   background:#1f4fd8;
   color:#fff;
-  padding:14px 12px;
+  padding:14px;
   text-align:center;
   font-weight:bold;
-  font-size:16px;
   position:sticky;
   top:0;
   z-index:1000;
 }
 
-.nav-global {
-  position:fixed;
-  top:12px;
-  left:10px;
-  display:flex;
-  gap:8px;
-  z-index:1100;
-}
-.nav-global button, .nav-global a {
-  background:#1f4fd8;
-  color:#fff;
-  border:none;
-  border-radius:50%;
-  width:36px;
-  height:36px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:18px;
-  text-decoration:none;
-  cursor:pointer;
+footer {
+  background:#f4f6f8;
+  font-size:11px;
+  color:#555;
+  padding:8px;
+  text-align:center;
+  border-top:1px solid #ddd;
 }
 
 .painel {
-  background:#f4f6f8;
-  padding:6px 10px;
+  background:#fff;
+  padding:8px;
   display:flex;
+  flex-wrap:wrap;
   gap:10px;
   justify-content:center;
-  flex-wrap:wrap;
-  font-size:13px;
+  border-bottom:1px solid #ddd;
   position:sticky;
   top:52px;
   z-index:999;
-  border-bottom:1px solid #ddd;
+  font-size:13px;
 }
 
-.painel label { display:flex; align-items:center; gap:4px; cursor:pointer; }
+.painel label {
+  display:flex;
+  align-items:center;
+  gap:4px;
+  cursor:pointer;
+}
 
-.bola { width:12px; height:12px; border-radius:50%; }
+.bola {
+  width:12px;
+  height:12px;
+  border-radius:50%;
+}
+
 .verde { background:#4CAF50; }
-.laranja { background:#FFD700; }
-.amarela { background:#FF9800; }
+.amarelo { background:#FFD700; }
+.laranja { background:#FF9800; }
 .vermelho { background:#F44336; }
 
-#map { height: calc(100vh - 110px); }
-
-.legenda {
-  background:#fff;
-  padding:8px;
-  font-size:12px;
-  border-radius:6px;
-  box-shadow:0 1px 5px rgba(0,0,0,.3);
+#map {
+  height: calc(100vh - 160px);
 }
 
-.pulse { animation: pulse 2.2s ease-out infinite; }
+/* Pulso */
+.pulse {
+  animation:pulse 2.4s ease-out infinite;
+}
+
 @keyframes pulse {
-  0% { opacity:.9; }
-  70% { opacity:.2; }
-  100% { opacity:.9; }
+  0% { r:8; opacity:.8; }
+  70% { r:18; opacity:0; }
+  100% { opacity:0; }
 }
 </style>
 </head>
 
 <body>
 
-<header>Mapa Sanitário das Escolas – Gestão Territorial</header>
-
-<div class="nav-global">
-  <button onclick="history.back()">⬅️</button>
-  <a href="../index.html">🏠</a>
-</div>
+<header>Mapa Sanitário das Escolas – CheckInfra</header>
 
 <div class="painel">
-  <label><input type="checkbox" id="chkPoligonos" checked> Polígonos por bairro</label>
-  <label><input type="checkbox" id="chkPulso" checked> Mapa vivo</label>
+  <label><input type="checkbox" id="fAdequado" checked><span class="bola verde"></span>Adequado</label>
+  <label><input type="checkbox" id="fAlerta" checked><span class="bola amarelo"></span>Alerta</label>
+  <label><input type="checkbox" id="fAtencao" checked><span class="bola laranja"></span>Atenção</label>
+  <label><input type="checkbox" id="fCritico" checked><span class="bola vermelho"></span>Crítico</label>
+  <label><input type="checkbox" id="togglePulso" checked>Mapa vivo</label>
+  <label><input type="checkbox" id="toggleBairros">Leitura por bairro</label>
 </div>
 
 <div id="map"></div>
+
+<footer>
+  Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* ================= FIREBASE ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
   projectId: "checkinfra-adf3c"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* ================= MAPA ================= */
-const map = L.map("map").setView([-3.7319, -38.5267], 12);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap"
-}).addTo(map);
+const map = L.map("map").setView([-3.7319,-38.5267],12);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{ attribution:"© OpenStreetMap"}).addTo(map);
 
 let avaliacoes = [];
-let camadaPoligonos;
+let camadaPontos = L.layerGroup().addTo(map);
+let camadaBairros = L.geoJSON(null);
 
-/* ================= CORES ================= */
-function corPorStatusDominante(p) {
-  if (p.critico >= 50) return "#F44336";
-  if (p.critico > 0) return "#F44336";
-  if (p.atencao > 0) return "#FF9800";
-  if (p.alerta > 0) return "#FFD700";
-  return "#4CAF50";
+const statusCores = {
+  "adequado":"#4CAF50",
+  "alerta":"#FFD700",
+  "atenção":"#FF9800",
+  "critico":"#F44336",
+  "crítico":"#F44336"
+};
+
+function criarPonto(d){
+  const pulso = document.getElementById("togglePulso").checked ? "pulse" : "";
+  return L.circleMarker([d.lat,d.lng],{
+    radius:8,
+    color:statusCores[d.status.toLowerCase()],
+    fillColor:statusCores[d.status.toLowerCase()],
+    fillOpacity:.8,
+    className:pulso
+  }).bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.status}`);
 }
 
-/* ================= CARREGAR AVALIAÇÕES ================= */
-async function carregarAvaliacoes() {
+async function carregarAvaliacoes(){
   const snap = await getDocs(collection(db,"avaliacoes"));
-  avaliacoes = [];
+  avaliacoes=[];
   snap.forEach(doc=>{
     const d = doc.data();
-    if(d.lat && d.lng) avaliacoes.push(d);
+    if(d.lat && d.lng && d.status) avaliacoes.push(d);
   });
 }
 
-/* ================= PONTOS ================= */
-function desenharPontos() {
-  avaliacoes.forEach(d=>{
-    const cor =
-      d.status.includes("Crítica") ? "#F44336" :
-      d.status.includes("Atenção") ? "#FF9800" :
-      d.status.includes("Alerta") ? "#FFD700" :
-      "#4CAF50";
-
-    L.circleMarker([d.lat,d.lng],{
-      radius:7,
-      color:cor,
-      fillColor:cor,
-      fillOpacity:.8,
-      className: document.getElementById("chkPulso").checked ? "pulse" : ""
-    })
-    .bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.status}<br>Pontuação: ${d.pontuacao}`)
-    .addTo(map);
-  });
-}
-
-/* ================= POLÍGONOS ================= */
-async function desenharPoligonos() {
-  const geojson = await fetch("./POLIGONAIS.geojson").then(r=>r.json());
-
-  camadaPoligonos = L.geoJSON(geojson,{
-    style: f => {
-      const stats = calcularStats(f);
-      return {
-        color:"#555",
-        weight:1,
-        fillColor: corPorStatusDominante(stats),
-        fillOpacity:0.55
-      };
-    },
-    onEachFeature:(f,l)=>{
-      const s = calcularStats(f);
-      l.bindTooltip(`
-        <strong>${f.properties.nome || "Bairro"}</strong><br>
-        🟥 Crítico: ${s.critico}%<br>
-        🟠 Atenção: ${s.atencao}%<br>
-        🟡 Alerta: ${s.alerta}%<br>
-        🟢 Adequado: ${s.adequado}%
-      `,{sticky:true});
-    }
-  }).addTo(map);
-}
-
-/* ================= CÁLCULO ESPACIAL ================= */
-function calcularStats(feature){
-  let total=0, crit=0, aten=0, alert=0, adeq=0;
+function atualizarPontos(){
+  camadaPontos.clearLayers();
 
   avaliacoes.forEach(d=>{
-    const p = L.latLng(d.lat,d.lng);
-    if(L.geoJSON(feature).getBounds().contains(p)){
-      total++;
-      if(d.status.includes("Crítica")) crit++;
-      else if(d.status.includes("Atenção")) aten++;
-      else if(d.status.includes("Alerta")) alert++;
-      else adeq++;
-    }
+    const s = d.status.toLowerCase();
+    if(
+      (s.includes("adequado") && !fAdequado.checked) ||
+      (s.includes("alerta") && !fAlerta.checked) ||
+      (s.includes("atenção") && !fAtencao.checked) ||
+      (s.includes("crit") && !fCritico.checked)
+    ) return;
+
+    criarPonto(d).addTo(camadaPontos);
   });
-
-  if(total===0) return {critico:0,atencao:0,alerta:0,adequado:0};
-
-  return {
-    critico: Math.round(crit/total*100),
-    atencao: Math.round(aten/total*100),
-    alerta: Math.round(alert/total*100),
-    adequado: Math.round(adeq/total*100)
-  };
 }
 
-/* ================= INIT ================= */
+function estiloBairro(feature){
+  const escolas = avaliacoes.filter(a =>
+    feature.geometry &&
+    L.polygon(feature.geometry.coordinates[0].map(c=>[c[1],c[0]])).getBounds()
+      .contains([a.lat,a.lng])
+  );
+
+  if(escolas.length===0) return { fillOpacity:0, color:"#999", weight:1 };
+
+  const cont = { adequado:0, alerta:0, atenção:0, crítico:0 };
+  escolas.forEach(e=>{
+    const s=e.status.toLowerCase();
+    if(s.includes("adequado")) cont.adequado++;
+    else if(s.includes("alerta")) cont.alerta++;
+    else if(s.includes("atenção")) cont.atenção++;
+    else cont.crítico++;
+  });
+
+  const total = escolas.length;
+  const pCrit = cont.crítico/total;
+
+  let cor = "#4CAF50";
+  if(pCrit>=0.5) cor="#F44336";
+  else if(cont.atenção>0) cor="#FF9800";
+  else if(cont.alerta>0) cor="#FFD700";
+
+  return { fillColor:cor, fillOpacity:.45, color:"#555", weight:1 };
+}
+
+function tooltipBairro(feature){
+  const escolas = avaliacoes.filter(a =>
+    feature.geometry &&
+    L.polygon(feature.geometry.coordinates[0].map(c=>[c[1],c[0]])).getBounds()
+      .contains([a.lat,a.lng])
+  );
+
+  if(escolas.length===0)
+    return `<strong>${feature.properties.nome}</strong><br>Sem avaliações`;
+
+  const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
+  escolas.forEach(e=>{
+    const s=e.status.toLowerCase();
+    if(s.includes("adequado")) cont.adequado++;
+    else if(s.includes("alerta")) cont.alerta++;
+    else if(s.includes("atenção")) cont.atenção++;
+    else cont.crítico++;
+  });
+
+  const t=escolas.length;
+  const p = k => Math.round((cont[k]/t)*100);
+
+  return `
+    <strong>${feature.properties.nome}</strong><br>
+    ${p("crítico")}% crítico (${cont.crítico}) – ${p("crítico")>0 ? "atenção localizada":"sem criticidade"}<br>
+    ${p("atenção")}% atenção (${cont.atenção})<br>
+    ${p("alerta")}% alerta (${cont.alerta})<br>
+    ${p("adequado")}% adequado (${cont.adequado})
+  `;
+}
+
+async function carregarBairros(){
+  const res = await fetch("./POLIGONAIS.geojson");
+  const geo = await res.json();
+
+  camadaBairros = L.geoJSON(geo,{
+    style:estiloBairro,
+    onEachFeature:(f,l)=> l.bindTooltip(tooltipBairro(f))
+  });
+}
+
+document.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{
+  atualizarPontos();
+  if(toggleBairros.checked){
+    camadaBairros.addTo(map);
+  } else {
+    map.removeLayer(camadaBairros);
+  }
+}));
+
 await carregarAvaliacoes();
-desenharPontos();
-await desenharPoligonos();
-
-document.getElementById("chkPoligonos").addEventListener("change",e=>{
-  if(e.target.checked) map.addLayer(camadaPoligonos);
-  else map.removeLayer(camadaPoligonos);
-});
+await carregarBairros();
+atualizarPontos();
 </script>
 
 </body>

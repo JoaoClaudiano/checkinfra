@@ -130,32 +130,30 @@ let avaliacoes = [];
 let camadaPontos = L.layerGroup().addTo(map);
 let camadaBairros = L.geoJSON(null);
 
-const statusCores = {
-  "adequado":"#4CAF50",
-  "alerta":"#FFD700",
-  "atenção":"#FF9800",
-  "critico":"#F44336",
-  "crítico":"#F44336"
-};
+const bola = { adequado:"🟢", alerta:"🟡", atenção:"🟠", crítico:"🔴" };
 
-const bola = {
-  adequado: "🟢",
-  alerta: "🟡",
-  atenção: "🟠",
-  crítico: "🔴"
-};
+// Função para cores confiáveis (apenas para visual)
+function corPorStatus(status){
+  status = (status||"").toLowerCase();
+  if(status.includes("crítica") || status.includes("critico")) return "#F44336";
+  if(status.includes("atenção")) return "#FF9800";
+  if(status.includes("alerta")) return "#FFD700";
+  return "#4CAF50";
+}
 
+// Criar ponto no mapa
 function criarPonto(d){
   const pulso = document.getElementById("togglePulso").checked ? "pulse" : "";
   return L.circleMarker([d.lat,d.lng],{
     radius:8,
-    color:statusCores[d.status.toLowerCase()],
-    fillColor:statusCores[d.status.toLowerCase()],
+    color: corPorStatus(d.status),
+    fillColor: corPorStatus(d.status),
     fillOpacity:.8,
-    className:pulso
+    className: pulso
   }).bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.status}`);
 }
 
+// Carregar avaliações do Firebase
 async function carregarAvaliacoes(){
   const snap = await getDocs(collection(db,"avaliacoes"));
   avaliacoes=[];
@@ -165,6 +163,7 @@ async function carregarAvaliacoes(){
   });
 }
 
+// Atualizar pontos com filtros
 function atualizarPontos(){
   camadaPontos.clearLayers();
 
@@ -181,6 +180,7 @@ function atualizarPontos(){
   });
 }
 
+// Funções para bairros
 function estiloBairro(feature){
   const escolas = avaliacoes.filter(a =>
     feature.geometry &&
@@ -241,6 +241,7 @@ function tooltipBairro(feature){
   `;
 }
 
+// Carregar bairros GeoJSON
 async function carregarBairros(){
   const res = await fetch("./POLIGONAIS.geojson");
   const geo = await res.json();
@@ -251,6 +252,7 @@ async function carregarBairros(){
   });
 }
 
+// Eventos de filtros
 document.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{
   atualizarPontos();
   if(toggleBairros.checked){
@@ -260,6 +262,7 @@ document.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{
   }
 }));
 
+// Inicialização
 await carregarAvaliacoes();
 await carregarBairros();
 atualizarPontos();

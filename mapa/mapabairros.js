@@ -8,6 +8,7 @@ const firebaseConfig = {
   authDomain: "checkinfra-adf3c.firebaseapp.com",
   projectId: "checkinfra-adf3c"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 

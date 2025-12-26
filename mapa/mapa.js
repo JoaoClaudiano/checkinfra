@@ -1,27 +1,25 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
-  authDomain: "checkinfra-adf3c.firebaseapp.com",
-  projectId: "checkinfra-adf3c"
-};
+export let avaliacoes = [];
+export const map = L.map("map").setView([-3.7319,-38.5267],12);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{ attribution:"© OpenStreetMap"}).addTo(map);
+const camadaPontos = L.layerGroup().addTo(map);
+
+const firebaseConfig = { apiKey:"AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0", authDomain:"checkinfra-adf3c.firebaseapp.com", projectId:"checkinfra-adf3c" };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-export const map = L.map("map").setView([-3.7319,-38.5267],12);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{ attribution:"© OpenStreetMap"}).addTo(map);
-
-export let avaliacoes = [];
-export let camadaPontos = L.layerGroup().addTo(map);
-
 const statusCores = { "adequado":"#4CAF50", "alerta":"#FFD700", "atenção":"#FF9800", "critico":"#F44336", "crítico":"#F44336" };
 const pulsosFreq = { "critico":1200, "atenção":2400, "alerta":3600, "adequado":4800 };
+const pulsosCor = { "critico":"#F44336", "atenção":"#FF9800", "alerta":"#FFD700", "adequado":"#4CAF50" };
+const bola = { adequado:"🟢", alerta:"🟡", atenção:"🟠", crítico:"🔴" };
 
-export async function carregarAvaliacoes(){
+export async function carregarMapa(){
   const snap = await getDocs(collection(db,"avaliacoes"));
   avaliacoes=[];
-  snap.forEach(doc=>{
+  snap.forEach(doc => {
     const d = doc.data();
     if(d.lat && d.lng && d.status) avaliacoes.push(d);
   });
@@ -48,7 +46,6 @@ export function criarPonto(d){
     Observação: ${observacao}
   `);
 
-  // Pulsos independentes
   if(document.getElementById("togglePulso").checked) pulso(marker,status);
 
   return marker;
@@ -56,14 +53,13 @@ export function criarPonto(d){
 
 function pulso(marker,status){
   const freq = pulsosFreq[status] || 2400;
-  let increasing = true;
-  let opacity = 0.8;
-
+  const cor = pulsosCor[status] || "#000";
+  let growing = true;
+  let r = 8;
   setInterval(()=>{
-    opacity = increasing ? 0.3 : 0.8;
-    marker.setStyle({ fillOpacity: opacity });
-    increasing = !increasing;
-  }, freq/2);
+    marker.setStyle({ radius: growing?16:8, color:cor, fillColor:cor });
+    growing = !growing;
+  }, freq);
 }
 
 export function atualizarPontos(){
@@ -77,19 +73,10 @@ export function atualizarPontos(){
       (s.includes("crit") && !fCritico.checked)
     ) return;
 
-    const marker = criarPonto(d);
-    marker.addTo(camadaPontos);
+    criarPonto(d).addTo(camadaPontos);
   });
 }
 
-document.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=> atualizarPontos()));
-
-// Ativar mapa vivo e checkbox por padrão
-document.getElementById("togglePulso").checked = true;
-document.getElementById("fAdequado").checked = true;
-document.getElementById("fAlerta").checked = true;
-document.getElementById("fAtencao").checked = true;
-document.getElementById("fCritico").checked = true;
-
-await carregarAvaliacoes();
-atualizarPontos();
+document.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{
+  atualizarPontos();
+}));

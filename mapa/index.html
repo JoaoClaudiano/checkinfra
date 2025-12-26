@@ -7,7 +7,7 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
 
 <style>
 body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
@@ -17,14 +17,12 @@ header {
   color:#fff;
   padding:14px;
   display:flex;
-  justify-content:center;
   align-items:center;
-  gap:8px;
+  justify-content:center;
   font-weight:bold;
   position:sticky;
   top:0;
   z-index:1000;
-  text-align:center;
 }
 
 header .voltar {
@@ -32,7 +30,7 @@ header .voltar {
   font-size:18px;
   user-select:none;
   position:absolute;
-  left:14px;
+  left:10px;
 }
 
 footer {
@@ -150,22 +148,20 @@ const bola = {
   crítico: "🔴"
 };
 
-// Cria ponto da escola com cor correta e tooltip
 function criarPonto(d){
   const pulso = document.getElementById("togglePulso").checked ? "pulse" : "";
-  const status = (d.status||"").trim().toLowerCase();
-  const cor = statusCores[status] || "#000"; // fallback preto
 
+  const status = (d.status||"").toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,"");
   let observacao = "";
   if(status.includes("crit")) observacao = "🔴 Problema grave – intervenção imediata recomendada.";
-  else if(status.includes("atenção")) observacao = "🟠 Problema localizado, tendência de evoluir a crítico.";
+  else if(status.includes("atencao")) observacao = "🟠 Problema localizado, tendência de evoluir a crítico.";
   else if(status.includes("alerta")) observacao = "🟡 Problema pontual, monitoramento recomendado.";
   else if(status.includes("adequado")) observacao = "🟢 Situação satisfatória – manutenção do acompanhamento.";
 
   return L.circleMarker([d.lat,d.lng],{
     radius:8,
-    color:cor,
-    fillColor:cor,
+    color:statusCores[status],
+    fillColor:statusCores[status],
     fillOpacity:.8,
     className:pulso
   }).bindPopup(`
@@ -177,7 +173,6 @@ function criarPonto(d){
   `);
 }
 
-// Carrega avaliações do Firebase
 async function carregarAvaliacoes(){
   const snap = await getDocs(collection(db,"avaliacoes"));
   avaliacoes=[];
@@ -187,15 +182,14 @@ async function carregarAvaliacoes(){
   });
 }
 
-// Atualiza pontos visíveis conforme filtros
 function atualizarPontos(){
   camadaPontos.clearLayers();
   avaliacoes.forEach(d=>{
-    const s = (d.status||"").trim().toLowerCase();
+    const s = (d.status||"").toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,"");
     if(
       (s.includes("adequado") && !fAdequado.checked) ||
       (s.includes("alerta") && !fAlerta.checked) ||
-      (s.includes("atenção") && !fAtencao.checked) ||
+      (s.includes("atencao") && !fAtencao.checked) ||
       (s.includes("crit") && !fCritico.checked)
     ) return;
 
@@ -203,23 +197,21 @@ function atualizarPontos(){
   });
 }
 
-// Calcula cor do bairro
 function estiloBairro(feature){
-  if(!feature.geometry) return { fillOpacity:0, color:"#999", weight:1 };
-
-  const escolas = avaliacoes.filter(a=>{
-    const pt = turf.point([a.lng,a.lat]);
-    return turf.booleanPointInPolygon(pt, feature);
+  const escolas = avaliacoes.filter(a => {
+    if(!feature.geometry) return false;
+    const ponto = turf.point([a.lng,a.lat]);
+    return turf.booleanPointInPolygon(ponto, feature);
   });
 
   if(escolas.length===0) return { fillOpacity:0, color:"#999", weight:1 };
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
   escolas.forEach(e=>{
-    const s=(e.status||"").trim().toLowerCase();
+    const s=(e.status||"").toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,"");
     if(s.includes("adequado")) cont.adequado++;
     else if(s.includes("alerta")) cont.alerta++;
-    else if(s.includes("atenção")) cont.atenção++;
+    else if(s.includes("atenção") || s.includes("atencao")) cont.atenção++;
     else cont.crítico++;
   });
 
@@ -229,30 +221,28 @@ function estiloBairro(feature){
   const pAlerta = cont.alerta/total;
 
   let cor = "#4CAF50"; // verde
-  if(pCrit >= 0.5) cor="#F44336";
-  else if(pCrit < 0.5 && pAtencao >= 0.5) cor="#FF9800";
-  else if(pCrit === 0 && pAtencao < 0.5 && pAlerta >= 0.5) cor="#FFD700";
+  if(pCrit >= 0.5) cor="#F44336";          // 🔴 ≥50% crítico
+  else if(pCrit < 0.5 && pAtencao >= 0.5) cor="#FF9800"; // 🟠 atenção ≥50%
+  else if(pCrit === 0 && pAtencao < 0.5 && pAlerta >= 0.5) cor="#FFD700"; // 🟡 alerta ≥50%
 
   return { fillColor:cor, fillOpacity:.45, color:"#555", weight:1 };
 }
 
-// Tooltip bairro
 function tooltipBairro(feature){
-  if(!feature.geometry) return "";
-
-  const escolas = avaliacoes.filter(a=>{
-    const pt = turf.point([a.lng,a.lat]);
-    return turf.booleanPointInPolygon(pt, feature);
+  const escolas = avaliacoes.filter(a => {
+    if(!feature.geometry) return false;
+    const ponto = turf.point([a.lng,a.lat]);
+    return turf.booleanPointInPolygon(ponto, feature);
   });
 
   if(escolas.length===0) return `<strong>${feature.properties.nome}</strong><br>⚪ Sem dados – avaliação necessária.`;
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
   escolas.forEach(e=>{
-    const s=(e.status||"").trim().toLowerCase();
+    const s=(e.status||"").toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,"");
     if(s.includes("adequado")) cont.adequado++;
     else if(s.includes("alerta")) cont.alerta++;
-    else if(s.includes("atenção")) cont.atenção++;
+    else if(s.includes("atenção") || s.includes("atencao")) cont.atenção++;
     else cont.crítico++;
   });
 
@@ -275,7 +265,6 @@ function tooltipBairro(feature){
   `;
 }
 
-// Carrega bairros
 async function carregarBairros(){
   const res = await fetch("./POLIGONAIS.geojson");
   const geo = await res.json();
@@ -286,7 +275,6 @@ async function carregarBairros(){
   });
 }
 
-// Eventos checkbox
 document.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{
   atualizarPontos();
   if(toggleBairros.checked){

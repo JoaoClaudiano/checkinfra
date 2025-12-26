@@ -17,11 +17,19 @@ header {
   color:#fff;
   padding:14px;
   display:flex;
+  align-items:center;
   justify-content:center;
   font-weight:bold;
   position:sticky;
   top:0;
   z-index:1000;
+}
+
+header .voltar {
+  cursor:pointer;
+  font-size:18px;
+  position:absolute;
+  left:10px;
 }
 
 footer {
@@ -65,15 +73,17 @@ footer {
 .laranja { background:#FF9800; }
 .vermelho { background:#F44336; }
 
-#map {
-  height: calc(100vh - 160px);
-}
+#map { height: calc(100vh - 160px); }
+
 </style>
 </head>
 
 <body>
 
-<header>Mapa Sanitário das Escolas – CheckInfra</header>
+<header>
+  <span class="voltar" onclick="history.back()">←</span>
+  <span>Mapa Sanitário das Escolas – CheckInfra</span>
+</header>
 
 <div class="painel">
   <label><input type="checkbox" id="fAdequado" checked><span class="bola verde"></span>Adequado</label>

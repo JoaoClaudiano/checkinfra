@@ -15,6 +15,7 @@ function estiloBairro(feature){
     feature.geometry &&
     turf.booleanPointInPolygon([a.lng, a.lat], feature)
   );
+  
 
   if(escolas.length === 0) return { fillOpacity: 0, color:"#999", weight:1 };
 

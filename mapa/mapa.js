@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Configuração Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
@@ -33,15 +32,24 @@ const bola = {
   crítico: "🔴"
 };
 
-// Frequência do piscar em ms
-const piscarFrequencia = {
+const pulsos = {
   "critico": 1200,
   "atenção": 2400,
   "alerta": 3600,
   "adequado": 4800
 };
 
-// Criar ponto de escola
+// Carregar avaliações do Firestore
+async function carregarAvaliacoes(){
+  const snap = await getDocs(collection(db,"avaliacoes"));
+  avaliacoes=[];
+  snap.forEach(doc=>{
+    const d = doc.data();
+    if(d.lat && d.lng && d.status) avaliacoes.push(d);
+  });
+}
+
+// Criar ponto da escola com tooltip e pulso
 function criarPonto(d){
   const status = (d.status||"").toLowerCase();
   let observacao = "";
@@ -50,7 +58,7 @@ function criarPonto(d){
   else if(status.includes("alerta")) observacao = "🟡 Problema pontual, monitoramento recomendado.";
   else if(status.includes("adequado")) observacao = "🟢 Situação satisfatória – manutenção do acompanhamento.";
 
-  return L.circleMarker([d.lat,d.lng],{
+  const marker = L.circleMarker([d.lat,d.lng],{
     radius:8,
     color:statusCores[status],
     fillColor:statusCores[status],
@@ -62,34 +70,23 @@ function criarPonto(d){
     Última avaliação: ${d.data || "-"}<br>
     Observação: ${observacao}
   `);
-}
 
-// Animar pulso do ponto
-function iniciarPulso(circle, status){
-  const freq = piscarFrequencia[status] || 2400;
-  const start = performance.now();
-  
-  function anim(time){
-    const t = (time - start) % freq;
-    const opacity = 0.8 * Math.abs(Math.sin(Math.PI * t / freq));
-    circle.setStyle({ fillOpacity: opacity });
-    requestAnimationFrame(anim);
+  // Pulso animado
+  if(document.getElementById("togglePulso").checked){
+    const interval = pulsos[status] || 2400;
+    let growing = true, r = 8;
+    setInterval(()=>{
+      if(growing) r += 0.5; else r -= 0.5;
+      if(r>=18) growing=false;
+      if(r<=8) growing=true;
+      marker.setRadius(r);
+    }, interval/20);
   }
 
-  requestAnimationFrame(anim);
+  return marker;
 }
 
-// Carregar avaliações do Firebase
-async function carregarAvaliacoes(){
-  const snap = await getDocs(collection(db,"avaliacoes"));
-  avaliacoes=[];
-  snap.forEach(doc=>{
-    const d = doc.data();
-    if(d.lat && d.lng && d.status) avaliacoes.push(d);
-  });
-}
-
-// Atualizar pontos no mapa
+// Atualiza pontos no mapa conforme filtros
 function atualizarPontos(){
   camadaPontos.clearLayers();
   avaliacoes.forEach(d=>{
@@ -100,26 +97,13 @@ function atualizarPontos(){
       (s.includes("atenção") && !fAtencao.checked) ||
       (s.includes("crit") && !fCritico.checked)
     ) return;
-
-    const circle = criarPonto(d).addTo(camadaPontos);
-    if(togglePulso.checked){
-      iniciarPulso(circle, s);
-    }
+    criarPonto(d).addTo(camadaPontos);
   });
 }
 
-// Função para verificar se ponto está dentro do polígono
-function pontoDentroPoligono(lat,lng,polygon){
-  return turf.booleanPointInPolygon([lng,lat], polygon);
-}
-
-// Estilo dos bairros
+// Estilo do bairro
 function estiloBairro(feature){
-  const escolas = avaliacoes.filter(a =>
-    feature.geometry &&
-    pontoDentroPoligono(a.lat,a.lng,feature)
-  );
-
+  const escolas = avaliacoes.filter(a => feature.geometry && turf.booleanPointInPolygon([a.lng,a.lat], feature));
   if(escolas.length===0) return { fillOpacity:0, color:"#999", weight:1 };
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
@@ -136,21 +120,17 @@ function estiloBairro(feature){
   const pAtencao = cont.atenção/total;
   const pAlerta = cont.alerta/total;
 
-  let cor = "#4CAF50";
-  if(pCrit >= 0.5) cor="#F44336";          
-  else if(pCrit < 0.5 && pAtencao >= 0.5) cor="#FF9800"; 
-  else if(pCrit === 0 && pAtencao < 0.5 && pAlerta >= 0.5) cor="#FFD700"; 
+  let cor = "#4CAF50"; // verde
+  if(pCrit >= 0.5) cor="#F44336";          // 🔴 ≥50% crítico
+  else if(pCrit < 0.5 && pAtencao >= 0.5) cor="#FF9800"; // 🟠 atenção ≥50%
+  else if(pCrit === 0 && pAtencao < 0.5 && pAlerta >= 0.5) cor="#FFD700"; // 🟡 alerta ≥50%
 
   return { fillColor:cor, fillOpacity:.45, color:"#555", weight:1 };
 }
 
-// Tooltip dos bairros
+// Tooltip do bairro com observação
 function tooltipBairro(feature){
-  const escolas = avaliacoes.filter(a =>
-    feature.geometry &&
-    pontoDentroPoligono(a.lat,a.lng,feature)
-  );
-
+  const escolas = avaliacoes.filter(a => feature.geometry && turf.booleanPointInPolygon([a.lng,a.lat], feature));
   if(escolas.length===0) return `<strong>${feature.properties.nome}</strong><br>⚪ Sem dados – avaliação necessária.`;
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
@@ -181,7 +161,7 @@ function tooltipBairro(feature){
   `;
 }
 
-// Carregar bairros do GeoJSON
+// Carregar bairros
 async function carregarBairros(){
   const res = await fetch("./POLIGONAIS.geojson");
   const geo = await res.json();
@@ -192,7 +172,7 @@ async function carregarBairros(){
   });
 }
 
-// Event listeners para filtros
+// Eventos de filtro
 document.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{
   atualizarPontos();
   if(toggleBairros.checked){

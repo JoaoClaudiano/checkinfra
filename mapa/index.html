@@ -7,30 +7,23 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
 <style>
 body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
+
 header {
   background:#1f4fd8;
   color:#fff;
   padding:14px;
   display:flex;
-  justify-content:center;
   align-items:center;
-  gap:8px;
+  justify-content:center;
   font-weight:bold;
   position:sticky;
   top:0;
   z-index:1000;
 }
-header .voltar {
-  position:absolute;
-  left:14px;
-  cursor:pointer;
-  font-size:18px;
-  user-select:none;
-}
+
 footer {
   background:#f4f6f8;
   font-size:11px;
@@ -39,6 +32,7 @@ footer {
   text-align:center;
   border-top:1px solid #ddd;
 }
+
 .painel {
   background:#fff;
   padding:8px;
@@ -52,32 +46,35 @@ footer {
   z-index:999;
   font-size:13px;
 }
+
 .painel label {
   display:flex;
   align-items:center;
   gap:4px;
   cursor:pointer;
 }
+
 .bola {
   width:12px;
   height:12px;
   border-radius:50%;
 }
+
 .verde { background:#4CAF50; }
 .amarelo { background:#FFD700; }
 .laranja { background:#FF9800; }
 .vermelho { background:#F44336; }
-#map { height: calc(100vh - 160px); }
-/* Pulso */
-.pulse { animation:pulse 2.4s ease-out infinite; }
-@keyframes pulse { 0% { r:8; opacity:.8; } 70% { r:18; opacity:0; } 100% { opacity:0; } }
+
+#map {
+  height: calc(100vh - 160px);
+}
 </style>
 </head>
 
 <body>
+
 <header>
-  <span class="voltar" onclick="history.back()">←</span>
-  <span>Mapa Sanitário das Escolas – CheckInfra</span>
+  Mapa Sanitário das Escolas – CheckInfra
 </header>
 
 <div class="painel">
@@ -95,8 +92,34 @@ footer {
   Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
 </footer>
 
-<!-- Scripts separados -->
-<script type="module" src="./mapa.js"></script>
-<script type="module" src="./mapabairros.js"></script>
+<script type="module">
+import { carregarAvaliacoes, atualizarPontos } from "./mapa.js";
+import { carregarBairros, toggleBairros } from "./mapabairros.js";
+
+// Carrega avaliações e pontos
+await carregarAvaliacoes();
+atualizarPontos(); // Mapa vivo já ativado
+
+// Carrega os bairros mas não adiciona ainda
+await carregarBairros();
+
+// Eventos dos checkboxes
+document.getElementById("toggleBairros").addEventListener("change", (e)=>{
+  toggleBairros(e.target.checked);
+});
+
+["fAdequado","fAlerta","fAtencao","fCritico"].forEach(id=>{
+  document.getElementById(id).addEventListener("change", ()=>{
+    atualizarPontos();
+    if(document.getElementById("toggleBairros").checked){
+      toggleBairros(true); // Recalcula os bairros
+    }
+  });
+});
+
+// Mapa vivo ativado por padrão
+document.getElementById("togglePulso").checked = true;
+</script>
+
 </body>
 </html>

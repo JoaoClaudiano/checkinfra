@@ -1,73 +1,45 @@
-// mapabairros.js
 import * as turf from "https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js";
 
 let camadaBairros = null;
-
-// Substitua este GeoJSON pelos seus bairros
 const bairrosGeoJSON = await fetch("./data/bairros.geojson").then(r=>r.json());
 
-function corPorStatus(status) {
-  status = (status || "ok").toLowerCase();
-  if(status === "critico") return "#F44336";
-  if(status === "atenção") return "#FF9800";
-  if(status === "alerta") return "#FFD700";
+function corPorStatus(status){
+  if(status==="critico") return "#F44336";
+  if(status==="atenção") return "#FF9800";
+  if(status==="alerta") return "#FFD700";
   return "#4CAF50";
 }
 
-// Função para ativar a camada de bairros
-window.ativarBairros = function() {
+window.ativarBairros = function(){
   if(camadaBairros) map.removeLayer(camadaBairros);
 
-  camadaBairros = L.geoJSON(bairrosGeoJSON, {
-    style: function(feature) {
-      // Pegamos os pontos dentro do polígono
-      const pontosNoBairro = avaliacoes.filter(d => {
-        if(!d.lat || !d.lng) return false;
-        const pt = turf.point([d.lng, d.lat]);
-        return turf.booleanPointInPolygon(pt, feature);
+  camadaBairros = L.geoJSON(bairrosGeoJSON,{
+    style: function(feature){
+      const pts = avaliacoes.filter(d=>d.lat && d.lng && turf.booleanPointInPolygon(turf.point([d.lng,d.lat]), feature));
+      if(pts.length===0) return { fillOpacity:0, color:"#999", weight:1 };
+      let pior="ok";
+      pts.forEach(p=>{
+        const s = p.classe;
+        if(s==="critico") pior="critico";
+        else if(s==="atenção" && pior!=="critico") pior="atenção";
+        else if(s==="alerta" && !["critico","atenção"].includes(pior)) pior="alerta";
       });
-
-      if(pontosNoBairro.length === 0) return { color: "transparent", fillOpacity:0 };
-
-      // Definimos a cor pelo pior status presente
-      let pior = "ok";
-      pontosNoBairro.forEach(p=>{
-        const s = (p.classe || "ok").toLowerCase();
-        if(s === "critico") pior = "critico";
-        else if(s === "atenção" && pior !== "critico") pior = "atenção";
-        else if(s === "alerta" && !["critico","atenção"].includes(pior)) pior = "alerta";
-      });
-
-      return { color: corPorStatus(pior), weight:2, fillOpacity:0.3, fillColor: corPorStatus(pior) };
+      return { fillColor:corPorStatus(pior), fillOpacity:0.3, color:"#555", weight:1 };
     },
-    onEachFeature: function(feature, layer) {
-      // Tooltip com contagem de escolas por status
-      const pontosNoBairro = avaliacoes.filter(d => {
-        if(!d.lat || !d.lng) return false;
-        const pt = turf.point([d.lng, d.lat]);
-        return turf.booleanPointInPolygon(pt, feature);
-      });
-
-      const contagem = { ok:0, alerta:0, "atenção":0, critico:0 };
-      pontosNoBairro.forEach(d=>{
-        const s = (d.classe || "ok").toLowerCase();
-        if(contagem[s] !== undefined) contagem[s]++;
-      });
-
-      let html = `<strong>${feature.properties.nome}</strong><br>`;
-      html += `Adequado: ${contagem.ok} <br>`;
-      html += `Alerta: ${contagem.alerta} <br>`;
-      html += `Atenção: ${contagem["atenção"]} <br>`;
-      html += `Crítico: ${contagem.critico} <br>`;
+    onEachFeature: function(feature, layer){
+      const pts = avaliacoes.filter(d=>d.lat && d.lng && turf.booleanPointInPolygon(turf.point([d.lng,d.lat]), feature));
+      const cont={ok:0, alerta:0, atenção:0, critico:0};
+      pts.forEach(d=>{ const s=d.classe; if(cont[s]!==undefined) cont[s]++; });
+      let html=`<strong>${feature.properties.nome}</strong><br>`;
+      html+=`Adequado: ${cont.ok}<br>`;
+      html+=`Alerta: ${cont.alerta}<br>`;
+      html+=`Atenção: ${cont.atenção}<br>`;
+      html+=`Crítico: ${cont.critico}`;
       layer.bindTooltip(html);
     }
   }).addTo(map);
 }
 
-// Função para desativar camada
-window.desativarBairros = function() {
-  if(camadaBairros) {
-    map.removeLayer(camadaBairros);
-    camadaBairros = null;
-  }
+window.desativarBairros = function(){
+  if(camadaBairros){ map.removeLayer(camadaBairros); camadaBairros=null; }
 }

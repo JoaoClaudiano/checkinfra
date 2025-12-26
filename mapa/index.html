@@ -135,7 +135,7 @@ const statusCores = {
   "alerta":"#FFD700",
   "atenção":"#FF9800",
   "critico":"#F44336",
-  "critico":"#F44336"
+  "crítico":"#F44336"
 };
 
 const bola = {
@@ -145,21 +145,40 @@ const bola = {
   crítico: "🔴"
 };
 
-// Função para normalizar status
-function limparStatus(s){
-  return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+function limparStatus(status){
+  if(!status) return "adequado";
+  status = status.toLowerCase();
+  if(status.includes("crit")) return "crítico";
+  if(status.includes("aten")) return "atenção";
+  if(status.includes("aler")) return "alerta";
+  return "adequado";
 }
 
 function criarPonto(d){
   const pulso = document.getElementById("togglePulso").checked ? "pulse" : "";
   const s = limparStatus(d.status);
+  const emoji = bola[s] || "";
+  const pontuacao = d.pontuacao !== undefined ? d.pontuacao : "-";
+  let dataStr = "-";
+  if(d.data){
+    const dt = new Date(d.data.seconds ? d.data.seconds*1000 : d.data);
+    dataStr = dt.toLocaleDateString("pt-BR");
+  }
+
+  const popupHtml = `
+    <strong>${d.escola}</strong><br>
+    Status: ${emoji} ${d.status}<br>
+    Pontuação: ${pontuacao}<br>
+    Última avaliação: ${dataStr}
+  `;
+
   return L.circleMarker([d.lat,d.lng],{
     radius:8,
     color: statusCores[s],
     fillColor: statusCores[s],
     fillOpacity:.8,
     className: pulso
-  }).bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.status}`);
+  }).bindPopup(popupHtml);
 }
 
 async function carregarAvaliacoes(){
@@ -177,10 +196,10 @@ function atualizarPontos(){
   avaliacoes.forEach(d=>{
     const s = limparStatus(d.status);
     if(
-      (s.includes("adequado") && !fAdequado.checked) ||
-      (s.includes("alerta") && !fAlerta.checked) ||
-      (s.includes("atenção") && !fAtencao.checked) ||
-      (s.includes("crit") && !fCritico.checked)
+      (s === "adequado" && !fAdequado.checked) ||
+      (s === "alerta" && !fAlerta.checked) ||
+      (s === "atenção" && !fAtencao.checked) ||
+      (s === "crítico" && !fCritico.checked)
     ) return;
 
     criarPonto(d).addTo(camadaPontos);
@@ -198,11 +217,8 @@ function estiloBairro(feature){
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
   escolas.forEach(e=>{
-    const s=limparStatus(e.status);
-    if(s.includes("adequado")) cont.adequado++;
-    else if(s.includes("alerta")) cont.alerta++;
-    else if(s.includes("atenção")) cont.atenção++;
-    else cont.crítico++;
+    const s = limparStatus(e.status);
+    cont[s]++;
   });
 
   const total = escolas.length;
@@ -229,11 +245,8 @@ function tooltipBairro(feature){
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
   escolas.forEach(e=>{
-    const s=limparStatus(e.status);
-    if(s.includes("adequado")) cont.adequado++;
-    else if(s.includes("alerta")) cont.alerta++;
-    else if(s.includes("atenção")) cont.atenção++;
-    else cont.crítico++;
+    const s = limparStatus(e.status);
+    cont[s]++;
   });
 
   const t = escolas.length;

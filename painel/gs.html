@@ -11,6 +11,8 @@
 html, body {
   margin:0; padding:0; width:100%; font-family: Arial, sans-serif; background:#f4f6f8; min-height:100vh; display:flex; flex-direction:column;
 }
+
+/* Header */
 header {
   background:#1f4fd8; color:#fff; display:flex; align-items:center; justify-content:center; padding:14px 20px; position:relative; width:100%;
 }
@@ -27,15 +29,14 @@ header button.menu { right:10px; }
 #sidebar.active { right:0; }
 #sidebar h2 { margin-top:0; font-size:18px; }
 #sidebar button.closeSidebar { background:#fff; color:#1f4fd8; border:none; border-radius:6px; padding:4px 10px; cursor:pointer; position:absolute; top:10px; left:10px; }
-
 #sidebar a { color:#fff; text-decoration:none; display:block; margin:10px 0; }
 #sidebar a:hover { text-decoration:underline; }
 
 /* Main content */
-.main { margin:20px auto; padding:0 20px; max-width:1000px; flex:1; }
-.card { background:#fff; margin:20px auto; padding:24px; border-radius:10px; line-height:1.7; box-sizing:border-box; }
+.main { margin:20px auto; padding:0 20px; max-width:1000px; flex:1; box-sizing:border-box; }
+.card { background:#fff; margin:20px auto; padding:24px; border-radius:10px; line-height:1.7; box-sizing:border-box; width:100%; max-width:900px; }
 h2,h3{color:#1f4fd8;}
-p,li{line-height:1.6;font-size:14px; text-align:justify;}
+p,li{line-height:1.7;font-size:14px; text-align:justify;}
 ul{padding-left:20px;}
 .badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;color:#fff;margin:2px;}
 .critica{background:#f44336}
@@ -43,7 +44,7 @@ ul{padding-left:20px;}
 .alerta{background:#fbc02d;color:#000}
 .adequada{background:#4caf50}
 
-/* Footer responsivo */
+/* Footer responsivo ocupando toda a largura */
 footer {
   background:#1f4fd8; color:#fff; text-align:center; padding:16px 10px; font-size:12px; line-height:1.4; width:100%;
 }
@@ -52,6 +53,13 @@ footer a { color:#fff; text-decoration:underline; }
 
 /* Gráfico */
 canvas { max-width:100%; height:auto; }
+
+/* Responsividade */
+@media(max-width:600px){
+  .main { padding:0 10px; }
+  header h1 { font-size:18px; }
+  .card { padding:16px; }
+}
 </style>
 </head>
 <body>
@@ -78,21 +86,34 @@ canvas { max-width:100%; height:auto; }
 
   <div class="card">
     <h2>1. Definição do índice de Gravidade Sanitária</h2>
-    <p>O <strong>Índice de Gravidade Sanitária (GS)</strong> é um componente do Índice de Prioridade Técnica (IPT) do <strong>CheckInfra</strong>. Ele avalia a severidade das condições de infraestrutura sanitária escolar, considerando risco à saúde e segurança dos alunos e usuários.</p>
+    <p>O <strong>Índice de Gravidade Sanitária (GS)</strong> é um componente do Índice de Prioridade Técnica (IPT) do <strong>CheckInfra</strong>. Ele avalia a severidade das condições de infraestrutura sanitária escolar, considerando o risco à saúde e segurança dos alunos e usuários. Sua medição permite identificar prioridades de intervenção e apoiar decisões sobre reformas e manutenção.</p>
   </div>
 
   <div class="card">
     <h2>2. O que o índice de Gravidade Sanitária considera e por quê?</h2>
-    <p>O GS considera o status final de cada avaliação feita pelos alunos de Engenharia Civil do CheckInfra, considerando aspectos críticos como presença de esgoto exposto, falta de água potável, infiltrações e higiene dos banheiros. Ele indica quais escolas precisam de atenção prioritária e serve para priorização de obras e reformas.</p>
+    <p>O GS considera o status final de cada avaliação feita pelos alunos de Engenharia Civil do CheckInfra, levando em conta aspectos críticos como:</p>
+    <ul>
+      <li>Presença de esgoto exposto</li>
+      <li>Falta de água potável</li>
+      <li>Infiltrações em paredes e pisos</li>
+      <li>Higiene dos banheiros</li>
+    </ul>
+    <p>Esses elementos são fundamentais para determinar a prioridade de reformas e intervenções estruturais.</p>
   </div>
 
   <div class="card">
     <h2>3. Normas e referências bibliográficas</h2>
-    <p>O índice GS se baseia em normas técnicas de saneamento, higiene e acessibilidade, como ABNT NBR 9050 (acessibilidade a edificações), ABNT NBR 5626 (instalações prediais de água fria) e recomendações da OMS para água, saneamento e higiene em escolas (1). Também se inspira em metodologias de avaliação multicritério (MCDA) e gestão de ativos públicos (Saaty, 2008).</p>
+    <p>O índice GS se baseia em normas técnicas de saneamento, higiene e acessibilidade, como:</p>
+    <ul>
+      <li>ABNT NBR 9050 – Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos.</li>
+      <li>ABNT NBR 5626 – Instalações prediais de água fria.</li>
+      <li>Recomendações da OMS para água, saneamento e higiene em escolas (1).</li>
+    </ul>
+    <p>Além disso, inspira-se em metodologias de avaliação multicritério (MCDA) e gestão de ativos públicos (Saaty, 2008).</p>
     <p>Referências:</p>
     <ul>
-      <li>ABNT. NBR 9050: Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos. 2020. (1)</li>
-      <li>WHO – World Health Organization. Water, Sanitation and Hygiene in Schools. 2018.</li>
+      <li>ABNT. NBR 9050: 2020. (1)</li>
+      <li>WHO – Water, Sanitation and Hygiene in Schools. 2018.</li>
       <li>Saaty, T. L. Decision Making with the Analytic Hierarchy Process. 2008.</li>
     </ul>
   </div>
@@ -109,13 +130,13 @@ canvas { max-width:100%; height:auto; }
 
   <div class="card">
     <h2>5. Impacto do GS no IPT</h2>
-    <p>O GS é multiplicado por 0,4 na fórmula do IPT (<strong>IPT = GS*0,4 + IT*0,4 + RT*0,2</strong>). Isso significa que escolas com GS crítico elevam significativamente o IPT médio da rede e devem receber prioridade nas intervenções.</p>
+    <p>O GS é multiplicado por 0,4 na fórmula do IPT (<strong>IPT = GS*0,4 + IT*0,4 + RT*0,2</strong>). Isso significa que escolas com GS crítico elevam significativamente o IPT médio da rede, influenciando a priorização de reformas e inspeções prediais.</p>
   </div>
 
   <div class="card">
     <h2>6. Gráfico ilustrativo do GS</h2>
     <canvas id="graficoGS"></canvas>
-    <p>O gráfico mostra a distribuição do GS das escolas avaliadas. A linha azul indica o <strong>GS médio real</strong> da rede, calculado com base nos dados coletados. Quanto mais escolas estiverem na faixa crítica, maior será o IPT médio e a necessidade de obras e reformas.</p>
+    <p>O gráfico mostra a distribuição do GS das escolas avaliadas. A linha azul indica o <strong>GS médio</strong> da rede. Quanto mais escolas estiverem na faixa crítica, maior será o IPT médio e a necessidade de obras e reformas.</p>
   </div>
 
 </div>
@@ -129,14 +150,13 @@ canvas { max-width:100%; height:auto; }
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 // Sidebar toggle
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('active');
 }
 
-// Dados fictícios GS
+// Dados fictícios GS (exemplo)
 const gsValores = [1, 3, 4, 2, 2, 3, 1, 4]; // cada valor = GS de uma escola
 const gsMedio = gsValores.reduce((a,b)=>a+b,0)/gsValores.length;
 
@@ -167,14 +187,8 @@ new Chart(ctx, {
   },
   options:{
     responsive:true,
-    plugins:{
-      legend:{display:true},
-      tooltip:{enabled:true}
-    },
-    scales:{
-      y:{beginAtZero:true, max:4.5, title:{display:true, text:'GS'}},
-      x:{title:{display:true, text:'Escolas'}}
-    }
+    plugins:{ legend:{display:true}, tooltip:{enabled:true} },
+    scales:{ y:{beginAtZero:true, max:4.5, title:{display:true, text:'GS'}}, x:{title:{display:true, text:'Escolas'}} }
   }
 });
 </script>

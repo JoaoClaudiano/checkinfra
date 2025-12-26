@@ -217,13 +217,14 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     resultado.style.display = "block";
     resultado.className = "resultado resultado-" + classe;
-    resultado.innerHTML = `
-      <div class="selo">${status}</div>
-      <strong>ID:</strong>${dados.id}<br>
-      <strong>Pontuação:</strong>${pontuacao}<br>
-      <strong>Avaliador:</strong>${dados.avaliador}<br>
-      ${navigator.onLine?"☁️ Enviado ao sistema":"📴 Salvo offline"}
-    `;
+resultado.innerHTML = `
+  <div class="selo">${status}</div>
+  <strong style="display: inline;">ID:</strong> ${dados.id}<br>
+  <strong style="display: inline;">Pontuação:</strong> ${pontuacao}<br>
+  <strong style="display: inline;">Avaliador:</strong> ${dados.avaliador}<br>
+  ${navigator.onLine ? "☁️ Enviado ao sistema" : "📴 Salvo offline"}
+`;
+
 
     try{
       if(navigator.onLine){

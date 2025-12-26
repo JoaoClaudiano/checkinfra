@@ -10,57 +10,48 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let camadaBairros = L.layerGroup().addTo(map);
-let bairrosGeoJSON = null;
-let avaliacoes = [];
+let camadaBairros = L.layerGroup();
 
-// Cores por classe
-const cores = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
+async function carregarBairros(){
+  const response = await fetch("bairros.geojson");
+  const data = await response.json();
+  return data;
+}
 
-// Carregar avaliações recentes do Firebase
 async function carregarAvaliacoes(){
   const snap = await getDocs(collection(db,"avaliacoes"));
   const ultimos = {};
   snap.forEach(doc=>{
     const d = doc.data();
-    if(d.lat && d.lng && d.classe) ultimos[d.escola] = d;
+    if(d.lat && d.lng) ultimos[d.escola] = d;
   });
-  avaliacoes = Object.values(ultimos);
+  return Object.values(ultimos);
 }
 
-// Carregar bairros (GeoJSON)
-async function carregarBairros(urlGeoJSON){
-  const resp = await fetch(urlGeoJSON);
-  bairrosGeoJSON = await resp.json();
-}
-
-// Verificar se algum ponto está dentro do polígono
-function pontosNoPoligono(polygon){
-  return avaliacoes.some(d=>{
-    return turf.booleanPointInPolygon(turf.point([d.lng,d.lat]), polygon);
+function corBairro(avaliacoes,bairro){
+  let status = "ok";
+  avaliacoes.forEach(d=>{
+    if(turf.booleanPointInPolygon([d.lng,d.lat], bairro.geometry.coordinates)){
+      if(d.classe==="critico") status="critico";
+      else if(d.classe==="alerta" && status!=="critico") status="alerta";
+      else if(d.classe==="atenção" && status==="ok") status="atenção";
+    }
   });
+  return { "ok":"#4CAF50", "alerta":"#FFD700", "atenção":"#FF9800", "critico":"#F44336" }[status];
 }
 
-// Atualizar camada de bairros
-function atualizarBairros(){
-  camadaBairros.clearLayers();
-  if(!document.getElementById("toggleBairros").checked) return;
-  if(!bairrosGeoJSON) return;
+document.getElementById("toggleBairros").addEventListener("change", async e=>{
+  if(e.target.checked){
+    const bairros = await carregarBairros();
+    const avaliacoes = await carregarAvaliacoes();
 
-  bairrosGeoJSON.features.forEach(feature=>{
-    const polygon = feature.geometry;
-    const temPontos = pontosNoPoligono(feature);
-    const cor = temPontos ? "#1f4fd8" : "transparent"; // ou outra lógica de cor
-    L.geoJSON(feature, {
-      style: { color: cor, fillColor: cor, fillOpacity: 0.4, weight:1 }
-    }).addTo(camadaBairros);
-  });
-}
+    camadaBairros = L.geoJSON(bairros,{
+      style: function(feature){
+        return {color: corBairro(avaliacoes,feature), fillOpacity:0.4};
+      }
+    }).addTo(map);
 
-// Checkbox para ativar/desativar camada
-document.getElementById("toggleBairros").addEventListener("change", atualizarBairros);
-
-// Inicialização
-await carregarAvaliacoes();
-await carregarBairros("./bairros.geojson");
-atualizarBairros();
+  } else {
+    map.removeLayer(camadaBairros);
+  }
+});

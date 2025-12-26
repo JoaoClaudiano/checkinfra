@@ -3,162 +3,179 @@
 <head>
   <meta charset="UTF-8" />
   <title>CheckInfra | Mapa do Gestor</title>
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Leaflet -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-  </script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-  <!-- Estilos -->
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      font-family: Arial, sans-serif;
       background: #f4f6f8;
-      overflow: hidden;
     }
 
-    /* ================= HEADER ================= */
     header {
-      width: 100%;
       height: 56px;
       background: #1f2933;
       color: #fff;
       display: flex;
       align-items: center;
       padding: 0 16px;
-      z-index: 1000;
-    }
-
-    header h1 {
-      font-size: 16px;
       font-weight: 600;
     }
 
-    /* ================= MAPA ================= */
+    footer {
+      height: 40px;
+      background: #e5e7eb;
+      font-size: 12px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 10px;
+    }
+
+    #controls {
+      background: #fff;
+      padding: 8px 12px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+
     #map {
-      width: 100%;
-      height: calc(100vh - 56px);
+      height: calc(100vh - 56px - 40px - 42px);
     }
 
-    /* ================= POPUP ================= */
-    .popup-title {
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .popup-status {
-      margin-top: 4px;
-      font-size: 14px;
+    label {
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <h1>Mapa do Gestor — CheckInfra</h1>
-  </header>
+<header>
+  Mapa do Gestor — CheckInfra
+</header>
 
-  <!-- MAPA -->
-  <div id="map"></div>
+<div id="controls">
+  <label><input type="checkbox" checked data-status="Crítico"> Crítico</label>
+  <label><input type="checkbox" checked data-status="Alerta"> Alerta</label>
+  <label><input type="checkbox" checked data-status="Regular"> Regular</label>
+  <label><input type="checkbox" checked data-status="Adequado"> Adequado</label>
+</div>
 
-  <!-- SCRIPT -->
-  <script>
-    /* ================= FIREBASE ================= */
-    const firebaseConfig = {
-      apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
-      authDomain: "checkinfra-adf3c.firebaseapp.com",
-      projectId: "checkinfra-adf3c",
-    };
+<div id="map"></div>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+<footer>
+  Diagnóstico preliminar. Não substitui vistoria técnica presencial ou laudo de engenharia.
+</footer>
 
-    /* ================= MAPA BASE ================= */
-    const map = L.map("map").setView([-3.7319, -38.5267], 12);
+<script>
+  /* ================= FIREBASE ================= */
+  firebase.initializeApp({
+    apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
+    authDomain: "checkinfra-adf3c.firebaseapp.com",
+    projectId: "checkinfra-adf3c"
+  });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap",
-    }).addTo(map);
+  const db = firebase.firestore();
 
-    /* ================= FUNÇÃO COR POR STATUS (IPT) ================= */
-    function corPorStatus(status) {
-      if (status === "Crítico") return "#d73027";
-      if (status === "Alerta") return "#fc8d59";
-      if (status === "Regular") return "#fee08b";
-      if (status === "Adequado") return "#1a9850";
-      return "#999";
-    }
+  /* ================= MAPA ================= */
+  const map = L.map("map").setView([-3.7319, -38.5267], 12);
 
-    /* ================= BAIRROS (POLÍGONOS) ================= */
-    fetch("POLIGONAIS.geojson")
-      .then(response => response.json())
-      .then(data => {
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap"
+  }).addTo(map);
 
-        const bairrosLayer = L.geoJSON(data, {
-          style: {
-            color: "#444",
-            weight: 1,
-            fillColor: "#cccccc",
-            fillOpacity: 0.25
-          }
-        }).addTo(map);
+  /* ================= CORES POR STATUS ================= */
+  const cores = {
+    "Crítico": "#d73027",
+    "Alerta": "#fc8d59",
+    "Regular": "#fee08b",
+    "Adequado": "#1a9850"
+  };
 
-        map.fitBounds(bairrosLayer.getBounds());
-      })
-      .catch(err => {
-        console.error("Erro ao carregar POLIGONAIS.geojson:", err);
-      });
+  /* ================= CAMADAS POR STATUS ================= */
+  const layers = {
+    "Crítico": L.layerGroup().addTo(map),
+    "Alerta": L.layerGroup().addTo(map),
+    "Regular": L.layerGroup().addTo(map),
+    "Adequado": L.layerGroup().addTo(map)
+  };
 
-    /* ================= ESCOLAS (PONTOS) ================= */
-    db.collection("avaliacoes").onSnapshot(snapshot => {
-      snapshot.docChanges().forEach(change => {
-        if (change.type === "added") {
-
-          const dados = change.doc.data();
-
-          if (!dados.lat || !dados.lng) return;
-
-          const marker = L.circleMarker([dados.lat, dados.lng], {
-            radius: 7,
-            color: "#000",
-            weight: 1,
-            fillColor: corPorStatus(dados.status),
-            fillOpacity: 0.9
-          });
-
-          const popupContent = `
-            <div class="popup-title">${dados.escola || "Escola"}</div>
-            <div class="popup-status">
-              <strong>Status:</strong> ${dados.status}<br/>
-              <strong>IPT:</strong> ${dados.pontuacao}
-            </div>
-          `;
-
-          marker.bindPopup(popupContent);
-          marker.addTo(map);
+  /* ================= BAIRROS ================= */
+  fetch("POLIGONAIS.geojson")
+    .then(r => r.json())
+    .then(geo => {
+      const layer = L.geoJSON(geo, {
+        style: {
+          color: "#444",
+          weight: 1,
+          fillColor: "#ccc",
+          fillOpacity: 0.25
         }
-      });
+      }).addTo(map);
+      map.fitBounds(layer.getBounds());
     });
 
-  </script>
+  /* ================= MAPA VIVO ================= */
+  let pulsar = true;
+  setInterval(() => {
+    pulsar = !pulsar;
+    Object.values(layers).forEach(group => {
+      group.eachLayer(l => {
+        l.setStyle({ fillOpacity: pulsar ? 0.9 : 0.4 });
+      });
+    });
+  }, 900);
+
+  /* ================= ESCOLAS ================= */
+  db.collection("avaliacoes").onSnapshot(snapshot => {
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      if (!d.lat || !d.lng || !layers[d.status]) return;
+
+      const marker = L.circleMarker([d.lat, d.lng], {
+        radius: 7,
+        color: "#000",
+        weight: 1,
+        fillColor: cores[d.status],
+        fillOpacity: 0.9
+      });
+
+      marker.bindPopup(`
+        <strong>${d.escola}</strong><br>
+        Status: ${d.status}<br>
+        IPT: ${d.pontuacao}
+      `);
+
+      layers[d.status].addLayer(marker);
+    });
+  });
+
+  /* ================= CHECKBOX ================= */
+  document.querySelectorAll("#controls input").forEach(cb => {
+    cb.addEventListener("change", e => {
+      const status = e.target.dataset.status;
+      if (e.target.checked) {
+        layers[status].addTo(map);
+      } else {
+        map.removeLayer(layers[status]);
+      }
+    });
+  });
+</script>
+
 </body>
 </html>

@@ -27,6 +27,7 @@ export async function carregarAvaliacoes(){
   });
 }
 
+
 export function criarPonto(d){
   const status = (d.status||"").toLowerCase();
   let observacao = "";

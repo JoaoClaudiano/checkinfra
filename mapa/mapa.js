@@ -27,7 +27,6 @@ export async function carregarAvaliacoes(){
   });
 }
 
-
 export function criarPonto(d){
   const status = (d.status||"").toLowerCase();
   let observacao = "";
@@ -49,25 +48,22 @@ export function criarPonto(d){
     Observação: ${observacao}
   `);
 
+  // Pulsos independentes
   if(document.getElementById("togglePulso").checked) pulso(marker,status);
+
   return marker;
 }
 
 function pulso(marker,status){
   const freq = pulsosFreq[status] || 2400;
-  const minOpacity = 0.3;
-  const maxOpacity = 0.8;
-  let start = null;
+  let increasing = true;
+  let opacity = 0.8;
 
-  function animate(timestamp){
-    if(!start) start = timestamp;
-    const elapsed = timestamp - start;
-    const t = (elapsed % freq) / freq;
-    const opacity = minOpacity + (maxOpacity - minOpacity) * Math.abs(Math.sin(Math.PI * t));
+  setInterval(()=>{
+    opacity = increasing ? 0.3 : 0.8;
     marker.setStyle({ fillOpacity: opacity });
-    requestAnimationFrame(animate);
-  }
-  requestAnimationFrame(animate);
+    increasing = !increasing;
+  }, freq/2);
 }
 
 export function atualizarPontos(){

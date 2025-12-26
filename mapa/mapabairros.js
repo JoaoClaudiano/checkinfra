@@ -1,17 +1,27 @@
-import { map, avaliacoes } from "./mapa.js";
+import { avaliacoes, map } from "./mapa.js";
 
-let camadaBairros = L.geoJSON(null);
+export let camadaBairros;
 
 const statusCores = { "adequado":"#4CAF50", "alerta":"#FFD700", "atenção":"#FF9800", "critico":"#F44336", "crítico":"#F44336" };
-const bola = { adequado: "🟢", alerta: "🟡", atenção: "🟠", crítico: "🔴" };
+const bola = { adequado:"🟢", alerta:"🟡", atenção:"🟠", crítico:"🔴" };
+
+export async function carregarBairros(){
+  const res = await fetch("./POLIGONAIS.geojson");
+  const geo = await res.json();
+
+  camadaBairros = L.geoJSON(geo, {
+    style: estiloBairro,
+    onEachFeature: (feature, layer) => layer.bindTooltip(tooltipBairro(feature))
+  });
+}
 
 function estiloBairro(feature){
   const escolas = avaliacoes.filter(a =>
     feature.geometry &&
-    turf.booleanPointInPolygon(turf.point([a.lng,a.lat]), feature)
+    turf.booleanPointInPolygon([a.lng,a.lat], feature)
   );
 
-  if(escolas.length===0) return { fillOpacity:0, color:"#999", weight:1 };
+  if(escolas.length === 0) return { fillOpacity:0, color:"#999", weight:1 };
 
   const cont={ adequado:0, alerta:0, atenção:0, crítico:0 };
   escolas.forEach(e=>{
@@ -28,17 +38,17 @@ function estiloBairro(feature){
   const pAlerta = cont.alerta/total;
 
   let cor = "#4CAF50"; // verde
-  if(pCrit >= 0.5) cor="#F44336";
-  else if(pCrit < 0.5 && pAtencao >= 0.5) cor="#FF9800";
-  else if(pCrit === 0 && pAtencao < 0.5 && pAlerta >= 0.5) cor="#FFD700";
+  if(pCrit >= 0.5) cor="#F44336";          // 🔴 ≥50% crítico
+  else if(pCrit < 0.5 && pAtencao >= 0.5) cor="#FF9800"; // 🟠 atenção ≥50%
+  else if(pCrit === 0 && pAtencao < 0.5 && pAlerta >= 0.5) cor="#FFD700"; // 🟡 alerta ≥50%
 
-  return { fillColor:cor, fillOpacity:.45, color:"#555", weight:1 };
+  return { fillColor: cor, fillOpacity:.45, color:"#555", weight:1 };
 }
 
 function tooltipBairro(feature){
   const escolas = avaliacoes.filter(a =>
     feature.geometry &&
-    turf.booleanPointInPolygon(turf.point([a.lng,a.lat]), feature)
+    turf.booleanPointInPolygon([a.lng,a.lat], feature)
   );
 
   if(escolas.length===0) return `<strong>${feature.properties.nome}</strong><br>⚪ Sem dados – avaliação necessária.`;
@@ -71,21 +81,12 @@ function tooltipBairro(feature){
   `;
 }
 
-export async function carregarBairros(){
-  const res = await fetch("./POLIGONAIS.geojson");
-  const geo = await res.json();
-
-  camadaBairros = L.geoJSON(geo,{
-    style:estiloBairro,
-    onEachFeature:(f,l)=> l.bindTooltip(tooltipBairro(f))
-  });
-}
-
-document.getElementById("toggleBairros").addEventListener("change", async function(){
-  if(this.checked){
-    await carregarBairros();
+// Checkbox de ativação/desativação
+document.getElementById("toggleBairros").addEventListener("change", async ()=>{
+  if(document.getElementById("toggleBairros").checked){
+    if(!camadaBairros) await carregarBairros();
     camadaBairros.addTo(map);
   } else {
-    map.removeLayer(camadaBairros);
+    if(camadaBairros) map.removeLayer(camadaBairros);
   }
 });

@@ -3,42 +3,32 @@ let camadaBairros = null;
 const toggleBairros = document.getElementById("toggleBairros");
 
 /* ===============================
+   Escuta ANTES de testar
+================================ */
+window.addEventListener("avaliacoesProntas", () => {
+  if (toggleBairros.checked) ativarLeituraPorBairros();
+});
+
+/* ===============================
    Checkbox
 ================================ */
 toggleBairros.addEventListener("change", e => {
   if (e.target.checked) {
-    tentarAtivarBairros();
+    ativarLeituraPorBairros();
   } else {
     removerLeituraPorBairros();
   }
 });
 
 /* ===============================
-   Espera avaliações
-================================ */
-function tentarAtivarBairros() {
-  if (!window.avaliacoesGlobais || window.avaliacoesGlobais.length === 0) {
-    console.warn("Avaliações ainda não carregadas. Aguardando…");
-    toggleBairros.checked = false;
-
-    window.addEventListener(
-      "avaliacoesCarregadas",
-      () => {
-        toggleBairros.checked = true;
-        ativarLeituraPorBairros();
-      },
-      { once: true }
-    );
-    return;
-  }
-
-  ativarLeituraPorBairros();
-}
-
-/* ===============================
    Ativar leitura por bairros
 ================================ */
 async function ativarLeituraPorBairros() {
+  if (!window.CheckInfra.prontas) {
+    console.warn("Leitura por bairros: aguardando avaliações…");
+    return;
+  }
+
   if (camadaBairros) return;
 
   const res = await fetch("./dados/bairros.geojson");
@@ -46,12 +36,12 @@ async function ativarLeituraPorBairros() {
 
   camadaBairros = L.geoJSON(geojson, {
     style: feature => {
-      const dados = calcularIndicadores(feature);
+      const d = calcularIndicadores(feature);
       return {
         color: "#333",
         weight: 1,
-        fillOpacity: dados.total === 0 ? 0 : 0.6,
-        fillColor: dados.cor
+        fillOpacity: d.total === 0 ? 0 : 0.6,
+        fillColor: d.cor
       };
     },
     onEachFeature: (feature, layer) => {
@@ -65,7 +55,7 @@ async function ativarLeituraPorBairros() {
         Adequado: ${d.adequado}
       `);
     }
-  }).addTo(map);
+  }).addTo(window.map);
 }
 
 /* ===============================
@@ -73,7 +63,7 @@ async function ativarLeituraPorBairros() {
 ================================ */
 function removerLeituraPorBairros() {
   if (camadaBairros) {
-    map.removeLayer(camadaBairros);
+    window.map.removeLayer(camadaBairros);
     camadaBairros = null;
   }
 }
@@ -82,14 +72,14 @@ function removerLeituraPorBairros() {
    Cálculo por bairro
 ================================ */
 function calcularIndicadores(feature) {
-  const pts = window.avaliacoesGlobais.filter(a =>
+  const pts = window.CheckInfra.avaliacoes.filter(a =>
     turf.booleanPointInPolygon(
       turf.point([a.lng, a.lat]),
       feature
     )
   );
 
-  let dados = {
+  const d = {
     total: pts.length,
     adequado: 0,
     alerta: 0,
@@ -100,16 +90,16 @@ function calcularIndicadores(feature) {
 
   pts.forEach(p => {
     const c = p.classe.toLowerCase();
-    if (c.includes("adequado")) dados.adequado++;
-    else if (c.includes("alerta")) dados.alerta++;
-    else if (c.includes("atenção") || c.includes("atencao")) dados.atencao++;
-    else if (c.includes("crit")) dados.critico++;
+    if (c.includes("adequado")) d.adequado++;
+    else if (c.includes("alerta")) d.alerta++;
+    else if (c.includes("atenção") || c.includes("atencao")) d.atencao++;
+    else if (c.includes("crit")) d.critico++;
   });
 
-  if (dados.critico > 0) dados.cor = "#F44336";
-  else if (dados.atencao > 0) dados.cor = "#FF9800";
-  else if (dados.alerta > 0) dados.cor = "#FFD700";
-  else if (dados.adequado > 0) dados.cor = "#4CAF50";
+  if (d.critico) d.cor = "#F44336";
+  else if (d.atencao) d.cor = "#FF9800";
+  else if (d.alerta) d.cor = "#FFD700";
+  else if (d.adequado) d.cor = "#4CAF50";
 
-  return dados;
+  return d;
 }

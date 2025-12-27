@@ -1,96 +1,23 @@
-// ===============================
-// LEITURA TERRITORIAL POR BAIRROS
-// ===============================
-
 let camadaBairros = null;
-let bairrosAtivos = false;
 
-// Checkbox
-const toggleBairros = document.getElementById("toggleBairros");
-toggleBairros.addEventListener("change", () => {
-  if (toggleBairros.checked) {
-    ativarLeituraPorBairros();
-  } else {
-    desativarLeituraPorBairros();
-  }
-});
+/* ================= ESTILO ================= */
+function estiloBairro(feature) {
+  const escolas = window.avaliacoes.filter(a =>
+    turf.booleanPointInPolygon(
+      turf.point([a.lng, a.lat]),
+      feature
+    )
+  );
 
-async function ativarLeituraPorBairros() {
-  if (!window.avaliacoes || window.avaliacoes.length === 0) {
-    console.warn("Leitura por bairros: avaliações ainda não carregadas");
-    return;
-  }
-
-  if (camadaBairros) {
-    map.addLayer(camadaBairros);
-    bairrosAtivos = true;
-    return;
-  }
-
-  try {
-    const resp = await fetch("./POLIGONAIS.geojson");
-    const geojson = await resp.json();
-
-    camadaBairros = L.geoJSON(geojson, {
-      style: feature => estiloBairro(feature, window.avaliacoes),
-      onEachFeature: (feature, layer) => {
-        const html = tooltipBairro(feature, window.avaliacoes);
-        layer.bindTooltip(html, { sticky: true });
-      }
-    });
-
-    camadaBairros.addTo(map);
-    bairrosAtivos = true;
-
-  } catch (e) {
-    console.error("Erro ao carregar POLIGONAIS.geojson", e);
-  }
-}
-
-function desativarLeituraPorBairros() {
-  if (camadaBairros) {
-    map.removeLayer(camadaBairros);
-  }
-  bairrosAtivos = false;
-}
-
-// ===============================
-// METODOLOGIA DE COR DO BAIRRO
-// ===============================
-
-function estiloBairro(feature, avaliacoes) {
-
-  const poly = turf.polygon(feature.geometry.coordinates);
-  const escolas = avaliacoes.filter(a => {
-    const pt = turf.point([a.lng, a.lat]);
-    return turf.booleanPointInPolygon(pt, poly);
-  });
-
-  // Sem escolas avaliadas
   if (escolas.length === 0) {
-    return {
-      fillOpacity: 0,
-      color: "#777",
-      weight: 1
-    };
+    return { fillOpacity: 0, color: "#555", weight: 1 };
   }
 
-  const cont = {
-    ok: 0,
-    alerta: 0,
-    atenção: 0,
-    critico: 0
-  };
-
-  escolas.forEach(e => {
-    if (cont[e.classe] !== undefined) {
-      cont[e.classe]++;
-    }
-  });
+  const cont = { ok: 0, alerta: 0, atenção: 0, critico: 0 };
+  escolas.forEach(e => cont[e.classe]++);
 
   const total = escolas.length;
-
-  let cor = "#4CAF50"; // verde padrão
+  let cor = "#4CAF50";
 
   if (cont.critico / total >= 0.5) cor = "#F44336";
   else if (cont.atenção / total >= 0.5) cor = "#FF9800";
@@ -104,46 +31,29 @@ function estiloBairro(feature, avaliacoes) {
   };
 }
 
-// ===============================
-// TOOLTIP DO BAIRRO
-// ===============================
-
-function tooltipBairro(feature, avaliacoes) {
-
-  const poly = turf.polygon(feature.geometry.coordinates);
-  const escolas = avaliacoes.filter(a => {
-    const pt = turf.point([a.lng, a.lat]);
-    return turf.booleanPointInPolygon(pt, poly);
-  });
+/* ================= TOOLTIP ================= */
+function tooltipBairro(feature) {
+  const escolas = window.avaliacoes.filter(a =>
+    turf.booleanPointInPolygon(
+      turf.point([a.lng, a.lat]),
+      feature
+    )
+  );
 
   if (escolas.length === 0) {
-    return `
-      <strong>${feature.properties.nome}</strong><br>
-      ⚪ Sem dados – avaliação necessária.
-    `;
+    return `<strong>${feature.properties.nome}</strong><br>⚪ Sem dados.`;
   }
 
-  const cont = {
-    ok: 0,
-    alerta: 0,
-    atenção: 0,
-    critico: 0
-  };
+  const cont = { ok: 0, alerta: 0, atenção: 0, critico: 0 };
+  escolas.forEach(e => cont[e.classe]++);
 
-  escolas.forEach(e => {
-    if (cont[e.classe] !== undefined) {
-      cont[e.classe]++;
-    }
-  });
+  const t = escolas.length;
+  const p = k => Math.round((cont[k] / t) * 100);
 
-  const total = escolas.length;
-  const p = k => Math.round((cont[k] / total) * 100);
-
-  let obs = "";
-  if (p("critico") >= 50) obs = "🔴 Problema generalizado – alto risco territorial.";
-  else if (p("atenção") >= 50) obs = "🟠 Problema predominante – tendência de agravamento.";
-  else if (p("alerta") >= 50) obs = "🟡 Problema pontual – monitoramento recomendado.";
-  else obs = "🟢 Situação controlada – acompanhamento rotineiro.";
+  let obs = "🟢 Situação controlada.";
+  if (p("critico") >= 50) obs = "🔴 Problema generalizado.";
+  else if (p("atenção") >= 50) obs = "🟠 Tendência de agravamento.";
+  else if (p("alerta") >= 50) obs = "🟡 Monitoramento necessário.";
 
   return `
     <strong>${feature.properties.nome}</strong><br>
@@ -151,6 +61,47 @@ function tooltipBairro(feature, avaliacoes) {
     🟠 ${p("atenção")}% atenção (${cont.atenção})<br>
     🟡 ${p("alerta")}% alerta (${cont.alerta})<br>
     🟢 ${p("ok")}% adequado (${cont.ok})<br>
-    <em>${obs}</em>
+    ${obs}
   `;
 }
+
+/* ================= ATIVAR ================= */
+async function ativarLeituraPorBairros() {
+  if (camadaBairros) return;
+
+  const res = await fetch("./POLIGONAIS.geojson");
+  const geojson = await res.json();
+
+  camadaBairros = L.geoJSON(geojson, {
+    style: f => estiloBairro(f),
+    onEachFeature: (f, l) => {
+      l.bindTooltip(tooltipBairro(f), { sticky: true });
+    }
+  }).addTo(window.map);
+}
+
+/* ================= DESATIVAR ================= */
+function desativarLeituraPorBairros() {
+  if (camadaBairros) {
+    window.map.removeLayer(camadaBairros);
+    camadaBairros = null;
+  }
+}
+
+/* ================= CHECKBOX ================= */
+toggleBairros.addEventListener("change", () => {
+  if (toggleBairros.checked) {
+    if (window.avaliacoes.length > 0) {
+      ativarLeituraPorBairros();
+    } else {
+      console.warn("Aguardando avaliações...");
+    }
+  } else {
+    desativarLeituraPorBairros();
+  }
+});
+
+/* ================= SINCRONIZAÇÃO ================= */
+window.addEventListener("avaliacoesCarregadas", () => {
+  if (toggleBairros.checked) ativarLeituraPorBairros();
+});

@@ -2,59 +2,56 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
+<title>Mapa Vivo – CheckInfra</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CheckInfra – Mapa Sanitário Escolar</title>
-<link rel="stylesheet" href="mapa.css">
 
-<!-- Leaflet CSS/JS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-<!-- MarkerCluster CSS/JS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<style>
+html, body { margin:0; height:100%; }
+#map { width:100%; height:100%; }
 
+/* ====== PULSO ====== */
+.pulse-dot div {
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  animation:pulse 1.5s ease-out infinite;
+}
+
+@keyframes pulse {
+  0%   { transform:scale(1); opacity:0.4; }
+  70%  { transform:scale(2); opacity:0; }
+  100% { transform:scale(2); opacity:0; }
+}
+
+/* ====== LEGENDA ====== */
+.legenda {
+  background:#fff;
+  padding:10px;
+  font-size:12px;
+  line-height:1.4;
+}
+.bola {
+  display:inline-block;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  margin-right:6px;
+}
+.ok { background:#4CAF50; }
+.alerta { background:#FFD700; }
+.atencao { background:#FF9800; }
+.critico { background:#F44336; }
+</style>
 </head>
+
 <body>
-
-<div class="nav-global">
-  <button onclick="history.back()" title="Voltar">⬅️</button>
-  <a href="./index.html" title="Início">🏠</a>
-</div>
-
-<div class="painel">
-  <label><input type="checkbox" id="fAdequado" checked> <span class="bola verde"></span> Adequado</label>
-  <label><input type="checkbox" id="fAlerta" checked> <span class="bola laranja"></span> Alerta</label>
-  <label><input type="checkbox" id="fAtencao" checked> <span class="bola amarela"></span> Atenção</label>
-  <label><input type="checkbox" id="fCritico" checked> <span class="bola vermelho"></span> Crítico</label>
-  <label><input type="checkbox" id="togglePulso" checked> Mapa vivo</label>
-  <label><input type="checkbox" id="toggleBairros"> Leitura por bairros</label>
-</div>
-
 <div id="map"></div>
 
-<script type="module" src="mapa.js"></script>
-<script type="module" src="mapabairros.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Legenda -->
-<script>
-const legenda = L.control({ position: "bottomright" });
-legenda.onAdd = function(){
-  const div = L.DomUtil.create("div","legenda");
-  div.innerHTML = `
-    <h4>Leitura do mapa</h4>
-    <div><span class="bola verde"></span> Situação adequada</div>
-    <div><span class="bola laranja"></span> Alerta</div>
-    <div><span class="bola amarela"></span> Atenção</div>
-    <div><span class="bola vermelho"></span> Crítico</div>
-    <hr>
-    <small>O pulso indica intensidade relativa de atenção territorial.<br>Não substitui inspeção técnica presencial.</small>
-  `;
-  return div;
-};
-legenda.addTo(map);
-</script>
-
+<script type="module" src="./mapa.js"></script>
+<script type="module" src="./mapabairros.js"></script>
 </body>
 </html>

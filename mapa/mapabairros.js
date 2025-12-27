@@ -1,57 +1,35 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { map } from "./mapa.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
-  authDomain: "checkinfra-adf3c.firebaseapp.com",
-  projectId: "checkinfra-adf3c"
-};
+/* ===== FUNÇÃO PONTO DENTRO DO POLÍGONO ===== */
+function pontoDentroPoligono(point, vs) {
+  let x = point[0], y = point[1];
+  let inside = false;
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    let xi = vs[i][0], yi = vs[i][1];
+    let xj = vs[j][0], yj = vs[j][1];
 
-let camadaBairros = L.layerGroup();
+    let intersect =
+      ((yi > y) !== (yj > y)) &&
+      (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
 
-async function carregarBairros(){
-  const response = await fetch("bairros.geojson");
-  const data = await response.json();
-  return data;
-}
-
-async function carregarAvaliacoes(){
-  const snap = await getDocs(collection(db,"avaliacoes"));
-  const ultimos = {};
-  snap.forEach(doc=>{
-    const d = doc.data();
-    if(d.lat && d.lng) ultimos[d.escola] = d;
-  });
-  return Object.values(ultimos);
-}
-
-function corBairro(avaliacoes,bairro){
-  let status = "ok";
-  avaliacoes.forEach(d=>{
-    if(turf.booleanPointInPolygon([d.lng,d.lat], bairro.geometry.coordinates)){
-      if(d.classe==="critico") status="critico";
-      else if(d.classe==="alerta" && status!=="critico") status="alerta";
-      else if(d.classe==="atenção" && status==="ok") status="atenção";
-    }
-  });
-  return { "ok":"#4CAF50", "alerta":"#FFD700", "atenção":"#FF9800", "critico":"#F44336" }[status];
-}
-
-document.getElementById("toggleBairros").addEventListener("change", async e=>{
-  if(e.target.checked){
-    const bairros = await carregarBairros();
-    const avaliacoes = await carregarAvaliacoes();
-
-    camadaBairros = L.geoJSON(bairros,{
-      style: function(feature){
-        return {color: corBairro(avaliacoes,feature), fillOpacity:0.4};
-      }
-    }).addTo(map);
-
-  } else {
-    map.removeLayer(camadaBairros);
+    if (intersect) inside = !inside;
   }
+  return inside;
+}
+
+/* ===== CARREGAR BAIRROS ===== */
+fetch("./bairros.geojson")
+.then(r=>r.json())
+.then(geojson=>{
+  geojson.features.forEach(f=>{
+    const poligono = f.geometry.coordinates[0];
+
+    L.polygon(
+      poligono.map(p=>[p[1],p[0]]),
+      { color:"#888", weight:1, fillOpacity:0.05 }
+    )
+    .bindTooltip(f.properties.nome)
+    .addTo(map);
+  });
 });

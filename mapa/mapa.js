@@ -1,20 +1,12 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
 /* ================= FIREBASE ================= */
 
-const firebaseConfig = {
+firebase.initializeApp({
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
   projectId: "checkinfra-adf3c"
-};
+});
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = firebase.firestore();
 
 /* ================= MAPA ================= */
 
@@ -24,8 +16,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "© OpenStreetMap"
 }).addTo(map);
 
-window.camadaPontos = L.layerGroup().addTo(map);
-window.avaliacoes = []; // 🔑 GLOBAL
+const camadaPontos = L.layerGroup().addTo(map);
 
 /* ================= CORES ================= */
 
@@ -34,24 +25,13 @@ const cores = {
   alerta: "#FFD700",
   atenção: "#FF9800",
   atencao: "#FF9800",
-  critico: "#F44336",
-  crítico: "#F44336"
-};
-
-const pulsoTempo = {
-  critico: 1200,
-  atenção: 2400,
-  atencao: 2400,
-  alerta: 2400,
-  ok: 4800
+  critico: "#F44336"
 };
 
 /* ================= MAPA VIVO ================= */
 
-function aplicarPulso(marker, classe) {
-  const tempo = pulsoTempo[classe] || 2400;
+function aplicarPulso(marker, tempo) {
   let visivel = true;
-
   setInterval(() => {
     visivel = !visivel;
     marker.setStyle({
@@ -63,60 +43,32 @@ function aplicarPulso(marker, classe) {
 
 /* ================= CARREGAR AVALIAÇÕES ================= */
 
-async function carregarAvaliacoes() {
-  const snap = await getDocs(collection(db, "avaliacoes"));
-  const mapaEscolas = {};
+function carregarAvaliacoes() {
+  db.collection("avaliacoes").get().then(snap => {
+    const ultimas = {};
 
-  snap.forEach(doc => {
-    const d = doc.data();
-    if (!d.lat || !d.lng || !d.classe || !d.timestamp) return;
+    snap.forEach(doc => {
+      const d = doc.data();
+      if (!d.lat || !d.lng || !d.classe || !d.timestamp) return;
 
-    if (!mapaEscolas[d.escola] || d.timestamp > mapaEscolas[d.escola].timestamp) {
-      mapaEscolas[d.escola] = d;
-    }
+      if (!ultimas[d.escola] || d.timestamp > ultimas[d.escola].timestamp) {
+        ultimas[d.escola] = d;
+      }
+    });
+
+    desenharPontos(Object.values(ultimas));
   });
-
-  window.avaliacoes = Object.values(mapaEscolas);
-
-  // 🔔 AVISA QUE OS DADOS ESTÃO PRONTOS
-  window.dispatchEvent(new Event("avaliacoesCarregadas"));
 }
 
-/* ================= CRIAR PONTO ================= */
+/* ================= DESENHAR ================= */
 
-function criarPonto(d) {
-  const classe = d.classe.toLowerCase();
-  const cor = cores[classe] || "#999";
-
-  const marker = L.circleMarker([d.lat, d.lng], {
-    radius: 7,
-    color: cor,
-    fillColor: cor,
-    fillOpacity: 0.8,
-    opacity: 1
-  });
-
-  marker.bindPopup(`
-    <strong>${d.escola}</strong><br>
-    Classe: ${d.classe}<br>
-    Pontuação: ${d.pontuacao ?? "-"}<br>
-    Data: ${d.data ?? "-"}
-  `);
-
-  if (document.getElementById("togglePulso").checked) {
-    aplicarPulso(marker, classe);
-  }
-
-  return marker;
-}
-
-/* ================= ATUALIZAR MAPA ================= */
-
-window.atualizarPontos = function () {
+function desenharPontos(avaliacoes) {
   camadaPontos.clearLayers();
 
-  window.avaliacoes.forEach(d => {
+  avaliacoes.forEach(d => {
     const c = d.classe.toLowerCase();
+    const cor = cores[c];
+    if (!cor) return;
 
     if (
       (c === "ok" && !fAdequado.checked) ||
@@ -125,17 +77,31 @@ window.atualizarPontos = function () {
       (c === "critico" && !fCritico.checked)
     ) return;
 
-    criarPonto(d).addTo(camadaPontos);
+    const marker = L.circleMarker([d.lat, d.lng], {
+      radius: 7,
+      color: cor,
+      fillColor: cor,
+      fillOpacity: 0.8
+    }).bindPopup(`
+      <strong>${d.escola}</strong><br>
+      Classe: ${d.classe}<br>
+      Data: ${d.data || "-"}
+    `);
+
+    if (togglePulso.checked) {
+      aplicarPulso(marker, c === "critico" ? 1200 : 2400);
+    }
+
+    marker.addTo(camadaPontos);
   });
-};
+}
 
 /* ================= EVENTOS ================= */
 
 document.querySelectorAll(".painel input").forEach(i =>
-  i.addEventListener("change", window.atualizarPontos)
+  i.addEventListener("change", carregarAvaliacoes)
 );
 
 /* ================= INIT ================= */
 
-await carregarAvaliacoes();
-window.atualizarPontos();
+carregarAvaliacoes();

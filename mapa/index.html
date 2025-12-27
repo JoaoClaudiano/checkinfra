@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mapa Sanitário – CheckInfra</title>
 
+<!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Turf -->
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
 <style>
@@ -79,8 +82,7 @@ footer {
 }
 
 /* =================================================
-   PULSO — AJUSTADO PARA DIVICON (MAPA VIVO)
-   NÃO altera lógica, apenas visual
+   PULSO — MAPA VIVO (visual apenas)
 ================================================= */
 
 .pulse-wrapper {
@@ -136,7 +138,15 @@ footer {
   Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
 </footer>
 
-<!-- Scripts separados -->
+<!-- =================================================
+     FIREBASE — OBRIGATÓRIO
+================================================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- =================================================
+     SCRIPTS DO MAPA
+================================================= -->
 <script type="module" src="./mapa.js"></script>
 <script src="./mapabairros.js"></script>
 

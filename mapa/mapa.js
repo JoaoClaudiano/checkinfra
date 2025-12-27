@@ -11,6 +11,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+
 /* ================= MAPA ================= */
 const map = L.map("map").setView([-3.7319, -38.5267], 12);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {

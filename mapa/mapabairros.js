@@ -1,114 +1,88 @@
-// mapabairros.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Variáveis globais
-let camadaBairrosAtiva = false;
-let camadaBairros = null;
-let avaliacoes = [];
-
-// Inicializar Firebase (compat)
+// Configuração Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
   projectId: "checkinfra-adf3c"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// Carregar avaliações mais recentes por escola
-async function carregarAvaliacoes() {
-  avaliacoes = [];
-  const snap = await db.collection("avaliacoes").get();
-  const ultimos = {};
-  snap.forEach(doc => {
+// Mapa
+const map = L.map("map").setView([-3.7319,-38.5267],12);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{ attribution:"© OpenStreetMap"}).addTo(map);
+
+export let avaliacoes = []; // export para mapabairros.js
+let camadaPontos = L.layerGroup().addTo(map);
+
+const cores = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
+const pulsosCor = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
+const pulsosFreq = { ok:2000, alerta:2000, atenção:2000, critico:2000 };
+
+// Carregar avaliações do Firebase
+export async function carregarAvaliacoes(){
+  const q = query(collection(db,"avaliacoes"), orderBy("timestamp","desc"));
+  const snap = await getDocs(q);
+
+  const ultimos = {}; // manter apenas a última por escola
+  snap.forEach(doc=>{
     const d = doc.data();
-    if(d.lat && d.lng && d.classe) {
-      // manter somente a avaliação mais recente por escola
-      const ts = d.timestamp || 0;
-      if(!ultimos[d.escola] || ts > (ultimos[d.escola].timestamp || 0)) {
-        ultimos[d.escola] = d;
-      }
+    if(d.lat && d.lng && d.classe && d.escola){
+      if(!ultimos[d.escola]) ultimos[d.escola] = d;
     }
   });
+
   avaliacoes = Object.values(ultimos);
 }
 
-// Função para definir estilo do bairro com base nas avaliações
-function estiloBairro(feature) {
-  const poly = L.polygon(feature.geometry.coordinates[0].map(c => [c[1], c[0]]));
-  const escolas = avaliacoes.filter(a => poly.getBounds().contains([a.lat, a.lng]));
-  if(escolas.length === 0) return { fillOpacity: 0, color: "#555", weight: 1 };
+// Criar marcador
+function criarPonto(d){
+  const cor = cores[d.classe] || "#000";
+  const marker = L.circleMarker([d.lat,d.lng],{
+    radius:8, color:cor, fillColor:cor, fillOpacity:0.8
+  }).bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.classe}<br>Pontuação: ${d.pontuacao || "-"}<br>Última avaliação: ${d.data || "-"}`);
 
-  const cont = { ok:0, alerta:0, atenção:0, critico:0 };
-  escolas.forEach(e => cont[e.classe] = (cont[e.classe] || 0) + 1);
-
-  const total = escolas.length;
-  let cor = "#4CAF50"; // verde padrão
-  if(cont.critico / total >= 0.5) cor = "#F44336";
-  else if(cont.atenção / total >= 0.5) cor = "#FF9800";
-  else if(cont.alerta / total >= 0.5) cor = "#FFD700";
-
-  return { fillColor: cor, fillOpacity: 0.45, color: "#555", weight: 1 };
-}
-
-// Tooltip do bairro
-function tooltipBairro(feature) {
-  const poly = L.polygon(feature.geometry.coordinates[0].map(c => [c[1], c[0]]));
-  const escolas = avaliacoes.filter(a => poly.getBounds().contains([a.lat, a.lng]));
-  if(escolas.length === 0) return `<strong>${feature.properties.nome}</strong><br>⚪ Sem dados – avaliação necessária.`;
-
-  const cont = { ok:0, alerta:0, atenção:0, critico:0 };
-  escolas.forEach(e => cont[e.classe] = (cont[e.classe] || 0) + 1);
-
-  const t = escolas.length;
-  const p = k => Math.round((cont[k]/t)*100);
-
-  let obs = "";
-  if(p("critico")>=50) obs = "🔴 Problema generalizado – alto risco de impacto.";
-  else if(p("atenção")>=50) obs = "🟠 Problema localizado, tendência de piora.";
-  else if(p("alerta")>=50) obs = "🟡 Problema pontual, monitoramento recomendado.";
-  else obs = "🟢 Situação controlada – continuar acompanhamento rotineiro.";
-
-  return `<strong>${feature.properties.nome}</strong><br>
-    🔴 ${p("critico")}% crítico (${cont.critico})<br>
-    🟠 ${p("atenção")}% atenção (${cont.atenção})<br>
-    🟡 ${p("alerta")}% alerta (${cont.alerta})<br>
-    🟢 ${p("ok")}% adequado (${cont.ok})<br>
-    Observação: ${obs}`;
-}
-
-// Ativar leitura por bairros
-async function ativarLeituraPorBairros() {
-  if(camadaBairrosAtiva) {
-    map.removeLayer(camadaBairros);
-    camadaBairrosAtiva = false;
-    return;
+  if(document.getElementById("togglePulso").checked){
+    const pulseDiv = L.divIcon({
+      className: "pulse",
+      iconSize: [14,14],
+      html:`<div style="width:14px;height:14px;border-radius:50%;background:${pulsosCor[d.classe]};opacity:0.7"></div>`
+    });
+    L.marker([d.lat,d.lng], {icon:pulseDiv}).addTo(camadaPontos);
   }
 
-  if(avaliacoes.length === 0) {
-    console.log("Leitura por bairros: avaliações ainda não carregadas");
-    return;
-  }
-
-  // Carregar GeoJSON
-  const resp = await fetch("./POLIGONAIS.geojson");
-  const geojson = await resp.json();
-
-  camadaBairros = L.geoJSON(geojson, {
-    style: estiloBairro,
-    onEachFeature: (feature, layer) => {
-      layer.bindTooltip(tooltipBairro(feature), {sticky:true});
-    }
-  }).addTo(map);
-
-  camadaBairrosAtiva = true;
+  return marker;
 }
 
-// Listener checkbox
-document.getElementById("toggleBairros").addEventListener("change", () => {
-  ativarLeituraPorBairros();
+// Atualizar camada de pontos
+export function atualizarPontos(){
+  camadaPontos.clearLayers();
+  avaliacoes.forEach(d=>{
+    const s = d.classe;
+    if(
+      (s==="ok" && !fAdequado.checked) ||
+      (s==="alerta" && !fAlerta.checked) ||
+      (s==="atenção" && !fAtencao.checked) ||
+      (s==="critico" && !fCritico.checked)
+    ) return;
+
+    criarPonto(d).addTo(camadaPontos);
+  });
+}
+
+// Listeners para filtros
+document.querySelectorAll("#fAdequado, #fAlerta, #fAtencao, #fCritico, #togglePulso").forEach(el=>{
+  el.addEventListener("change", atualizarPontos);
 });
 
-// Carregar avaliações ao iniciar
-carregarAvaliacoes().then(() => {
-  console.log("Avaliações carregadas, leitura por bairros pronta");
-});
+// Inicialização
+document.getElementById("togglePulso").checked = true;
+document.getElementById("fAdequado").checked = true;
+document.getElementById("fAlerta").checked = true;
+document.getElementById("fAtencao").checked = true;
+document.getElementById("fCritico").checked = true;
+
+await carregarAvaliacoes();
+atualizarPontos();

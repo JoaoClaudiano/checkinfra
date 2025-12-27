@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mapa Sanitário – CheckInfra</title>
 
-<!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- Turf -->
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+<!-- Firebase compat para script normal -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
 <style>
 body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
@@ -81,10 +82,7 @@ footer {
   height: calc(100vh - 160px);
 }
 
-/* =================================================
-   PULSO — MAPA VIVO (visual apenas)
-================================================= */
-
+/* Pulso */
 .pulse-wrapper {
   width: 14px;
   height: 14px;
@@ -101,17 +99,9 @@ footer {
 }
 
 @keyframes pulseFade {
-  0% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  70% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
-  100% {
-    opacity: 0;
-  }
+  0% { transform: scale(1); opacity:0.8; }
+  70% { transform: scale(2.2); opacity:0; }
+  100% { opacity:0; }
 }
 </style>
 </head>
@@ -138,16 +128,8 @@ footer {
   Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
 </footer>
 
-<!-- =================================================
-     FIREBASE — OBRIGATÓRIO
-================================================= -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<!-- =================================================
-     SCRIPTS DO MAPA
-================================================= -->
-<script type="module" src="./mapa.js"></script>
+<!-- Scripts -->
+<script src="./mapa.js"></script>
 <script src="./mapabairros.js"></script>
 
 </body>

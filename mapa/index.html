@@ -78,11 +78,7 @@ footer {
   height: calc(100vh - 160px);
 }
 
-/* =================================================
-   PULSO — AJUSTADO PARA DIVICON (MAPA VIVO)
-   NÃO altera lógica, apenas visual
-================================================= */
-
+/* Pulso */
 .pulse-wrapper {
   width: 14px;
   height: 14px;
@@ -99,17 +95,9 @@ footer {
 }
 
 @keyframes pulseFade {
-  0% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  70% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
-  100% {
-    opacity: 0;
-  }
+  0% { transform: scale(1); opacity: 0.8; }
+  70% { transform: scale(2.2); opacity: 0; }
+  100% { opacity: 0; }
 }
 </style>
 </head>
@@ -136,9 +124,100 @@ footer {
   Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
 </footer>
 
-<!-- Scripts -->
-<script type="module" src="./mapa.js"></script>
-<script type="module" src="./mapabairros.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
+  authDomain: "checkinfra-adf3c.firebaseapp.com",
+  projectId: "checkinfra-adf3c"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Mapa
+const map = L.map("map").setView([-3.7319,-38.5267],12);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{ attribution:"© OpenStreetMap"}).addTo(map);
+
+let avaliacoes = [];
+let camadaPontos = L.layerGroup().addTo(map);
+let pulsos = [];
+
+const cores = { adequado:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
+
+// Carregar avaliações Firebase (apenas o mais recente por escola)
+async function carregarAvaliacoes(){
+  const snap = await getDocs(collection(db,"avaliacoes"));
+  const ultimos = {};
+  snap.forEach(doc=>{
+    const d = doc.data();
+    if(d.lat && d.lng && d.classe){
+      const escola = d.escola;
+      const ts = d.timestamp || 0;
+      if(!ultimos[escola] || ts > ultimos[escola].timestamp) ultimos[escola] = d;
+    }
+  });
+  avaliacoes = Object.values(ultimos);
+}
+
+// Criar marcador
+function criarPonto(d){
+  const cor = cores[d.classe] || "#000";
+  const marker = L.circleMarker([d.lat,d.lng],{
+    radius:8,
+    color: cor,
+    fillColor: cor,
+    fillOpacity:0.8
+  }).bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.classe}`);
+  return marker;
+}
+
+// Atualizar camada de pontos
+function atualizarPontos(){
+  // limpar pulsos
+  pulsos.forEach(i=>clearInterval(i));
+  pulsos = [];
+  camadaPontos.clearLayers();
+
+  avaliacoes.forEach(d=>{
+    const s = d.classe;
+    if(
+      (s==="adequado" && !fAdequado.checked) ||
+      (s==="alerta" && !fAlerta.checked) ||
+      (s==="atenção" && !fAtencao.checked) ||
+      (s==="critico" && !fCritico.checked)
+    ) return;
+
+    const marker = criarPonto(d);
+    marker.addTo(camadaPontos);
+
+    // Pulso
+    if(togglePulso.checked){
+      const divIcon = L.divIcon({
+        className: "pulse",
+        iconSize:[24,24],
+        html:`<div style="background:${cores[d.classe]};width:14px;height:14px;border-radius:50%"></div>`
+      });
+      const pulseMarker = L.marker([d.lat,d.lng], {icon: divIcon}).addTo(camadaPontos);
+      // Para remover ao desligar, adicionamos o marker à lista
+      pulsos.push(setInterval(()=>{},0)); // dummy para manter array
+    }
+  });
+}
+
+// Eventos checkboxes
+[fAdequado,fAlerta,fAtencao,fCritico,togglePulso].forEach(el=>{
+  el.addEventListener("change", atualizarPontos);
+});
+
+// Inicialização
+await carregarAvaliacoes();
+atualizarPontos();
+
+</script>
+<script src="./mapabairros.js"></script>
 
 </body>
 </html>

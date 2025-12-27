@@ -6,6 +6,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* ===============================
+   Estado global único
+================================ */
+window.CheckInfra = {
+  avaliacoes: [],
+  prontas: false
+};
+
+/* ===============================
    Firebase
 ================================ */
 const firebaseConfig = {
@@ -26,8 +34,9 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "© OpenStreetMap"
 }).addTo(map);
 
+window.map = map; // 👈 necessário para mapabairros.js
+
 let camadaPontos = L.layerGroup().addTo(map);
-let avaliacoes = [];
 
 /* ===============================
    Cores e pulso
@@ -37,8 +46,8 @@ const cores = {
   alerta: "#FFD700",
   atenção: "#FF9800",
   atencao: "#FF9800",
-  crítico: "#F44336",
-  critico: "#F44336"
+  critico: "#F44336",
+  crítico: "#F44336"
 };
 
 const pulsosFreq = {
@@ -46,16 +55,16 @@ const pulsosFreq = {
   alerta: 3600,
   atenção: 2400,
   atencao: 2400,
-  crítico: 1200,
-  critico: 1200
+  critico: 1200,
+  crítico: 1200
 };
 
 /* ===============================
-   Carregar avaliações (mais recente por escola)
+   Carregar avaliações (mais recente)
 ================================ */
 async function carregarAvaliacoes() {
   const snap = await getDocs(collection(db, "avaliacoes"));
-  const mapaEscolas = {};
+  const porEscola = {};
 
   snap.forEach(doc => {
     const d = doc.data();
@@ -63,21 +72,15 @@ async function carregarAvaliacoes() {
 
     const id = d.escolaId || d.escola || doc.id;
 
-    if (
-      !mapaEscolas[id] ||
-      d.timestamp > mapaEscolas[id].timestamp
-    ) {
-      mapaEscolas[id] = d;
+    if (!porEscola[id] || d.timestamp > porEscola[id].timestamp) {
+      porEscola[id] = d;
     }
   });
 
-  avaliacoes = Object.values(mapaEscolas);
+  window.CheckInfra.avaliacoes = Object.values(porEscola);
+  window.CheckInfra.prontas = true;
 
-  // 🔴 expõe globalmente
-  window.avaliacoesGlobais = avaliacoes;
-
-  // 🔔 avisa que os dados estão prontos
-  window.dispatchEvent(new Event("avaliacoesCarregadas"));
+  window.dispatchEvent(new Event("avaliacoesProntas"));
 }
 
 /* ===============================
@@ -99,9 +102,7 @@ function criarPonto(d) {
     Data: ${d.data ?? "-"}
   `);
 
-  if (document.getElementById("togglePulso").checked) {
-    aplicarPulso(marker, classe);
-  }
+  if (togglePulso.checked) aplicarPulso(marker, classe);
 
   return marker;
 }
@@ -128,7 +129,7 @@ function aplicarPulso(marker, classe) {
 function atualizarPontos() {
   camadaPontos.clearLayers();
 
-  avaliacoes.forEach(d => {
+  window.CheckInfra.avaliacoes.forEach(d => {
     const c = d.classe.toLowerCase();
 
     if (

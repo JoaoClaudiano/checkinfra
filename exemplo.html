@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Metodológico - CheckInfra</title>
+    <style>
+        :root {
+            --primary: #1f4fd8;
+            --primary-dark: #163ca6;
+            --secondary: #2e7d32;
+            --warning: #f57c00;
+            --danger: #d32f2f;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #dee2e6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* NAVEGAÇÃO */
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: var(--gray);
+        }
+        
+        .tab-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* SEÇÕES */
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* CARD DE CONTEÚDO */
+        .methodology-card {
+            background: var(--light);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .methodology-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .methodology-card h3 i {
+            font-size: 1.5rem;
+        }
+        
+        /* TABELAS METODOLÓGICAS */
+        .methodology-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .methodology-table th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .methodology-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .methodology-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .methodology-table tr:hover {
+            background: rgba(31, 79, 216, 0.05);
+        }
+        
+        /* STATUS BADGES */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+        
+        .status-adequate { background: #d4edda; color: #155724; }
+        .status-alert { background: #fff3cd; color: #856404; }
+        .status-attention { background: #ffe5d0; color: #b35a00; }
+        .status-critical { background: #f8d7da; color: #721c24; }
+        
+        /* FORMULAS */
+        .formula {
+            background: #f8f9ff;
+            border: 2px solid #e6e9ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            text-align: center;
+            color: var(--primary-dark);
+        }
+        
+        /* REFERÊNCIAS */
+        .reference-item {
+            background: white;
+            border-left: 3px solid var(--secondary);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+        
+        .reference-item .authors {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .reference-item .title {
+            font-style: italic;
+            color: var(--gray);
+        }
+        
+        /* MANUAL DO USUÁRIO */
+        .user-guide-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: var(--dark);
+            color: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            margin-top: 3rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .footer-links a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .methodology-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .user-guide-step {
+                flex-direction: column;
+            }
+        }
+        
+        /* UTILITÁRIOS */
+        .highlight {
+            background: linear-gradient(120deg, rgba(31, 79, 216, 0.1) 0%, rgba(31, 79, 216, 0.05) 100%);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+        
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-book-open"></i> Manual Metodológico CheckInfra</h1>
+            <p class="subtitle">
+                Sistema integrado de diagnóstico sanitário escolar - Metodologia técnica, 
+                indicadores, cálculos e manual de uso institucional
+            </p>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <div class="container">
+        <!-- NAVEGAÇÃO POR ABAS -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="overview">
+                <i class="fas fa-home"></i> Visão Geral
+            </button>
+            <button class="tab-btn" data-tab="evaluation">
+                <i class="fas fa-clipboard-check"></i> Avaliação
+            </button>
+            <button class="tab-btn" data-tab="dashboard">
+                <i class="fas fa-chart-bar"></i> Painel Técnico
+            </button>
+            <button class="tab-btn" data-tab="spatial">
+                <i class="fas fa-map-marked-alt"></i> Análise Espacial
+            </button>
+            <button class="tab-btn" data-tab="references">
+                <i class="fas fa-book"></i> Referências
+            </button>
+            <button class="tab-btn" data-tab="manual">
+                <i class="fas fa-user-circle"></i> Manual do Usuário
+            </button>
+        </div>
+
+        <!-- CONTEÚDO DAS ABAS -->
+        
+        <!-- ABA 1: VISÃO GERAL -->
+        <div id="overview" class="tab-content active">
+            <h2><i class="fas fa-binoculars"></i> Visão Geral do Sistema CheckInfra</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-bullseye"></i> Objetivo Institucional</h3>
+                <p>O CheckInfra é um sistema de apoio à gestão pública da infraestrutura sanitária escolar, desenvolvido para:</p>
+                <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+                    <li>Padronizar avaliações técnicas de banheiros escolares</li>
+                    <li>Priorizar intervenções com base em critérios técnicos</li>
+                    <li>Monitorar a evolução temporal das condições</li>
+                    <li>Identificar padrões territoriais de fragilidade</li>
+                    <li>Otimizar recursos públicos através de análise multicritério</li>
+                </ul>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-sitemap"></i> Arquitetura do Sistema</h3>
+                <p>O sistema é composto por três módulos integrados:</p>
+                
+                <div class="info-box">
+                    <strong>1. Módulo de Avaliação:</strong> Coleta padronizada de dados em campo através de checklist técnico
+                </div>
+                
+                <div class="info-box">
+                    <strong>2. Módulo de Análise (Painel):</strong> Processa dados em indicadores sintéticos (IPT) para priorização
+                </div>
+                
+                <div class="info-box">
+                    <strong>3. Módulo Territorial (Mapa):</strong> Visualiza padrões espaciais e identifica zonas prioritárias
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-balance-scale"></i> Princípios Fundamentais</h3>
+                <p><strong>1. Transparência Técnica:</strong> Todos os cálculos são públicos e auditáveis</p>
+                <p><strong>2. Decisão Informada:</strong> Suporte a decisões baseadas em evidências técnicas</p>
+                <p><strong>3. Justiça Territorial:</strong> Consideração de desigualdades espaciais</p>
+                <p><strong>4. Continuidade:</strong> Sistema permite acompanhamento longitudinal</p>
+                <p><strong>5. Interoperabilidade:</strong> Dados estruturados para integração com outros sistemas</p>
+            </div>
+        </div>
+
+        <!-- ABA 2: METODOLOGIA DA AVALIAÇÃO -->
+        <div id="evaluation" class="tab-content">
+            <h2><i class="fas fa-clipboard-list"></i> Metodologia da Avaliação de Campo</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-ruler-combined"></i> Checklist Técnico - Fundamentação Normativa</h3>
+                <p>O checklist é baseado em normas técnicas brasileiras e internacionais:</p>
+                
+                <table class="methodology-table">
+                    <thead>
+                        <tr>
+                            <th>Dimensão Técnica</th>
+                            <th>Itens Avaliados</th>
+                            <th>Peso Técnico</th>
+                            <th>Fundamentação Normativa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Estrutura Física</strong></td>
+                            <td>Mofo/umidade, piso quebrado, infiltrações</td>
+                            <td>3 pontos cada</td>
+                            <td>ABNT NBR 15575 (Desempenho) + ABNT NBR 5674 (Manutenção)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Higiene e Limpeza</strong></td>
+                            <td>Limpeza inadequada, mau cheiro</td>
+                            <td>2 pontos cada</td>
+                            <td>RDC ANVISA 216/2004 + Portaria MS 1.914/2014</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Conforto Ambiental</strong></td>
+                            <td>Iluminação, ventilação</td>
+                            <td>1 ponto cada</td>
+                            <td>NBR 15220 (Desempenho Térmico) + NBR 5413 (Iluminação)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Equipamentos Sanitários</strong></td>
+                            <td>Vasos, pias, torneiras</td>
+                            <td>2-3 pontos</td>
+                            <td>ABNT NBR 5626 (Água) + NBR 8160 (Esgoto)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Acessibilidade</strong></td>
+                            <td>Banheiro acessível</td>
+                            <td>4 pontos</td>
+                            <td>NBR 9050 (Acessibilidade) + Lei 13.146/2015</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-calculator"></i> Lógica de Pontuação e Classificação</h3>
+                
+                <div class="formula">
+                    PONTUAÇÃO TOTAL (IT) = Σ(Problemaᵢ × Pesoᵢ)
+                </div>
+                
+                <p><strong>Classificação Sanitária (Status):</strong></p>
+                
+                <table class="methodology-table">
+                    <thead>
+                        <tr>
+                            <th>Faixa de Pontos</th>
+                            <th>Classificação</th>
+                            <th>Significado Técnico</th>
+                            <th>Implicações para Gestão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0-3 pontos</td>
+                            <td><span class="status-badge status-adequate">Adequada</span></td>
+                            <td>Condições dentro dos parâmetros normativos</td>
+                            <td>Manutenção preventiva regular</td>
+                        </tr>
+                        <tr>
+                            <td>4-6 pontos</td>
+                            <td><span class="status-badge status-alert">Alerta</span></td>
+                            <td>Problemas menores que podem evoluir</td>
+                            <td>Ações corretivas em 90 dias</td>
+                        </tr>
+                        <tr>
+                            <td>7-8 pontos</td>
+                            <td><span class="status-badge status-attention">Atenção Elevada</span></td>
+                            <td>Problemas significativos com risco sanitário</td>
+                            <td>Intervenção em 30 dias</td>
+                        </tr>
+                        <tr>
+                            <td>≥9 pontos</td>
+                            <td><span class="status-badge status-critical">Crítica</span></td>
+                            <td>Risco imediato à saúde e segurança</td>
+                            <td>Intervenção imediata (7 dias)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-microscope"></i> Protocolo de Avaliação</h3>
+                
+                <div class="warning-box">
+                    <strong><i class="fas fa-exclamation-triangle"></i> IMPORTANTE:</strong> A avaliação não substitui laudo técnico. É um instrumento de triagem e priorização.
+                </div>
+                
+                <p><strong>Etapas da Avaliação:</strong></p>
+                <ol style="padding-left: 1.5rem; margin-top: 1rem;">
+                    <li><strong>Preparação:</strong> Checklist impresso, câmera fotográfica, identificação da escola</li>
+                    <li><strong>Inspeção Visual:</strong> Avaliação sistemática de todos os banheiros</li>
+                    <li><strong>Registro Fotográfico:</strong> Documentação de cada não-conformidade</li>
+                    <li><strong>Entrevista:</strong> Conversa com gestor escolar sobre histórico</li>
+                    <li><strong>Consolidação:</strong> Preenchimento do formulário digital</li>
+                    <li><strong>Validação:</strong> Revisão dos dados antes do envio</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- ABA 3: METODOLOGIA DO PAINEL TÉCNICO -->
+        <div id="dashboard" class="tab-content">
+            <h2><i class="fas fa-chart-line"></i> Metodologia do Painel Técnico e IPT</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-cogs"></i> Índice de Prioridade Técnica (IPT) - Conceito</h3>
+                <p>O IPT é um <span class="highlight">indicador multicritério</span> que combina três dimensões da criticidade:</p>
+                
+                <div class="formula">
+                    IPT = (GS × 0,4) + (IT × 0,4) + (RT × 0,2)
+                </div>
+                
+                <div class="info-box">
+                    <strong>Ponderação:</strong> GS e IT têm maior peso (40% cada) porque representam a criticidade atual. 
+                    RT tem peso menor (20%) pois indica persistência histórica.
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-weight-hanging"></i> Componentes do IPT</h3>
+                
+                <table class="methodology-table">
+                    <thead>
+                        <tr>
+                            <th>Componente</th>
+                            <th>Fórmula</th>
+                            <th>Escala</th>
+                            <th>Interpretação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>GS</strong><br>Gravidade Sanitária</td>
+                            <td>Baseado no status final da avaliação</td>
+                            <td>1-4</td>
+                            <td>Adequada=1, Alerta=2, Atenção=3, Crítica=4</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IT</strong><br>Intensidade Técnica</td>
+                            <td>IT = Pontuação Total ÷ 3</td>
+                            <td>1-4</td>
+                            <td>Normalização da pontuação do checklist</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RT</strong><br>Recorrência Temporal</td>
+                            <td>RT = 1 + (Nº avaliações mesma escola)</td>
+                            <td>1-4</td>
+                            <td>Mede persistência do problema</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-sort-amount-down"></i> Interpretação do IPT</h3>
+                
+                <table class="methodology-table">
+                    <thead>
+                        <tr>
+                            <th>Faixa IPT</th>
+                            <th>Classificação</th>
+                            <th>Impacto no Microsistema (Escola)</th>
+                            <th>Impacto no Macrossistema (Rede)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1,0 - 1,5</td>
+                            <td><span class="status-badge status-adequate">Baixa Prioridade</span></td>
+                            <td>Manutenção rotineira suficiente</td>
+                            <td>Indica rede em bom estado geral</td>
+                        </tr>
+                        <tr>
+                            <td>1,6 - 2,5</td>
+                            <td><span class="status-badge status-alert">Prioridade Moderada</span></td>
+                            <td>Requer atenção preventiva</td>
+                            <td>Sinais iniciais de deterioração</td>
+                        </tr>
+                        <tr>
+                            <td>2,6 - 3,5</td>
+                            <td><span class="status-badge status-attention">Alta Prioridade</span></td>
+                            <td>Necessidade de intervenção técnica</td>
+                            <td>Rede com problemas significativos</td>
+                        </tr>
+                        <tr>
+                            <td>3,6 - 4,0</td>
+                            <td><span class="status-badge status-critical">Prioridade Máxima</span></td>
+                            <td>Intervenção emergencial necessária</td>
+                            <td>Crise sanitária na rede escolar</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-chart-pie"></i> Indicadores do Painel Gerencial</h3>
+                
+                <div class="success-box">
+                    <strong><i class="fas fa-lightbulb"></i> CONCEITO-CHAVE:</strong> O IPT médio representa o "termômetro" da rede escolar.
+                </div>
+                
+                <p><strong>Indicadores Calculados:</strong></p>
+                <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+                    <li><strong>IPT Médio:</strong> Média aritmética dos IPTs de todas as escolas</li>
+                    <li><strong>Densidade Crítica:</strong> Nº escolas críticas / total de escolas</li>
+                    <li><strong>Evolução Temporal:</strong> Variação do IPT médio ao longo do tempo</li>
+                    <li><strong>Distribuição por Status:</strong> Percentual de escolas em cada classificação</li>
+                    <li><strong>Problemas Frequentes:</strong> Ranking dos itens mais comuns no checklist</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ABA 4: METODOLOGIA DA ANÁLISE ESPACIAL -->
+        <div id="spatial" class="tab-content">
+            <h2><i class="fas fa-map"></i> Metodologia da Análise Espacial Territorial</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-braille"></i> Princípio de Pareto Aplicado ao Território</h3>
+                
+                <div class="info-box">
+                    <strong>Hipótese Pareto:</strong> 20% dos territórios concentram 80% da criticidade sanitária
+                </div>
+                
+                <div class="formula">
+                    Conjunto Pareto = {Territórios | Σ(IPTₜ) até atingir X% do total}
+                </div>
+                
+                <p><strong>Critérios de Corte (flexíveis):</strong></p>
+                <ul style="padding-left: 1.5rem; margin-top: 1rem;">
+                    <li><strong>70%:</strong> Resposta rápida/emergencial</li>
+                    <li><strong>75%:</strong> Equilíbrio impacto-viabilidade</li>
+                    <li><strong>80%:</strong> Referência clássica (Pareto original)</li>
+                </ul>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-layer-group"></i> Indicadores Territoriais</h3>
+                
+                <table class="methodology-table">
+                    <thead>
+                        <tr>
+                            <th>Indicador</th>
+                            <th>Fórmula</th>
+                            <th>Interpretação</th>
+                            <th>Base Conceitual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Densidade Crítica</strong></td>
+                            <td>DC = Nº escolas críticas ÷ Área (km²)</td>
+                            <td>Intensidade espacial dos problemas</td>
+                            <td>Análise espacial em saúde pública</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Concentração Relativa</strong></td>
+                            <td>CR = (% críticas território) ÷ (% críticas cidade)</td>
+                            <td>Desigualdade territorial</td>
+                            <td>Indicadores de equidade (OMS)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Índice Territorial</strong></td>
+                            <td>ITₜ = (IPT médio × DC × CR) ÷ 100</td>
+                            <td>Indicador sintético territorial</td>
+                            <td>Análise multicritério espacial</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-draw-polygon"></i> Definição de Zonas Prioritárias</h3>
+                
+                <p><strong>Critérios para Zona Prioritária:</strong></p>
+                <ol style="padding-left: 1.5rem; margin-top: 1rem;">
+                    <li>Estar no conjunto Pareto (70-80% da criticidade)</li>
+                    <li>Densidade crítica acima da média municipal</li>
+                    <li>Concentração relativa > 1 (acima da média)</li>
+                    <li>Presença de pelo menos 1 escola crítica</li>
+                </ol>
+                
+                <div class="warning-box">
+                    <strong><i class="fas fa-hand-point-right"></i> OBSERVAÇÃO:</strong> Um território pode ter escolas críticas sem ser zona prioritária se os problemas não forem concentrados.
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-route"></i> Metodologia de Análise Espacial</h3>
+                
+                <p><strong>Etapas do Processamento:</strong></p>
+                
+                <div class="user-guide-step">
+                    <div class="step-number">1</div>
+                    <div>
+                        <h4>Georreferenciamento</h4>
+                        <p>Localização exata de cada escola no sistema de coordenadas WGS84</p>
+                    </div>
+                </div>
+                
+                <div class="user-guide-step">
+                    <div class="step-number">2</div>
+                    <div>
+                        <h4>Tesselagem Territorial</h4>
+                        <p>Divisão do município em células regulares (grid de 1km²) ou uso de bairros</p>
+                    </div>
+                </div>
+                
+                <div class="user-guide-step">
+                    <div class="step-number">3</div>
+                    <div>
+                        <h4>Agregação por Território</h4>
+                        <p>Cálculo dos indicadores para cada célula/bairro</p>
+                    </div>
+                </div>
+                
+                <div class="user-guide-step">
+                    <div class="step-number">4</div>
+                    <div>
+                        <h4>Classificação e Mapeamento</h4>
+                        <p>Aplicação de critérios para definição de zonas prioritárias</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 5: REFERÊNCIAS BIBLIOGRÁFICAS -->
+        <div id="references" class="tab-content">
+            <h2><i class="fas fa-graduation-cap"></i> Referências Técnicas e Bibliográficas</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-file-contract"></i> Normas Técnicas Brasileiras</h3>
+                
+                <div class="reference-item">
+                    <div class="authors">ABNT - Associação Brasileira de Normas Técnicas</div>
+                    <div class="title">NBR 15575: Edificações Habitacionais — Desempenho</div>
+                    <p>Base para avaliação de desempenho da edificação</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">ABNT - Associação Brasileira de Normas Técnicas</div>
+                    <div class="title">NBR 5626: Instalação Predial de Água Fria</div>
+                    <p>Referência para avaliação de sistemas hidráulicos</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">ABNT - Associação Brasileira de Normas Técnicas</div>
+                    <div class="title">NBR 9050: Acessibilidade a Edificações</div>
+                    <p>Base para avaliação de banheiros acessíveis</p>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-book-medical"></i> Referências Sanitárias</h3>
+                
+                <div class="reference-item">
+                    <div class="authors">WHO - World Health Organization</div>
+                    <div class="title">Water, Sanitation and Hygiene in Schools (2018)</div>
+                    <p>Padrões internacionais para WASH em escolas</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">UNICEF</div>
+                    <div class="title">WASH in Schools Monitoring Package (2019)</div>
+                    <p>Metodologia de monitoramento de saneamento escolar</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">Ministério da Saúde - Brasil</div>
+                    <div class="title">Portaria MS 1.914/2014 - Diretrizes Sanitárias</div>
+                    <p>Legislação brasileira para condições sanitárias</p>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-chart-bar"></i> Referências Metodológicas</h3>
+                
+                <div class="reference-item">
+                    <div class="authors">SAATY, Thomas L.</div>
+                    <div class="title">Decision Making with the Analytic Hierarchy Process (2008)</div>
+                    <p>Base para construção de indicadores multicritério</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">JURAN, Joseph M.</div>
+                    <div class="title">Quality Control Handbook (1999)</div>
+                    <p>Aplicação do Princípio de Pareto à gestão da qualidade</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">ISO - International Organization for Standardization</div>
+                    <div class="title">ISO 31000: Risk Management — Guidelines</div>
+                    <p>Metodologia para gestão de riscos aplicada à infraestrutura</p>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-map-marked-alt"></i> Referências de Análise Espacial</h3>
+                
+                <div class="reference-item">
+                    <div class="authors">ANSELIN, Luc</div>
+                    <div class="title">Spatial Econometrics: Methods and Models (1988)</div>
+                    <p>Fundamentos de análise espacial quantitativa</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">UN-HABITAT</div>
+                    <div class="title">Urban Indicators Guidelines (2004)</div>
+                    <p>Metodologia para indicadores urbanos territoriais</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 6: MANUAL DO USUÁRIO -->
+        <div id="manual" class="tab-content">
+            <h2><i class="fas fa-users"></i> Manual do Usuário - Interpretação dos Resultados</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-user-tie"></i> Perfis de Usuário</h3>
+                
+                <table class="methodology-table">
+                    <thead>
+                        <tr>
+                            <th>Perfil</th>
+                            <th>Foco Principal</th>
+                            <th>Indicadores-Chave</th>
+                            <th>Ações Típicas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Gestor Municipal</strong></td>
+                            <td>Alocação de recursos</td>
+                            <td>IPT médio, Zonas Prioritárias</td>
+                            <td>Planejamento orçamentário, definição de prioridades</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Técnico da Secretaria</strong></td>
+                            <td>Execução de intervenções</td>
+                            <td>Ranking IPT, Problemas frequentes</td>
+                            <td>Elaboração de projetos, acompanhamento de obras</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Diretor Escolar</strong></td>
+                            <td>Condição da própria escola</td>
+                            <td>Status, Pontuação específica</td>
+                            <td>Solicitação de reparos, manutenção preventiva</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Auditor/Conselheiro</strong></td>
+                            <td>Transparência e conformidade</td>
+                            <td>Evolução temporal, Distribuição</td>
+                            <td>Fiscalização, controle social</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-question-circle"></i> Perguntas Frequentes e Interpretação</h3>
+                
+                <div class="user-guide-step">
+                    <div class="step-number">Q1</div>
+                    <div>
+                        <h4>"O que significa IPT 3.2 para minha escola?"</h4>
+                        <p><strong>Interpretação:</strong> Sua escola está na faixa de ALTA PRIORIDADE (2.6-3.5). 
+                        Significa que há problemas significativos que requerem intervenção técnica planejada.</p>
+                        <p><strong>Ação recomendada:</strong> Solicitar vistoria técnica detalhada e elaborar projeto de intervenção.</p>
+                    </div>
+                </div>
+                
+                <div class="user-guide-step">
+                    <div class="step-number">Q2</div>
+                    <div>
+                        <h4>"Por que minha escola não é prioridade mesmo com problemas?"</h4>
+                        <p><strong>Interpretação:</strong> O sistema prioriza baseado em critérios técnicos comparativos. 
+                        Outras escolas podem estar em situação pior ou o problema pode não ser recorrente.</p>
+                        <p><strong>Ação recomendada:</strong> Registrar todas as avaliações para aumentar o componente RT (Recorrência).</p>
+                    </div>
+                </div>
+                
+                <div class="user-guide-step">
+                    <div class="step-number">Q3</div>
+                    <div>
+                        <h4>"Como interpretar o mapa de calor?"</h4>
+                        <p><strong>Interpretação:</strong> Áreas vermelhas indicam alta concentração de problemas. 
+                        Não significa que todas as escolas da área têm problemas, mas que há uma densidade crítica elevada.</p>
+                        <p><strong>Ação recomendada:</strong> Verificar escolas específicas na área e considerar intervenções integradas.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-clipboard"></i> Fluxo de Decisão Baseado no CheckInfra</h3>
+                
+                <div style="background: white; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+                    <p><strong>Passo 1:</strong> Consultar o ranking de IPT</p>
+                    <p><strong>Passo 2:</strong> Identificar escolas com IPT ≥ 2.6</p>
+                    <p><strong>Passo 3:</strong> Verificar se estão em zonas prioritárias no mapa</p>
+                    <p><strong>Passo 4:</strong> Analisar problemas específicos no checklist</p>
+                    <p><strong>Passo 5:</strong> Priorizar por custo-benefício (problemas comuns)</p>
+                    <p><strong>Passo 6:</strong> Alocar recursos considerando orçamento disponível</p>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-exclamation-triangle"></i> Limitações e Cuidados</h3>
+                
+                <div class="warning-box">
+                    <strong>1. Não substitui laudo técnico:</strong> O CheckInfra é ferramenta de triagem, não de diagnóstico final
+                </div>
+                
+                <div class="warning-box">
+                    <strong>2. Depende da qualidade dos dados:</strong> Resultados são tão bons quanto as avaliações de campo
+                </div>
+                
+                <div class="warning-box">
+                    <strong>3. Considerar contexto local:</strong> Fatores socioeconômicos podem influenciar resultados
+                </div>
+                
+                <div class="warning-box">
+                    <strong>4. Atualização regular necessária:</strong> Sistema requer alimentação contínua de dados
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-download"></i> Download PDF Completo</a>
+                <a href="#"><i class="fas fa-video"></i> Tutorial em Vídeo</a>
+                <a href="#"><i class="fas fa-question"></i> Suporte Técnico</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contato</a>
+            </div>
+            <p>© 2025 CheckInfra - Sistema de Diagnóstico Sanitário Escolar</p>
+            <p style="opacity: 0.8; font-size: 0.9rem; margin-top: 0.5rem;">
+                Documento Técnico v2.1 | Atualizado em Dezembro 2025
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Sistema de navegação por abas
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove classe active de todos os botões e conteúdos
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Adiciona classe active ao botão clicado
+                    this.classList.add('active');
+                    
+                    // Mostra o conteúdo correspondente
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Rolagem suave para o topo do conteúdo
+                    document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+            
+            // Sistema de impressão/exportação
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+P para imprimir a aba atual
+                if (e.ctrlKey && e.key === 'p') {
+                    e.preventDefault();
+                    const activeTab = document.querySelector('.tab-content.active');
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                        <html>
+                            <head>
+                                <title>CheckInfra - ${activeTab.querySelector('h2').textContent}</title>
+                                <style>
+                                    body { font-family: Arial, sans-serif; padding: 20px; }
+                                    h1 { color: #1f4fd8; }
+                                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                                    th, td { border: 1px solid #ddd; padding: 8px; }
+                                    th { background-color: #f2f2f2; }
+                                    @media print {
+                                        .no-print { display: none; }
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <h1>CheckInfra - Manual Metodológico</h1>
+                                ${activeTab.innerHTML}
+                                <div class="no-print" style="margin-top: 30px; font-style: italic;">
+                                    Documento gerado em ${new Date().toLocaleDateString()}
+                                </div>
+                            </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    printWindow.print();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

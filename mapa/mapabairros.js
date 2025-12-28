@@ -10,6 +10,22 @@ function iniciarModuloBairros() {
   const cores = { ok:"#4CAF50", alerta:"#FFD700", atencao:"#FF9800", critico:"#F44336" };
   let camadaGeoBairros = null;
 
+  // Criar legenda (apenas uma vez)
+  let legendaBairros = document.getElementById("legendaBairros");
+  if(!legendaBairros){
+    legendaBairros = L.DomUtil.create('div', 'legenda-mapa');
+    legendaBairros.id = 'legendaBairros';
+    legendaBairros.innerHTML = `
+      <div style="margin-bottom:5px;"><strong>Status das escolas</strong></div>
+      <i style="background:#4CAF50"></i> Adequado<br>
+      <i style="background:#FFD700"></i> Alerta<br>
+      <i style="background:#FF9800"></i> Atenção<br>
+      <i style="background:#F44336"></i> Crítico
+    `;
+    map.getContainer().appendChild(legendaBairros);
+    legendaBairros.style.display = 'none'; // começa oculta
+  }
+
   // Cache de escolas por bairro
   const cacheEscolasBairro = new Map();
 
@@ -25,7 +41,7 @@ function iniciarModuloBairros() {
       let escolasNoBairro = cacheEscolasBairro.get(feature.properties.nome);
       if(!escolasNoBairro) {
         escolasNoBairro = avaliacoes.filter(a => {
-          const pt = turf.point([a.lng, a.lat]); // Firebase: lat,lng invertido
+          const pt = turf.point([a.lng, a.lat]);
           return turf.booleanPointInPolygon(pt, feature.geometry);
         });
         cacheEscolasBairro.set(feature.properties.nome, escolasNoBairro);
@@ -48,7 +64,7 @@ function iniciarModuloBairros() {
       const total = escolasNoBairro.length;
       const perc = k => total ? Math.round((cont[k]/total)*100) : 0;
 
-      // Detectar se existe ao menos uma escola crítica, independente do 50%
+      // Detectar se existe ao menos uma escola crítica
       const existeCritico = escolasNoBairro.some(e => e.classe === "critico");
 
       // Lógica de criticidade dominante (50%)
@@ -148,8 +164,13 @@ function iniciarModuloBairros() {
 
   // Listeners
   document.getElementById("toggleBairros").addEventListener("change", function(){
-    if(this.checked) precalcularEscolas();
-    else if(camadaGeoBairros) camadaGeoBairros.setStyle({fillOpacity:0, opacity:0});
+    if(this.checked){
+      precalcularEscolas();
+      legendaBairros.style.display = 'block';
+    } else {
+      if(camadaGeoBairros) camadaGeoBairros.setStyle({fillOpacity:0, opacity:0});
+      legendaBairros.style.display = 'none';
+    }
   });
 
   document.querySelectorAll("#fAdequado, #fAlerta, #fAtencao, #fCritico").forEach(el => {

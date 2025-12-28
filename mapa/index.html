@@ -76,14 +76,16 @@ footer {
 @keyframes pulse-atencao {0%,100%{opacity:0;}50%{opacity:0.8;}}
 @keyframes pulse-critico {0%,100%{opacity:0;}50%{opacity:0.8;}}
 
-/* Legenda lateral com slide animado */
+/* Legenda lateral direita com toggle */
 .legenda-mapa {
-  position:absolute;
-  top:80px;
-  right:10px;
-  width:260px;
-  background: rgba(255,255,255,0.97);
-  padding:10px 12px;
+  position:fixed;
+  top: 30%;
+  right: -260px; /* fora da tela inicialmente */
+  width:250px;
+  max-height: 60%;
+  overflow-y:auto;
+  background: rgba(255,255,255,0.95);
+  padding:12px;
   line-height:20px;
   color:#333;
   box-shadow:0 0 15px rgba(0,0,0,0.2);
@@ -91,49 +93,35 @@ footer {
   font-size:13px;
   border:1px solid #ddd;
   z-index:1000;
-  transition: all 0.4s ease;
-  overflow:hidden;
+  transition: right 0.4s ease;
 }
-.legenda-mapa h4 {
-  margin:0 0 6px 0;
-  font-size:14px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.legenda-toggle {
-  cursor:pointer;
-  font-weight:bold;
-  font-size:20px;
-  user-select:none;
-  padding:6px 8px;
-  border-radius:4px;
-  background:#ddd;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-shrink:0;
-}
-#conteudoLegenda {
-  margin-top:6px;
-  opacity:1;
-  transition: opacity 0.3s ease;
-}
-.legenda-fechada {
-  width:50px;
-}
-.legenda-fechada #conteudoLegenda {
-  opacity:0;
-  height:0;
-  padding:0;
-  margin:0;
-}
+.legenda-mapa.open { right:10px; }
+.legenda-mapa h4 { margin:0 0 6px 0; font-size:14px; }
 
-/* Mobile adjustments */
+.legenda-toggle {
+  position:fixed;
+  top:30%; /* mesmo que a legenda */
+  right:0; 
+  width:24px; 
+  height:50px; 
+  background:#1f4fd8; 
+  color:#fff;
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  font-weight:bold; 
+  font-size:18px;
+  border-top-left-radius:6px;
+  border-bottom-left-radius:6px;
+  cursor:pointer;
+  z-index:1001;
+  transition: right 0.4s ease;
+}
+.legenda-toggle.closed { right:-24px; }
+
 @media (max-width:600px){
-  .legenda-mapa { top:60px; font-size:12px; line-height:16px; width:200px; }
-  .legenda-mapa h4 { font-size:13px; }
-  .legenda-toggle { font-size:18px; padding:4px 8px; }
+  .legenda-mapa { width:200px; top:25%; max-height:50%; font-size:12px; }
+  .legenda-toggle { height:40px; font-size:16px; }
 }
 </style>
 </head>
@@ -155,26 +143,24 @@ footer {
 
 <div id="map"></div>
 
-<!-- Legenda bairros -->
+<footer>
+  Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
+</footer>
+
+<!-- Legenda e toggle -->
 <div id="legendaBairros" class="legenda-mapa">
-  <h4>
-    <span id="toggleLegenda" class="legenda-toggle">⯈</span>
-    Status dos bairros
-  </h4>
-  <div id="conteudoLegenda">
+  <h4>Status dos bairros</h4>
+  <div style="margin-bottom:6px;">
     🔴 Crítico: Predomínio de falhas graves ou risco iminente.<br>
     🟠 Atenção: Unidade com tendência de degradação.<br>
     🟡 Alerta: Necessidade de manutenção preventiva e pontual.<br>
     🟢 Adequado: Padrão dentro das normas vigentes.<br><br>
     <em>Criticidade dominante >=50% das escolas por bairro. Caso contrário, mostra a classe máxima presente.</em><br><br>
-    <small>Total de escolas monitoradas: <span id="totalEscolas">-</span></small><br>
-    <small>Última avaliação: <span id="ultimaAvaliacao">-</span></small>
+    <strong>Total escolas monitoradas: <span id="totalEscolas">0</span></strong><br>
+    <strong>Última avaliação: <span id="ultimaAvaliacao">-</span></strong>
   </div>
 </div>
-
-<footer>
-  Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
-</footer>
+<div id="toggleLegenda" class="legenda-toggle">⯈</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -219,12 +205,12 @@ async function carregarAvaliacoes(){
   avaliacoes = Object.values(ultimos);
   window.avaliacoes = avaliacoes;
 
-  // Atualiza total de escolas e última avaliação na legenda
+  // Atualizar total geral
   document.getElementById('totalEscolas').textContent = avaliacoes.length;
-  const datas = avaliacoes.map(a=>a.createdAt?.toDate? a.createdAt.toDate() : null).filter(d=>d!=null);
+  const datas = avaliacoes.map(a=>a.createdAt?.toDate ? a.createdAt.toDate() : null).filter(d=>d!=null);
   if(datas.length>0){
-    const ultima = new Date(Math.max.apply(null,datas));
-    document.getElementById('ultimaAvaliacao').textContent = ultima.toLocaleDateString('pt-BR');
+    const maisRecente = new Date(Math.max.apply(null,datas));
+    document.getElementById('ultimaAvaliacao').textContent = maisRecente.toLocaleDateString('pt-BR');
   }
 }
 
@@ -269,32 +255,28 @@ document.querySelectorAll("#fAdequado,#fAlerta,#fAtencao,#fCritico,#togglePulso"
 await carregarAvaliacoes();
 atualizarPontos();
 
-// Legenda toggle
-const legendaBairrosEl = document.getElementById('legendaBairros');
+// Toggle legenda
+const legendaEl = document.getElementById('legendaBairros');
 const toggleBtn = document.getElementById('toggleLegenda');
 
-function atualizarToggleIcon() {
-  if(legendaBairrosEl.classList.contains('legenda-fechada')){
+toggleBtn.addEventListener('click', ()=>{
+  if(legendaEl.classList.contains('open')){
+    legendaEl.classList.remove('open');
     toggleBtn.textContent = '⯈';
-  } else {
+  }else{
+    legendaEl.classList.add('open');
     toggleBtn.textContent = '⯇';
   }
-}
-
-toggleBtn.addEventListener('click', ()=>{
-  legendaBairrosEl.classList.toggle('legenda-fechada');
-  atualizarToggleIcon();
 });
 
-atualizarToggleIcon();
-
+// Mostrar legenda aberta ao ativar leitura por bairros
 document.getElementById("toggleBairros").addEventListener("change", function(){
   if(this.checked){
-    legendaBairrosEl.style.display = 'block';
-    legendaBairrosEl.classList.remove('legenda-fechada');
-    atualizarToggleIcon();
-  } else {
-    legendaBairrosEl.style.display = 'none';
+    legendaEl.style.display='block';
+    setTimeout(()=>{legendaEl.classList.add('open'); toggleBtn.textContent='⯇';},10);
+  }else{
+    legendaEl.classList.remove('open');
+    setTimeout(()=>{legendaEl.style.display='none'; toggleBtn.textContent='⯈';},400);
   }
 });
 </script>

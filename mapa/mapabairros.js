@@ -7,7 +7,8 @@ function iniciarModuloBairros() {
   const map = window._checkinfraMap;
   if (!map) return;
 
-  const cores = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
+  // Chaves padronizadas sem acento
+  const cores = { ok:"#4CAF50", alerta:"#FFD700", atencao:"#FF9800", critico:"#F44336" };
   let camadaGeoBairros = null;
 
   // Cache de escolas por bairro
@@ -37,12 +38,12 @@ function iniciarModuloBairros() {
         const checkEl = document.getElementById(
           s === "ok" ? "fAdequado" :
           s === "alerta" ? "fAlerta" :
-          s === "atenção" ? "fAtencao" : "fCritico"
+          s === "atencao" ? "fAtencao" : "fCritico"
         );
         return checkEl ? checkEl.checked : true;
       });
 
-      const cont = { ok:0, alerta:0, atenção:0, critico:0 };
+      const cont = { ok:0, alerta:0, atencao:0, critico:0 };
       escolasNoBairro.forEach(e => { if(cont[e.classe] !== undefined) cont[e.classe]++; });
 
       const total = escolasNoBairro.length;
@@ -54,13 +55,13 @@ function iniciarModuloBairros() {
       // Lógica de criticidade dominante (50%)
       let classeDominante = "ok";
       if(perc("critico") >= 50) classeDominante = "critico";
-      else if(perc("atenção") >= 50) classeDominante = "atenção";
+      else if(perc("atencao") >= 50) classeDominante = "atencao";
       else if(perc("alerta") >= 50) classeDominante = "alerta";
       else if(perc("ok") >= 50) classeDominante = "ok";
       // Fallback: se nenhuma atingiu 50%, pega a classe máxima presente
       else {
         if(cont["critico"]>0) classeDominante="critico";
-        else if(cont["atenção"]>0) classeDominante="atenção";
+        else if(cont["atencao"]>0) classeDominante="atencao";
         else if(cont["alerta"]>0) classeDominante="alerta";
         else classeDominante="ok";
       }
@@ -68,7 +69,7 @@ function iniciarModuloBairros() {
       // Observação principal
       let obs = total === 0 ? "Sem dados disponíveis." :
                 classeDominante === "critico" ? "🔴 Problema generalizado." :
-                classeDominante === "atenção" ? "🟠 Tendência de piora." :
+                classeDominante === "atencao" ? "🟠 Tendência de piora." :
                 classeDominante === "alerta" ? "🟡 Atenção pontual." :
                 "🟢 Situação sob controle.";
 
@@ -92,10 +93,10 @@ function iniciarModuloBairros() {
           <strong>${feature.properties.nome || "Bairro"}</strong><br>
           <small>${total} escolas monitoradas</small>
           <hr style="margin:4px 0">
-          ${total > 0 ? ["critico","atenção","alerta","ok"].map(c => `
+          ${total > 0 ? ["critico","atencao","alerta","ok"].map(c => `
             <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
               <span style="width:10px; height:10px; border-radius:50%; background:${cores[c]}; display:inline-block;"></span>
-              <span>${c.charAt(0).toUpperCase()+c.slice(1)}: ${perc(c)}% (${cont[c]})</span>
+              <span>${c === "atencao" ? "Atenção" : c.charAt(0).toUpperCase()+c.slice(1)}: ${perc(c)}% (${cont[c]})</span>
             </div>`).join("") : "Nenhuma escola ativa neste setor."}
           <div style="margin-top:6px; font-size:11px; border-top:1px solid #eee; padding-top:4px;"><em>${obs}</em></div>
         </div>`;

@@ -11,6 +11,7 @@
 
 <style>
 body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
+
 header {
   background:#1f4fd8;
   color:#fff;
@@ -47,9 +48,18 @@ footer {
   z-index:999;
   font-size:13px;
 }
-.painel label { display:flex; align-items:center; gap:4px; cursor:pointer; }
+.painel label {
+  display:flex;
+  align-items:center;
+  gap:4px;
+  cursor:pointer;
+}
 
-.bola { width:12px; height:12px; border-radius:50%; }
+.bola {
+  width:12px;
+  height:12px;
+  border-radius:50%;
+}
 .verde { background:#4CAF50; }
 .amarelo { background:#FFD700; }
 .laranja { background:#FF9800; }
@@ -66,56 +76,63 @@ footer {
 @keyframes pulse-atencao {0%,100%{opacity:0;}50%{opacity:0.8;}}
 @keyframes pulse-critico {0%,100%{opacity:0;}50%{opacity:0.8;}}
 
-/* Overhanging tab legenda */
-.legenda-tab {
-  position:absolute;
-  top:25%;
-  right:-260px;
-  display:flex;
-  align-items:flex-start;
-  transition: right 0.4s ease;
-  z-index:1000;
+/* Legenda lateral como overhanging tab */
+.legenda-container {
+  position:fixed;
+  top:120px; /* um pouco abaixo do header */
+  right:10px;
+  width:250px;
+  max-height:70vh;
+  display:none; /* aparece apenas com leitura por bairros */
+  z-index:1001;
+  font-size:13px;
 }
-.legenda-tab.open { right:10px; }
 
 .legenda-mapa {
   background: rgba(255,255,255,0.95);
-  padding:12px 14px;
+  padding:12px;
   border-radius:8px;
   box-shadow:0 0 15px rgba(0,0,0,0.2);
-  width:230px;
-  max-height: calc(100vh - 160px);
-  overflow-y:auto;
-  font-size:13px;
-  line-height:1.4;
   border:1px solid #ddd;
+  overflow-y:auto;
+  max-height:70vh;
+  transition: all 0.4s ease;
 }
 
-.legenda-mapa h4 { margin:0 0 6px 0; font-size:14px; display:flex; align-items:center; gap:6px; }
+.legenda-mapa h4 {
+  margin:0 0 8px 0;
+  font-size:14px;
+}
 
-.legenda-handle {
+.legenda-tab {
+  position:absolute;
+  left:-32px; /* fora da borda da legenda */
+  top:10px;
   width:32px;
-  height:50px;
-  background:#1f4fd8;
-  color:#fff;
-  font-size:18px;
-  font-weight:bold;
-  border-radius:4px 0 0 4px;
+  height:32px;
+  background:none;
   display:flex;
   align-items:center;
   justify-content:center;
+  font-size:22px;
+  font-weight:bold;
   cursor:pointer;
-  margin-right:2px;
-  transition: transform 0.3s ease;
   user-select:none;
+  border-radius:4px;
+  transition: transform 0.3s ease;
 }
-.legenda-handle.open { transform: rotate(180deg); }
 
-/* Mobile adjustments */
+.legenda-container.closed .legenda-mapa {
+  margin-right:-250px; /* oculta fora da tela */
+}
+.legenda-container.closed .legenda-tab {
+  transform: rotate(180deg);
+}
+
 @media (max-width:600px){
-  .legenda-tab { top:20%; }
-  .legenda-mapa { width:200px; font-size:12px; }
-  .legenda-handle { width:28px; height:50px; font-size:16px; }
+  .legenda-container { top:80px; width:200px; }
+  .legenda-mapa { font-size:12px; max-height:60vh; }
+  .legenda-tab { width:28px; height:28px; font-size:20px; left:-28px; }
 }
 </style>
 </head>
@@ -137,13 +154,9 @@ footer {
 
 <div id="map"></div>
 
-<footer>
-  Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
-</footer>
-
-<!-- Legenda Overhanging Tab -->
-<div class="legenda-tab" id="legendaTab" style="display:none;">
-  <div class="legenda-handle" id="legendaHandle">◀</div>
+<!-- Legenda container -->
+<div class="legenda-container" id="legendaContainer">
+  <div class="legenda-tab" id="legendaTab">◀</div>
   <div class="legenda-mapa" id="legendaBairros">
     <h4>Status dos bairros</h4>
     <div style="margin-bottom:6px;">
@@ -151,14 +164,16 @@ footer {
       🟠 Atenção: Unidade com tendência de degradação.<br>
       🟡 Alerta: Necessidade de manutenção preventiva e pontual.<br>
       🟢 Adequado: Padrão dentro das normas vigentes.<br><br>
-      <em>Criticidade dominante >=50% das escolas por bairro. Caso contrário, mostra a classe máxima presente.</em>
-    </div>
-    <div style="margin-top:8px; font-size:12px;">
-      <strong>Total de escolas monitoradas:</strong> <span id="totalEscolas">0</span><br>
-      <strong>Última avaliação:</strong> <span id="ultimaAvaliacao">-</span>
+      <em>Criticidade dominante >=50% das escolas por bairro. Caso contrário, mostra a classe máxima presente.</em><br>
+      <small id="totalEscolas">Total escolas monitoradas: -</small><br>
+      <small id="ultimaAvaliacao">Última avaliação: -</small>
     </div>
   </div>
 </div>
+
+<footer>
+  Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -200,12 +215,10 @@ async function carregarAvaliacoes(){
   });
   avaliacoes = Object.values(ultimos);
   window.avaliacoes = avaliacoes;
-
-  const total = avaliacoes.length;
-  const ultima = avaliacoes.map(a=>a.createdAt?.toDate? a.createdAt.toDate() : null)
-                          .filter(d=>d).sort((a,b)=>b-a)[0];
-  document.getElementById("totalEscolas").textContent = total;
-  document.getElementById("ultimaAvaliacao").textContent = ultima ? ultima.toLocaleDateString('pt-BR') : "-";
+  document.getElementById("totalEscolas").textContent = "Total escolas monitoradas: " + avaliacoes.length;
+  const datas = avaliacoes.map(a=>a.createdAt?.toDate? a.createdAt.toDate() : null).filter(d=>d);
+  const ultima = datas.length ? new Date(Math.max.apply(null,datas)) : null;
+  document.getElementById("ultimaAvaliacao").textContent = "Última avaliação: " + (ultima ? ultima.toLocaleDateString('pt-BR') : "-");
 }
 
 function criarPonto(d){
@@ -249,24 +262,21 @@ document.querySelectorAll("#fAdequado,#fAlerta,#fAtencao,#fCritico,#togglePulso"
 await carregarAvaliacoes();
 atualizarPontos();
 
-// Controle legenda
+// Toggle legenda
+const legendaContainer = document.getElementById("legendaContainer");
 const legendaTab = document.getElementById("legendaTab");
-const legendaHandle = document.getElementById("legendaHandle");
-const toggleBairros = document.getElementById("toggleBairros");
 
-toggleBairros.addEventListener("change", function(){
-  if(this.checked){
-    legendaTab.style.display='flex';
-    setTimeout(()=>legendaTab.classList.add('open'),10);
-  } else {
-    legendaTab.classList.remove('open');
-    setTimeout(()=>legendaTab.style.display='none',400);
-  }
+legendaTab.addEventListener("click", ()=>{
+  legendaContainer.classList.toggle("closed");
 });
 
-legendaHandle.addEventListener("click", ()=>{
-  legendaTab.classList.toggle('open');
-  legendaHandle.classList.toggle('open');
+document.getElementById("toggleBairros").addEventListener("change", function(){
+  if(this.checked){
+    legendaContainer.style.display='block';
+    legendaContainer.classList.remove("closed");
+  }else{
+    legendaContainer.style.display='none';
+  }
 });
 </script>
 

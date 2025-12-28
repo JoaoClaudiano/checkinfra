@@ -1,138 +1,91 @@
 // mapabairros.js
 
-// Referência ao Firestore já inicializado no index
-const db = window.dbFirebase; // Certifique-se que window.dbFirebase = db no index.html
+// Referências globais do index
+const map = window._checkinfraMap;
+const avaliacoes = window.avaliacoes;
 
-// Layer para polígonos de bairros
-window.camadaBairros = L.layerGroup().addTo(window._checkinfraMap);
-
-// Layer para pontos individuais (opcional)
-window.camadaPontosBairro = L.layerGroup().addTo(window._checkinfraMap);
+// Layer para os bairros
+const camadaBairros = L.layerGroup().addTo(map);
 
 // Cores por classe
 const cores = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
 
-// Armazenar avaliações e geojson
-window.avaliacoesBairro = [];
-let bairrosGeoJSON = null;
+// Mapear classes do Firebase para cores/metodologia
+const classeMap = { ok:"ok", alerta:"alerta", atencao:"atenção", critico:"critico" };
 
-// Carregar avaliações do Firebase
-window.carregarAvaliacoesBairro = async function() {
-  const snap = await getDocs(collection(db,"avaliacoes"));
-  const ultimos = {};
-  snap.forEach(doc=>{
-    const d = doc.data();
-    if(d.lat && d.lng && d.classe && d.escola){
-      if(!ultimos[d.escola] || (d.timestamp && d.timestamp.toMillis() > ultimos[d.escola].timestamp?.toMillis())){
-        ultimos[d.escola] = d;
+// Carregar GeoJSON dos bairros
+fetch('./mapa/POLIGONAIS.geojson')
+  .then(res => res.json())
+  .then(geojson => {
+    window.geoBairros = L.geoJSON(geojson, {
+      style: { color:"#666", weight:1, fillOpacity:0.1 },
+      onEachFeature: (feature, layer) => {
+        layer.on('mouseover', () => layer.setStyle({ fillOpacity:0.2 }));
+        layer.on('mouseout', () => layer.setStyle({ fillOpacity:0.1 }));
       }
-    }
-  });
-  window.avaliacoesBairro = Object.values(ultimos);
-};
-
-// Função para carregar polígonos de bairros
-async function carregarBairros() {
-  if(bairrosGeoJSON) return bairrosGeoJSON;
-  const res = await fetch("mapa/POLIGONAIS.geojson");
-  const geojson = await res.json();
-  bairrosGeoJSON = geojson;
-  return geojson;
-}
-
-// Função para calcular classe dominante e tooltip
-function tooltipBairro(feature, avaliacoes) {
-  const coords = feature.geometry.coordinates[0].map(c => [c[1], c[0]]);
-  const poly = L.polygon(coords);
-
-  const escolas = avaliacoes.filter(a => poly.getBounds().contains([a.lat,a.lng]));
-
-  if(escolas.length === 0)
-    return `<strong>${feature.properties.nome}</strong><br>⚪ Sem dados – avaliação necessária.`;
-
-  const cont = { ok:0, alerta:0, atenção:0, critico:0 };
-  escolas.forEach(e => {
-    if(e.classe in cont) cont[e.classe]++;
+    }).addTo(camadaBairros);
+    atualizarBairros();
   });
 
-  const t = escolas.length;
-  const p = k => Math.round((cont[k]/t)*100);
+// Função para atualizar bairros e calcular classe dominante
+function atualizarBairros() {
+  camadaBairros.clearLayers();
+  
+  if(!window.geoBairros) return;
 
-  let obs="";
-  if(p("critico") >= 50) obs="🔴 Problema generalizado – alto risco de impacto.";
-  else if(p("atenção") >= 50) obs="🟠 Problema localizado, tendência de piora.";
-  else if(p("alerta") >= 50) obs="🟡 Problema pontual, monitoramento recomendado.";
-  else obs="🟢 Situação controlada – continuar acompanhamento rotineiro.";
-
-  return `<strong>${feature.properties.nome}</strong><br>
-    🔴 ${p("critico")}% crítico (${cont.critico})<br>
-    🟠 ${p("atenção")}% atenção (${cont.atenção})<br>
-    🟡 ${p("alerta")}% alerta (${cont.alerta})<br>
-    🟢 ${p("ok")}% adequado (${cont.ok})<br>
-    <em>${obs}</em>`;
-}
-
-// Atualizar visualização dos bairros
-window.atualizarBairros = async function(){
-  window.camadaBairros.clearLayers();
-  window.camadaPontosBairro.clearLayers();
-
-  const geojson = await carregarBairros();
-
-  geojson.features.forEach(feature => {
-    // Aplicar filtros do painel
-    const avaliacoesFiltradas = window.avaliacoesBairro.filter(d=>{
-      const s = d.classe;
+  window.geoBairros.eachLayer(layer => {
+    const feature = layer.feature;
+    
+    // Filtrar escolas dentro do bairro usando turf
+    const escolasNoBairro = avaliacoes.filter(a => {
+      const s = classeMap[a.classe] || a.classe;
+      // Respeita filtros do painel
       if((s==="ok" && !fAdequado.checked) ||
          (s==="alerta" && !fAlerta.checked) ||
          (s==="atenção" && !fAtencao.checked) ||
          (s==="critico" && !fCritico.checked)) return false;
-      return true;
+      return turf.booleanPointInPolygon([a.lng, a.lat], feature);
     });
 
-    const coords = feature.geometry.coordinates[0].map(c => [c[1], c[0]]);
-    const poly = L.polygon(coords);
+    // Calcular contagem por classe
+    const cont = { ok:0, alerta:0, atenção:0, critico:0 };
+    escolasNoBairro.forEach(e => cont[classeMap[e.classe] || e.classe]++);
 
-    // Contar escolas dentro do bairro
-    const escolas = avaliacoesFiltradas.filter(a => poly.getBounds().contains([a.lat,a.lng]));
+    const total = escolasNoBairro.length;
+    const perc = k => total ? Math.round((cont[k]/total)*100) : 0;
 
-    let classeDominante = "ok"; // default
-    if(escolas.length>0){
-      const cont = { ok:0, alerta:0, atenção:0, critico:0 };
-      escolas.forEach(e => { if(e.classe in cont) cont[e.classe]++; });
+    // Determinar classe dominante
+    let classeDominante = "ok";
+    if(perc("critico") >= 50) classeDominante = "critico";
+    else if(perc("atenção") >= 50) classeDominante = "atenção";
+    else if(perc("alerta") >= 50) classeDominante = "alerta";
 
-      if(cont.critico>=0.5*escolas.length) classeDominante="critico";
-      else if(cont.atenção>=0.5*escolas.length) classeDominante="atenção";
-      else if(cont.alerta>=0.5*escolas.length) classeDominante="alerta";
-      else classeDominante="ok";
-    }
+    // Tooltip do bairro
+    const obs = classeDominante==="critico" ? "🔴 Problema generalizado – alto risco." :
+                classeDominante==="atenção" ? "🟠 Problema localizado, tendência de piora." :
+                classeDominante==="alerta" ? "🟡 Problema pontual, monitoramento." :
+                "🟢 Situação controlada – acompanhamento rotineiro.";
 
-    poly.setStyle({
-      color: cores[classeDominante],
-      fillColor: cores[classeDominante],
-      fillOpacity: 0.3,
-      weight:1
-    }).bindTooltip(tooltipBairro(feature, avaliacoesFiltradas));
-
-    poly.addTo(window.camadaBairros);
+    layer.setStyle({ fillColor: cores[classeDominante], fillOpacity:0.3, weight:1 });
+    layer.bindTooltip(`
+      <strong>${feature.properties.nome}</strong><br>
+      🔴 ${perc("critico")}% crítico (${cont.critico})<br>
+      🟠 ${perc("atenção")}% atenção (${cont.atenção})<br>
+      🟡 ${perc("alerta")}% alerta (${cont.alerta})<br>
+      🟢 ${perc("ok")}% adequado (${cont.ok})<br>
+      <em>${obs}</em>
+    `);
+    camadaBairros.addLayer(layer);
   });
-};
+}
 
-// Checkbox "Leitura por bairro"
-document.getElementById("toggleBairros").addEventListener("change", async function(){
-  if(this.checked){
-    await window.carregarAvaliacoesBairro();
-    await window.atualizarBairros();
-  } else {
-    window.camadaBairros.clearLayers();
-  }
+// Atualiza em tempo real quando os filtros do painel mudam
+document.querySelectorAll("#fAdequado,#fAlerta,#fAtencao,#fCritico").forEach(el => {
+  el.addEventListener("change", atualizarBairros);
 });
 
-// Atualizar automaticamente ao alterar filtros do painel
-["fAdequado","fAlerta","fAtencao","fCritico"].forEach(id=>{
-  document.getElementById(id).addEventListener("change", async ()=>{
-    if(document.getElementById("toggleBairros").checked){
-      await window.atualizarBairros();
-    }
-  });
+// Atualiza quando o checkbox de bairros é alterado
+document.getElementById("toggleBairros").addEventListener("change", function(){
+  if(this.checked) atualizarBairros();
+  else camadaBairros.clearLayers();
 });

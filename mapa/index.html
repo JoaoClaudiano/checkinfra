@@ -91,7 +91,7 @@ footer {
 
 @keyframes pulseFade {
   0% { opacity:0; transform: scale(1); }
-  50% { opacity:0.8; transform: scale(1.2); }
+  50% { opacity:0.8; transform: scale(1.5); }
   100% { opacity:0; transform: scale(1); }
 }
 </style>
@@ -123,7 +123,7 @@ footer {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Configuração Firebase
+// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
@@ -132,17 +132,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Inicializar mapa
+// Mapa
 const map = L.map("map").setView([-3.7319,-38.5267],12);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{ attribution:"© OpenStreetMap"}).addTo(map);
 
-// Dados
+// Variáveis
 let avaliacoes = [];
 let camadaPontos = L.layerGroup().addTo(map);
-let pulseMarkers = [];
+let camadaPulsos = L.layerGroup().addTo(map);
 
 // Cores por classe
-const cores = { adequado:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
+const cores = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
 
 // Carregar avaliações mais recentes por escola
 async function carregarAvaliacoes(){
@@ -170,17 +170,25 @@ function criarPonto(d){
   }).bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.classe}`);
 }
 
-// Atualizar pontos
+// Criar marcador pulso
+function criarPulso(d){
+  const divIcon = L.divIcon({
+    className: "pulse",
+    iconSize: [14,14],
+    html:`<div style="background:${cores[d.classe]};width:14px;height:14px;border-radius:50%"></div>`
+  });
+  return L.marker([d.lat,d.lng],{icon:divIcon});
+}
+
+// Atualizar pontos e pulsos
 function atualizarPontos(){
-  // limpar camada e pulsos
   camadaPontos.clearLayers();
-  pulseMarkers.forEach(m=>map.removeLayer(m));
-  pulseMarkers = [];
+  camadaPulsos.clearLayers();
 
   avaliacoes.forEach(d=>{
     const s = d.classe;
     if(
-      (s==="adequado" && !fAdequado.checked) ||
+      (s==="ok" && !fAdequado.checked) ||
       (s==="alerta" && !fAlerta.checked) ||
       (s==="atenção" && !fAtencao.checked) ||
       (s==="critico" && !fCritico.checked)
@@ -192,13 +200,8 @@ function atualizarPontos(){
 
     // pulso
     if(togglePulso.checked){
-      const divIcon = L.divIcon({
-        className: "pulse",
-        iconSize: [14,14],
-        html:`<div style="background:${cores[d.classe]};width:14px;height:14px;border-radius:50%"></div>`
-      });
-      const pulseMarker = L.marker([d.lat,d.lng],{icon:divIcon}).addTo(camadaPontos);
-      pulseMarkers.push(pulseMarker);
+      const pulseMarker = criarPulso(d);
+      pulseMarker.addTo(camadaPulsos);
     }
   });
 }
@@ -211,8 +214,9 @@ function atualizarPontos(){
 // Inicialização
 await carregarAvaliacoes();
 atualizarPontos();
-
 </script>
-<script src="./mapabairros.js"></script>
+
+<script type="module" src="./mapabairros.js"></script>
+
 </body>
 </html>

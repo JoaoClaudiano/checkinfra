@@ -11,6 +11,7 @@
 
 <style>
 body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
+
 header {
   background:#1f4fd8;
   color:#fff;
@@ -24,6 +25,7 @@ header {
   z-index:1000;
 }
 header .voltar { position:absolute; left:14px; cursor:pointer; font-size:18px; user-select:none; }
+
 footer {
   background:#f4f6f8;
   font-size:11px;
@@ -32,6 +34,7 @@ footer {
   text-align:center;
   border-top:1px solid #ddd;
 }
+
 .painel {
   background:#fff;
   padding:8px;
@@ -45,12 +48,23 @@ footer {
   z-index:999;
   font-size:13px;
 }
-.painel label { display:flex; align-items:center; gap:4px; cursor:pointer; }
-.bola { width:12px; height:12px; border-radius:50%; }
+.painel label {
+  display:flex;
+  align-items:center;
+  gap:4px;
+  cursor:pointer;
+}
+
+.bola {
+  width:12px;
+  height:12px;
+  border-radius:50%;
+}
 .verde { background:#4CAF50; }
 .amarelo { background:#FFD700; }
 .laranja { background:#FF9800; }
 .vermelho { background:#F44336; }
+
 #map { height: calc(100vh - 160px); }
 
 /* Pulsar suave */
@@ -66,13 +80,13 @@ footer {
 .legenda-mapa {
   display:none;
   position:absolute;
-  top:80px;
-  right:-250px; /* fora da tela inicialmente */
-  width:230px;
-  max-height:50%;
+  top:20%;
+  right:-260px; /* fora da tela inicialmente */
+  width:250px;
+  max-height:60%;
   overflow-y:auto;
   background: rgba(255,255,255,0.95);
-  padding:10px 12px 12px 12px;
+  padding:12px;
   line-height:20px;
   color:#333;
   box-shadow:0 0 15px rgba(0,0,0,0.2);
@@ -83,36 +97,64 @@ footer {
   transition: all 0.4s ease;
 }
 .legenda-mapa.open { right:10px; }
-.legenda-toggle-orelha {
+.legenda-mapa h4 {
+  margin:0 0 8px 0;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+}
+.legenda-mapa i {
+  width:12px;
+  height:12px;
+  float:left;
+  margin-right:8px;
+  margin-top:4px;
+  border-radius:50%;
+  display:inline-block;
+  flex-shrink:0;
+}
+
+/* Aba/orelha lateral */
+.legenda-orelha {
   position:absolute;
-  left:-30px;
-  top:50%;
-  transform:translateY(-50%);
-  width:28px;
-  height:28px;
+  top:25%;
+  right:0;
+  width:32px;
+  height:60px;
   background:#1f4fd8;
   color:#fff;
+  border-radius:4px 0 0 4px;
   display:flex;
   align-items:center;
   justify-content:center;
-  border-radius:4px 0 0 4px;
   cursor:pointer;
+  z-index:1001;
+  font-size:20px;
   font-weight:bold;
   user-select:none;
-  transition: transform 0.4s ease;
+  display:none; /* só aparece com leitura por bairros */
+  transition: all 0.3s ease;
 }
-.legenda-toggle-orelha.rotating { transform:translateY(-50%) rotate(90deg); }
+.legenda-orelha.rotating {
+  animation: girar 0.4s ease;
+}
 
-.legenda-mapa h4 { margin:0 0 6px 0; font-size:14px; font-weight:bold; }
-.legenda-mapa div { margin-bottom:6px; }
+@keyframes girar {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(20deg); }
+  100% { transform: rotate(0deg); }
+}
 
 @media (max-width:600px){
-  .legenda-mapa { top:60px; font-size:12px; line-height:16px; width:200px; }
+  .legenda-mapa { width:200px; max-height:50%; top:15%; font-size:12px; }
   .legenda-mapa h4 { font-size:13px; }
-  .legenda-toggle-orelha { width:26px; height:26px; font-size:14px; }
+  .legenda-orelha { width:28px; height:50px; font-size:18px; }
 }
 </style>
 </head>
+
 <body>
 <header>
   <span class="voltar" onclick="history.back()">←</span>
@@ -138,7 +180,11 @@ footer {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const firebaseConfig = { apiKey:"AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0", authDomain:"checkinfra-adf3c.firebaseapp.com", projectId:"checkinfra-adf3c" };
+const firebaseConfig = {
+  apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
+  authDomain: "checkinfra-adf3c.firebaseapp.com",
+  projectId: "checkinfra-adf3c"
+};
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -179,8 +225,14 @@ function criarPonto(d){
   const cor = cores[s] || "#000";
   const nomeStatus = s==="ok"?"Adequado":s.charAt(0).toUpperCase()+s.slice(1);
   const ultimaData = d.createdAt?.toDate? d.createdAt.toDate().toLocaleDateString('pt-BR'):"-";
-  const marker = L.circleMarker([d.lat,d.lng],{ radius:8, color:cor, fillColor:cor, fillOpacity:0.8 })
-    .bindPopup(`<strong>${d.escola}</strong><br>Status: ${nomeStatus}<br>Pontuação: ${d.pontuacao || "-"}<br>Última avaliação: ${ultimaData}`);
+  const marker = L.circleMarker([d.lat,d.lng],{
+    radius:8, color:cor, fillColor:cor, fillOpacity:0.8
+  }).bindPopup(`
+    <strong>${d.escola}</strong><br>
+    Status: ${nomeStatus}<br>
+    Pontuação: ${d.pontuacao || "-"}<br>
+    Última avaliação: ${ultimaData}
+  `);
   return marker;
 }
 
@@ -209,68 +261,64 @@ document.querySelectorAll("#fAdequado,#fAlerta,#fAtencao,#fCritico,#togglePulso"
 await carregarAvaliacoes();
 atualizarPontos();
 
-// Legenda bairros
-let legendaBairros, orelha;
-function criarLegendaBairros() {
-  if(legendaBairros) return;
-  legendaBairros = L.DomUtil.create('div','legenda-mapa');
-  legendaBairros.id='legendaBairros';
-  legendaBairros.innerHTML=`
+// Criar legenda
+const legenda = L.control({ position:'topright' });
+legenda.onAdd = function(map){
+  const div = L.DomUtil.create('div','legenda-mapa');
+  div.id='legendaBairros';
+  div.innerHTML=`
     <h4>Status dos bairros</h4>
-    <div>
+    <div style="margin-bottom:6px;">
       🔴 Crítico: Predomínio de falhas graves ou risco iminente.<br>
       🟠 Atenção: Unidade com tendência de degradação.<br>
       🟡 Alerta: Necessidade de manutenção preventiva e pontual.<br>
       🟢 Adequado: Padrão dentro das normas vigentes.<br><br>
       <em>Criticidade dominante >=50% das escolas por bairro. Caso contrário, mostra a classe máxima presente.</em><br>
-      <strong>Total escolas monitoradas:</strong> ${avaliacoes.length}<br>
-      <strong>Última avaliação:</strong> ${avaliacoes.map(a=>a.createdAt?.toDate?.()||0).sort((a,b)=>b-a)[0] ? avaliacoes.map(a=>a.createdAt?.toDate?.()).sort((a,b)=>b-a)[0].toLocaleDateString('pt-BR') : "-"}
+      <strong>Total escolas monitoradas: ${avaliacoes.length}</strong><br>
+      <strong>Última avaliação: ${avaliacoes.length ? new Date(Math.max(...avaliacoes.map(a=>a.createdAt?.toDate?.()||0))).toLocaleDateString('pt-BR') : "-"}</strong>
     </div>
   `;
-  map.getContainer().appendChild(legendaBairros);
-  legendaBairros.style.display='none';
+  div.style.display='none';
+  return div;
+};
+legenda.addTo(map);
 
-  // Orelha/aba
-  orelha = document.createElement('div');
-  orelha.className='legenda-toggle-orelha';
-  orelha.innerHTML='&#9776;'; // ícone ≡
+// Aba/orelha lateral
+const orelha = L.DomUtil.create('div','legenda-orelha');
+orelha.innerHTML='📊';
+map.getContainer().appendChild(orelha);
+
+function abrirLegenda(){
+  const div = document.getElementById('legendaBairros');
+  div.style.display='block';
+  setTimeout(()=>div.classList.add('open'),10);
+  orelha.classList.add('rotating');
+  setTimeout(()=>orelha.classList.remove('rotating'),400);
   orelha.style.display='none';
-  map.getContainer().appendChild(orelha);
-
-  orelha.addEventListener('click', ()=> {
-    legendaBairros.classList.add('open');
-    orelha.style.display='none';
-  });
 }
 
-function ajustarAlturaLegenda() {
-  if(!legendaBairros || legendaBairros.style.display==='none') return;
-  const mapHeight = map.getSize().y;
-  let altura = mapHeight*0.5;
-  const zoom = map.getZoom();
-  altura = altura*(12/zoom);
-  altura = Math.max(Math.min(altura,mapHeight*0.7), mapHeight*0.3);
-  legendaBairros.style.maxHeight = altura+'px';
+function fecharLegenda(){
+  const div = document.getElementById('legendaBairros');
+  div.classList.remove('open');
+  orelha.classList.add('rotating');
+  setTimeout(()=>orelha.classList.remove('rotating'),400);
+  setTimeout(()=>{ div.style.display='none'; orelha.style.display='flex'; },400);
 }
 
-document.getElementById("toggleBairros").addEventListener("change",function(){
+// Toggle leitura por bairros
+document.getElementById("toggleBairros").addEventListener("change", function(){
   if(this.checked){
-    criarLegendaBairros();
-    legendaBairros.style.display='block';
-    legendaBairros.classList.add('open');
-    orelha.style.display='none';
-    ajustarAlturaLegenda();
+    orelha.style.display='flex';
+    abrirLegenda();
   } else {
-    if(legendaBairros){
-      legendaBairros.classList.remove('open');
-      setTimeout(()=>{ legendaBairros.style.display='none'; orelha.style.display='none'; },400);
-    }
+    fecharLegenda();
+    orelha.style.display='none';
   }
 });
 
-map.on('zoomend', ajustarAlturaLegenda);
-
+orelha.addEventListener('click', abrirLegenda);
 </script>
+
 <script src="./mapabairros.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 /**
  * mapabairros.js
- * Sistema de Inteligência Territorial - CheckInfra (versão otimizada)
+ * Sistema de Inteligência Territorial - CheckInfra
  */
 
 function iniciarModuloBairros() {
@@ -25,8 +25,7 @@ function iniciarModuloBairros() {
       let escolasNoBairro = cacheEscolasBairro.get(feature.properties.nome);
       if(!escolasNoBairro) {
         escolasNoBairro = avaliacoes.filter(a => {
-          // Inverte lat/lng para Turf.js
-          const pt = turf.point([a.lng, a.lat]);
+          const pt = turf.point([a.lng, a.lat]); // atenção: Firebase = lat,lng
           return turf.booleanPointInPolygon(pt, feature.geometry);
         });
         cacheEscolasBairro.set(feature.properties.nome, escolasNoBairro);
@@ -49,17 +48,36 @@ function iniciarModuloBairros() {
       const total = escolasNoBairro.length;
       const perc = k => total ? Math.round((cont[k]/total)*100) : 0;
 
+      // Detectar se existe ao menos uma escola crítica, independente do 50%
+      const existeCritico = escolasNoBairro.some(e => e.classe === "critico");
+
+      // Lógica de criticidade dominante (50%)
       let classeDominante = "ok";
       if(perc("critico") >= 50) classeDominante = "critico";
       else if(perc("atenção") >= 50) classeDominante = "atenção";
       else if(perc("alerta") >= 50) classeDominante = "alerta";
+      else if(perc("ok") >= 50) classeDominante = "ok";
+      // Fallback: se nenhuma atingiu 50%, pega a classe máxima presente
+      else {
+        if(cont["critico"]>0) classeDominante="critico";
+        else if(cont["atenção"]>0) classeDominante="atenção";
+        else if(cont["alerta"]>0) classeDominante="alerta";
+        else classeDominante="ok";
+      }
 
-      const obs = total === 0 ? "Sem dados disponíveis." :
-                  classeDominante === "critico" ? "🔴 Problema generalizado." :
-                  classeDominante === "atenção" ? "🟠 Tendência de piora." :
-                  "🟢 Situação sob controle.";
+      // Observação principal
+      let obs = total === 0 ? "Sem dados disponíveis." :
+                classeDominante === "critico" ? "🔴 Problema generalizado." :
+                classeDominante === "atenção" ? "🟠 Tendência de piora." :
+                classeDominante === "alerta" ? "🟡 Atenção pontual." :
+                "🟢 Situação sob controle.";
 
-      // Estilo visual
+      // Aviso de situação crítica pontual (mesmo que menor que 50%)
+      if(existeCritico && classeDominante !== "critico") {
+        obs += " ⚠️ Existe ao menos uma escola crítica neste bairro.";
+      }
+
+      // Aplicar estilo visual do bairro
       layer.setStyle({
         fillColor: total > 0 ? cores[classeDominante] : "transparent",
         fillOpacity: total > 0 ? 0.35 : 0,
@@ -68,9 +86,9 @@ function iniciarModuloBairros() {
         color: "#666"
       });
 
-      // Popup usando X nativo do Leaflet
+      // Template do popup
       const html = `
-        <div style="font-size:13px; line-height:1.4; min-width:180px;">
+        <div style="font-size:13px; line-height:1.4; min-width:180px; position:relative;">
           <strong>${feature.properties.nome || "Bairro"}</strong><br>
           <small>${total} escolas monitoradas</small>
           <hr style="margin:4px 0">
@@ -81,8 +99,8 @@ function iniciarModuloBairros() {
             </div>`).join("") : "Nenhuma escola ativa neste setor."}
           <div style="margin-top:6px; font-size:11px; border-top:1px solid #eee; padding-top:4px;"><em>${obs}</em></div>
         </div>`;
-      
-      layer.bindPopup(html, { maxWidth: 250 }); // closeButton true por padrão
+
+      layer.bindPopup(html, { maxWidth: 250 });
     });
   }
 

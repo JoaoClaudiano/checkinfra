@@ -24,22 +24,9 @@ header {
   top:0;
   z-index:1000;
 }
-header .voltar {
-  position:absolute;
-  left:14px;
-  cursor:pointer;
-  font-size:18px;
-  user-select:none;
-}
+header .voltar { position:absolute; left:14px; cursor:pointer; font-size:18px; user-select:none; }
 
-footer {
-  background:#f4f6f8;
-  font-size:11px;
-  color:#555;
-  padding:8px;
-  text-align:center;
-  border-top:1px solid #ddd;
-}
+footer { background:#f4f6f8; font-size:11px; color:#555; padding:8px; text-align:center; border-top:1px solid #ddd; }
 
 .painel {
   background:#fff;
@@ -54,18 +41,8 @@ footer {
   z-index:999;
   font-size:13px;
 }
-.painel label {
-  display:flex;
-  align-items:center;
-  gap:4px;
-  cursor:pointer;
-}
-
-.bola {
-  width:12px;
-  height:12px;
-  border-radius:50%;
-}
+.painel label { display:flex; align-items:center; gap:4px; cursor:pointer; }
+.bola { width:12px; height:12px; border-radius:50%; }
 .verde { background:#4CAF50; }
 .amarelo { background:#FFD700; }
 .laranja { background:#FF9800; }
@@ -74,33 +51,17 @@ footer {
 #map { height: calc(100vh - 160px); }
 
 /* Pulsar suave com fade in/out */
-.pulse-ok {
-  animation: pulse-ok 4s infinite;
-}
-.pulse-alerta, .pulse-atencao {
-  animation: pulse-alerta 3s infinite;
-}
-.pulse-critico {
-  animation: pulse-critico 2s infinite;
-}
+.pulse-ok { animation: pulse-ok 4s infinite; }
+.pulse-alerta, .pulse-atencao { animation: pulse-alerta 3s infinite; }
+.pulse-critico { animation: pulse-critico 2s infinite; }
 
-@keyframes pulse-ok {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 0.8; }
-}
-@keyframes pulse-alerta {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 0.8; }
-}
-@keyframes pulse-critico {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 0.8; }
-}
+@keyframes pulse-ok { 0%, 100% { opacity: 0; } 50% { opacity: 0.8; } }
+@keyframes pulse-alerta { 0%, 100% { opacity: 0; } 50% { opacity: 0.8; } }
+@keyframes pulse-critico { 0%, 100% { opacity: 0; } 50% { opacity: 0.8; } }
 </style>
 </head>
 
 <body>
-
 <header>
   <span class="voltar" onclick="history.back()">←</span>
   <span>Mapa Sanitário das Escolas – CheckInfra</span>
@@ -125,7 +86,7 @@ footer {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Config Firebase
+// Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
@@ -144,15 +105,15 @@ if (!window._checkinfraMap) {
   map = window._checkinfraMap;
 }
 
-// Cores e frequências
+// Cores e pulsos
 const cores = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
 const classesPulse = { ok:"pulse-ok", alerta:"pulse-alerta", atenção:"pulse-atencao", critico:"pulse-critico" };
 
-// Layer e dados
+// Layer e avaliações
 let camadaPontos = L.layerGroup().addTo(map);
 let avaliacoes = [];
 
-// Carregar avaliações recentes
+// Carregar avaliações
 async function carregarAvaliacoes(){
   const snap = await getDocs(collection(db,"avaliacoes"));
   const ultimos = {};
@@ -180,7 +141,6 @@ function criarPonto(d){
 // Atualizar pontos
 function atualizarPontos(){
   camadaPontos.clearLayers();
-
   const mapaVivo = document.getElementById("togglePulso").checked;
 
   avaliacoes.forEach(d=>{
@@ -194,14 +154,13 @@ function atualizarPontos(){
     marker.addTo(camadaPontos);
 
     if(mapaVivo){
-      // Aplicar classe CSS para piscar
       const el = marker.getElement();
       if(el) el.classList.add(classesPulse[s]);
     }
   });
 }
 
-// Eventos checkbox
+// Eventos
 document.querySelectorAll("#fAdequado,#fAlerta,#fAtencao,#fCritico,#togglePulso").forEach(el=>{
   el.addEventListener("change", atualizarPontos);
 });
@@ -211,6 +170,7 @@ await carregarAvaliacoes();
 atualizarPontos();
 </script>
 
+<!-- Mapabairros -->
 <script src="./mapabairros.js"></script>
-</body> 
+</body>
 </html>

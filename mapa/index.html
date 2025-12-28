@@ -11,7 +11,6 @@
 
 <style>
 body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
-
 header {
   background:#1f4fd8; color:#fff; padding:14px;
   display:flex; align-items:center; justify-content:center; font-weight:bold;
@@ -34,14 +33,21 @@ footer { background:#f4f6f8; font-size:11px; color:#555; padding:8px; text-align
 
 #map { height: calc(100vh - 160px); }
 
-/* Pulso (fade in/out) */
+/* Pulso suave com keyframes */
 .pulse {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background-color: currentColor;
   opacity: 1;
-  transition: opacity 0.5s ease-in-out;
+  animation-name: pulseFade;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes pulseFade {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
 }
 </style>
 </head>
@@ -90,9 +96,9 @@ if (!window._checkinfraMap) {
   map = window._checkinfraMap;
 }
 
+// Configurações
 const cores = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
 const frequencias = { ok:4000, alerta:3000, atenção:3000, critico:2000 };
-
 let camadaPontos = L.layerGroup().addTo(map);
 let avaliacoes = [];
 let pulsosAtivos = [];
@@ -113,30 +119,33 @@ async function carregarAvaliacoes(){
   avaliacoes = Object.values(ultimos);
 }
 
-// Criar marcador
+// Criar ponto
 function criarPonto(d){
   const cor = cores[d.classe] || "#000";
-  return L.circleMarker([d.lat,d.lng],{
+  const marker = L.circleMarker([d.lat,d.lng],{
     radius:8, color:cor, fillColor:cor, fillOpacity:0.8
   }).bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.classe}<br>Pontuação: ${d.pontuacao||"-"}<br>Última avaliação: ${d.data||"-"}`);
+  return marker;
 }
 
 // Ativar mapa vivo
 function ativarPulso(){
+  // Limpar pulsos antigos
   pulsosAtivos.forEach(interval => clearInterval(interval));
   pulsosAtivos = [];
 
   avaliacoes.forEach(d=>{
     const cor = cores[d.classe] || "#000";
     const freq = frequencias[d.classe] || 3000;
-
     const marker = L.circleMarker([d.lat,d.lng],{
       radius:8, color:cor, fillColor:cor, fillOpacity:0.8
-    }).addTo(camadaPontos);
+    }).bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.classe}`);
+    marker.addTo(camadaPontos);
 
+    // Piscar ponto (opacidade)
     let visivel = true;
     const interval = setInterval(()=>{
-      marker.setStyle({ fillOpacity: visivel ? 0.8 : 0.2, opacity:1 });
+      marker.setStyle({ fillOpacity: visivel ? 0 : 0.8, opacity: visivel ? 0 : 1 });
       visivel = !visivel;
     }, freq);
     pulsosAtivos.push(interval);
@@ -146,9 +155,8 @@ function ativarPulso(){
 // Atualizar pontos
 function atualizarPontos(){
   camadaPontos.clearLayers();
-  pulsosAtivos.forEach(interval => clearInterval(interval));
-  pulsosAtivos = [];
-
+  pulsosAtivos.forEach(interval=>clearInterval(interval));
+  pulsosAtivos=[];
   if(document.getElementById("togglePulso").checked){
     ativarPulso();
   } else {
@@ -158,25 +166,21 @@ function atualizarPontos(){
          (s==="alerta" && !fAlerta.checked) ||
          (s==="atenção" && !fAtencao.checked) ||
          (s==="critico" && !fCritico.checked)) return;
-      criarPonto(d).addTo(camadaPontos);
+      const m = criarPonto(d);
+      m.addTo(camadaPontos);
     });
   }
 }
 
-// Checkbox listeners
+// Eventos checkbox
 document.querySelectorAll("#fAdequado,#fAlerta,#fAtencao,#fCritico,#togglePulso").forEach(el=>{
   el.addEventListener("change", atualizarPontos);
 });
 
-// Inicializar
-document.getElementById("togglePulso").checked = true;
-document.getElementById("fAdequado").checked = true;
-document.getElementById("fAlerta").checked = true;
-document.getElementById("fAtencao").checked = true;
-document.getElementById("fCritico").checked = true;
-
+// Inicialização
 await carregarAvaliacoes();
 atualizarPontos();
+
 </script>
 
 <script src="./mapabairros.js"></script>

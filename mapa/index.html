@@ -121,7 +121,7 @@ if(!window._checkinfraMap){
 
 // Cores e classes de pulse
 const cores = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
-const classesPulse = { ok:"pulse-ok", alerta:"pulse-alerta", atenção:"pulse-atencao", critico:"pulse-critico" };
+const classesPulse = { ok:"pulse-ok", alerta:"pulse-alerta", atencao:"pulse-atencao", critico:"pulse-critico" };
 
 // Layer e avaliações
 let camadaPontos = L.layerGroup().addTo(map);
@@ -161,7 +161,7 @@ function atualizarPontos(){
     const s = d.classe;
     if((s==="ok" && !fAdequado.checked) ||
        (s==="alerta" && !fAlerta.checked) ||
-       (s==="atenção" && !fAtencao.checked) ||
+       (s==="atencao" && !fAtencao.checked) ||
        (s==="critico" && !fCritico.checked)) return;
 
     const marker = criarPonto(d);

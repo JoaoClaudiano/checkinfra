@@ -7,7 +7,6 @@ function iniciarModuloBairros() {
   const map = window._checkinfraMap;
   if (!map) return;
 
-  // Chaves padronizadas sem acento
   const cores = { ok:"#4CAF50", alerta:"#FFD700", atencao:"#FF9800", critico:"#F44336" };
   let camadaGeoBairros = null;
 
@@ -26,7 +25,7 @@ function iniciarModuloBairros() {
       let escolasNoBairro = cacheEscolasBairro.get(feature.properties.nome);
       if(!escolasNoBairro) {
         escolasNoBairro = avaliacoes.filter(a => {
-          const pt = turf.point([a.lng, a.lat]); // atenção: Firebase = lat,lng
+          const pt = turf.point([a.lng, a.lat]); // Firebase: lat,lng
           return turf.booleanPointInPolygon(pt, feature.geometry);
         });
         cacheEscolasBairro.set(feature.properties.nome, escolasNoBairro);
@@ -66,6 +65,16 @@ function iniciarModuloBairros() {
         else classeDominante="ok";
       }
 
+      // Última avaliação do bairro
+      let ultimaDataBairro = null;
+      if(escolasNoBairro.length > 0){
+        const timestamps = escolasNoBairro.map(e => e.createdAt?.toDate ? e.createdAt.toDate() : null).filter(d => d);
+        if(timestamps.length > 0){
+          const ult = new Date(Math.max.apply(null, timestamps));
+          ultimaDataBairro = ult.toLocaleDateString('pt-BR') + " " + ult.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+        }
+      }
+
       // Observação principal
       let obs = total === 0 ? "Sem dados disponíveis." :
                 classeDominante === "critico" ? "🔴 Problema generalizado." :
@@ -91,12 +100,13 @@ function iniciarModuloBairros() {
       const html = `
         <div style="font-size:13px; line-height:1.4; min-width:180px; position:relative;">
           <strong>${feature.properties.nome || "Bairro"}</strong><br>
-          <small>${total} escolas monitoradas</small>
+          <small>${total} escolas monitoradas</small><br>
+          ${ultimaDataBairro ? `<small>Última avaliação: ${ultimaDataBairro}</small>` : ""}
           <hr style="margin:4px 0">
           ${total > 0 ? ["critico","atencao","alerta","ok"].map(c => `
             <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
               <span style="width:10px; height:10px; border-radius:50%; background:${cores[c]}; display:inline-block;"></span>
-              <span>${c === "atencao" ? "Atenção" : c.charAt(0).toUpperCase()+c.slice(1)}: ${perc(c)}% (${cont[c]})</span>
+              <span>${c.charAt(0).toUpperCase()+c.slice(1)}: ${perc(c)}% (${cont[c]})</span>
             </div>`).join("") : "Nenhuma escola ativa neste setor."}
           <div style="margin-top:6px; font-size:11px; border-top:1px solid #eee; padding-top:4px;"><em>${obs}</em></div>
         </div>`;

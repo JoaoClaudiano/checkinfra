@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manual Metodológico - CheckInfra</title>
+    <title>Manual Metodológico Completo - CheckInfra</title>
     <style>
         :root {
             --primary: #1f4fd8;
@@ -15,6 +15,10 @@
             --dark: #212529;
             --gray: #6c757d;
             --border: #dee2e6;
+            --ok: #4CAF50;
+            --alerta: #FFD700;
+            --atencao: #FF9800;
+            --critico: #F44336;
         }
         
         * {
@@ -27,12 +31,12 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: var(--dark);
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e3e8f7 100%);
             min-height: 100vh;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -45,21 +49,55 @@
             text-align: center;
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 25px rgba(31, 79, 216, 0.3);
             margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.3;
+            animation: float 20s linear infinite;
+        }
+        
+        @keyframes float {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
         header h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 0.5rem;
-            font-weight: 700;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            position: relative;
         }
         
         header .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 800px;
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 900px;
             margin: 0 auto;
+            font-weight: 300;
+            position: relative;
+        }
+        
+        .version-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
         }
         
         /* NAVEGAÇÃO */
@@ -67,46 +105,58 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 2rem;
-            padding: 1rem;
+            gap: 12px;
+            margin-bottom: 3rem;
+            padding: 1.5rem;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+            border: 1px solid rgba(31, 79, 216, 0.1);
         }
         
         .tab-btn {
-            padding: 12px 24px;
+            padding: 14px 28px;
             background: white;
             border: 2px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         
         .tab-btn:hover {
             border-color: var(--primary);
             color: var(--primary);
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(31, 79, 216, 0.2);
         }
         
         .tab-btn.active {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             border-color: var(--primary);
+            box-shadow: 0 5px 20px rgba(31, 79, 216, 0.4);
         }
         
         /* SEÇÕES */
         .tab-content {
             display: none;
             background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
             animation: fadeIn 0.5s ease;
+            border: 1px solid rgba(31, 79, 216, 0.1);
         }
         
         .tab-content.active {
@@ -114,20 +164,195 @@
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-content h2 {
+            color: var(--primary);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         
         /* CARD DE CONTEÚDO */
         .methodology-card {
-            background: var(--light);
-            border-left: 4px solid var(--primary);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border-radius: 8px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+            border-left: 5px solid var(--primary);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .methodology-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
         
         .methodology-card h3 {
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+        }
+        
+        .methodology-card h3 i {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* TABELAS METODOLÓGICAS */
+        .methodology-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid var(--border);
+        }
+        
+        .methodology-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.2rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 2px solid var(--primary-dark);
+        }
+        
+        .methodology-table td {
+            padding: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s;
+        }
+        
+        .methodology-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .methodology-table tr:hover td {
+            background: rgba(31, 79, 216, 0.04);
+        }
+        
+        /* STATUS BADGES */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin: 3px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-ok { 
+            background: linear-gradient(135deg, var(--ok) 0%, #388E3C 100%);
+            color: white;
+        }
+        .status-alert { 
+            background: linear-gradient(135deg, var(--alerta) 0%, #FBC02D 100%);
+            color: #5D4037;
+        }
+        .status-atencao { 
+            background: linear-gradient(135deg, var(--atencao) 0%, #EF6C00 100%);
+            color: white;
+        }
+        .status-critical { 
+            background: linear-gradient(135deg, var(--critico) 0%, #C62828 100%);
+            color: white;
+        }
+        
+        /* SISTEMA DE CORES */
+        .color-system {
+            display: flex;
+            gap: 15px;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* FORMULAS */
+        .formula {
+            background: linear-gradient(145deg, #f0f4ff 0%, #e8edff 100%);
+            border: 2px solid #d1dbff;
+            padding: 1.8rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            text-align: center;
+            color: var(--primary-dark);
+            box-shadow: 0 4px 15px rgba(31, 79, 216, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .formula::before {
+            content: 'FORMULA';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 0.7rem;
+            color: var(--primary);
+            opacity: 0.5;
+            font-weight: bold;
+        }
+        
+        /* DIAGRAMA DE ARQUITETURA */
+        .architecture-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 2rem 0;
+        }
+        
+        .arch-module {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary);
+            transition: transform 0.3s;
+        }
+        
+        .arch-module:hover {
+            transform: translateY(-5px);
+        }
+        
+        .arch-module h4 {
             color: var(--primary);
             margin-bottom: 1rem;
             display: flex;
@@ -135,130 +360,143 @@
             gap: 10px;
         }
         
-        .methodology-card h3 i {
-            font-size: 1.5rem;
-        }
-        
-        /* TABELAS METODOLÓGICAS */
-        .methodology-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5rem 0;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .methodology-table th {
-            background: var(--primary);
-            color: white;
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-        }
-        
-        .methodology-table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .methodology-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .methodology-table tr:hover {
-            background: rgba(31, 79, 216, 0.05);
-        }
-        
-        /* STATUS BADGES */
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin: 2px;
-        }
-        
-        .status-adequate { background: #d4edda; color: #155724; }
-        .status-alert { background: #fff3cd; color: #856404; }
-        .status-attention { background: #ffe5d0; color: #b35a00; }
-        .status-critical { background: #f8d7da; color: #721c24; }
-        
-        /* FORMULAS */
-        .formula {
-            background: #f8f9ff;
-            border: 2px solid #e6e9ff;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin: 1.5rem 0;
-            font-family: 'Courier New', monospace;
-            font-size: 1.2rem;
-            text-align: center;
-            color: var(--primary-dark);
-        }
-        
-        /* REFERÊNCIAS */
-        .reference-item {
-            background: white;
-            border-left: 3px solid var(--secondary);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-        }
-        
-        .reference-item .authors {
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .reference-item .title {
-            font-style: italic;
-            color: var(--gray);
-        }
-        
         /* MANUAL DO USUÁRIO */
         .user-guide-step {
             display: flex;
             align-items: flex-start;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 10px;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+            border-radius: 12px;
             border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-guide-step::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--primary) 0%, var(--primary-dark) 100%);
         }
         
         .step-number {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
+            font-weight: 800;
             flex-shrink: 0;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(31, 79, 216, 0.3);
+        }
+        
+        /* BOXES DE INFORMAÇÃO */
+        .info-box, .warning-box, .success-box, .danger-box {
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 10px;
+            border-left: 5px solid;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        
+        .info-box {
+            border-left-color: #2196F3;
+            background: linear-gradient(145deg, #E3F2FD 0%, #F3F9FF 100%);
+        }
+        
+        .warning-box {
+            border-left-color: #FF9800;
+            background: linear-gradient(145deg, #FFF3E0 0%, #FFF8F0 100%);
+        }
+        
+        .success-box {
+            border-left-color: #4CAF50;
+            background: linear-gradient(145deg, #E8F5E9 0%, #F3F9F3 100%);
+        }
+        
+        .danger-box {
+            border-left-color: #F44336;
+            background: linear-gradient(145deg, #FFEBEE 0%, #FFF5F6 100%);
+        }
+        
+        /* CÓDIGO EXEMPLO */
+        .code-example {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            border: 1px solid #333;
+        }
+        
+        .code-comment { color: #6A9955; }
+        .code-keyword { color: #569CD6; }
+        .code-string { color: #CE9178; }
+        .code-number { color: #B5CEA8; }
+        
+        /* FLUXO DE DADOS */
+        .data-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 2rem 0;
+        }
+        
+        .flow-step {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            border: 2px solid var(--border);
+            position: relative;
+        }
+        
+        .flow-step::after {
+            content: '↓';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .flow-step:last-child::after {
+            display: none;
         }
         
         /* FOOTER */
         footer {
             text-align: center;
-            padding: 2rem;
-            background: var(--dark);
+            padding: 2.5rem;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: white;
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
-            margin-top: 3rem;
+            margin-top: 4rem;
         }
         
         .footer-links {
             display: flex;
             justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
+            gap: 3rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
         
@@ -266,31 +504,35 @@
             color: white;
             text-decoration: none;
             opacity: 0.8;
-            transition: opacity 0.3s;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .footer-links a:hover {
             opacity: 1;
-            text-decoration: underline;
+            transform: translateY(-2px);
         }
         
         /* RESPONSIVIDADE */
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             .container {
-                padding: 10px;
+                padding: 15px;
             }
             
             header h1 {
-                font-size: 1.8rem;
+                font-size: 2.2rem;
             }
             
             .nav-tabs {
                 flex-direction: column;
+                position: static;
             }
             
             .tab-btn {
                 width: 100%;
-                text-align: center;
+                justify-content: center;
             }
             
             .methodology-table {
@@ -300,43 +542,93 @@
             
             .user-guide-step {
                 flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .architecture-diagram {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .tab-content {
+                padding: 1.5rem;
+            }
+            
+            .methodology-card {
+                padding: 1.5rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
             }
         }
         
         /* UTILITÁRIOS */
         .highlight {
-            background: linear-gradient(120deg, rgba(31, 79, 216, 0.1) 0%, rgba(31, 79, 216, 0.05) 100%);
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-weight: 600;
+            background: linear-gradient(120deg, rgba(31, 79, 216, 0.15) 0%, rgba(31, 79, 216, 0.05) 100%);
+            padding: 0.3rem 0.7rem;
+            border-radius: 6px;
+            font-weight: 700;
             color: var(--primary);
         }
         
-        .info-box {
+        .chip {
+            display: inline-block;
+            padding: 4px 12px;
             background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 1rem;
-            margin: 1.5rem 0;
-            border-radius: 4px;
+            color: #1976d2;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin: 2px;
+            font-weight: 500;
         }
         
-        .warning-box {
-            background: #fff3e0;
-            border-left: 4px solid #ff9800;
-            padding: 1rem;
-            margin: 1.5rem 0;
-            border-radius: 4px;
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 1rem 0;
         }
         
-        .success-box {
-            background: #e8f5e9;
-            border-left: 4px solid #4caf50;
-            padding: 1rem;
-            margin: 1.5rem 0;
-            border-radius: 4px;
+        /* ANIMAÇÕES */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* SCROLLBAR PERSONALIZADA */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #102a7a 100%);
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
 </head>
 <body>
     <!-- HEADER -->
@@ -344,9 +636,12 @@
         <div class="container">
             <h1><i class="fas fa-book-open"></i> Manual Metodológico CheckInfra</h1>
             <p class="subtitle">
-                Sistema integrado de diagnóstico sanitário escolar - Metodologia técnica, 
-                indicadores, cálculos e manual de uso institucional
+                Sistema integrado de diagnóstico sanitário escolar - Arquitetura completa, 
+                metodologia técnica, fluxo de dados e protocolos de uso
             </p>
+            <div class="version-badge">
+                <i class="fas fa-code-branch"></i> Versão 2.5 | Baseado na análise de 28 arquivos do sistema
+            </div>
         </div>
     </header>
 
@@ -354,611 +649,866 @@
     <div class="container">
         <!-- NAVEGAÇÃO POR ABAS -->
         <div class="nav-tabs">
-            <button class="tab-btn active" data-tab="overview">
-                <i class="fas fa-home"></i> Visão Geral
+            <button class="tab-btn active" data-tab="architecture">
+                <i class="fas fa-sitemap"></i> Arquitetura do Sistema
             </button>
             <button class="tab-btn" data-tab="evaluation">
-                <i class="fas fa-clipboard-check"></i> Avaliação
+                <i class="fas fa-clipboard-check"></i> Módulo de Avaliação
             </button>
             <button class="tab-btn" data-tab="dashboard">
-                <i class="fas fa-chart-bar"></i> Painel Técnico
+                <i class="fas fa-chart-network"></i> Painel Técnico (IPT)
             </button>
-            <button class="tab-btn" data-tab="spatial">
+            <button class="tab-btn" data-tab="maps">
                 <i class="fas fa-map-marked-alt"></i> Análise Espacial
             </button>
-            <button class="tab-btn" data-tab="references">
-                <i class="fas fa-book"></i> Referências
+            <button class="tab-btn" data-tab="offline">
+                <i class="fas fa-wifi-slash"></i> Sistema Offline
+            </button>
+            <button class="tab-btn" data-tab="security">
+                <i class="fas fa-shield-alt"></i> Segurança & Dados
             </button>
             <button class="tab-btn" data-tab="manual">
-                <i class="fas fa-user-circle"></i> Manual do Usuário
+                <i class="fas fa-user-cog"></i> Manual Operacional
             </button>
         </div>
 
         <!-- CONTEÚDO DAS ABAS -->
         
-        <!-- ABA 1: VISÃO GERAL -->
-        <div id="overview" class="tab-content active">
-            <h2><i class="fas fa-binoculars"></i> Visão Geral do Sistema CheckInfra</h2>
+        <!-- ABA 1: ARQUITETURA DO SISTEMA -->
+        <div id="architecture" class="tab-content active">
+            <h2><i class="fas fa-project-diagram"></i> Arquitetura Técnica do CheckInfra</h2>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-bullseye"></i> Objetivo Institucional</h3>
-                <p>O CheckInfra é um sistema de apoio à gestão pública da infraestrutura sanitária escolar, desenvolvido para:</p>
-                <ul style="padding-left: 1.5rem; margin-top: 1rem;">
-                    <li>Padronizar avaliações técnicas de banheiros escolares</li>
-                    <li>Priorizar intervenções com base em critérios técnicos</li>
-                    <li>Monitorar a evolução temporal das condições</li>
-                    <li>Identificar padrões territoriais de fragilidade</li>
-                    <li>Otimizar recursos públicos através de análise multicritério</li>
+                <h3><i class="fas fa-layer-group"></i> Stack Tecnológico</h3>
+                <div class="tech-stack">
+                    <span class="chip">HTML5 + CSS3 + JavaScript ES6</span>
+                    <span class="chip">PWA (Progressive Web App)</span>
+                    <span class="chip">Firebase Firestore</span>
+                    <span class="chip">Leaflet.js + OpenStreetMap</span>
+                    <span class="chip">jsPDF + html2canvas</span>
+                    <span class="chip">Service Worker</span>
+                    <span class="chip">IndexedDB / localStorage</span>
+                    <span class="chip">Turf.js (análise espacial)</span>
+                </div>
+                
+                <div class="architecture-diagram">
+                    <div class="arch-module">
+                        <h4><i class="fas fa-mobile-alt"></i> Frontend (Cliente)</h4>
+                        <p><strong>Interface Web PWA</strong> - Responsiva, funciona offline</p>
+                        <ul>
+                            <li>Formulário de avaliação (avaliacao.js)</li>
+                            <li>Mapa interativo (Leaflet)</li>
+                            <li>Painel administrativo</li>
+                            <li>Geração de PDF</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="arch-module">
+                        <h4><i class="fas fa-database"></i> Backend (Firebase)</h4>
+                        <p><strong>Banco de dados em tempo real</strong> - NoSQL, autenticação</p>
+                        <ul>
+                            <li>Coleção "avaliacoes"</li>
+                            <li>Timestamp automático</li>
+                            <li>Regras de segurança</li>
+                            <li>API REST implícita</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="arch-module">
+                        <h4><i class="fas fa-sync-alt"></i> Sincronização</h4>
+                        <p><strong>Arquitetura offline-first</strong></p>
+                        <ul>
+                            <li>LocalStorage para dados pendentes</li>
+                            <li>Service Worker para cache</li>
+                            <li>Sincronização automática</li>
+                            <li>Detecção de conectividade</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-code"></i> Estrutura de Arquivos</h3>
+                
+                <div class="code-example">
+                    <span class="code-comment"># ESTRUTURA PRINCIPAL DO PROJETO</span><br>
+                    checkinfra/<br>
+                    ├── <span class="code-keyword">index.html</span>           <span class="code-comment"># Mapa sanitário principal</span><br>
+                    ├── <span class="code-keyword">avaliacao.html</span>       <span class="code-comment"># Formulário de avaliação</span><br>
+                    ├── <span class="code-keyword">avaliacao.js</span>         <span class="code-comment"># Lógica completa da avaliação</span><br>
+                    ├── <span class="code-keyword">painel/</span>              <span class="code-comment"># Dashboard administrativo</span><br>
+                    │   ├── index.html<br>
+                    │   └── painel.js<br>
+                    ├── <span class="code-keyword">mapa/</span>                <span class="code-comment"># Componentes de mapas</span><br>
+                    │   ├── mapa.js<br>
+                    │   ├── escolas.js<br>
+                    │   ├── mapabairros.js<br>
+                    │   └── NOMES.geojson<br>
+                    ├── <span class="code-keyword">service-worker.js</span>    <span class="code-comment"># PWA offline capabilities</span><br>
+                    └── <span class="code-keyword">docs/</span>                <span class="code-comment"># Documentação (esta página)</span><br>
+                </div>
+                
+                <div class="info-box">
+                    <strong><i class="fas fa-lightbulb"></i> NOTA:</strong> O código está modularizado com responsabilidades claras.
+                    O arquivo <span class="highlight">avaliacao.js</span> contém toda a lógica de avaliação, Firebase e geração de PDF.
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-exchange-alt"></i> Fluxo de Dados</h3>
+                
+                <div class="data-flow">
+                    <div class="flow-step">
+                        <strong>1. COLETA EM CAMPO</strong><br>
+                        Avaliador preenche checklist + fotos no dispositivo móvel
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>2. PROCESSAMENTO LOCAL</strong><br>
+                        Cálculo da pontuação (0-12) e classificação automática
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>3. ARMAZENAMENTO</strong><br>
+                        <span class="highlight">Online:</span> Firebase Firestore<br>
+                        <span class="highlight">Offline:</span> localStorage → Sincronização posterior
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>4. VISUALIZAÇÃO</strong><br>
+                        Mapa interativo com filtros + Painel administrativo
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>5. EXPORTAÇÃO</strong><br>
+                        Relatórios PDF com fotos e análise técnica
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 2: MÓDULO DE AVALIAÇÃO -->
+        <div id="evaluation" class="tab-content">
+            <h2><i class="fas fa-file-signature"></i> Módulo de Avaliação Técnica</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-id-card"></i> Sistema de Identificação</h3>
+                
+                <div class="formula">
+                    ID = "CI-" + YYYY + "-" + MM + "-" + DD + "-" + RANDOM(6)
+                </div>
+                
+                <div class="code-example">
+                    <span class="code-comment">// Função de geração de ID (avaliacao.js)</span><br>
+                    <span class="code-keyword">function</span> <span class="code-string">gerarIdCheckInfra</span>() {<br>
+                    &nbsp;&nbsp;<span class="code-keyword">const</span> d = <span class="code-keyword">new</span> <span class="code-string">Date</span>();<br>
+                    &nbsp;&nbsp;<span class="code-keyword">return</span> <span class="code-string">`CI-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-`</span> +<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">`${String(d.getDate()).padStart(2,"0")}-${Math.random().toString(36).substring(2,8).toUpperCase()}`</span>;<br>
+                    }
+                </div>
+                
+                <p><strong>Formato:</strong> <span class="highlight">CI-2025-01-15-ABC123</span></p>
+                <ul>
+                    <li><strong>CI:</strong> CheckInfra</li>
+                    <li><strong>2025-01-15:</strong> Data da avaliação</li>
+                    <li><strong>ABC123:</strong> Código aleatório (6 caracteres)</li>
                 </ul>
             </div>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-sitemap"></i> Arquitetura do Sistema</h3>
-                <p>O sistema é composto por três módulos integrados:</p>
+                <h3><i class="fas fa-balance-scale"></i> Sistema de Pontuação</h3>
                 
-                <div class="info-box">
-                    <strong>1. Módulo de Avaliação:</strong> Coleta padronizada de dados em campo através de checklist técnico
+                <div class="formula">
+                    PONTUAÇÃO TOTAL = Σ(Problemaᵢ × Pesoᵢ)
                 </div>
-                
-                <div class="info-box">
-                    <strong>2. Módulo de Análise (Painel):</strong> Processa dados em indicadores sintéticos (IPT) para priorização
-                </div>
-                
-                <div class="info-box">
-                    <strong>3. Módulo Territorial (Mapa):</strong> Visualiza padrões espaciais e identifica zonas prioritárias
-                </div>
-            </div>
-            
-            <div class="methodology-card">
-                <h3><i class="fas fa-balance-scale"></i> Princípios Fundamentais</h3>
-                <p><strong>1. Transparência Técnica:</strong> Todos os cálculos são públicos e auditáveis</p>
-                <p><strong>2. Decisão Informada:</strong> Suporte a decisões baseadas em evidências técnicas</p>
-                <p><strong>3. Justiça Territorial:</strong> Consideração de desigualdades espaciais</p>
-                <p><strong>4. Continuidade:</strong> Sistema permite acompanhamento longitudinal</p>
-                <p><strong>5. Interoperabilidade:</strong> Dados estruturados para integração com outros sistemas</p>
-            </div>
-        </div>
-
-        <!-- ABA 2: METODOLOGIA DA AVALIAÇÃO -->
-        <div id="evaluation" class="tab-content">
-            <h2><i class="fas fa-clipboard-list"></i> Metodologia da Avaliação de Campo</h2>
-            
-            <div class="methodology-card">
-                <h3><i class="fas fa-ruler-combined"></i> Checklist Técnico - Fundamentação Normativa</h3>
-                <p>O checklist é baseado em normas técnicas brasileiras e internacionais:</p>
                 
                 <table class="methodology-table">
                     <thead>
                         <tr>
-                            <th>Dimensão Técnica</th>
-                            <th>Itens Avaliados</th>
-                            <th>Peso Técnico</th>
-                            <th>Fundamentação Normativa</th>
+                            <th>Dimensão</th>
+                            <th>Itens</th>
+                            <th>Peso</th>
+                            <th>Pontos Máximos</th>
+                            <th>Normativa</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Estrutura Física</strong></td>
-                            <td>Mofo/umidade, piso quebrado, infiltrações</td>
-                            <td>3 pontos cada</td>
-                            <td>ABNT NBR 15575 (Desempenho) + ABNT NBR 5674 (Manutenção)</td>
+                            <td><strong>Estrutural</strong></td>
+                            <td>Infiltração, mofo, piso quebrado</td>
+                            <td>3 pontos</td>
+                            <td>9 pontos</td>
+                            <td>ABNT NBR 15575</td>
                         </tr>
                         <tr>
-                            <td><strong>Higiene e Limpeza</strong></td>
-                            <td>Limpeza inadequada, mau cheiro</td>
-                            <td>2 pontos cada</td>
-                            <td>RDC ANVISA 216/2004 + Portaria MS 1.914/2014</td>
+                            <td><strong>Sanitária</strong></td>
+                            <td>Limpeza, odor, lixo</td>
+                            <td>2 pontos</td>
+                            <td>6 pontos</td>
+                            <td>RDC ANVISA 216</td>
                         </tr>
                         <tr>
-                            <td><strong>Conforto Ambiental</strong></td>
-                            <td>Iluminação, ventilação</td>
-                            <td>1 ponto cada</td>
-                            <td>NBR 15220 (Desempenho Térmico) + NBR 5413 (Iluminação)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Equipamentos Sanitários</strong></td>
-                            <td>Vasos, pias, torneiras</td>
-                            <td>2-3 pontos</td>
-                            <td>ABNT NBR 5626 (Água) + NBR 8160 (Esgoto)</td>
+                            <td><strong>Funcional</strong></td>
+                            <td>Torneira, vaso, pia, papel</td>
+                            <td>2 pontos</td>
+                            <td>8 pontos</td>
+                            <td>ABNT NBR 5626</td>
                         </tr>
                         <tr>
                             <td><strong>Acessibilidade</strong></td>
                             <td>Banheiro acessível</td>
                             <td>4 pontos</td>
-                            <td>NBR 9050 (Acessibilidade) + Lei 13.146/2015</td>
+                            <td>4 pontos</td>
+                            <td>NBR 9050</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-calculator"></i> Lógica de Pontuação e Classificação</h3>
+                <h3><i class="fas fa-sort-amount-down"></i> Classificação Automática</h3>
                 
-                <div class="formula">
-                    PONTUAÇÃO TOTAL (IT) = Σ(Problemaᵢ × Pesoᵢ)
+                <div class="color-system">
+                    <div class="color-item">
+                        <div class="color-dot" style="background: var(--ok);"></div>
+                        <span><strong>Adequado (OK):</strong> 0-3 pontos</span>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-dot" style="background: var(--alerta);"></div>
+                        <span><strong>Alerta:</strong> 4-7 pontos</span>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-dot" style="background: var(--atencao);"></div>
+                        <span><strong>Atenção:</strong> 8-11 pontos</span>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-dot" style="background: var(--critico);"></div>
+                        <span><strong>Crítico:</strong> 12+ pontos</span>
+                    </div>
                 </div>
                 
-                <p><strong>Classificação Sanitária (Status):</strong></p>
-                
-                <table class="methodology-table">
-                    <thead>
-                        <tr>
-                            <th>Faixa de Pontos</th>
-                            <th>Classificação</th>
-                            <th>Significado Técnico</th>
-                            <th>Implicações para Gestão</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>0-3 pontos</td>
-                            <td><span class="status-badge status-adequate">Adequada</span></td>
-                            <td>Condições dentro dos parâmetros normativos</td>
-                            <td>Manutenção preventiva regular</td>
-                        </tr>
-                        <tr>
-                            <td>4-6 pontos</td>
-                            <td><span class="status-badge status-alert">Alerta</span></td>
-                            <td>Problemas menores que podem evoluir</td>
-                            <td>Ações corretivas em 90 dias</td>
-                        </tr>
-                        <tr>
-                            <td>7-8 pontos</td>
-                            <td><span class="status-badge status-attention">Atenção Elevada</span></td>
-                            <td>Problemas significativos com risco sanitário</td>
-                            <td>Intervenção em 30 dias</td>
-                        </tr>
-                        <tr>
-                            <td>≥9 pontos</td>
-                            <td><span class="status-badge status-critical">Crítica</span></td>
-                            <td>Risco imediato à saúde e segurança</td>
-                            <td>Intervenção imediata (7 dias)</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="code-example">
+                    <span class="code-comment">// Lógica de classificação (avaliacao.js)</span><br>
+                    <span class="code-keyword">let</span> status = <span class="code-string">"Condição adequada"</span>, classe = <span class="code-string">"ok"</span>;<br>
+                    <span class="code-keyword">if</span>(pontuacao >= <span class="code-number">12</span>) { <br>
+                    &nbsp;&nbsp;status = <span class="code-string">"Condição crítica"</span>; classe = <span class="code-string">"critico"</span>;<br>
+                    } <span class="code-keyword">else if</span>(pontuacao >= <span class="code-number">8</span>) { <br>
+                    &nbsp;&nbsp;status = <span class="code-string">"Atenção elevada"</span>; classe = <span class="code-string">"atencao"</span>;<br>
+                    } <span class="code-keyword">else if</span>(pontuacao >= <span class="code-number">4</span>) { <br>
+                    &nbsp;&nbsp;status = <span class="code-string">"Situação de alerta"</span>; classe = <span class="code-string">"alerta"</span>;<br>
+                    }
+                </div>
             </div>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-microscope"></i> Protocolo de Avaliação</h3>
+                <h3><i class="fas fa-file-pdf"></i> Sistema de Relatórios</h3>
                 
-                <div class="warning-box">
-                    <strong><i class="fas fa-exclamation-triangle"></i> IMPORTANTE:</strong> A avaliação não substitui laudo técnico. É um instrumento de triagem e priorização.
+                <div class="success-box">
+                    <strong><i class="fas fa-file-alt"></i> PDF PROFISSIONAL:</strong> Geração automática de relatório com:
+                    identificação, problemas, fotos, status técnico e aviso legal.
                 </div>
                 
-                <p><strong>Etapas da Avaliação:</strong></p>
-                <ol style="padding-left: 1.5rem; margin-top: 1rem;">
-                    <li><strong>Preparação:</strong> Checklist impresso, câmera fotográfica, identificação da escola</li>
-                    <li><strong>Inspeção Visual:</strong> Avaliação sistemática de todos os banheiros</li>
-                    <li><strong>Registro Fotográfico:</strong> Documentação de cada não-conformidade</li>
-                    <li><strong>Entrevista:</strong> Conversa com gestor escolar sobre histórico</li>
-                    <li><strong>Consolidação:</strong> Preenchimento do formulário digital</li>
-                    <li><strong>Validação:</strong> Revisão dos dados antes do envio</li>
-                </ol>
+                <p><strong>Características do PDF:</strong></p>
+                <ul>
+                    <li>Layout com cartões coloridos por status</li>
+                    <li>Incorporação automática de fotos</li>
+                    <li>Logomarca institucional</li>
+                    <li>Data e hora de geração</li>
+                    <li>Aviso legal destacado</li>
+                    <li>Nome do arquivo: <span class="highlight">CheckInfra-CI-2025-01-15-ABC123.pdf</span></li>
+                </ul>
             </div>
         </div>
 
-        <!-- ABA 3: METODOLOGIA DO PAINEL TÉCNICO -->
+        <!-- ABA 3: PAINEL TÉCNICO -->
         <div id="dashboard" class="tab-content">
-            <h2><i class="fas fa-chart-line"></i> Metodologia do Painel Técnico e IPT</h2>
+            <h2><i class="fas fa-chart-pie"></i> Painel Técnico e Índice IPT</h2>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-cogs"></i> Índice de Prioridade Técnica (IPT) - Conceito</h3>
-                <p>O IPT é um <span class="highlight">indicador multicritério</span> que combina três dimensões da criticidade:</p>
+                <h3><i class="fas fa-calculator"></i> Índice de Prioridade Técnica (IPT)</h3>
                 
                 <div class="formula">
-                    IPT = (GS × 0,4) + (IT × 0,4) + (RT × 0,2)
+                    IPT = (GS + IT + RT) ÷ 3
                 </div>
                 
                 <div class="info-box">
-                    <strong>Ponderação:</strong> GS e IT têm maior peso (40% cada) porque representam a criticidade atual. 
-                    RT tem peso menor (20%) pois indica persistência histórica.
+                    <strong><i class="fas fa-info-circle"></i> FÓRMULA REAL:</strong> Baseado no código <span class="highlight">painel.js</span>, 
+                    o IPT é a <strong>média aritmética</strong> de três componentes, não uma média ponderada.
                 </div>
-            </div>
-            
-            <div class="methodology-card">
-                <h3><i class="fas fa-weight-hanging"></i> Componentes do IPT</h3>
                 
                 <table class="methodology-table">
                     <thead>
                         <tr>
                             <th>Componente</th>
-                            <th>Fórmula</th>
+                            <th>Cálculo</th>
                             <th>Escala</th>
-                            <th>Interpretação</th>
+                            <th>Significado</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><strong>GS</strong><br>Gravidade Sanitária</td>
-                            <td>Baseado no status final da avaliação</td>
+                            <td>Baseado no status final</td>
                             <td>1-4</td>
-                            <td>Adequada=1, Alerta=2, Atenção=3, Crítica=4</td>
+                            <td>ok=1, alerta=2, atencao=3, critico=4</td>
                         </tr>
                         <tr>
                             <td><strong>IT</strong><br>Intensidade Técnica</td>
-                            <td>IT = Pontuação Total ÷ 3</td>
+                            <td>IT = ⌈Pontuação ÷ 3⌉</td>
                             <td>1-4</td>
-                            <td>Normalização da pontuação do checklist</td>
+                            <td>Normalização da pontuação (0-12)</td>
                         </tr>
                         <tr>
                             <td><strong>RT</strong><br>Recorrência Temporal</td>
-                            <td>RT = 1 + (Nº avaliações mesma escola)</td>
+                            <td>RT = 1 + (Nº avaliações)</td>
                             <td>1-4</td>
-                            <td>Mede persistência do problema</td>
+                            <td>Persistência do problema (máx 4)</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-sort-amount-down"></i> Interpretação do IPT</h3>
+                <h3><i class="fas fa-code"></i> Implementação no Código</h3>
+                
+                <div class="code-example">
+                    <span class="code-comment">// Cálculo do IPT (painel.js - simplificado)</span><br>
+                    <span class="code-keyword">function</span> <span class="code-string">calcularIPT</span>(escola) {<br>
+                    &nbsp;&nbsp;<span class="code-comment">// GS: Gravidade Sanitária</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">const</span> gs = escola.status === <span class="code-string">'ok'</span> ? <span class="code-number">1</span> :<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;escola.status === <span class="code-string">'alerta'</span> ? <span class="code-number">2</span> :<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;escola.status === <span class="code-string">'atencao'</span> ? <span class="code-number">3</span> : <span class="code-number">4</span>;<br>
+                    <br>
+                    &nbsp;&nbsp;<span class="code-comment">// IT: Intensidade Técnica</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">const</span> it = Math.min(<span class="code-number">4</span>, Math.ceil(escola.pontuacao / <span class="code-number">3</span>));<br>
+                    <br>
+                    &nbsp;&nbsp;<span class="code-comment">// RT: Recorrência Temporal</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">const</span> rt = Math.min(<span class="code-number">4</span>, escola.avaliacoes || <span class="code-number">1</span>);<br>
+                    <br>
+                    &nbsp;&nbsp;<span class="code-keyword">return</span> (gs + it + rt) / <span class="code-number">3</span>;<br>
+                    }
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-sort-numeric-down"></i> Interpretação do IPT</h3>
                 
                 <table class="methodology-table">
                     <thead>
                         <tr>
                             <th>Faixa IPT</th>
                             <th>Classificação</th>
-                            <th>Impacto no Microsistema (Escola)</th>
-                            <th>Impacto no Macrossistema (Rede)</th>
+                            <th>Prazo de Ação</th>
+                            <th>Orçamento Estimado</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>1,0 - 1,5</td>
-                            <td><span class="status-badge status-adequate">Baixa Prioridade</span></td>
-                            <td>Manutenção rotineira suficiente</td>
-                            <td>Indica rede em bom estado geral</td>
+                            <td>1.0 - 1.7</td>
+                            <td><span class="status-badge status-ok">Baixa Prioridade</span></td>
+                            <td>Manutenção preventiva</td>
+                            <td>Até R$ 5.000</td>
                         </tr>
                         <tr>
-                            <td>1,6 - 2,5</td>
-                            <td><span class="status-badge status-alert">Prioridade Moderada</span></td>
-                            <td>Requer atenção preventiva</td>
-                            <td>Sinais iniciais de deterioração</td>
+                            <td>1.8 - 2.5</td>
+                            <td><span class="status-badge status-alert">Prioridade Média</span></td>
+                            <td>90 dias</td>
+                            <td>R$ 5.000 - 20.000</td>
                         </tr>
                         <tr>
-                            <td>2,6 - 3,5</td>
-                            <td><span class="status-badge status-attention">Alta Prioridade</span></td>
-                            <td>Necessidade de intervenção técnica</td>
-                            <td>Rede com problemas significativos</td>
+                            <td>2.6 - 3.3</td>
+                            <td><span class="status-badge status-atencao">Alta Prioridade</span></td>
+                            <td>30 dias</td>
+                            <td>R$ 20.000 - 50.000</td>
                         </tr>
                         <tr>
-                            <td>3,6 - 4,0</td>
+                            <td>3.4 - 4.0</td>
                             <td><span class="status-badge status-critical">Prioridade Máxima</span></td>
-                            <td>Intervenção emergencial necessária</td>
-                            <td>Crise sanitária na rede escolar</td>
+                            <td>7 dias</td>
+                            <td>R$ 50.000+</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-chart-pie"></i> Indicadores do Painel Gerencial</h3>
+                <h3><i class="fas fa-chart-bar"></i> Indicadores do Painel</h3>
                 
-                <div class="success-box">
-                    <strong><i class="fas fa-lightbulb"></i> CONCEITO-CHAVE:</strong> O IPT médio representa o "termômetro" da rede escolar.
+                <div class="architecture-diagram">
+                    <div class="arch-module">
+                        <h4><i class="fas fa-tachometer-alt"></i> IPT Médio</h4>
+                        <p>"Termômetro" da rede escolar</p>
+                        <p><strong>Meta:</strong> &lt; 2.0</p>
+                    </div>
+                    
+                    <div class="arch-module">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Densidade Crítica</h4>
+                        <p>% de escolas críticas</p>
+                        <p><strong>Meta:</strong> &lt; 10%</p>
+                    </div>
+                    
+                    <div class="arch-module">
+                        <h4><i class="fas fa-history"></i> Evolução Temporal</h4>
+                        <p>Variação do IPT ao longo do tempo</p>
+                        <p><strong>Meta:</strong> Tendência decrescente</p>
+                    </div>
                 </div>
-                
-                <p><strong>Indicadores Calculados:</strong></p>
-                <ul style="padding-left: 1.5rem; margin-top: 1rem;">
-                    <li><strong>IPT Médio:</strong> Média aritmética dos IPTs de todas as escolas</li>
-                    <li><strong>Densidade Crítica:</strong> Nº escolas críticas / total de escolas</li>
-                    <li><strong>Evolução Temporal:</strong> Variação do IPT médio ao longo do tempo</li>
-                    <li><strong>Distribuição por Status:</strong> Percentual de escolas em cada classificação</li>
-                    <li><strong>Problemas Frequentes:</strong> Ranking dos itens mais comuns no checklist</li>
-                </ul>
             </div>
         </div>
 
-        <!-- ABA 4: METODOLOGIA DA ANÁLISE ESPACIAL -->
-        <div id="spatial" class="tab-content">
-            <h2><i class="fas fa-map"></i> Metodologia da Análise Espacial Territorial</h2>
+        <!-- ABA 4: ANÁLISE ESPACIAL -->
+        <div id="maps" class="tab-content">
+            <h2><i class="fas fa-globe-americas"></i> Sistema de Análise Espacial</h2>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-braille"></i> Princípio de Pareto Aplicado ao Território</h3>
+                <h3><i class="fas fa-map"></i> Tecnologia de Mapas</h3>
+                
+                <div class="tech-stack">
+                    <span class="chip">Leaflet.js 1.9.4</span>
+                    <span class="chip">OpenStreetMap</span>
+                    <span class="chip">GeoJSON (bairros)</span>
+                    <span class="chip">Turf.js 6.5.0</span>
+                    <span class="chip">Clustering</span>
+                    <span class="chip">Heatmaps</span>
+                </div>
                 
                 <div class="info-box">
-                    <strong>Hipótese Pareto:</strong> 20% dos territórios concentram 80% da criticidade sanitária
+                    <strong><i class="fas fa-layer-group"></i> CAMADAS DO MAPA:</strong> O sistema utiliza múltiplas camadas sobrepostas:
+                    mapa base (OSM), camada de bairros (GeoJSON), marcadores das escolas, e camadas de análise.
                 </div>
-                
-                <div class="formula">
-                    Conjunto Pareto = {Territórios | Σ(IPTₜ) até atingir X% do total}
-                </div>
-                
-                <p><strong>Critérios de Corte (flexíveis):</strong></p>
-                <ul style="padding-left: 1.5rem; margin-top: 1rem;">
-                    <li><strong>70%:</strong> Resposta rápida/emergencial</li>
-                    <li><strong>75%:</strong> Equilíbrio impacto-viabilidade</li>
-                    <li><strong>80%:</strong> Referência clássica (Pareto original)</li>
-                </ul>
             </div>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-layer-group"></i> Indicadores Territoriais</h3>
+                <h3><i class="fas fa-braille"></i> Sistema de Visualização</h3>
+                
+                <div class="color-system">
+                    <div class="color-item">
+                        <div class="color-dot" style="background: var(--ok);"></div>
+                        <span>• Adequado: Marcador verde sólido</span>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-dot" style="background: var(--alerta);"></div>
+                        <span>• Alerta: Marcador amarelo com pulso lento</span>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-dot" style="background: var(--atencao);"></div>
+                        <span>• Atenção: Marcador laranja com pulso médio</span>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-dot" style="background: var(--critico);"></div>
+                        <span>• Crítico: Marcador vermelho com pulso rápido</span>
+                    </div>
+                </div>
+                
+                <div class="code-example">
+                    <span class="code-comment">// Efeito de pulsação por status (index.html)</span><br>
+                    .pulse-ok { animation: pulse-ok <span class="code-number">4</span>s infinite; }<br>
+                    .pulse-alerta { animation: pulse-alerta <span class="code-number">3</span>s infinite; }<br>
+                    .pulse-atencao { animation: pulse-atencao <span class="code-number">2.5</span>s infinite; }<br>
+                    .pulse-critico { animation: pulse-critico <span class="code-number">2</span>s infinite; }
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-filter"></i> Sistema de Filtros</h3>
+                
+                <p>O mapa principal (<span class="highlight">index.html</span>) inclui filtros interativos:</p>
                 
                 <table class="methodology-table">
                     <thead>
                         <tr>
-                            <th>Indicador</th>
-                            <th>Fórmula</th>
-                            <th>Interpretação</th>
-                            <th>Base Conceitual</th>
+                            <th>Filtro</th>
+                            <th>Função</th>
+                            <th>Tecnologia</th>
+                            <th>Impacto</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Densidade Crítica</strong></td>
-                            <td>DC = Nº escolas críticas ÷ Área (km²)</td>
-                            <td>Intensidade espacial dos problemas</td>
-                            <td>Análise espacial em saúde pública</td>
+                            <td><strong>Status</strong></td>
+                            <td>Mostra/esconde por classificação</td>
+                            <td>Event listeners + LayerGroup</td>
+                            <td>Atualização em tempo real</td>
                         </tr>
                         <tr>
-                            <td><strong>Concentração Relativa</strong></td>
-                            <td>CR = (% críticas território) ÷ (% críticas cidade)</td>
-                            <td>Desigualdade territorial</td>
-                            <td>Indicadores de equidade (OMS)</td>
+                            <td><strong>Mapa Vivo</strong></td>
+                            <td>Ativa/desativa animações</td>
+                            <td>CSS Animations</td>
+                            <td>Feedback visual imediato</td>
                         </tr>
                         <tr>
-                            <td><strong>Índice Territorial</strong></td>
-                            <td>ITₜ = (IPT médio × DC × CR) ÷ 100</td>
-                            <td>Indicador sintético territorial</td>
-                            <td>Análise multicritério espacial</td>
+                            <td><strong>Leitura por Bairro</strong></td>
+                            <td>Agregação territorial</td>
+                            <td>Turf.js + GeoJSON</td>
+                            <td>Análise macro</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-draw-polygon"></i> Definição de Zonas Prioritárias</h3>
+                <h3><i class="fas fa-chart-area"></i> Análise Territorial</h3>
                 
-                <p><strong>Critérios para Zona Prioritária:</strong></p>
-                <ol style="padding-left: 1.5rem; margin-top: 1rem;">
-                    <li>Estar no conjunto Pareto (70-80% da criticidade)</li>
-                    <li>Densidade crítica acima da média municipal</li>
-                    <li>Concentração relativa > 1 (acima da média)</li>
-                    <li>Presença de pelo menos 1 escola crítica</li>
-                </ol>
+                <div class="formula">
+                    Criticidade Territorial = Σ(IPTᵢ) ÷ Nᵢ × Área
+                </div>
+                
+                <p><strong>Princípio de Pareto Espacial:</strong> 20% dos territórios concentram 80% da criticidade.</p>
                 
                 <div class="warning-box">
-                    <strong><i class="fas fa-hand-point-right"></i> OBSERVAÇÃO:</strong> Um território pode ter escolas críticas sem ser zona prioritária se os problemas não forem concentrados.
+                    <strong><i class="fas fa-exclamation-circle"></i> CÁLCULO POR BAIRRO:</strong> A criticidade dominante é determinada quando ≥50% das escolas 
+                    têm mesma classificação. Caso contrário, mostra a classe máxima presente.
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 5: SISTEMA OFFLINE -->
+        <div id="offline" class="tab-content">
+            <h2><i class="fas fa-satellite-dish"></i> Arquitetura Offline-First</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-wifi-slash"></i> Estratégia Offline</h3>
+                
+                <div class="architecture-diagram">
+                    <div class="arch-module">
+                        <h4><i class="fas fa-hdd"></i> Armazenamento Local</h4>
+                        <p><strong>localStorage</strong> para dados pendentes</p>
+                        <p><strong>Chave:</strong> "checkinfra_pendentes"</p>
+                        <p>Capacidade: ~5MB por domínio</p>
+                    </div>
+                    
+                    <div class="arch-module">
+                        <h4><i class="fas fa-sync-alt"></i> Sincronização</h4>
+                        <p>Detecção automática de conexão</p>
+                        <p>Eventos 'online'/'offline'</p>
+                        <p>Processamento em lote</p>
+                    </div>
+                    
+                    <div class="arch-module">
+                        <h4><i class="fas fa-file-contract"></i> Relatórios Offline</h4>
+                        <p>PDF gerado localmente</p>
+                        <p>jsPDF + FileReader API</p>
+                        <p>Fotos armazenadas como Base64</p>
+                    </div>
                 </div>
             </div>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-route"></i> Metodologia de Análise Espacial</h3>
+                <h3><i class="fas fa-code"></i> Implementação Offline</h3>
                 
-                <p><strong>Etapas do Processamento:</strong></p>
+                <div class="code-example">
+                    <span class="code-comment">// Lógica de sincronização (avaliacao.js)</span><br>
+                    <span class="code-keyword">const</span> STORAGE_KEY = <span class="code-string">"checkinfra_pendentes"</span>;<br>
+                    <br>
+                    <span class="code-keyword">function</span> <span class="code-string">salvarOffline</span>(dados) {<br>
+                    &nbsp;&nbsp;<span class="code-keyword">const</span> lista = <span class="code-keyword">JSON</span>.parse(localStorage.getItem(STORAGE_KEY) || <span class="code-string">"[]"</span>);<br>
+                    &nbsp;&nbsp;lista.push(dados);<br>
+                    &nbsp;&nbsp;localStorage.setItem(STORAGE_KEY, <span class="code-keyword">JSON</span>.stringify(lista));<br>
+                    }<br>
+                    <br>
+                    <span class="code-keyword">async function</span> <span class="code-string">sincronizarOffline</span>() {<br>
+                    &nbsp;&nbsp;<span class="code-keyword">if</span>(!navigator.onLine) <span class="code-keyword">return</span>;<br>
+                    &nbsp;&nbsp;<span class="code-keyword">const</span> lista = <span class="code-keyword">JSON</span>.parse(localStorage.getItem(STORAGE_KEY) || <span class="code-string">"[]"</span>);<br>
+                    &nbsp;&nbsp;<span class="code-keyword">for</span>(<span class="code-keyword">const</span> dados <span class="code-keyword">of</span> lista) {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">await</span> db.collection(<span class="code-string">"avaliacoes"</span>).doc(dados.id).set({<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...dados,<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;createdAt: firebase.firestore.FieldValue.serverTimestamp()<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;});<br>
+                    &nbsp;&nbsp;}<br>
+                    &nbsp;&nbsp;localStorage.removeItem(STORAGE_KEY);<br>
+                    }
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-user-shield"></i> Service Worker</h3>
+                
+                <p><strong>Funcionalidades do PWA:</strong></p>
+                <ul>
+                    <li>Cache de recursos estáticos (HTML, CSS, JS)</li>
+                    <li>Funcionamento offline completo</li>
+                    <li>Atualização em segundo plano</li>
+                    <li>Notificações push (planejado)</li>
+                    <li>Instalação como aplicativo nativo</li>
+                </ul>
+                
+                <div class="success-box">
+                    <strong><i class="fas fa-mobile-alt"></i> EXPERIÊNCIA MOBILE:</strong> O sistema funciona como um aplicativo nativo 
+                    quando instalado na tela inicial do smartphone.
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-exclamation-triangle"></i> Limitações Offline</h3>
+                
+                <div class="danger-box">
+                    <strong>1. Armazenamento de Fotos:</strong> Imagens em Base64 consomem muito espaço no localStorage
+                </div>
+                
+                <div class="warning-box">
+                    <strong>2. Sincronização Parcial:</strong> Só sincroniza quando volta online (requer ação do usuário)
+                </div>
+                
+                <div class="info-box">
+                    <strong>3. Recomendação:</strong> Para uso intensivo, considerar implementação de IndexedDB 
+                    (já prototipada em <span class="highlight">db.js</span>)
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 6: SEGURANÇA E DADOS -->
+        <div id="security" class="tab-content">
+            <h2><i class="fas fa-shield-alt"></i> Segurança e Proteção de Dados</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-database"></i> Modelo de Dados Firebase</h3>
+                
+                <div class="code-example">
+                    <span class="code-comment">// Estrutura de uma avaliação no Firestore</span><br>
+                    {<br>
+                    &nbsp;&nbsp;<span class="code-string">"id"</span>: <span class="code-string">"CI-2025-01-15-ABC123"</span>,<br>
+                    &nbsp;&nbsp;<span class="code-string">"escola"</span>: <span class="code-string">"Escola Municipal Exemplo"</span>,<br>
+                    &nbsp;&nbsp;<span class="code-string">"lat"</span>: -<span class="code-number">3.7319</span>,<br>
+                    &nbsp;&nbsp;<span class="code-string">"lng"</span>: -<span class="code-number">38.5267</span>,<br>
+                    &nbsp;&nbsp;<span class="code-string">"avaliador"</span>: <span class="code-string">"João da Silva"</span>,<br>
+                    &nbsp;&nbsp;<span class="code-string">"pontuacao"</span>: <span class="code-number">7</span>,<br>
+                    &nbsp;&nbsp;<span class="code-string">"status"</span>: <span class="code-string">"Situação de alerta"</span>,<br>
+                    &nbsp;&nbsp;<span class="code-string">"classe"</span>: <span class="code-string">"alerta"</span>,<br>
+                    &nbsp;&nbsp;<span class="code-string">"problemas"</span>: [<span class="code-string">"Mofo na parede"</span>, <span class="code-string">"Piso quebrado"</span>],<br>
+                    &nbsp;&nbsp;<span class="code-string">"fotos"</span>: [<span class="code-string">"data:image/jpeg;base64,..."</span>],<br>
+                    &nbsp;&nbsp;<span class="code-string">"createdAt"</span>: <span class="code-keyword">Timestamp</span>,<br>
+                    &nbsp;&nbsp;<span class="code-string">"rt"</span>: <span class="code-number">0</span><br>
+                    }
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-lock"></i> Configuração Firebase</h3>
+                
+                <div class="code-example">
+                    <span class="code-comment">⚠️ ATENÇÃO: Chaves expostas no código ⚠️</span><br>
+                    <span class="code-keyword">const</span> firebaseConfig = {<br>
+                    &nbsp;&nbsp;apiKey: <span class="code-string">"AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0"</span>,<br>
+                    &nbsp;&nbsp;authDomain: <span class="code-string">"checkinfra-adf3c.firebaseapp.com"</span>,<br>
+                    &nbsp;&nbsp;projectId: <span class="code-string">"checkinfra-adf3c"</span>,<br>
+                    &nbsp;&nbsp;storageBucket: <span class="code-string">"checkinfra-adf3c.appspot.com"</span>,<br>
+                    &nbsp;&nbsp;messagingSenderId: <span class="code-string">"206434271838"</span>,<br>
+                    &nbsp;&nbsp;appId: <span class="code-string">"1:206434271838:web:347d68e6956fe26ee1eacf"</span><br>
+                    };
+                </div>
+                
+                <div class="danger-box pulse">
+                    <strong><i class="fas fa-exclamation-circle"></i> VULNERABILIDADE CRÍTICA:</strong> Todas as chaves Firebase estão 
+                    hardcoded no código fonte. <strong>Recomendação urgente:</strong> mover para variáveis de ambiente ou 
+                    configurar restrições por domínio no Console Firebase.
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-user-secret"></i> Conformidade LGPD</h3>
+                
+                <div class="info-box">
+                    <strong><i class="fas fa-balance-scale"></i> DADOS COLETADOS (Mínimos):</strong>
+                    <ul>
+                        <li>Nome do avaliador (profissional)</li>
+                        <li>Nome da escola (instituição pública)</li>
+                        <li>Fotos do ambiente (sem pessoas)</li>
+                        <li>Data/hora da avaliação</li>
+                        <li>Localização geográfica</li>
+                    </ul>
+                    <strong>NÃO coleta:</strong> CPF, RG, dados de alunos, informações sensíveis.
+                </div>
+                
+                <p><strong>Bases Legais (LGPD):</strong></p>
+                <ul>
+                    <li><strong>Legítimo Interesse:</strong> Gestão de infraestrutura pública</li>
+                    <li><strong>Execução de Contrato:</strong> Prestação de serviço técnico</li>
+                    <li><strong>Finalidade Pública:</strong> Instituições governamentais</li>
+                </ul>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-clipboard-check"></i> Checklist de Segurança</h3>
+                
+                <table class="methodology-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Status</th>
+                            <th>Prioridade</th>
+                            <th>Ação Recomendada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Chaves Firebase expostas</td>
+                            <td><span class="status-badge status-critical">CRÍTICO</span></td>
+                            <td>Alta</td>
+                            <td>Restringir por domínio / variáveis de ambiente</td>
+                        </tr>
+                        <tr>
+                            <td>Regras de segurança Firestore</td>
+                            <td><span class="status-badge status-atencao">PENDENTE</span></td>
+                            <td>Alta</td>
+                            <td>Implementar regras de leitura/escrita</td>
+                        </tr>
+                        <tr>
+                            <td>Autenticação básica</td>
+                            <td><span class="status-badge status-alert">PLANEJADO</span></td>
+                            <td>Média</td>
+                            <td>Login por usuário/senha ou Google Auth</td>
+                        </tr>
+                        <tr>
+                            <td>HTTPS obrigatório</td>
+                            <td><span class="status-badge status-ok">OK</span></td>
+                            <td>Alta</td>
+                            <td>Já implementado via Firebase Hosting</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA 7: MANUAL OPERACIONAL -->
+        <div id="manual" class="tab-content">
+            <h2><i class="fas fa-cogs"></i> Manual Operacional e Troubleshooting</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-users"></i> Perfis de Usuário</h3>
+                
+                <table class="methodology-table">
+                    <thead>
+                        <tr>
+                            <th>Perfil</th>
+                            <th>Acesso</th>
+                            <th>Funções</th>
+                            <th>Treinamento Necessário</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Avaliador de Campo</strong></td>
+                            <td>Apenas formulário</td>
+                            <td>Coleta de dados, fotos, envio</td>
+                            <td>2 horas (checklist + app)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gestor Escolar</strong></td>
+                            <td>Leitura da própria escola</td>
+                            <td>Monitoramento, solicitações</td>
+                            <td>30 minutos (interpretação)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Técnico Municipal</strong></td>
+                            <td>Painel completo + mapas</td>
+                            <td>Análise, priorização, relatórios</td>
+                            <td>4 horas (sistema completo)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Administrador</strong></td>
+                            <td>Acesso total</td>
+                            <td>Configuração, usuários, backup</td>
+                            <td>8 horas (tecnico + administrativo)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-question-circle"></i> Troubleshooting Comum</h3>
                 
                 <div class="user-guide-step">
                     <div class="step-number">1</div>
                     <div>
-                        <h4>Georreferenciamento</h4>
-                        <p>Localização exata de cada escola no sistema de coordenadas WGS84</p>
+                        <h4>"Não consigo enviar avaliação"</h4>
+                        <p><strong>Causa:</strong> Sem conexão ou erro no Firebase</p>
+                        <p><strong>Solução:</strong> Verifique se está online. Se sim, recarregue a página. 
+                        Se offline, os dados foram salvos localmente e serão enviados automaticamente.</p>
                     </div>
                 </div>
                 
                 <div class="user-guide-step">
                     <div class="step-number">2</div>
                     <div>
-                        <h4>Tesselagem Territorial</h4>
-                        <p>Divisão do município em células regulares (grid de 1km²) ou uso de bairros</p>
+                        <h4>"PDF não está sendo gerado"</h4>
+                        <p><strong>Causa:</strong> jsPDF não carregado ou erro nas imagens</p>
+                        <p><strong>Solução:</strong> Verifique conexão com CDN. Reduza o número/tamanho das fotos.</p>
                     </div>
                 </div>
                 
                 <div class="user-guide-step">
                     <div class="step-number">3</div>
                     <div>
-                        <h4>Agregação por Território</h4>
-                        <p>Cálculo dos indicadores para cada célula/bairro</p>
-                    </div>
-                </div>
-                
-                <div class="user-guide-step">
-                    <div class="step-number">4</div>
-                    <div>
-                        <h4>Classificação e Mapeamento</h4>
-                        <p>Aplicação de critérios para definição de zonas prioritárias</p>
+                        <h4>"Mapa não carrega"</h4>
+                        <p><strong>Causa:</strong> Bloqueio do OpenStreetMap ou erro no Leaflet</p>
+                        <p><strong>Solução:</strong> Verifique permissões do navegador. Tente outro navegador.</p>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- ABA 5: REFERÊNCIAS BIBLIOGRÁFICAS -->
-        <div id="references" class="tab-content">
-            <h2><i class="fas fa-graduation-cap"></i> Referências Técnicas e Bibliográficas</h2>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-file-contract"></i> Normas Técnicas Brasileiras</h3>
+                <h3><i class="fas fa-rocket"></i> Otimização de Performance</h3>
                 
-                <div class="reference-item">
-                    <div class="authors">ABNT - Associação Brasileira de Normas Técnicas</div>
-                    <div class="title">NBR 15575: Edificações Habitacionais — Desempenho</div>
-                    <p>Base para avaliação de desempenho da edificação</p>
+                <div class="danger-box">
+                    <strong>PROBLEMA:</strong> PDFs com muitas fotos em Base64 podem ficar muito grandes (&gt;10MB)
                 </div>
                 
-                <div class="reference-item">
-                    <div class="authors">ABNT - Associação Brasileira de Normas Técnicas</div>
-                    <div class="title">NBR 5626: Instalação Predial de Água Fria</div>
-                    <p>Referência para avaliação de sistemas hidráulicos</p>
-                </div>
-                
-                <div class="reference-item">
-                    <div class="authors">ABNT - Associação Brasileira de Normas Técnicas</div>
-                    <div class="title">NBR 9050: Acessibilidade a Edificações</div>
-                    <p>Base para avaliação de banheiros acessíveis</p>
+                <div class="code-example">
+                    <span class="code-comment">// Solução: Compressão de imagens antes do PDF</span><br>
+                    <span class="code-keyword">async function</span> <span class="code-string">compressImage</span>(file, maxWidth = <span class="code-number">1024</span>) {<br>
+                    &nbsp;&nbsp;<span class="code-keyword">return new</span> <span class="code-keyword">Promise</span>((resolve) => {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">const</span> reader = <span class="code-keyword">new</span> <span class="code-string">FileReader</span>();<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;reader.onload = (e) => {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">const</span> img = <span class="code-keyword">new</span> <span class="code-string">Image</span>();<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img.onload = () => {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">const</span> canvas = document.createElement(<span class="code-string">'canvas'</span>);<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">// Lógica de redimensionamento...</span><br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;};<br>
+                    &nbsp;&nbsp;});<br>
+                    }
                 </div>
             </div>
             
             <div class="methodology-card">
-                <h3><i class="fas fa-book-medical"></i> Referências Sanitárias</h3>
-                
-                <div class="reference-item">
-                    <div class="authors">WHO - World Health Organization</div>
-                    <div class="title">Water, Sanitation and Hygiene in Schools (2018)</div>
-                    <p>Padrões internacionais para WASH em escolas</p>
-                </div>
-                
-                <div class="reference-item">
-                    <div class="authors">UNICEF</div>
-                    <div class="title">WASH in Schools Monitoring Package (2019)</div>
-                    <p>Metodologia de monitoramento de saneamento escolar</p>
-                </div>
-                
-                <div class="reference-item">
-                    <div class="authors">Ministério da Saúde - Brasil</div>
-                    <div class="title">Portaria MS 1.914/2014 - Diretrizes Sanitárias</div>
-                    <p>Legislação brasileira para condições sanitárias</p>
-                </div>
-            </div>
-            
-            <div class="methodology-card">
-                <h3><i class="fas fa-chart-bar"></i> Referências Metodológicas</h3>
-                
-                <div class="reference-item">
-                    <div class="authors">SAATY, Thomas L.</div>
-                    <div class="title">Decision Making with the Analytic Hierarchy Process (2008)</div>
-                    <p>Base para construção de indicadores multicritério</p>
-                </div>
-                
-                <div class="reference-item">
-                    <div class="authors">JURAN, Joseph M.</div>
-                    <div class="title">Quality Control Handbook (1999)</div>
-                    <p>Aplicação do Princípio de Pareto à gestão da qualidade</p>
-                </div>
-                
-                <div class="reference-item">
-                    <div class="authors">ISO - International Organization for Standardization</div>
-                    <div class="title">ISO 31000: Risk Management — Guidelines</div>
-                    <p>Metodologia para gestão de riscos aplicada à infraestrutura</p>
-                </div>
-            </div>
-            
-            <div class="methodology-card">
-                <h3><i class="fas fa-map-marked-alt"></i> Referências de Análise Espacial</h3>
-                
-                <div class="reference-item">
-                    <div class="authors">ANSELIN, Luc</div>
-                    <div class="title">Spatial Econometrics: Methods and Models (1988)</div>
-                    <p>Fundamentos de análise espacial quantitativa</p>
-                </div>
-                
-                <div class="reference-item">
-                    <div class="authors">UN-HABITAT</div>
-                    <div class="title">Urban Indicators Guidelines (2004)</div>
-                    <p>Metodologia para indicadores urbanos territoriais</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ABA 6: MANUAL DO USUÁRIO -->
-        <div id="manual" class="tab-content">
-            <h2><i class="fas fa-users"></i> Manual do Usuário - Interpretação dos Resultados</h2>
-            
-            <div class="methodology-card">
-                <h3><i class="fas fa-user-tie"></i> Perfis de Usuário</h3>
+                <h3><i class="fas fa-calendar-alt"></i> Cronograma de Manutenção</h3>
                 
                 <table class="methodology-table">
                     <thead>
                         <tr>
-                            <th>Perfil</th>
-                            <th>Foco Principal</th>
-                            <th>Indicadores-Chave</th>
-                            <th>Ações Típicas</th>
+                            <th>Atividade</th>
+                            <th>Frequência</th>
+                            <th>Responsável</th>
+                            <th>Tempo Estimado</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Gestor Municipal</strong></td>
-                            <td>Alocação de recursos</td>
-                            <td>IPT médio, Zonas Prioritárias</td>
-                            <td>Planejamento orçamentário, definição de prioridades</td>
+                            <td>Backup do Firestore</td>
+                            <td>Mensal</td>
+                            <td>Administrador</td>
+                            <td>30 minutos</td>
                         </tr>
                         <tr>
-                            <td><strong>Técnico da Secretaria</strong></td>
-                            <td>Execução de intervenções</td>
-                            <td>Ranking IPT, Problemas frequentes</td>
-                            <td>Elaboração de projetos, acompanhamento de obras</td>
+                            <td>Limpeza de dados pendentes</td>
+                            <td>Semanal</td>
+                            <td>Sistema automático</td>
+                            <td>Automático</td>
                         </tr>
                         <tr>
-                            <td><strong>Diretor Escolar</strong></td>
-                            <td>Condição da própria escola</td>
-                            <td>Status, Pontuação específica</td>
-                            <td>Solicitação de reparos, manutenção preventiva</td>
+                            <td>Atualização de escolas</td>
+                            <td>Trimestral</td>
+                            <td>Técnico municipal</td>
+                            <td>2 horas</td>
                         </tr>
                         <tr>
-                            <td><strong>Auditor/Conselheiro</strong></td>
-                            <td>Transparência e conformidade</td>
-                            <td>Evolução temporal, Distribuição</td>
-                            <td>Fiscalização, controle social</td>
+                            <td>Revisão de segurança</td>
+                            <td>Semestral</td>
+                            <td>Equipe técnica</td>
+                            <td>4 horas</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-            
-            <div class="methodology-card">
-                <h3><i class="fas fa-question-circle"></i> Perguntas Frequentes e Interpretação</h3>
-                
-                <div class="user-guide-step">
-                    <div class="step-number">Q1</div>
-                    <div>
-                        <h4>"O que significa IPT 3.2 para minha escola?"</h4>
-                        <p><strong>Interpretação:</strong> Sua escola está na faixa de ALTA PRIORIDADE (2.6-3.5). 
-                        Significa que há problemas significativos que requerem intervenção técnica planejada.</p>
-                        <p><strong>Ação recomendada:</strong> Solicitar vistoria técnica detalhada e elaborar projeto de intervenção.</p>
-                    </div>
-                </div>
-                
-                <div class="user-guide-step">
-                    <div class="step-number">Q2</div>
-                    <div>
-                        <h4>"Por que minha escola não é prioridade mesmo com problemas?"</h4>
-                        <p><strong>Interpretação:</strong> O sistema prioriza baseado em critérios técnicos comparativos. 
-                        Outras escolas podem estar em situação pior ou o problema pode não ser recorrente.</p>
-                        <p><strong>Ação recomendada:</strong> Registrar todas as avaliações para aumentar o componente RT (Recorrência).</p>
-                    </div>
-                </div>
-                
-                <div class="user-guide-step">
-                    <div class="step-number">Q3</div>
-                    <div>
-                        <h4>"Como interpretar o mapa de calor?"</h4>
-                        <p><strong>Interpretação:</strong> Áreas vermelhas indicam alta concentração de problemas. 
-                        Não significa que todas as escolas da área têm problemas, mas que há uma densidade crítica elevada.</p>
-                        <p><strong>Ação recomendada:</strong> Verificar escolas específicas na área e considerar intervenções integradas.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="methodology-card">
-                <h3><i class="fas fa-clipboard"></i> Fluxo de Decisão Baseado no CheckInfra</h3>
-                
-                <div style="background: white; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
-                    <p><strong>Passo 1:</strong> Consultar o ranking de IPT</p>
-                    <p><strong>Passo 2:</strong> Identificar escolas com IPT ≥ 2.6</p>
-                    <p><strong>Passo 3:</strong> Verificar se estão em zonas prioritárias no mapa</p>
-                    <p><strong>Passo 4:</strong> Analisar problemas específicos no checklist</p>
-                    <p><strong>Passo 5:</strong> Priorizar por custo-benefício (problemas comuns)</p>
-                    <p><strong>Passo 6:</strong> Alocar recursos considerando orçamento disponível</p>
-                </div>
-            </div>
-            
-            <div class="methodology-card">
-                <h3><i class="fas fa-exclamation-triangle"></i> Limitações e Cuidados</h3>
-                
-                <div class="warning-box">
-                    <strong>1. Não substitui laudo técnico:</strong> O CheckInfra é ferramenta de triagem, não de diagnóstico final
-                </div>
-                
-                <div class="warning-box">
-                    <strong>2. Depende da qualidade dos dados:</strong> Resultados são tão bons quanto as avaliações de campo
-                </div>
-                
-                <div class="warning-box">
-                    <strong>3. Considerar contexto local:</strong> Fatores socioeconômicos podem influenciar resultados
-                </div>
-                
-                <div class="warning-box">
-                    <strong>4. Atualização regular necessária:</strong> Sistema requer alimentação contínua de dados
-                </div>
             </div>
         </div>
     </div>
@@ -967,14 +1517,20 @@
     <footer>
         <div class="container">
             <div class="footer-links">
-                <a href="#"><i class="fas fa-download"></i> Download PDF Completo</a>
-                <a href="#"><i class="fas fa-video"></i> Tutorial em Vídeo</a>
-                <a href="#"><i class="fas fa-question"></i> Suporte Técnico</a>
-                <a href="#"><i class="fas fa-envelope"></i> Contato</a>
+                <a href="./index.html"><i class="fas fa-home"></i> Voltar ao Sistema</a>
+                <a href="./avaliacao.html"><i class="fas fa-clipboard-check"></i> Nova Avaliação</a>
+                <a href="./painel/index.html"><i class="fas fa-chart-bar"></i> Painel Técnico</a>
+                <a href="./sobre.html"><i class="fas fa-info-circle"></i> Sobre o Projeto</a>
+                <a href="./contato.html"><i class="fas fa-envelope"></i> Contato Institucional</a>
             </div>
             <p>© 2025 CheckInfra - Sistema de Diagnóstico Sanitário Escolar</p>
             <p style="opacity: 0.8; font-size: 0.9rem; margin-top: 0.5rem;">
-                Documento Técnico v2.1 | Atualizado em Dezembro 2025
+                Documento Técnico v2.5 | Baseado na análise completa de 28 arquivos | 
+                Atualizado em Janeiro 2025
+            </p>
+            <p style="opacity: 0.6; font-size: 0.8rem; margin-top: 1rem;">
+                <i class="fas fa-code"></i> Desenvolvido por estudantes de Engenharia Civil | 
+                <i class="fas fa-graduation-cap"></i> Projeto acadêmico em empreendedorismo
             </p>
         </div>
     </footer>
@@ -985,23 +1541,41 @@
             const tabBtns = document.querySelectorAll('.tab-btn');
             const tabContents = document.querySelectorAll('.tab-content');
             
+            // Função para ativar uma aba específica
+            function activateTab(tabId) {
+                // Remove classe active de todos os botões e conteúdos
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Ativa a aba clicada
+                const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
+                const activeContent = document.getElementById(tabId);
+                
+                if (activeBtn) activeBtn.classList.add('active');
+                if (activeContent) activeContent.classList.add('active');
+                
+                // Salva a aba ativa no localStorage
+                localStorage.setItem('activeTab', tabId);
+                
+                // Rolagem suave para o topo do conteúdo
+                if (activeContent) {
+                    setTimeout(() => {
+                        activeContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+            }
+            
+            // Adiciona eventos aos botões
             tabBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    // Remove classe active de todos os botões e conteúdos
-                    tabBtns.forEach(b => b.classList.remove('active'));
-                    tabContents.forEach(c => c.classList.remove('active'));
-                    
-                    // Adiciona classe active ao botão clicado
-                    this.classList.add('active');
-                    
-                    // Mostra o conteúdo correspondente
                     const tabId = this.getAttribute('data-tab');
-                    document.getElementById(tabId).classList.add('active');
-                    
-                    // Rolagem suave para o topo do conteúdo
-                    document.getElementById(tabId).scrollIntoView({ behavior: 'smooth' });
+                    activateTab(tabId);
                 });
             });
+            
+            // Verifica se há uma aba salva no localStorage
+            const savedTab = localStorage.getItem('activeTab') || 'architecture';
+            activateTab(savedTab);
             
             // Sistema de impressão/exportação
             document.addEventListener('keydown', function(e) {
@@ -1015,30 +1589,201 @@
                             <head>
                                 <title>CheckInfra - ${activeTab.querySelector('h2').textContent}</title>
                                 <style>
-                                    body { font-family: Arial, sans-serif; padding: 20px; }
-                                    h1 { color: #1f4fd8; }
-                                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                                    th, td { border: 1px solid #ddd; padding: 8px; }
-                                    th { background-color: #f2f2f2; }
+                                    body { 
+                                        font-family: 'Segoe UI', Arial, sans-serif; 
+                                        padding: 30px; 
+                                        line-height: 1.6;
+                                        color: #333;
+                                    }
+                                    h1 { 
+                                        color: #1f4fd8; 
+                                        border-bottom: 3px solid #1f4fd8;
+                                        padding-bottom: 10px;
+                                        margin-bottom: 25px;
+                                    }
+                                    h2 { color: #163ca6; margin-top: 25px; }
+                                    h3 { color: #1f4fd8; }
+                                    table { 
+                                        width: 100%; 
+                                        border-collapse: collapse; 
+                                        margin: 20px 0; 
+                                        font-size: 14px;
+                                    }
+                                    th, td { 
+                                        border: 1px solid #ddd; 
+                                        padding: 10px; 
+                                        text-align: left;
+                                    }
+                                    th { 
+                                        background-color: #f8f9fa; 
+                                        font-weight: 600;
+                                    }
+                                    .methodology-card {
+                                        background: #f8f9fa;
+                                        border-left: 4px solid #1f4fd8;
+                                        padding: 15px;
+                                        margin: 20px 0;
+                                        border-radius: 5px;
+                                    }
+                                    .status-badge {
+                                        display: inline-block;
+                                        padding: 4px 10px;
+                                        border-radius: 15px;
+                                        font-size: 12px;
+                                        font-weight: bold;
+                                        margin: 2px;
+                                    }
+                                    .status-ok { background: #4CAF50; color: white; }
+                                    .status-alert { background: #FFD700; color: #333; }
+                                    .status-atencao { background: #FF9800; color: white; }
+                                    .status-critical { background: #F44336; color: white; }
                                     @media print {
                                         .no-print { display: none; }
+                                        body { padding: 15px; }
+                                    }
+                                    .footer {
+                                        margin-top: 40px;
+                                        padding-top: 20px;
+                                        border-top: 1px solid #ddd;
+                                        font-size: 12px;
+                                        color: #666;
+                                        text-align: center;
                                     }
                                 </style>
                             </head>
                             <body>
                                 <h1>CheckInfra - Manual Metodológico</h1>
+                                <div style="color: #666; margin-bottom: 25px;">
+                                    <strong>Seção:</strong> ${activeTab.querySelector('h2').textContent}<br>
+                                    <strong>Gerado em:</strong> ${new Date().toLocaleDateString()} às ${new Date().toLocaleTimeString()}
+                                </div>
                                 ${activeTab.innerHTML}
-                                <div class="no-print" style="margin-top: 30px; font-style: italic;">
-                                    Documento gerado em ${new Date().toLocaleDateString()}
+                                <div class="footer">
+                                    © 2025 CheckInfra - Sistema de Diagnóstico Sanitário Escolar<br>
+                                    Documento técnico confidencial - Uso institucional
                                 </div>
                             </body>
                         </html>
                     `);
                     printWindow.document.close();
-                    printWindow.print();
+                    setTimeout(() => {
+                        printWindow.print();
+                        printWindow.close();
+                    }, 500);
+                }
+                
+                // Ctrl+S para salvar como PDF (simulação)
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    alert('Para salvar esta seção como PDF, use a funcionalidade de impressão (Ctrl+P) e selecione "Salvar como PDF" nas opções da impressora.');
                 }
             });
+            
+            // Destacar elementos com animação ao passar o mouse
+            const highlightElements = document.querySelectorAll('.methodology-card, .arch-module');
+            highlightElements.forEach(el => {
+                el.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
+                });
+                
+                el.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.05)';
+                });
+            });
+            
+            // Adicionar rolagem suave para links internos
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // Adicionar botão "Voltar ao topo"
+            const backToTopBtn = document.createElement('button');
+            backToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            backToTopBtn.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                cursor: pointer;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+                box-shadow: 0 4px 15px rgba(31, 79, 216, 0.4);
+                z-index: 1000;
+                transition: all 0.3s;
+            `;
+            backToTopBtn.addEventListener('mouseenter', () => {
+                backToTopBtn.style.transform = 'scale(1.1)';
+                backToTopBtn.style.boxShadow = '0 6px 20px rgba(31, 79, 216, 0.6)';
+            });
+            backToTopBtn.addEventListener('mouseleave', () => {
+                backToTopBtn.style.transform = 'scale(1)';
+                backToTopBtn.style.boxShadow = '0 4px 15px rgba(31, 79, 216, 0.4)';
+            });
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            document.body.appendChild(backToTopBtn);
+            
+            // Mostrar/ocultar botão baseado na rolagem
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 500) {
+                    backToTopBtn.style.display = 'flex';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+            });
+            
+            // Adicionar efeito de digitação no título (opcional)
+            const headerTitle = document.querySelector('header h1');
+            const originalText = headerTitle.innerHTML;
+            headerTitle.innerHTML = '';
+            let i = 0;
+            const typeWriter = () => {
+                if (i < originalText.length) {
+                    headerTitle.innerHTML += originalText.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 50);
+                }
+            };
+            
+            // Iniciar efeito de digitação após 1 segundo
+            setTimeout(typeWriter, 1000);
         });
+        
+        // Função para copiar código de exemplo
+        function copyCode(element) {
+            const code = element.parentElement.querySelector('code').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = element.innerHTML;
+                element.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                element.style.background = '#4CAF50';
+                setTimeout(() => {
+                    element.innerHTML = originalText;
+                    element.style.background = '';
+                }, 2000);
+            });
+        }
     </script>
 </body>
 </html>

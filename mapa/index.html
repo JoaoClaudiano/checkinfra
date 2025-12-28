@@ -67,7 +67,7 @@ footer {
 
 #map { height: calc(100vh - 160px); }
 
-/* Pulsar suave com fade in/out */
+/* Pulsar suave */
 .pulse-ok { animation: pulse-ok 4s infinite; }
 .pulse-alerta, .pulse-atencao { animation: pulse-alerta 3s infinite; }
 .pulse-critico { animation: pulse-critico 2s infinite; }
@@ -77,14 +77,14 @@ footer {
 @keyframes pulse-atencao { 0%,100% { opacity:0; } 50% { opacity:0.8; } }
 @keyframes pulse-critico { 0%,100% { opacity:0; } 50% { opacity:0.8; } }
 
-/* Legenda deslizante */
+/* Legenda flutuante */
 .legenda-mapa {
   position: absolute;
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 50%; 
+  right: 20px; 
+  transform: translateY(-50%);
   background: rgba(255,255,255,0.95);
-  padding: 12px;
+  padding: 10px;
   line-height: 20px;
   color: #333;
   border-radius: 8px;
@@ -92,45 +92,28 @@ footer {
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
   font-size: 13px;
   z-index: 1000;
-  pointer-events: auto;
-  transition: transform 0.3s ease, width 0.3s ease, padding 0.3s ease;
+  cursor: move;
   max-width: 250px;
 }
-.legenda-mapa i { width: 12px; height: 12px; float: left; margin-right: 8px; margin-top: 4px; border-radius: 50%; display:inline-block; }
+.legenda-mapa i { width: 12px; height: 12px; float: left; margin-right: 8px; margin-top: 4px; border-radius:50%; display:inline-block; }
 
-/* Aba toggle */
-.legenda-toggle {
-  position: absolute;
-  top: 0;
-  right: -25px;
-  width: 25px;
-  height: 25px;
-  background: #1f4fd8;
-  color: #fff;
-  text-align: center;
-  line-height: 25px;
-  border-radius: 4px 0 0 4px;
+.legenda-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   cursor: pointer;
-  font-weight: bold;
-  user-select: none;
 }
+#toggleSeta { font-weight: bold; user-select: none; }
 
-/* Quando fechada */
-.legenda-mapa.fechada {
-  transform: translateX(calc(-50% + 115px)); 
-  width: 25px;
-  padding: 0;
-  overflow: hidden;
-}
+.legenda-conteudo { margin-top: 6px; }
+.legenda-mapa.fechada .legenda-conteudo { display: none; }
 
-/* Media query para mobile */
+/* Mobile */
 @media (max-width:600px){
-  .legenda-mapa { top: 50px; max-width: 180px; font-size: 11px; line-height: 16px; padding: 8px; }
-  .legenda-toggle { right: -22px; width: 22px; height: 22px; line-height: 22px; font-size: 12px; }
+  .legenda-mapa { font-size:11px; max-width:180px; right:5px; top:40%; transform:translateY(-40%); padding:8px; }
 }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -153,18 +136,35 @@ footer {
   Visualização territorial para apoio à decisão. Não substitui inspeção técnica presencial.
 </footer>
 
-<!-- Legenda -->
-<div id="legendaBairros" class="legenda-mapa">
-  <div class="legenda-toggle" id="toggleLegenda">&lt;</div>
-  <div style="margin-bottom:5px;"><strong>Status das escolas</strong></div>
-  <i style="background:#4CAF50"></i> Adequado<br>
-  <i style="background:#FFD700"></i> Alerta<br>
-  <i style="background:#FF9800"></i> Atenção<br>
-  <i style="background:#F44336"></i> Crítico
+<!-- Legenda flutuante -->
+<div id="legendaFlutuante" class="legenda-mapa">
+  <div class="legenda-cabecalho" id="toggleLegenda">
+    <strong>Status dos bairros</strong> <span id="toggleSeta">&lt;</span>
+  </div>
+  <div class="legenda-conteudo">
+    <div>
+      🔴 <strong>Crítico</strong>: Predomínio de falhas graves ou risco iminente.<br>
+      🟠 <strong>Atenção</strong>: Unidade com tendência de degradação.<br>
+      🟡 <strong>Alerta</strong>: Necessidade de manutenção preventiva e pontual.<br>
+      🟢 <strong>Adequado</strong>: Padrão dentro das normas vigentes.
+    </div>
+    <hr>
+    <div>
+      <strong>Metodologia resumida:</strong><br>
+      - Status dominante é definido pelo percentual de escolas no bairro.<br>
+      - Se ≥50% das escolas estão em uma classe, essa classe define o bairro.<br>
+      - Se nenhuma classe atingir 50%, o bairro assume a classe mais grave presente.<br>
+      - Presença de pelo menos uma escola crítica sinaliza alerta adicional.
+    </div>
+    <hr>
+    <div id="infoExtra">
+      <small>Total de escolas monitoradas: 0</small><br>
+      <small>Última avaliação geral: -</small>
+    </div>
+  </div>
 </div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -191,9 +191,9 @@ window.avaliacoes = avaliacoes;
 const cores = { ok:"#4CAF50", alerta:"#FFD700", atencao:"#FF9800", critico:"#F44336" };
 const classesPulse = { ok:"pulse-ok", alerta:"pulse-alerta", atencao:"pulse-atencao", critico:"pulse-critico" };
 const classeMap = { ok:"ok", alerta:"alerta", atencao:"atencao", critico:"critico" };
-
 let camadaPontos = L.layerGroup().addTo(map);
 
+// Carregar avaliações
 async function carregarAvaliacoes(){
   const snap = await getDocs(collection(db,"avaliacoes"));
   const ultimos = {};
@@ -208,15 +208,24 @@ async function carregarAvaliacoes(){
   });
   avaliacoes = Object.values(ultimos);
   window.avaliacoes = avaliacoes;
+
+  // Atualiza legenda
+  const info = document.getElementById('infoExtra');
+  if(info){
+    const total = avaliacoes.length;
+    const ultima = avaliacoes.map(a=>a.createdAt?.toDate()).filter(d=>d).sort((a,b)=>b-a)[0];
+    info.innerHTML = `<small>Total de escolas monitoradas: ${total}</small><br><small>Última avaliação geral: ${ultima ? ultima.toLocaleDateString('pt-BR') : '-'}</small>`;
+  }
 }
 
+// Criar ponto da escola
 function criarPonto(d){
   const s = classeMap[d.classe] || d.classe;
   const cor = cores[s] || "#000";
-  const nomeStatus = s === "ok" ? "Adequado" : s.charAt(0).toUpperCase() + s.slice(1);
+  const nomeStatus = s==="ok" ? "Adequado" : s.charAt(0).toUpperCase() + s.slice(1);
   const ultimaData = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleDateString('pt-BR') : "-";
 
-  return L.circleMarker([d.lat,d.lng],{
+  const marker = L.circleMarker([d.lat,d.lng],{
     radius:8, color:cor, fillColor:cor, fillOpacity:0.8
   }).bindPopup(`
     <strong>${d.escola}</strong><br>
@@ -224,8 +233,10 @@ function criarPonto(d){
     Pontuação: ${d.pontuacao || "-"}<br>
     Última avaliação: ${ultimaData}
   `);
+  return marker;
 }
 
+// Atualizar pontos
 function atualizarPontos(){
   camadaPontos.clearLayers();
   const mapaVivo = document.getElementById("togglePulso").checked;
@@ -251,23 +262,34 @@ document.querySelectorAll("#fAdequado,#fAlerta,#fAtencao,#fCritico,#togglePulso"
   el.addEventListener("change", atualizarPontos);
 });
 
+// Inicialização
 await carregarAvaliacoes();
 atualizarPontos();
 
-// Toggle da legenda
-const legendaEl = document.getElementById("legendaBairros");
-const toggleLegenda = document.getElementById("toggleLegenda");
-
-toggleLegenda.addEventListener("click", ()=>{
-  if(legendaEl.classList.contains("fechada")){
-    legendaEl.classList.remove("fechada");
-    toggleLegenda.innerHTML = "&lt;";
-  } else {
-    legendaEl.classList.add("fechada");
-    toggleLegenda.innerHTML = "&gt;";
-  }
+// Toggle abre/fecha legenda
+const legendaFlutuante = document.getElementById('legendaFlutuante');
+const toggleSeta = document.getElementById('toggleSeta');
+document.getElementById('toggleLegenda').addEventListener('click', () => {
+  legendaFlutuante.classList.toggle('fechada');
+  toggleSeta.innerHTML = legendaFlutuante.classList.contains('fechada') ? '>' : '<';
 });
 
+// Drag & drop da legenda
+let isDragging = false, offsetX, offsetY;
+legendaFlutuante.addEventListener('mousedown', e => {
+  if(e.target.id !== 'toggleSeta') {
+    isDragging = true;
+    offsetX = e.clientX - legendaFlutuante.offsetLeft;
+    offsetY = e.clientY - legendaFlutuante.offsetTop;
+  }
+});
+document.addEventListener('mousemove', e => {
+  if(isDragging){
+    legendaFlutuante.style.left = (e.clientX - offsetX) + 'px';
+    legendaFlutuante.style.top = (e.clientY - offsetY) + 'px';
+  }
+});
+document.addEventListener('mouseup', ()=>{ isDragging=false; });
 </script>
 
 <script src="./mapabairros.js"></script>

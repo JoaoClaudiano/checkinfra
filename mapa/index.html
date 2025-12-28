@@ -80,7 +80,7 @@ footer {
 .legenda-mapa {
   display:none;
   position:absolute;
-  top:80px;
+  top:100px; /* ligeiramente mais abaixo */
   right:-260px;
   width:240px;
   overflow:hidden;
@@ -108,8 +108,8 @@ footer {
 .legenda-toggle-orelha {
   position:absolute;
   left:-28px;
-  top:50%;
-  transform:translateY(-50%) rotate(0deg);
+  top:120px; /* um pouco mais abaixo */
+  transform:translateY(0deg);
   width:28px;
   height:28px;
   background:#1f4fd8;
@@ -122,15 +122,15 @@ footer {
   font-weight:bold;
   user-select:none;
   transition: transform 0.4s ease, left 0.4s ease;
+  z-index:1001;
 }
 .legenda-toggle-orelha.rotated {
-  transform:translateY(-50%) rotate(90deg);
-  left:-5px;
+  transform: rotate(180deg);
 }
 
 /* Mobile adjustments */
 @media (max-width:600px){
-  .legenda-mapa { top:70px; font-size:12px; line-height:16px; width:200px; }
+  .legenda-mapa { top:90px; font-size:12px; line-height:16px; width:200px; }
   .legenda-mapa h4 { font-size:13px; }
   .legenda-toggle-orelha { width:26px; height:26px; font-size:14px; }
 }
@@ -271,7 +271,7 @@ function criarLegendaBairros(){
   // Aba/orelha
   orelha = document.createElement('div');
   orelha.className='legenda-toggle-orelha';
-  orelha.textContent='☰';
+  orelha.textContent='🛈';
   map.getContainer().appendChild(orelha);
   orelha.style.display='none';
 

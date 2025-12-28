@@ -11,6 +11,7 @@
 
 <style>
 body { margin:0; font-family:Arial,sans-serif; background:#f4f6f8; }
+
 header {
   background:#1f4fd8; color:#fff; padding:14px;
   display:flex; align-items:center; justify-content:center; font-weight:bold;
@@ -22,8 +23,7 @@ footer { background:#f4f6f8; font-size:11px; color:#555; padding:8px; text-align
 
 .painel {
   background:#fff; padding:8px; display:flex; flex-wrap:wrap; gap:10px;
-  justify-content:center; border-bottom:1px solid #ddd; position:sticky;
-  top:52px; z-index:999; font-size:13px;
+  justify-content:center; border-bottom:1px solid #ddd; position:sticky; top:52px; z-index:999; font-size:13px;
 }
 .painel label { display:flex; align-items:center; gap:4px; cursor:pointer; }
 .bola { width:12px; height:12px; border-radius:50%; }
@@ -33,6 +33,18 @@ footer { background:#f4f6f8; font-size:11px; color:#555; padding:8px; text-align
 .vermelho { background:#F44336; }
 
 #map { height: calc(100vh - 160px); }
+
+/* ===== Pulso com keyframes ===== */
+@keyframes pulse-ok { 0%,100% { opacity:1; } 50% { opacity:0; } }
+@keyframes pulse-alerta { 0%,100% { opacity:1; } 50% { opacity:0; } }
+@keyframes pulse-atencao { 0%,100% { opacity:1; } 50% { opacity:0; } }
+@keyframes pulse-critico { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+.pulse-ok { animation: pulse-ok 4s infinite; }
+.pulse-alerta { animation: pulse-alerta 3s infinite; }
+.pulse-atencao { animation: pulse-atencao 3s infinite; }
+.pulse-critico { animation: pulse-critico 2s infinite; }
+
 </style>
 </head>
 
@@ -61,7 +73,7 @@ footer { background:#f4f6f8; font-size:11px; color:#555; padding:8px; text-align
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Firebase config
+// Config Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
@@ -70,7 +82,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Inicializa mapa
+// Inicializar mapa
 let map;
 if (!window._checkinfraMap) {
   map = L.map("map").setView([-3.7319,-38.5267],12);
@@ -80,14 +92,14 @@ if (!window._checkinfraMap) {
   map = window._checkinfraMap;
 }
 
-// Config
+// Cores e frequências
 const cores = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
-const freq = { ok:4000, alerta:3000, atenção:3000, critico:2000 };
-let camadaPontos = L.layerGroup().addTo(map);
-let avaliacoes = [];
-let pulsosAtivos = [];
+const classesPulse = { ok:"pulse-ok", alerta:"pulse-alerta", atenção:"pulse-atencao", critico:"pulse-critico" };
 
-// Carregar avaliações recentes
+let avaliacoes = [];
+let camadaPontos = L.layerGroup().addTo(map);
+
+// Carregar avaliações mais recentes
 async function carregarAvaliacoes(){
   const snap = await getDocs(collection(db,"avaliacoes"));
   const ultimos = {};
@@ -106,52 +118,32 @@ async function carregarAvaliacoes(){
 // Criar ponto
 function criarPonto(d){
   const cor = cores[d.classe] || "#000";
-  return L.circleMarker([d.lat,d.lng],{
+  const marker = L.circleMarker([d.lat,d.lng],{
     radius:8, color:cor, fillColor:cor, fillOpacity:0.8
   }).bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.classe}<br>Pontuação: ${d.pontuacao||"-"}<br>Última avaliação: ${d.data||"-"}`);
-}
-
-// Ativar pulso suave
-function ativarPulso(){
-  pulsosAtivos.forEach(i=>clearInterval(i));
-  pulsosAtivos=[];
-  camadaPontos.clearLayers();
-
-  avaliacoes.forEach(d=>{
-    const cor = cores[d.classe] || "#000";
-    const intervalo = freq[d.classe] || 3000;
-    const marker = L.circleMarker([d.lat,d.lng],{
-      radius:8, color:cor, fillColor:cor, fillOpacity:0.8
-    }).bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.classe}`);
-    marker.addTo(camadaPontos);
-
-    let visivel = true;
-    const id = setInterval(()=>{
-      marker.setStyle({ fillOpacity: visivel ? 0.8 : 0 });
-      visivel = !visivel;
-    }, intervalo);
-    pulsosAtivos.push(id);
-  });
+  return marker;
 }
 
 // Atualizar pontos
 function atualizarPontos(){
   camadaPontos.clearLayers();
-  pulsosAtivos.forEach(i=>clearInterval(i));
-  pulsosAtivos=[];
 
-  if(document.getElementById("togglePulso").checked){
-    ativarPulso();
-  } else {
-    avaliacoes.forEach(d=>{
-      const s = d.classe;
-      if((s==="ok" && !fAdequado.checked) ||
-         (s==="alerta" && !fAlerta.checked) ||
-         (s==="atenção" && !fAtencao.checked) ||
-         (s==="critico" && !fCritico.checked)) return;
-      criarPonto(d).addTo(camadaPontos);
-    });
-  }
+  const mapaVivo = document.getElementById("togglePulso").checked;
+  avaliacoes.forEach(d=>{
+    const s = d.classe;
+    if((s==="ok" && !fAdequado.checked) ||
+       (s==="alerta" && !fAlerta.checked) ||
+       (s==="atenção" && !fAtencao.checked) ||
+       (s==="critico" && !fCritico.checked)) return;
+
+    const marker = criarPonto(d);
+    if(mapaVivo){
+      const pulseClass = classesPulse[s] || "pulse-ok";
+      const el = marker.getElement ? marker.getElement() : null;
+      if(el) el.classList.add(pulseClass);
+    }
+    marker.addTo(camadaPontos);
+  });
 }
 
 // Eventos checkbox
@@ -162,7 +154,6 @@ document.querySelectorAll("#fAdequado,#fAlerta,#fAtencao,#fCritico,#togglePulso"
 // Inicialização
 await carregarAvaliacoes();
 atualizarPontos();
-
 </script>
 
 <script src="./mapabairros.js"></script>

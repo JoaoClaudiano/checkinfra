@@ -1,91 +1,108 @@
 // mapabairros.js
 
-// Referências globais do index
+// Referências globais vindas do index.html
 const map = window._checkinfraMap;
-const avaliacoes = window.avaliacoes;
 
-// Layer para os bairros
-const camadaBairros = L.layerGroup().addTo(map);
-
-// Cores por classe
 const cores = { ok:"#4CAF50", alerta:"#FFD700", atenção:"#FF9800", critico:"#F44336" };
-
-// Mapear classes do Firebase para cores/metodologia
 const classeMap = { ok:"ok", alerta:"alerta", atencao:"atenção", critico:"critico" };
 
-// Carregar GeoJSON dos bairros
+// Camada principal onde o GeoJSON ficará "vivo"
+let camadaGeoBairros = null;
+
+// Carregar GeoJSON dos bairros uma única vez
 fetch('./mapa/POLIGONAIS.geojson')
   .then(res => res.json())
   .then(geojson => {
-    window.geoBairros = L.geoJSON(geojson, {
-      style: { color:"#666", weight:1, fillOpacity:0.1 },
+    camadaGeoBairros = L.geoJSON(geojson, {
+      style: { color:"#666", weight:1, fillOpacity:0, opacity: 0 }, // Começa invisível
       onEachFeature: (feature, layer) => {
-        layer.on('mouseover', () => layer.setStyle({ fillOpacity:0.2 }));
-        layer.on('mouseout', () => layer.setStyle({ fillOpacity:0.1 }));
+        layer.on('mouseover', () => {
+          if(document.getElementById("toggleBairros").checked) layer.setStyle({ weight: 2, color: "#000" });
+        });
+        layer.on('mouseout', () => {
+          if(document.getElementById("toggleBairros").checked) layer.setStyle({ weight: 1, color: "#666" });
+        });
       }
-    }).addTo(camadaBairros);
-    atualizarBairros();
+    }).addTo(map);
   });
 
-// Função para atualizar bairros e calcular classe dominante
 function atualizarBairros() {
-  camadaBairros.clearLayers();
-  
-  if(!window.geoBairros) return;
+  if(!camadaGeoBairros || !document.getElementById("toggleBairros").checked) return;
 
-  window.geoBairros.eachLayer(layer => {
+  const avaliacoes = window.avaliacoes || [];
+
+  camadaGeoBairros.eachLayer(layer => {
     const feature = layer.feature;
     
-    // Filtrar escolas dentro do bairro usando turf
+    // Filtro de escolas dentro do bairro
     const escolasNoBairro = avaliacoes.filter(a => {
-      const s = classeMap[a.classe] || a.classe;
-      // Respeita filtros do painel
-      if((s==="ok" && !fAdequado.checked) ||
-         (s==="alerta" && !fAlerta.checked) ||
-         (s==="atenção" && !fAtencao.checked) ||
-         (s==="critico" && !fCritico.checked)) return false;
-      return turf.booleanPointInPolygon([a.lng, a.lat], feature);
+      const s = a.classe; 
+      // Verifica se a classe está ativa no painel do index.html
+      const checkEl = document.getElementById(s === "ok" ? "fAdequado" : s === "alerta" ? "fAlerta" : s === "atenção" ? "fAtencao" : "fCritico");
+      if(checkEl && !checkEl.checked) return false;
+
+      // Correção Turf: Criar objeto Point
+      const pt = turf.point([a.lng, a.lat]);
+      return turf.booleanPointInPolygon(pt, feature.geometry);
     });
 
-    // Calcular contagem por classe
     const cont = { ok:0, alerta:0, atenção:0, critico:0 };
-    escolasNoBairro.forEach(e => cont[classeMap[e.classe] || e.classe]++);
+    escolasNoBairro.forEach(e => {
+        if(cont[e.classe] !== undefined) cont[e.classe]++;
+    });
 
     const total = escolasNoBairro.length;
     const perc = k => total ? Math.round((cont[k]/total)*100) : 0;
 
-    // Determinar classe dominante
     let classeDominante = "ok";
     if(perc("critico") >= 50) classeDominante = "critico";
     else if(perc("atenção") >= 50) classeDominante = "atenção";
     else if(perc("alerta") >= 50) classeDominante = "alerta";
 
-    // Tooltip do bairro
-    const obs = classeDominante==="critico" ? "🔴 Problema generalizado – alto risco." :
-                classeDominante==="atenção" ? "🟠 Problema localizado, tendência de piora." :
-                classeDominante==="alerta" ? "🟡 Problema pontual, monitoramento." :
-                "🟢 Situação controlada – acompanhamento rotineiro.";
+    const obs = total === 0 ? "Sem dados disponíveis." : 
+                classeDominante==="critico" ? "🔴 Problema generalizado." :
+                classeDominante==="atenção" ? "🟠 Tendência de piora." :
+                "🟢 Situação sob controle.";
 
-    layer.setStyle({ fillColor: cores[classeDominante], fillOpacity:0.3, weight:1 });
-    layer.bindTooltip(`
-      <strong>${feature.properties.nome}</strong><br>
-      🔴 ${perc("critico")}% crítico (${cont.critico})<br>
-      🟠 ${perc("atenção")}% atenção (${cont.atenção})<br>
-      🟡 ${perc("alerta")}% alerta (${cont.alerta})<br>
-      🟢 ${perc("ok")}% adequado (${cont.ok})<br>
-      <em>${obs}</em>
-    `);
-    camadaBairros.addLayer(layer);
+    // Aplicar estilo visual
+    layer.setStyle({ 
+      fillColor: total > 0 ? cores[classeDominante] : "transparent", 
+      fillOpacity: total > 0 ? 0.35 : 0,
+      opacity: 1 // Torna a borda visível
+    });
+
+    // Template do Popup
+    const html = `
+      <div style="font-size:13px; line-height:1.4; min-width:180px;">
+        <strong>${feature.properties.nome || "Bairro"}</strong><br>
+        <small>${total} escolas no raio</small>
+        <hr style="margin:4px 0">
+        ${total > 0 ? ["critico","atenção","alerta","ok"].map(c => `
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:10px; height:10px; border-radius:50%; background:${cores[c]}; display:inline-block;"></span>
+            <span>${c}: ${perc(c)}% (${cont[c]})</span>
+          </div>
+        `).join("") : "Nenhuma escola filtrada neste setor."}
+        <div style="margin-top:6px; font-size:11px;"><em>${obs}</em></div>
+      </div>`;
+
+    layer.bindPopup(html);
   });
 }
 
-// Atualiza em tempo real quando os filtros do painel mudam
-document.querySelectorAll("#fAdequado,#fAlerta,#fAtencao,#fCritico").forEach(el => {
-  el.addEventListener("change", atualizarBairros);
+// Eventos de escuta
+document.getElementById("toggleBairros").addEventListener("change", function(){
+  if(this.checked) {
+    atualizarBairros();
+  } else {
+    // Esconde a camada sem removê-la para não perder o cache
+    if(camadaGeoBairros) camadaGeoBairros.setStyle({ fillOpacity: 0, opacity: 0 });
+  }
 });
 
-// Atualiza quando o checkbox de bairros é alterado
-document.getElementById("toggleBairros").addEventListener("change", function(){
-  if(this.checked) atualizarBairros();
-  else camadaBairros.clearLayers();
+// Reatividade com os filtros do index.html
+document.querySelectorAll("#fAdequado, #fAlerta, #fAtencao, #fCritico").forEach(el => {
+  el.addEventListener("change", () => {
+    if(document.getElementById("toggleBairros").checked) atualizarBairros();
+  });
 });

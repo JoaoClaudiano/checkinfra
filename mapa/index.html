@@ -121,7 +121,7 @@ footer {
   position:absolute;
   top:25%;
   right:0;
-  width:32px;
+  width:28px;
   height:60px;
   background:#1f4fd8;
   color:#fff;
@@ -137,20 +137,12 @@ footer {
   display:none; /* só aparece com leitura por bairros */
   transition: all 0.3s ease;
 }
-.legenda-orelha.rotating {
-  animation: girar 0.4s ease;
-}
-
-@keyframes girar {
-  0% { transform: rotate(0deg); }
-  50% { transform: rotate(20deg); }
-  100% { transform: rotate(0deg); }
-}
+.legenda-orelha.show { display:flex; }
 
 @media (max-width:600px){
   .legenda-mapa { width:200px; max-height:50%; top:15%; font-size:12px; }
   .legenda-mapa h4 { font-size:13px; }
-  .legenda-orelha { width:28px; height:50px; font-size:18px; }
+  .legenda-orelha { width:26px; height:50px; font-size:18px; }
 }
 </style>
 </head>
@@ -261,7 +253,7 @@ document.querySelectorAll("#fAdequado,#fAlerta,#fAtencao,#fCritico,#togglePulso"
 await carregarAvaliacoes();
 atualizarPontos();
 
-// Criar legenda
+// Criar legenda e orelha
 const legenda = L.control({ position:'topright' });
 legenda.onAdd = function(map){
   const div = L.DomUtil.create('div','legenda-mapa');
@@ -292,31 +284,26 @@ function abrirLegenda(){
   const div = document.getElementById('legendaBairros');
   div.style.display='block';
   setTimeout(()=>div.classList.add('open'),10);
-  orelha.classList.add('rotating');
-  setTimeout(()=>orelha.classList.remove('rotating'),400);
   orelha.style.display='none';
 }
 
 function fecharLegenda(){
   const div = document.getElementById('legendaBairros');
   div.classList.remove('open');
-  orelha.classList.add('rotating');
-  setTimeout(()=>orelha.classList.remove('rotating'),400);
   setTimeout(()=>{ div.style.display='none'; orelha.style.display='flex'; },400);
 }
 
+orelha.addEventListener('click', abrirLegenda);
+
 // Toggle leitura por bairros
 document.getElementById("toggleBairros").addEventListener("change", function(){
+  const div = document.getElementById('legendaBairros');
   if(this.checked){
-    orelha.style.display='flex';
     abrirLegenda();
   } else {
     fecharLegenda();
-    orelha.style.display='none';
   }
 });
-
-orelha.addEventListener('click', abrirLegenda);
 </script>
 
 <script src="./mapabairros.js"></script>

@@ -81,8 +81,8 @@ footer {
   display:none;
   position:absolute;
   top:80px;
-  right:-240px; /* fora da tela inicialmente */
-  width:230px;
+  right:-260px; /* fora da tela inicialmente */
+  width:240px;
   overflow:hidden;
   background: rgba(255,255,255,0.95);
   padding:10px 12px 12px 12px;
@@ -95,9 +95,7 @@ footer {
   z-index:1000;
   transition: all 0.4s ease;
 }
-.legenda-mapa.open {
-  right:10px; /* entra na tela */
-}
+.legenda-mapa.open { right:10px; }
 .legenda-mapa h4 {
   margin:0 0 6px 0;
   font-size:14px;
@@ -121,7 +119,7 @@ footer {
   font-weight:bold;
   font-size:16px;
   user-select:none;
-  padding:4px 8px;
+  padding:4px 6px;
   border-radius:4px;
   background:#ddd;
   display:flex;
@@ -133,7 +131,7 @@ footer {
 @media (max-width:600px){
   .legenda-mapa { top:60px; font-size:12px; line-height:16px; width:200px; }
   .legenda-mapa h4 { font-size:13px; }
-  .legenda-toggle { font-size:18px; padding:4px 8px; }
+  .legenda-toggle { font-size:18px; padding:4px 6px; }
 }
 </style>
 </head>
@@ -203,6 +201,7 @@ async function carregarAvaliacoes(){
   window.avaliacoes = avaliacoes;
 }
 
+// Criar ponto da escola
 function criarPonto(d){
   const s = classeMap[d.classe] || d.classe;
   const cor = cores[s] || "#000";
@@ -249,14 +248,22 @@ const legenda = L.control({ position:'topright' });
 legenda.onAdd = function(map){
   const div = L.DomUtil.create('div','legenda-mapa');
   div.id='legendaBairros';
+  const totalEscolas = avaliacoes.length;
+  const ultimaDataGeral = avaliacoes
+    .map(a=>a.createdAt?.toDate?.() ?? null)
+    .filter(d=>d!=null)
+    .sort((a,b)=>b-a)[0];
+  const ultimaDataStr = ultimaDataGeral ? ultimaDataGeral.toLocaleDateString('pt-BR') : "-";
   div.innerHTML=`
-    <h4><span class="legenda-toggle">&lt;</span>Status dos bairros</h4>
+    <h4><span class="legenda-toggle">▸</span>Status dos bairros</h4>
     <div style="margin-bottom:6px;">
       🔴 Crítico: Predomínio de falhas graves ou risco iminente.<br>
       🟠 Atenção: Unidade com tendência de degradação.<br>
       🟡 Alerta: Necessidade de manutenção preventiva e pontual.<br>
       🟢 Adequado: Padrão dentro das normas vigentes.<br><br>
-      <em>Criticidade dominante >=50% das escolas por bairro. Caso contrário, mostra a classe máxima presente.</em>
+      <em>Criticidade dominante >=50% das escolas por bairro. Caso contrário, mostra a classe máxima presente.</em><br><br>
+      <strong>Total de escolas monitoradas:</strong> ${totalEscolas}<br>
+      <strong>Última avaliação:</strong> ${ultimaDataStr}
     </div>
   `;
   return div;
@@ -268,10 +275,10 @@ toggleEl.addEventListener('click', ()=>{
   const div = document.getElementById('legendaBairros');
   if(div.classList.contains('open')){
     div.classList.remove('open');
-    toggleEl.textContent='>';
+    toggleEl.textContent='▸'; // ícone fechar
   }else{
     div.classList.add('open');
-    toggleEl.textContent='<';
+    toggleEl.textContent='◂'; // ícone abrir
   }
 });
 
@@ -279,11 +286,12 @@ document.getElementById("toggleBairros").addEventListener("change",function(){
   const div = document.getElementById('legendaBairros');
   if(this.checked){
     div.style.display='block';
-    setTimeout(()=>div.classList.add('open'),10); // efeito slide
-    toggleEl.textContent='<';
+    setTimeout(()=>div.classList.add('open'),10);
+    toggleEl.textContent='◂';
   }else{
     div.classList.remove('open');
     setTimeout(()=>div.style.display='none',400);
+    toggleEl.textContent='▸';
   }
 });
 </script>

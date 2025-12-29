@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Técnico-Institucional - CheckInfra</title>
+    
+    <!-- Meta tags de SEO -->
+    <meta name="description" content="Sistema Integrado de Diagnóstico Sanitário Escolar - Memorial Descritivo, Metodologia Completa e Guia Institucional de Uso">
+    <meta name="keywords" content="infraestrutura escolar, saneamento, diagnóstico técnico, engenharia civil, gestão pública, manutenção predial, ABNT, normas técnicas">
+    <meta name="author" content="CheckInfra">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="Manual Técnico-Institucional CheckInfra">
+    <meta property="og:description" content="Sistema Integrado de Diagnóstico Sanitário Escolar - Memorial Descritivo Completo">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://checkinfra.example.com/manual">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Manual Técnico-Institucional CheckInfra">
+    <meta name="twitter:description" content="Sistema Integrado de Diagnóstico Sanitário Escolar">
+    
+    <!-- Preload para performance -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- HEADER COM BOTÕES DE NAVEGAÇÃO -->
+    <header>
+        <div class="header-container">
+            <button class="header-btn back-btn" onclick="window.location.href='../index.html'" aria-label="Voltar para o sistema principal">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            
+            <div class="header-content">
+                <h1><i class="fas fa-book-open"></i> Manual Técnico-Institucional CheckInfra</h1>
+                <p class="subtitle">
+                    Sistema Integrado de Diagnóstico Sanitário Escolar - Memorial Descritivo, 
+                    Metodologia Completa e Guia Institucional de Uso
+                </p>
+                <div class="version-badge">
+                    <i class="fas fa-code-branch"></i> Documento Técnico v3.0 | Baseado na análise de 28 arquivos do sistema
+                </div>
+            </div>
+            
+            <button class="header-btn menu-toggle" id="menuToggle" aria-label="Abrir menu de ferramentas">
+                <i class="fas fa-tools"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MENU SANDUÍCHE DE FERRAMENTAS (DIREITA) -->
+    <div class="sidebar-tools" id="sidebarTools">
+        <div class="tools-header">
+            <h3><i class="fas fa-tools"></i> Ferramentas</h3>
+            <p style="opacity: 0.9; font-size: 0.9rem;">Acesso Rápido</p>
+            <button class="close-menu" id="closeMenu" aria-label="Fechar menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- BUSCADOR -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar no manual...">
+                <button id="searchBtn" aria-label="Buscar">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+        </div>
+        
+        <div class="tools-content">
+            <div class="tools-section">
+                <div class="tools-section-title">Exportação</div>
+                <button class="tool-btn" id="exportPdfBtn">
+                    <i class="fas fa-file-pdf"></i> Exportar PDF
+                </button>
+                <button class="tool-btn" id="exportPrintBtn">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+            </div>
+            
+            <div class="tools-section">
+                <div class="tools-section-title">Aparência</div>
+                <div class="theme-toggle">
+                    <button class="theme-btn active" id="themeLight">
+                        <i class="fas fa-sun"></i> Claro
+                    </button>
+                    <button class="theme-btn" id="themeDark">
+                        <i class="fas fa-moon"></i> Escuro
+                    </button>
+                </div>
+            </div>
+            
+            <div class="tools-section">
+                <div class="tools-section-title">Navegação</div>
+                <button class="tool-btn" id="jumpToTopBtn">
+                    <i class="fas fa-arrow-up"></i> Topo
+                </button>
+                <button class="tool-btn" id="jumpToBottomBtn">
+                    <i class="fas fa-arrow-down"></i> Rodapé
+                </button>
+                <button class="tool-btn" id="toggleSidebarBtn">
+                    <i class="fas fa-columns"></i> Alternar Menu
+                </button>
+            </div>
+            
+            <div class="tools-section">
+                <div class="tools-section-title">Informações</div>
+                <button class="tool-btn" id="helpBtn">
+                    <i class="fas fa-question-circle"></i> Ajuda
+                </button>
+                <button class="tool-btn" id="versionInfoBtn">
+                    <i class="fas fa-info-circle"></i> Sobre
+                </button>
+            </div>
+        </div>
+        
+        <div class="tools-footer">
+            <div style="text-align: center; font-size: 0.8rem; color: var(--gray);">
+                <p><i class="fas fa-code"></i> CheckInfra v3.0</p>
+                <p>Busca ativa no conteúdo</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="menu-overlay" id="menuOverlay"></div>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <div class="container">
+        <!-- NAVEGAÇÃO POR ABAS -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="apresentacao">
+                <i class="fas fa-home"></i> Apresentação
+            </button>
+            <button class="tab-btn" data-tab="aspectos-gerais">
+                <i class="fas fa-clipboard-list"></i> Aspectos Gerais
+            </button>
+            <button class="tab-btn" data-tab="metodologia">
+                <i class="fas fa-ruler-combined"></i> Metodologia Técnica
+            </button>
+            <button class="tab-btn" data-tab="sistema">
+                <i class="fas fa-sitemap"></i> Sistema CheckInfra
+            </button>
+            <button class="tab-btn" data-tab="impacto">
+                <i class="fas fa-chart-network"></i> Impacto Institucional
+            </button>
+            <button class="tab-btn" data-tab="referencias">
+                <i class="fas fa-graduation-cap"></i> Referências
+            </button>
+            <button class="tab-btn" data-tab="manual-usuario">
+                <i class="fas fa-users"></i> Manual do Usuário
+            </button>
+            <button class="tab-btn" data-tab="arquitetura-tecnica">
+                <i class="fas fa-code"></i> Arquitetura Técnica
+            </button>
+            <button class="tab-btn" data-tab="recomendacoes">
+                <i class="fas fa-tools"></i> Recomendações Técnicas
+            </button>
+        </div>
+
+        <!-- CONTEÚDO DAS ABAS -->
+        
+        <!-- ABA 1: APRESENTAÇÃO -->
+        <div id="apresentacao" class="tab-content active">
+            <h2><i class="fas fa-bullseye"></i> Apresentação Institucional</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-university"></i> O que é o CheckInfra</h3>
+                <p>
+                    O <span class="highlight">CheckInfra</span> é uma <strong>plataforma digital integrada</strong> desenvolvida no âmbito 
+                    acadêmico da Engenharia Civil, com o propósito de oferecer um 
+                    <strong>sistema estruturado de diagnóstico sanitário para banheiros escolares</strong>.
+                </p>
+                <p>
+                    Mais do que um software, o CheckInfra representa uma <strong>metodologia técnica padronizada</strong> 
+                    para leitura, registro, análise e priorização das conditions sanitárias em ambientes 
+                    educacionais, com fundamentação em normas técnicas nacionais e internacionais.
+                </p>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-compass"></i> Objetivo Institucional</h3>
+                <p>
+                    O sistema foi concebido para <strong>apoiar a gestão pública da infraestrutura educacional</strong>, 
+                    transformando observações de campo em dados estruturados que permitem:
+                </p>
+                <ul>
+                    <li>Diagnóstico técnico padronizado das condições sanitárias</li>
+                    <li>Priorização baseada em critérios técnicos multicritério</li>
+                    <li>Monitoramento temporal da evolução das condições</li>
+                    <li>Identificação de padrões territoriais de fragilidade</li>
+                    <li>Otimização de recursos públicos através de análise racional</li>
+                </ul>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-balance-scale"></i> Princípios Fundamentais</h3>
+                
+                <div class="impact-grid">
+                    <div class="impact-card">
+                        <h4><i class="fas fa-eye"></i> Transparência Técnica</h4>
+                        <p>Todos os cálculos, fórmulas e critérios são públicos e auditáveis</p>
+                    </div>
+                    <div class="impact-card">
+                        <h4><i class="fas fa-chart-line"></i> Decisão Informada</h4>
+                        <p>Suporte a decisões baseadas em evidências técnicas quantificáveis</p>
+                    </div>
+                    <div class="impact-card">
+                        <h4><i class="fas fa-map-marked-alt"></i> Justiça Territorial</h4>
+                        <p>Consideração das desigualdades espaciais na alocação de recursos</p>
+                    </div>
+                    <div class="impact-card">
+                        <h4><i class="fas fa-history"></i> Continuidade</h4>
+                        <p>Sistema permite acompanhamento longitudinal das condições</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-exclamation-triangle"></i> Natureza do Sistema</h3>
+                
+                <div class="warning-box">
+                    <strong><i class="fas fa-info-circle"></i> IMPORTANTE:</strong> O CheckInfra é um 
+                    <strong>instrumento de apoio à gestão e à tomada de decisão</strong>. 
+                    <strong>Não substitui</strong> vistorias técnicas presenciais, laudos de engenharia, 
+                    pareceres periciais ou inspeções oficiais exigidas por normas legais.
+                </div>
+                
+                <p>
+                    O sistema atua como uma <strong>ferramenta de triagem e priorização</strong>, 
+                    permitindo que gestores identifiquem onde as inspeções técnicas detalhadas 
+                    são mais urgentemente necessárias.
+                </p>
+            </div>
+        </div>
+
+        <!-- ABA 2: ASPECTOS GERAIS (INTEGRADA) -->
+        <div id="aspectos-gerais" class="tab-content">
+            <h2><i class="fas fa-clipboard-check"></i> Aspectos Gerais da Metodologia</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-bullseye"></i> 1. Objetivo da Metodologia</h3>
+                <p>
+                    A metodologia do CheckInfra foi desenvolvida no campo da Engenharia Civil
+                    como um <strong>instrumento estruturado de diagnóstico e priorização</strong>
+                    das condições sanitárias de banheiros escolares, visando apoiar a tomada
+                    de decisão na gestão pública.
+                </p>
+                <p>
+                    O método permite identificar riscos, comparar unidades e orientar
+                    intervenções, sem substituir inspeções prediais formais ou projetos técnicos.
+                </p>
+                <div class="info-box">
+                    <strong><i class="fas fa-book"></i> Fundamentação geral:</strong> ABNT NBR 15575, ISO 31000
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-list-check"></i> 2. Metodologia do Checklist Técnico</h3>
+                <p>
+                    O checklist do CheckInfra é baseado em <strong>avaliação observacional estruturada</strong>,
+                    método amplamente utilizado em inspeções preliminares, manutenção predial
+                    e vigilância sanitária.
+                </p>
+                <p>
+                    Cada item representa uma condição que, segundo normas técnicas,
+                    compromete a segurança, a salubridade ou o desempenho da edificação.
+                </p>
+
+                <h4>Lógica de Pontuação</h4>
+                <ul>
+                    <li>Pesos maiores indicam maior risco técnico ou sanitário</li>
+                    <li>A soma gera a pontuação bruta da unidade</li>
+                </ul>
+
+                <p>
+                    O checklist fornece o <strong>estado atual</strong> da unidade.
+                    Já o IPT (ver seção 4) transforma esse diagnóstico em
+                    <strong>priorização comparativa</strong>.
+                </p>
+
+                <div class="info-box">
+                    <strong><i class="fas fa-book"></i> Inspirado em:</strong> ABNT NBR 15575, ABNT NBR 5674, FUNASA – Manual de Saneamento
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-sort-amount-down"></i> 3. Classificação da Infraestrutura Sanitária</h3>
+                <p>
+                    A classificação sanitária traduz a pontuação do checklist
+                    em faixas interpretáveis, prática comum em engenharia de manutenção
+                    e avaliação de desempenho.
+                </p>
+
+                <ul class="classificacao">
+                    <li class="verde">🟢 0–3 pontos — <strong>Condição adequada</strong></li>
+                    <li class="amarelo">🟡 4–6 pontos — <strong>Situação de alerta</strong></li>
+                    <li class="laranja">🟠 7–8 pontos — <strong>Atenção elevada</strong></li>
+                    <li class="vermelho">🔴 ≥ 9 pontos — <strong>Condição crítica</strong></li>
+                </ul>
+
+                <p>
+                    Essa estrutura é coerente com abordagens de classificação por níveis de risco
+                    utilizadas em normas de desempenho e manutenção predial.
+                </p>
+
+                <div class="info-box">
+                    <strong><i class="fas fa-book"></i> Referência:</strong> ABNT NBR 15575, ABNT NBR 5674
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-calculator"></i> 4. Índice de Prioridade Técnica (IPT) - ATUALIZADO</h3>
+                <p>
+                    O IPT é um <strong>indicador de análise multicritério</strong>, isto é,
+                    um índice que combina diferentes critérios técnicos em um único valor
+                    para apoiar decisões complexas.
+                </p>
+
+                <p>
+                    A análise multicritério é amplamente utilizada em engenharia,
+                    planejamento urbano e políticas públicas quando múltiplos fatores
+                    precisam ser ponderados simultaneamente.
+                </p>
+
+                <h4>Componentes Atualizados</h4>
+                <ul>
+                    <li><strong>IT (50%)</strong> — Intensidade Técnica (pontuação)</li>
+                    <li><strong>GS (30%)</strong> — Gravidade Sanitária (status)</li>
+                    <li><strong>RT (20%)</strong> — Recorrência Temporal (persistência)</li>
+                </ul>
+
+                <div class="equacao">
+                    IPT = (IT × 0,5) + (GS × 0,3) + (RT × 0,2)
+                </div>
+
+                <p>
+                    <strong>Exemplo:</strong> uma escola em status crítico recente pode ter IPT
+                    menor que outra em status de alerta, mas com problemas recorrentes
+                    há vários meses.
+                </p>
+
+                <div class="info-box">
+                    <strong><i class="fas fa-book"></i> Referências:</strong> ISO 31000, Saaty (AHP), literatura de análise multicritério
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-chart-bar"></i> 5. IPT Médio</h3>
+                <p>
+                    O IPT médio representa o <strong>nível médio de criticidade técnica</strong>
+                    de um conjunto de unidades.
+                </p>
+
+                <div class="equacao">
+                    IPT médio = Σ(IPTᵢ) / n
+                </div>
+
+                <p>
+                    Ele permite comparar territórios, acompanhar evolução temporal
+                    e avaliar o impacto de políticas de manutenção.
+                </p>
+
+                <div class="info-box">
+                    <strong><i class="fas fa-book"></i> Referência:</strong> indicadores agregados em gestão de ativos e planejamento público
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-braille"></i> 6. Densidade Crítica</h3>
+                <p>
+                    A densidade crítica mede quantas unidades críticas existem
+                    em determinada área territorial.
+                </p>
+
+                <div class="equacao">
+                    Densidade Crítica = Nº de unidades críticas / Área
+                </div>
+
+                <p>
+                    <strong>Exemplo:</strong> dois bairros podem ter o mesmo número
+                    de escolas críticas, mas o menor apresentará maior densidade crítica.
+                </p>
+
+                <div class="info-box">
+                    <strong><i class="fas fa-book"></i> Referência:</strong> análise espacial, saúde pública e planejamento urbano
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-chart-pie"></i> 7. Concentração Relativa</h3>
+                <p>
+                    A concentração relativa compara a proporção de unidades críticas
+                    de um território com a média geral da cidade.
+                </p>
+
+                <div class="equacao">
+                    CR = (Críticas no território / Total no território) ÷
+                         (Críticas totais / Total geral)
+                </div>
+
+                <p>
+                    Valores acima de 1 indicam concentração acima da média,
+                    sugerindo desigualdade territorial.
+                </p>
+
+                <div class="info-box">
+                    <strong><i class="fas fa-book"></i> Referência:</strong> indicadores de desigualdade espacial
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-draw-polygon"></i> 8. Zonas Prioritárias</h3>
+                <p>
+                    As zonas prioritárias resultam da combinação de:
+                    IPT, densidade crítica e concentração relativa.
+                </p>
+
+                <p>
+                    Elas indicam territórios onde problemas são
+                    <strong>numerosos, concentrados e recorrentes</strong>,
+                    orientando ações integradas.
+                </p>
+
+                <div class="info-box">
+                    <strong><i class="fas fa-book"></i> Referência:</strong> planejamento territorial e gestão integrada de riscos
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-chart-line"></i> 9. Análise de Pareto</h3>
+
+                <p>
+                    A Análise de Pareto é uma metodologia utilizada para identificar
+                    <strong>quais poucos fatores concentram a maior parte dos problemas</strong>.
+                    É amplamente aplicada em engenharia, gestão da qualidade e políticas públicas
+                    para apoiar decisões quando os recursos são limitados.
+                </p>
+
+                <p>
+                    No CheckInfra, a análise de Pareto funciona como uma
+                    <strong>ferramenta de priorização técnica</strong>,
+                    ajudando a responder à pergunta:
+                    <em>por onde começar para gerar maior impacto?</em>
+                </p>
+
+                <!-- ACCORDION PARETO -->
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        O que é o Princípio de Pareto (80/20)?
+                        <span>›</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p>
+                            O Princípio de Pareto parte da observação de que, em muitos sistemas,
+                            cerca de <strong>20% das causas são responsáveis por aproximadamente 80% dos efeitos</strong>.
+                        </p>
+
+                        <p>
+                            Esse padrão foi identificado pelo economista Vilfredo Pareto
+                            ao estudar a distribuição de renda e posteriormente validado
+                            em diversas áreas da engenharia e da administração.
+                        </p>
+
+                        <p>
+                            Na prática, isso significa que nem todos os problemas
+                            possuem o mesmo peso ou impacto.
+                        </p>
+
+                        <div class="info-box">
+                            <strong><i class="fas fa-book"></i> Referências:</strong> Juran (Quality Control Handbook), Montgomery (Statistical Quality Control)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        Como a Análise de Pareto funciona?
+                        <span>›</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p>A metodologia segue uma lógica simples:</p>
+
+                        <ul>
+                            <li>listar os problemas ou unidades avaliadas</li>
+                            <li>quantificar seu impacto (frequência, gravidade ou pontuação)</li>
+                            <li>ordenar do maior para o menor impacto</li>
+                            <li>analisar o impacto acumulado</li>
+                        </ul>
+
+                        <p>
+                            O objetivo não é ignorar os demais problemas,
+                            mas definir uma <strong>ordem racional de atuação</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong><i class="fas fa-book"></i> Referências:</strong> JURAN (Quality Control Handbook), ISO 9001, ISO 31000
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 3: METODOLOGIA TÉCNICA DETALHADA COM ACCORDION EXPANDIDO -->
+        <div id="metodologia" class="tab-content">
+            <h2><i class="fas fa-microscope"></i> Metodologia Técnica Detalhada</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-cogs"></i> 1. Fundamentação Normativa do Checklist</h3>
+                
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
+                            <th style="padding: 1rem; text-align: left;">Dimensão Técnica</th>
+                            <th style="padding: 1rem; text-align: left;">Itens Avaliados</th>
+                            <th style="padding: 1rem; text-align: left;">Peso Técnico</th>
+                            <th style="padding: 1rem; text-align: left;">Fundamentação Normativa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;"><strong>Estrutura Física</strong></td>
+                            <td style="padding: 1rem;">Mofo/umidade, piso quebrado, infiltrações</td>
+                            <td style="padding: 1rem;">3 pontos cada</td>
+                            <td style="padding: 1rem;">ABNT NBR 15575 (Desempenho) + ABNT NBR 5674 (Manutenção)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;"><strong>Higiene e Limpeza</strong></td>
+                            <td style="padding: 1rem;">Limpeza inadequada, mau cheiro</td>
+                            <td style="padding: 1rem;">2 pontos cada</td>
+                            <td style="padding: 1rem;">RDC ANVISA 216/2004 + Portaria MS 1.914/2014</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;"><strong>Conforto Ambiental</strong></td>
+                            <td style="padding: 1rem;">Iluminação, ventilação</td>
+                            <td style="padding: 1rem;">1 ponto cada</td>
+                            <td style="padding: 1rem;">NBR 15220 (Desempenho Térmico) + NBR 5413 (Iluminação)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;"><strong>Equipamentos Sanitários</strong></td>
+                            <td style="padding: 1rem;">Vasos, pias, torneiras</td>
+                            <td style="padding: 1rem;">2-3 pontos</td>
+                            <td style="padding: 1rem;">ABNT NBR 5626 (Água) + NBR 8160 (Esgoto)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1rem;"><strong>Acessibilidade</strong></td>
+                            <td style="padding: 1rem;">Banheiro acessível</td>
+                            <td style="padding: 1rem;">4 pontos</td>
+                            <td style="padding: 1rem;">NBR 9050 (Acessibilidade) + Lei 13.146/2015</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- ACCORDION TÉCNICO EXPANDIDO -->
+            <div class="tech-accordion">
+                <!-- GS -->
+                <div class="tech-accordion-item">
+                    <button class="tech-accordion-header">
+                        <i class="fas fa-chart-line"></i> Gravidade Sanitária (GS) - 30%
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="tech-accordion-content">
+                        <div class="tech-card">
+                            <h3>📊 Gravidade Sanitária (GS) - 30% do IPT</h3>
+                            
+                            <h4>Definição Conceitual</h4>
+                            <p>O <strong>Índice de Gravidade Sanitária (GS)</strong> representa a categoria de risco da infraestrutura sanitária escolar, transformando a avaliação técnica em uma classificação categórica para decisão gerencial.</p>
+                            
+                            <h4>Função no Sistema</h4>
+                            <p>O GS atua como <strong>moderador categórico</strong> no cálculo do IPT:</p>
+                            <ul>
+                                <li><strong>Limita o impacto do RT alto</strong> em escolas classificadas como "Adequadas"</li>
+                                <li><strong>Amplifica o impacto do RT alto</strong> em escolas "Críticas"</li>
+                                <li><strong>Preserva a hierarquia lógica</strong>: escolas críticas sempre têm prioridade sobre adequadas</li>
+                                <li><strong>Traduz pontuação contínua (IT)</strong> em categorias de ação para gestores</li>
+                            </ul>
+                            
+                            <h4>Mapeamento Técnico</h4>
+                            <p><strong>No sistema, o GS corresponde ao peso (1-4) derivado do status da avaliação:</strong></p>
+                            <table class="tech-table">
+                                <thead>
+                                    <tr>
+                                        <th>Pontuação (IT)</th>
+                                        <th>Status</th>
+                                        <th>GS</th>
+                                        <th>Interpretação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>0-3 pontos</td>
+                                        <td>Adequada</td>
+                                        <td>1</td>
+                                        <td>Infraestrutura dentro dos padrões</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4-7 pontos</td>
+                                        <td>Alerta</td>
+                                        <td>2</td>
+                                        <td>Problemas leves, monitoramento necessário</td>
+                                    </tr>
+                                    <tr>
+                                        <td>8-11 pontos</td>
+                                        <td>Atenção</td>
+                                        <td>3</td>
+                                        <td>Problemas significativos, risco médio</td>
+                                    </tr>
+                                    <tr>
+                                        <td>12-13 pontos</td>
+                                        <td>Crítica</td>
+                                        <td>4</td>
+                                        <td>Problemas graves, risco imediato</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- IT -->
+                <div class="tech-accordion-item">
+                    <button class="tech-accordion-header">
+                        <i class="fas fa-ruler-combined"></i> Intensidade Técnica (IT) - 50%
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="tech-accordion-content">
+                        <div class="tech-card">
+                            <h3>🔧 Intensidade Técnica (IT) - 50% do IPT</h3>
+                            
+                            <h4>Definição Conceitual</h4>
+                            <p>O <strong>Índice de Intensidade Técnica (IT)</strong> mede a magnitude e quantidade de não conformidades identificadas na infraestrutura sanitária escolar, fornecendo uma medida contínua e detalhada da condição técnica.</p>
+                            
+                            <h4>Função no Sistema</h4>
+                            <p>O IT serve como <strong>medida granular principal</strong> que:</p>
+                            <ul>
+                                <li><strong>Quantifica problemas</strong> através de pesos atribuídos a cada não conformidade</li>
+                                <li><strong>Fornece base para classificação</strong> do status/GS</li>
+                                <li><strong>Oferece detalhamento</strong> além da simples categorização</li>
+                                <li><strong>Permite comparação fina</strong> entre escolas na mesma categoria</li>
+                            </ul>
+                            
+                            <h4>Cálculo Detalhado</h4>
+                            <p><strong>No sistema, o IT corresponde à soma dos pesos dos problemas identificados no checklist:</strong></p>
+                            
+                            <table class="tech-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo de Problema</th>
+                                        <th>Peso</th>
+                                        <th>Exemplos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Problemas Graves</td>
+                                        <td>3 pontos</td>
+                                        <td>Mofo ou umidade excessiva</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Problemas Médios</td>
+                                        <td>2 pontos</td>
+                                        <td>Infiltrações visíveis, piso quebrado, limpeza inadequada, mau cheiro</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Problemas Leves</td>
+                                        <td>1 ponto</td>
+                                        <td>Iluminação insuficiente, ventilação inadequada</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <p><strong>Fórmula:</strong> IT = Σ(peso de cada problema selecionado)</p>
+                            <p><strong>Faixa:</strong> 0 a 13 pontos (máximo teórico com todos os problemas)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- RT -->
+                <div class="tech-accordion-item">
+                    <button class="tech-accordion-header">
+                        <i class="fas fa-history"></i> Recorrência Temporal (RT) - 20%
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="tech-accordion-content">
+                        <div class="tech-card">
+                            <h3>⏳ Recorrência Temporal (RT) - 20% do IPT</h3>
+                            
+                            <h4>Definição Conceitual</h4>
+                            <p>O <strong>Índice de Recorrência Temporal (RT)</strong> mede a persistência de problemas de infraestrutura sanitária ao longo do tempo, identificando situações crônicas que demandam atenção especial.</p>
+                            
+                            <h4>Função no Sistema</h4>
+                            <p>O RT identifica <strong>padrões de cronicidade</strong> que:</p>
+                            <ul>
+                                <li><strong>Sinalizam ineficiência</strong> em manutenções anteriores</li>
+                                <li><strong>Indicam problemas estruturais</strong> não resolvidos adequadamente</li>
+                                <li><strong>Revelam escolas negligenciadas</strong> que permanecem com problemas</li>
+                                <li><strong>Modulam a priorização</strong> quando combinado com o GS</li>
+                            </ul>
+                            
+                            <h4>Cálculo Técnico</h4>
+                            <p><strong>No sistema, o RT é calculado automaticamente com base no histórico de avaliações:</strong></p>
+                            
+                            <div class="equacao">
+                                RT = f(ocorrências do mesmo status em avaliações anteriores)<br><br>
+                                Onde:<br>
+                                • Analisa as últimas 10 avaliações da escola<br>
+                                • Conta quantas vezes o status atual se repetiu<br>
+                                • Normaliza para escala 1-4
+                            </div>
+                            
+                            <table class="tech-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ocorrências</th>
+                                        <th>RT</th>
+                                        <th>Interpretação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>0 ocorrências anteriores</td>
+                                        <td>1</td>
+                                        <td>Baixa recorrência</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1-2 ocorrências</td>
+                                        <td>2</td>
+                                        <td>Média recorrência</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3-4 ocorrências</td>
+                                        <td>3</td>
+                                        <td>Alta recorrência</td>
+                                    </tr>
+                                    <tr>
+                                        <td>5+ ocorrências</td>
+                                        <td>4</td>
+                                        <td>Muito alta recorrência</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FÓRMULA IPT COMPLETA -->
+                <div class="tech-accordion-item">
+                    <button class="tech-accordion-header">
+                        <i class="fas fa-calculator"></i> Fórmula Completa do IPT (50%-30%-20%)
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="tech-accordion-content">
+                        <div class="tech-card">
+                            <h3>🧮 Fórmula do Índice de Prioridade Técnica (IPT)</h3>
+                            
+                            <div class="formula-destaque">
+                                <h3>IPT = (IT × 0.5) + (GS × 0.3) + (RT × 0.2)</h3>
+                                <p>Onde:<br>
+                                <strong>IT (50%)</strong> = Intensidade Técnica (medida granular)<br>
+                                <strong>GS (30%)</strong> = Gravidade Sanitária (categoria moderadora)<br>
+                                <strong>RT (20%)</strong> = Recorrência Temporal (persistência histórica)</p>
+                            </div>
+                            
+                            <h4>Exemplo de Cálculo</h4>
+                            <p>Escola com IT=8, GS=3 (Atenção), RT=2:</p>
+                            <div class="equacao">
+                                IPT = (8 × 0.5) + (3 × 0.3) + (2 × 0.2)<br>
+                                     = 4.0 + 0.9 + 0.4<br>
+                                     = 5.3
+                            </div>
+                            
+                            <div class="nota-tecnica">
+                                <p><strong>Objetivo do IPT:</strong> Ordenar escolas por prioridade de intervenção, não para diagnóstico técnico completo. O IPT é uma ferramenta de apoio à decisão para gestores públicos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-sort-amount-down"></i> 2. Sistema de Classificação Detalhado</h3>
+                
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
+                            <th style="padding: 1rem; text-align: left;">Faixa de Pontos</th>
+                            <th style="padding: 1rem; text-align: left;">Classificação</th>
+                            <th style="padding: 1rem; text-align: left;">Significado Técnico</th>
+                            <th style="padding: 1rem; text-align: left;">Implicações para Gestão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">0-3 pontos</td>
+                            <td style="padding: 1rem;"><span class="status-badge status-ok">Adequada</span></td>
+                            <td style="padding: 1rem;">Condições dentro dos parâmetros normativos</td>
+                            <td style="padding: 1rem;">Manutenção preventiva regular</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">4-6 pontos</td>
+                            <td style="padding: 1rem;"><span class="status-badge status-alert">Alerta</span></td>
+                            <td style="padding: 1rem;">Problemas menores que podem evoluir</td>
+                            <td style="padding: 1rem;">Ações corretivas em 90 dias</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">7-8 pontos</td>
+                            <td style="padding: 1rem;"><span class="status-badge status-atencao">Atenção Elevada</span></td>
+                            <td style="padding: 1rem;">Problemas significativos com risco sanitário</td>
+                            <td style="padding: 1rem;">Intervenção em 30 dias</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1rem;">≥9 pontos</td>
+                            <td style="padding: 1rem;"><span class="status-badge status-critical">Crítica</span></td>
+                            <td style="padding: 1rem;">Risco imediato à saúde e segurança</td>
+                            <td style="padding: 1rem;">Intervenção imediata (7 dias)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-calculator"></i> 3. Cálculo do IPT - Exemplo Prático</h3>
+                
+                <p><strong>Cenário:</strong> Escola Municipal Exemplo</p>
+                
+                <div class="impact-grid">
+                    <div class="impact-card">
+                        <h4><i class="fas fa-thermometer-half"></i> Status Atual</h4>
+                        <p><span class="status-badge status-atencao">Atenção Elevada</span></p>
+                        <p><strong>GS = 3</strong> (Atenção = 3)</p>
+                    </div>
+                    <div class="impact-card">
+                        <h4><i class="fas fa-chart-bar"></i> Pontuação Técnica</h4>
+                        <p>8 pontos no checklist</p>
+                        <p><strong>IT = 8</strong> (pontuação direta)</p>
+                    </div>
+                    <div class="impact-card">
+                        <h4><i class="fas fa-history"></i> Histórico</h4>
+                        <p>3 avaliações anteriores</p>
+                        <p><strong>RT = 3</strong></p>
+                    </div>
+                </div>
+                
+                <div class="equacao">
+                    IPT = (8 × 0,5) + (3 × 0,3) + (3 × 0,2) = 5,5
+                </div>
+                
+                <div class="success-box">
+                    <strong><i class="fas fa-calculator"></i> INTERPRETAÇÃO:</strong> IPT = 5.5 → Escola classificada como 
+                    <span class="status-badge status-critical">Prioridade Máxima</span>, necessitando intervenção técnica imediata.
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-map-marked-alt"></i> 4. Metodologia de Análise Espacial</h3>
+                
+                <div class="decision-flow">
+                    <div class="flow-step">
+                        <strong>ETAPA 1: Georreferenciamento</strong><br>
+                        Localização exata de cada escola no sistema WGS84 (lat/long)
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>ETAPA 2: Tesselagem Territorial</strong><br>
+                        Divisão do município em células regulares (grid de 1km²) ou uso de bairros oficiais
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>ETAPA 3: Agregação por Território</strong><br>
+                        Cálculo dos indicadores (IPT, densidade crítica, concentração relativa) para cada célula/bairro
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>ETAPA 4: Classificação e Mapeamento</strong><br>
+                        Aplicação de critérios multicritério para definição de zonas prioritárias
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 4: SISTEMA CHECKINFRA -->
+        <div id="sistema" class="tab-content">
+            <h2><i class="fas fa-sitemap"></i> Sistema CheckInfra - Componentes Integrados</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-layer-group"></i> Arquitetura Modular</h3>
+                
+                <div class="impact-grid">
+                    <div class="impact-card">
+                        <h4><i class="fas fa-clipboard-check"></i> Módulo de Avaliação</h4>
+                        <p><strong>Função:</strong> Coleta padronizada de dados em campo</p>
+                        <p><strong>Tecnologia:</strong> Formulário web PWA (offline-capable)</p>
+                        <p><strong>Saída:</strong> Pontuação técnica + classificação</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-chart-network"></i> Módulo de Análise (Painel)</h4>
+                        <p><strong>Função:</strong> Processa dados em indicadores sintéticos</p>
+                        <p><strong>Algoritmo:</strong> Cálculo do IPT multicritério</p>
+                        <p><strong>Saída:</strong> Ranking de prioridades + IPT médio</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-map-marked-alt"></i> Módulo Territorial (Mapa)</h4>
+                        <p><strong>Função:</strong> Visualiza padrões espaciais</p>
+                        <p><strong>Tecnologia:</strong> Leaflet.js + OpenStreetMap</p>
+                        <p><strong>Saída:</strong> Mapas de calor + zonas prioritárias</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-exchange-alt"></i> Fluxo de Dados Institucional</h3>
+                
+                <div class="decision-flow">
+                    <div class="flow-step">
+                        <strong>FASE 1: COLETA EM CAMPO</strong><br>
+                        Avaliador preenche checklist técnico + registra fotos no dispositivo móvel
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>FASE 2: PROCESSAMENTO LOCAL</strong><br>
+                        Sistema calcula pontuação (0-12) e classificação automática (OK, Alerta, Atenção, Crítico)
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>FASE 3: ARMAZENAMENTO</strong><br>
+                        Dados enviados ao Firebase (online) ou salvos localmente (offline) com sincronização posterior
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>FASE 4: ANÁLISE TÉCNICA</strong><br>
+                        Cálculo do IPT para cada escola e agregação em indicadores territoriais
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>FASE 5: VISUALIZAÇÃO</strong><br>
+                        Mapas interativos + painel administrativo + relatórios PDF institucionais
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-file-pdf"></i> Sistema de Relatórios Técnicos</h3>
+                
+                <p><strong>Características do Relatório PDF Automático:</strong></p>
+                <ul>
+                    <li>Layout profissional com cartões coloridos por status</li>
+                    <li>Incorporação automática de fotos documentais</li>
+                    <li>Logomarca institucional do CheckInfra</li>
+                    <li>Data e hora de geração automática</li>
+                    <li>Aviso legal destacado sobre limitações do diagnóstico</li>
+                    <li>Nome do arquivo padronizado: <span class="highlight">CheckInfra-CI-2025-01-15-ABC123.pdf</span></li>
+                </ul>
+                
+                <div class="info-box">
+                    <strong><i class="fas fa-info-circle"></i> FUNÇÃO INSTITUCIONAL:</strong> O relatório PDF serve como 
+                    <strong>documento de registro técnico preliminar</strong> que pode ser anexado a processos 
+                    administrativos, solicitações de verba, ou compartilhado com órgãos de controle.
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 5: IMPACTO INSTITUCIONAL -->
+        <div id="impacto" class="tab-content">
+            <h2><i class="fas fa-chart-network"></i> Impacto Institucional e Gestão Pública</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-balance-scale"></i> 1. Impacto no Microsistema (Escola)</h3>
+                
+                <div class="impact-grid">
+                    <div class="impact-card">
+                        <h4><i class="fas fa-clipboard-list"></i> Diagnóstico Objetivo</h4>
+                        <p>Substitui avaliações subjetivas por critérios técnicos padronizados</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-history"></i> Histórico Documentado</h4>
+                        <p>Registro temporal que permite acompanhar evolução das condições</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-file-contract"></i> Base para Solicitações</h4>
+                        <p>Documentação técnica para pedidos de verba ou intervenções</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-shield-alt"></i> Transparência</h4>
+                        <p>Condições sanitárias documentadas e auditáveis</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-city"></i> 2. Impacto no Macrossistema (Rede Municipal)</h3>
+                
+                <div class="impact-grid">
+                    <div class="impact-card">
+                        <h4><i class="fas fa-sort-amount-down"></i> Priorização Técnica</h4>
+                        <p>Alocação de recursos baseada em critérios objetivos (IPT)</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-map-marked-alt"></i> Leitura Territorial</h4>
+                        <p>Identificação de padrões espaciais e desigualdades</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-chart-line"></i> Monitoramento Temporal</h4>
+                        <p>Acompanhamento da evolução geral das condições</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-search-dollar"></i> Otimização Orçamentária</h4>
+                        <p>Foco em intervenções de maior impacto (Princípio de Pareto)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-gavel"></i> 3. Impacto na Gestão Pública</h3>
+                
+                <div class="decision-flow">
+                    <div class="flow-step">
+                        <strong>TRANSPARÊNCIA ADMINISTRATIVA</strong><br>
+                        Decisões de priorização documentadas e justificadas tecnicamente
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>CONTROLE SOCIAL</strong><br>
+                        Dados acessíveis para conselhos, tribunais de contas, ministério público
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>PLANEJAMENTO ESTRATÉGICO</strong><br>
+                        Base de dados para planos municipais de infraestrutura escolar
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>INTEGRAÇÃO INTERSETORIAL</strong><br>
+                        Interface entre educação, saúde, obras e planejamento urbano
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-chart-pie"></i> 4. Indicadores de Desempenho Institucional</h3>
+                
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
+                            <th style="padding: 1rem; text-align: left;">Indicador</th>
+                            <th style="padding: 1rem; text-align: left;">Fórmula</th>
+                            <th style="padding: 1rem; text-align: left;">Interpretação</th>
+                            <th style="padding: 1rem; text-align: left;">Meta Institucional</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;"><strong>IPT Médio Municipal</strong></td>
+                            <td style="padding: 1rem;">Σ(IPTᵢ) ÷ N</td>
+                            <td style="padding: 1rem;">"Termômetro" da rede escolar</td>
+                            <td style="padding: 1rem;">&lt; 2.0 (baixa criticidade)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;"><strong>Densidade Crítica</strong></td>
+                            <td style="padding: 1rem;">Nº críticas ÷ Área</td>
+                            <td style="padding: 1rem;">Intensidade espacial dos problemas</td>
+                            <td style="padding: 1rem;">Redução anual de 10%</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;"><strong>Concentração Relativa Máxima</strong></td>
+                            <td style="padding: 1rem;">Max(CRᵢ)</td>
+                            <td style="padding: 1rem;">Desigualdade territorial</td>
+                            <td style="padding: 1rem;">&lt; 1.5 (redução desigualdade)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1rem;"><strong>Cobertura do Sistema</strong></td>
+                            <td style="padding: 1rem;">Escolas avaliadas ÷ Total</td>
+                            <td style="padding: 1rem;">Abragência do monitoramento</td>
+                            <td style="padding: 1rem;">100% (todas escolas)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA 6: REFERÊNCIAS -->
+        <div id="referencias" class="tab-content">
+            <h2><i class="fas fa-graduation-cap"></i> Referências Técnicas e Bibliográficas</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-file-contract"></i> Normas Técnicas Brasileiras</h3>
+                
+                <div class="reference-item">
+                    <div class="authors">ABNT - Associação Brasileira de Normas Técnicas</div>
+                    <div class="title">NBR 15575: Edificações Habitacionais — Desempenho</div>
+                    <p>Base para avaliação de desempenho da edificação (2013)</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">ABNT - Associação Brasileira de Normas Técnicas</div>
+                    <div class="title">NBR 5626: Instalação Predial de Água Fria</div>
+                    <p>Referência para avaliação de sistemas hidráulicos (2020)</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">ABNT - Associação Brasileira de Normas Técnicas</div>
+                    <div class="title">NBR 9050: Acessibilidade a Edificações, Mobiliário, Espaços e Equipamentos Urbanos</div>
+                    <p>Base para avaliação de banheiros acessíveis (2021)</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">ABNT - Associação Brasileira de Normas Técnicas</div>
+                    <div class="title">NBR 5674: Manutenção de Edificações — Requisitos para o Sistema de Gestão de Manutenção</div>
+                    <p>Referência para sistema de manutenção predial (2012)</p>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-book-medical"></i> Referências Sanitárias e de Saúde Pública</h3>
+                
+                <div class="reference-item">
+                    <div class="authors">WHO - World Health Organization</div>
+                    <div class="title">Water, Sanitation and Hygiene in Schools: A companion to the Child Friendly Schools Manual (2018)</div>
+                    <p>Padrões internacionais para WASH em escolas</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">UNICEF</div>
+                    <div class="title">WASH in Schools Monitoring Package (2019)</div>
+                    <p>Metodologia de monitoramento de saneamento escolar</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">Ministério da Saúde - Brasil</div>
+                    <div class="title">Portaria MS 1.914/2014 - Diretrizes para a vigilância, prevenção e controle da qualidade da água para consumo humano</div>
+                    <p>Legislação brasileira para condições sanitárias</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">ANVISA - Agência Nacional de Vigilância Sanitária</div>
+                    <div class="title">RDC 216/2004 - Regulamento Técnico de Boas Práticas para Serviços de Alimentação</div>
+                    <p>Referência para condições higiênico-sanitárias</p>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-chart-bar"></i> Referências Metodológicas e de Análise Multicritério</h3>
+                
+                <div class="reference-item">
+                    <div class="authors">SAATY, Thomas L.</div>
+                    <div class="title">Decision Making with the Analytic Hierarchy Process (International Journal of Services Sciences, 2008)</div>
+                    <p>Base para construção de indicadores multicritério</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">JURAN, Joseph M.</div>
+                    <div class="title">Juran's Quality Control Handbook (5th Edition, 1999)</div>
+                    <p>Aplicação do Princípio de Pareto à gestão da qualidade</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">ISO - International Organization for Standardization</div>
+                    <div class="title">ISO 31000: Risk Management — Guidelines (2018)</div>
+                    <p>Metodologia para gestão de riscos aplicada à infraestrutura</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">KEENEY, R. L.; RAIFFA, H.</div>
+                    <div class="title">Decisions with Multiple Objectives: Preferences and Value Trade-Offs (1993)</div>
+                    <p>Fundamentos teóricos da análise multicritério</p>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-map-marked-alt"></i> Referências de Análise Espacial e Planejamento Territorial</h3>
+                
+                <div class="reference-item">
+                    <div class="authors">ANSELIN, Luc</div>
+                    <div class="title">Spatial Econometrics: Methods and Models (1988)</div>
+                    <p>Fundamentos de análise espacial quantitativa</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">UN-HABITAT</div>
+                    <div class="title">Urban Indicators Guidelines: Monitoring the Habitat Agenda and the Millennium Development Goals (2004)</div>
+                    <p>Metodologia para indicadores urbanos territoriais</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">IBGE - Instituto Brasileiro de Geografia e Estatística</div>
+                    <div class="title">Manual Técnico de Uso da Terra (2013)</div>
+                    <p>Referência para classificação territorial brasileira</p>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-book"></i> Referências de Engenharia Civil e Manutenção Predial</h3>
+                
+                <div class="reference-item">
+                    <div class="authors">FUNASA - Fundação Nacional de Saúde</div>
+                    <div class="title">Manual de Saneamento (4ª edição, 2015)</div>
+                    <p>Referência para saneamento básico em edificações</p>
+                </div>
+                
+                <div class="reference-item">
+                    <div class="authors">ASHRAE - American Society of Heating, Refrigerating and Air-Conditioning Engineers</div>
+                    <div class="title">ASHRAE Handbook - HVAC Applications (2019)</div>
+                    <p>Referência para sistemas prediais</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 7: MANUAL DO USUÁRIO -->
+        <div id="manual-usuario" class="tab-content">
+            <h2><i class="fas fa-users"></i> Manual do Usuário - Guia Institucional</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-user-tie"></i> 1. Perfis de Usuário Institucionais</h3>
+                
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
+                            <th style="padding: 1rem; text-align: left;">Perfil</th>
+                            <th style="padding: 1rem; text-align: left;">Foco Principal</th>
+                            <th style="padding: 1rem; text-align: left;">Indicadores-Chave</th>
+                            <th style="padding: 1rem; text-align: left;">Ações Típicas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;"><strong>Gestor Municipal</strong></td>
+                            <td style="padding: 1rem;">Alocação de recursos</td>
+                            <td style="padding: 1rem;">IPT médio, Zonas Prioritárias</td>
+                            <td style="padding: 1rem;">Planejamento orçamentário, definição de prioridades</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;"><strong>Técnico da Secretaria</strong></td>
+                            <td style="padding: 1rem;">Execução de intervenções</td>
+                            <td style="padding: 1rem;">Ranking IPT, Problemas frequentes</td>
+                            <td style="padding: 1rem;">Elaboração de projetos, acompanhamento de obras</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;"><strong>Diretor Escolar</strong></td>
+                            <td style="padding: 1rem;">Condição da própria escola</td>
+                            <td style="padding: 1rem;">Status, Pontuação específica</td>
+                            <td style="padding: 1rem;">Solicitação de reparos, manutenção preventiva</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1rem;"><strong>Auditor/Conselheiro</strong></td>
+                            <td style="padding: 1rem;">Transparência e conformidade</td>
+                            <td style="padding: 1rem;">Evolução temporal, Distribuição</td>
+                            <td style="padding: 1rem;">Fiscalização, controle social</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-question-circle"></i> 2. Perguntas Frequentes e Interpretação</h3>
+                
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        "O que significa IPT 3.2 para minha escola?"
+                        <span>›</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p><strong>Interpretação:</strong> Sua escola está na faixa de ALTA PRIORIDADE (2.6-3.5). 
+                        Significa que há problemas significativos que requerem intervenção técnica planejada.</p>
+                        <p><strong>Ação recomendada:</strong> Solicitar vistoria técnica detalhada e elaborar projeto de intervenção.</p>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        "Por que minha escola não é prioridade mesmo com problemas?"
+                        <span>›</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p><strong>Interpretação:</strong> O sistema prioriza baseado em critérios técnicos comparativos. 
+                        Outras escolas podem estar em situação pior ou o problema pode não ser recorrente.</p>
+                        <p><strong>Ação recomendada:</strong> Registrar todas as avaliações para aumentar o componente RT (Recorrência).</p>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <button class="accordion-header">
+                        "Como interpretar o mapa de calor?"
+                        <span>›</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p><strong>Interpretação:</strong> Áreas vermelhas indicam alta concentração de problemas. 
+                        Não significa que todas as escolas da área têm problemas, mas que há uma densidade crítica elevada.</p>
+                        <p><strong>Ação recomendada:</strong> Verificar escolas específicas na área e considerar intervenções integradas.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-clipboard"></i> 3. Fluxo de Decisão Baseado no CheckInfra</h3>
+                
+                <div class="decision-flow">
+                    <div class="flow-step">
+                        <strong>PASSO 1: Consultar o ranking de IPT</strong><br>
+                        Identificar as 20% escolas com maior criticidade (Princípio de Pareto)
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>PASSO 2: Verificar localização territorial</strong><br>
+                        Cruzar com mapa de zonas prioritárias para ações integradas
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>PASSO 3: Analisar problemas específicos</strong><br>
+                        Verificar checklist detalhado para planejamento técnico
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>PASSO 4: Priorizar por custo-benefício</strong><br>
+                        Focar em problemas comuns a várias escolas
+                    </div>
+                    
+                    <div class="flow-step">
+                        <strong>PASSO 5: Alocar recursos considerando orçamento</strong><br>
+                        Distribuir verba conforme criticidade técnica
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-exclamation-triangle"></i> 4. Limitações e Cuidados Institucionais</h3>
+                
+                <div class="warning-box">
+                    <strong>1. Não substitui laudo técnico:</strong> O CheckInfra é ferramenta de triagem, não de diagnóstico final
+                </div>
+                
+                <div class="warning-box">
+                    <strong>2. Depende da qualidade dos dados:</strong> Resultados são tão bons quanto as avaliações de campo
+                </div>
+                
+                <div class="warning-box">
+                    <strong>3. Considerar contexto local:</strong> Fatores socioeconômicos podem influenciar resultados
+                </div>
+                
+                <div class="warning-box">
+                    <strong>4. Atualização regular necessária:</strong> Sistema requer alimentação contínua de dados
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 8: ARQUITETURA TÉCNICA -->
+        <div id="arquitetura-tecnica" class="tab-content">
+            <h2><i class="fas fa-code"></i> Arquitetura Técnica do Sistema</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-layer-group"></i> 1. Stack Tecnológico</h3>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 1.5rem 0;">
+                    <span style="display: inline-block; padding: 8px 16px; background: #e3f2fd; color: #1976d2; border-radius: 20px; font-weight: 500;">HTML5 + CSS3 + JavaScript ES6</span>
+                    <span style="display: inline-block; padding: 8px 16px; background: #f3e5f5; color: #7b1fa2; border-radius: 20px; font-weight: 500;">PWA (Progressive Web App)</span>
+                    <span style="display: inline-block; padding: 8px 16px; background: #e8f5e8; color: #388e3c; border-radius: 20px; font-weight: 500;">Firebase Firestore</span>
+                    <span style="display: inline-block; padding: 8px 16px; background: #fff3e0; color: #f57c00; border-radius: 20px; font-weight: 500;">Leaflet.js + OpenStreetMap</span>
+                    <span style="display: inline-block; padding: 8px 16px; background: #fce4ec; color: #c2185b; border-radius: 20px; font-weight: 500;">jsPDF + html2canvas</span>
+                    <span style="display: inline-block; padding: 8px 16px; background: #e0f2f1; color: #00796b; border-radius: 20px; font-weight: 500;">Service Worker</span>
+                    <span style="display: inline-block; padding: 8px 16px; background: #f5f5f5; color: #616161; border-radius: 20px; font-weight: 500;">IndexedDB / localStorage</span>
+                    <span style="display: inline-block; padding: 8px 16px; background: #e8eaf6; color: #303f9f; border-radius: 20px; font-weight: 500;">Turf.js (análise espacial)</span>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-sitemap"></i> 2. Estrutura de Arquivos</h3>
+                
+                <div style="background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; font-family: 'Courier New', monospace; font-size: 0.9rem; overflow-x: auto;">
+                    <span style="color: #6A9955;"># ESTRUTURA PRINCIPAL DO PROJETO</span><br>
+                    checkinfra/<br>
+                    ├── <span style="color: #569CD6;">index.html</span>           <span style="color: #6A9955;"># Mapa sanitário principal</span><br>
+                    ├── <span style="color: #569CD6;">avaliacao.html</span>       <span style="color: #6A9955;"># Formulário de avaliação</span><br>
+                    ├── <span style="color: #569CD6;">avaliacao.js</span>         <span style="color: #6A9955;"># Lógica completa da avaliação</span><br>
+                    ├── <span style="color: #569CD6;">painel/</span>              <span style="color: #6A9955;"># Dashboard administrativo</span><br>
+                    │   ├── index.html<br>
+                    │   └── painel.js<br>
+                    ├── <span style="color: #569CD6;">mapa/</span>                <span style="color: #6A9955;"># Componentes de mapas</span><br>
+                    │   ├── mapa.js<br>
+                    │   ├── escolas.js<br>
+                    │   ├── mapabairros.js<br>
+                    │   └── NOMES.geojson<br>
+                    ├── <span style="color: #569CD6;">service-worker.js</span>    <span style="color: #6A9955;"># PWA offline capabilities</span><br>
+                    ├── <span style="color: #569CD6;">estilo.css</span>           <span style="color: #6A9955;"># Estilos principais</span><br>
+                    └── <span style="color: #569CD6;">manifest.json</span>        <span style="color: #6A9955;"># Configuração PWA</span><br>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 9: RECOMENDAÇÕES TÉCNICAS -->
+        <div id="recomendacoes" class="tab-content">
+            <h2><i class="fas fa-tools"></i> Recomendações Técnicas e Manutenção</h2>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-exclamation-triangle"></i> 1. Vulnerabilidades Identificadas</h3>
+                
+                <div class="danger-box">
+                    <strong><i class="fas fa-shield-alt"></i> CRÍTICO: Chaves Firebase Expostas</strong><br>
+                    Todas as chaves API estão hardcoded no código fonte. 
+                    <strong>Recomendação urgente:</strong> Mover para variáveis de ambiente ou configurar restrições por domínio.
+                </div>
+                
+                <div class="warning-box">
+                    <strong><i class="fas fa-database"></i> ALERTA: Performance com Grandes Volumes</strong><br>
+                    Sistema carrega todas avaliações de uma vez. 
+                    <strong>Recomendação:</strong> Implementar paginação ou limites na consulta.
+                </div>
+                
+                <div class="info-box">
+                    <strong><i class="fas fa-images"></i> ATENÇÃO: Tamanho de PDFs com Fotos</strong><br>
+                    Imagens em Base64 podem gerar PDFs muito grandes. 
+                    <strong>Recomendação:</strong> Implementar compressão antes da conversão.
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-wrench"></i> 2. Melhorias de Performance Recomendadas</h3>
+                
+                <div class="impact-grid">
+                    <div class="impact-card">
+                        <h4><i class="fas fa-compress-arrows-alt"></i> Compressão de Imagens</h4>
+                        <p>Reduzir tamanho das fotos antes do PDF</p>
+                        <p><strong>Tecnologia:</strong> Canvas API + redimensionamento</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-layer-group"></i> Clusterização no Mapa</h4>
+                        <p>Agrupar marcadores quando zoomed out</p>
+                        <p><strong>Biblioteca:</strong> Leaflet.markercluster</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-database"></i> Cache Local</h4>
+                        <p>Armazenar dados frequentemente acessados</p>
+                        <p><strong>Tecnologia:</strong> IndexedDB para dados estruturados</p>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <h4><i class="fas fa-sync-alt"></i> Lazy Loading</h4>
+                        <p>Carregar dados sob demanda</p>
+                        <p><strong>Aplicação:</strong> Mapas e listas grandes</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-shield-alt"></i> 3. Segurança - Plano de Ação</h3>
+                
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
+                            <th style="padding: 1rem; text-align: left;">Item</th>
+                            <th style="padding: 1rem; text-align: left;">Prioridade</th>
+                            <th style="padding: 1rem; text-align: left;">Ação Recomendada</th>
+                            <th style="padding: 1rem; text-align: left;">Prazo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">Chaves Firebase expostas</td>
+                            <td style="padding: 1rem;"><span class="status-badge status-critical">CRÍTICA</span></td>
+                            <td style="padding: 1rem;">Restringir por domínio no Console Firebase</td>
+                            <td style="padding: 1rem;">Imediato</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">Regras de segurança Firestore</td>
+                            <td style="padding: 1rem;"><span class="status-badge status-atencao">ALTA</span></td>
+                            <td style="padding: 1rem;">Implementar regras de leitura/escrita</td>
+                            <td style="padding: 1rem;">7 dias</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">Autenticação básica</td>
+                            <td style="padding: 1rem;"><span class="status-badge status-alert">MÉDIA</span></td>
+                            <td style="padding: 1rem;">Login por usuário/senha ou Google Auth</td>
+                            <td style="padding: 1rem;">30 dias</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1rem;">HTTPS obrigatório</td>
+                            <td style="padding: 1rem;"><span class="status-badge status-ok">OK</span></td>
+                            <td style="padding: 1rem;">Já implementado via Firebase Hosting</td>
+                            <td style="padding: 1rem;">Concluído</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="methodology-card">
+                <h3><i class="fas fa-calendar-alt"></i> 4. Cronograma de Manutenção Técnica</h3>
+                
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
+                            <th style="padding: 1rem; text-align: left;">Atividade</th>
+                            <th style="padding: 1rem; text-align: left;">Frequência</th>
+                            <th style="padding: 1rem; text-align: left;">Responsável</th>
+                            <th style="padding: 1rem; text-align: left;">Tempo Estimado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">Backup do Firestore</td>
+                            <td style="padding: 1rem;">Mensal</td>
+                            <td style="padding: 1rem;">Administrador</td>
+                            <td style="padding: 1rem;">30 minutos</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">Limpeza de dados pendentes</td>
+                            <td style="padding: 1rem;">Semanal</td>
+                            <td style="padding: 1rem;">Sistema automático</td>
+                            <td style="padding: 1rem;">Automático</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">Atualização de escolas</td>
+                            <td style="padding: 1rem;">Trimestral</td>
+                            <td style="padding: 1rem;">Técnico municipal</td>
+                            <td style="padding: 1rem;">2 horas</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1rem;">Revisão de segurança</td>
+                            <td style="padding: 1rem;">Semestral</td>
+                            <td style="padding: 1rem;">Equipe técnica</td>
+                            <td style="padding: 1rem;">4 horas</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTÃO VOLTAR AO TOPO -->
+    <button class="back-to-top" aria-label="Voltar ao topo da página">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="./index.html"><i class="fas fa-home"></i> Voltar ao Sistema</a>
+                <a href="./avaliacao.html"><i class="fas fa-clipboard-check"></i> Nova Avaliação</a>
+                <a href="./painel/index.html"><i class="fas fa-chart-bar"></i> Painel Técnico</a>
+                <a href="./sobre.html"><i class="fas fa-info-circle"></i> Sobre o Projeto</a>
+                <a href="./contato.html"><i class="fas fa-envelope"></i> Contato Institucional</a>
+            </div>
+            <p>© 2025 CheckInfra - Sistema de Diagnóstico Sanitário Escolar</p>
+            <p style="opacity: 0.8; font-size: 0.9rem; margin-top: 0.5rem;">
+                Documento Técnico-Institucional v3.0 | Memorial Descritivo Completo | 
+                Atualizado em Janeiro 2025
+            </p>
+            <p style="opacity: 0.6; font-size: 0.8rem; margin-top: 1rem;">
+                <i class="fas fa-code"></i> Desenvolvido por estudantes de Engenharia Civil | 
+                <i class="fas fa-graduation-cap"></i> Projeto acadêmico em empreendedorismo
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

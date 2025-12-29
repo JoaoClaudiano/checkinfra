@@ -87,6 +87,34 @@ button[type="submit"] {
   border-radius: 8px;
 }
 
+.rating {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.rating label {
+  text-align: center;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.rating input {
+  display: none;
+}
+
+.rating span {
+  display: block;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* selecionado */
+.rating input:checked + span,
+.rating input:checked {
+  font-weight: bold;
+}
+
 /* DESKTOP */
 @media (min-width: 768px) {
   #feedback-modal {

@@ -3,25 +3,32 @@ const modal = document.getElementById("feedback-modal");
 const closeBtn = document.getElementById("feedback-close");
 const form = document.getElementById("feedback-form");
 const status = document.getElementById("feedback-status");
-const ratingInput = document.getElementById("rating-value");
 
-fab.onclick = () => modal.classList.remove("hidden");
-closeBtn.onclick = () => modal.classList.add("hidden");
+/* ABRIR / FECHAR */
+fab.addEventListener("click", () => {
+  modal.classList.remove("hidden");
+});
 
-/* Rating */
-document.querySelectorAll(".rating span").forEach(el => {
-  el.onclick = () => {
-    document.querySelectorAll(".rating span").forEach(s => s.classList.remove("active"));
-    el.classList.add("active");
-    ratingInput.value = el.dataset.value;
-  };
+closeBtn.addEventListener("click", () => {
+  modal.classList.add("hidden");
+});
+
+/* RATING VISUAL (radio + emoji) */
+document.querySelectorAll(".rating label").forEach(label => {
+  label.addEventListener("click", () => {
+    document
+      .querySelectorAll(".rating label")
+      .forEach(l => l.classList.remove("active"));
+
+    label.classList.add("active");
+  });
 });
 
 /* SUBMIT ASSÍNCRONO */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  status.textContent = "Enviando...";
+  status.textContent = "Enviando feedback…";
 
   const data = new FormData(form);
 
@@ -29,18 +36,28 @@ form.addEventListener("submit", async (e) => {
     const res = await fetch("https://formspree.io/f/xdaobedn", {
       method: "POST",
       body: data,
-      headers: { "Accept": "application/json" }
+      headers: {
+        "Accept": "application/json"
+      }
     });
 
     if (res.ok) {
-      status.textContent = "✅ Feedback enviado. Obrigado!";
+      status.textContent = "✅ Obrigado! Seu feedback foi enviado.";
       form.reset();
-      setTimeout(() => modal.classList.add("hidden"), 1500);
+
+      document
+        .querySelectorAll(".rating label")
+        .forEach(l => l.classList.remove("active"));
+
+      setTimeout(() => {
+        modal.classList.add("hidden");
+        status.textContent = "";
+      }, 1500);
     } else {
       status.textContent = "⚠️ Erro ao enviar. Tente novamente.";
     }
 
-  } catch {
+  } catch (err) {
     status.textContent = "⚠️ Falha de conexão.";
   }
 });

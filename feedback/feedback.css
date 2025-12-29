@@ -1,34 +1,32 @@
 /* =========================
-   BOTÃO FLUTUANTE
+   BOTÃO FLUTUANTE (FAB)
 ========================= */
 #feedback-fab {
   position: fixed;
   bottom: 16px;
   right: 16px;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   background: #0b5ed7;
   color: #fff;
   border-radius: 50%;
-  font-size: 24px;
+  font-size: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
 }
 
 /* =========================
-   MODAL
+   MODAL OVERLAY
 ========================= */
 #feedback-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: flex-end;
-  justify-content: center;
   z-index: 1001;
   opacity: 0;
   pointer-events: none;
@@ -45,14 +43,13 @@
 ========================= */
 .feedback-card {
   width: 100%;
-  max-width: 450px;
   background: #fff;
   border-radius: 16px 16px 0 0;
   padding: 20px;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
-  transform: translateY(50px);
+  transform: translateY(40px);
   transition: transform 0.3s ease;
 }
 
@@ -65,24 +62,16 @@
 ========================= */
 #feedback-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: #0b5ed7;
-  color: #fff;
-  font-size: 22px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  top: 12px;
+  right: 12px;
+  background: none;
   border: none;
+  font-size: 20px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
 }
 
 /* =========================
-   TÍTULO + STATUS DOT
+   TÍTULO + STATUS
 ========================= */
 .feedback-title {
   display: flex;
@@ -92,23 +81,22 @@
   margin-bottom: 8px;
 }
 
+/* ponto verde pulsante */
 .status-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   background: #2ecc71;
   border-radius: 50%;
   position: relative;
 }
-
 .status-dot::after {
   content: "";
   position: absolute;
   inset: -4px;
-  background: rgba(46,204,113,0.4);
+  background: rgba(46, 204, 113, 0.4);
   border-radius: 50%;
   animation: pulse 1.8s infinite;
 }
-
 @keyframes pulse {
   0% { transform: scale(0.8); opacity: 0.6; }
   70% { transform: scale(1.6); opacity: 0; }
@@ -132,31 +120,20 @@
   justify-content: space-between;
   margin: 12px 0;
 }
-
 .rating label {
   text-align: center;
   cursor: pointer;
-  font-size: 24px;
+  font-size: 22px;
 }
-
-.rating input {
-  display: none;
-}
-
-.rating span {
-  display: block;
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-.rating input:checked + span {
-  font-weight: bold;
-}
+.rating input { display: none; }
+.rating span { display: block; font-size: 12px; margin-top: 4px; }
+.rating input:checked + span { font-weight: bold; }
 
 /* =========================
    INPUTS
 ========================= */
-textarea, input {
+textarea,
+input {
   width: 100%;
   margin-top: 6px;
   padding: 10px;
@@ -171,18 +148,34 @@ textarea, input {
 button[type="submit"] {
   width: 100%;
   margin-top: 12px;
-  padding: 14px;
-  font-size: 16px;
+  padding: 12px;
+  font-size: 15px;
   background: #0b5ed7;
   color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
-button.loading {
-  opacity: 0.7;
-  pointer-events: none;
+button.loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 /* =========================
@@ -193,6 +186,7 @@ button.loading {
   font-size: 14px;
   text-align: center;
 }
+
 #feedback-status.success { color: #198754; }
 #feedback-status.error { color: #dc3545; }
 
@@ -200,6 +194,6 @@ button.loading {
    DESKTOP
 ========================= */
 @media (min-width: 768px) {
+  #feedback-modal { align-items: center; justify-content: center; }
   .feedback-card { max-width: 420px; border-radius: 12px; }
-  #feedback-close { width: 32px; height: 32px; font-size: 18px; }
 }

@@ -5,9 +5,9 @@
     <button id="feedback-close" aria-label="Fechar">✕</button>
 
     <h3 class="feedback-title">
-  Feedback do CheckInfra
-  <span class="status-dot" aria-label="Sistema ativo"></span>
-</h3>
+      Feedback do CheckInfra
+      <span class="status-dot" aria-label="Sistema ativo"></span>
+    </h3>
 
     <p>
       O CheckInfra está em fase de testes e aprimoramento.
@@ -15,13 +15,10 @@
       e da experiência do sistema.
     </p>
 
-    <form
-      action="https://formspree.io/f/SEU_ID_AQUI"
-      method="POST"
-      target="hidden_iframe"
-      onsubmit="feedbackEnviado()"
-    >
-      <!-- página automática -->
+    <!-- FORMULÁRIO ÚNICO -->
+    <form id="feedback-form">
+
+      <!-- URL automática -->
       <input type="hidden" name="page_url" id="page-url">
 
       <!-- AVALIAÇÃO -->
@@ -29,7 +26,7 @@
 
       <div class="rating">
         <label>
-          <input type="radio" name="rating" value="Confusa">
+          <input type="radio" name="rating" value="Confusa" required>
           😕
           <span>Confusa</span>
         </label>
@@ -60,7 +57,7 @@
       </div>
 
       <!-- MENSAGEM -->
-      <label for="message"><strong>Comentário (opcional)</strong></label>
+      <label><strong>Comentário (opcional)</strong></label>
       <textarea
         name="message"
         rows="4"
@@ -68,14 +65,16 @@
       </textarea>
 
       <!-- NOME -->
-      <label for="name"><strong>Nome (opcional)</strong></label>
+      <label><strong>Nome (opcional)</strong></label>
       <input type="text" name="name" placeholder="Anônimo">
 
       <button type="submit">Enviar feedback</button>
     </form>
 
-    <!-- iframe invisível -->
-    <form id="feedback-form">
+    <!-- SUCESSO (inicialmente oculto) -->
+    <div id="feedback-success" class="hidden">
+      <p>Obrigado! Seu feedback foi enviado 🙏</p>
+    </div>
 
   </div>
 </div>

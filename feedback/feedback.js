@@ -4,9 +4,11 @@ const closeBtn = document.getElementById("feedback-close");
 const form = document.getElementById("feedback-form");
 const success = document.getElementById("feedback-success");
 
+
 /* ESTADO INICIAL */
 success.classList.add("hidden");
 form.classList.remove("hidden");
+
 
 /* ABRIR / FECHAR */
 fab.onclick = () => modal.classList.remove("hidden");

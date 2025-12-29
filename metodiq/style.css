@@ -1416,16 +1416,100 @@ body.dark-theme ::-webkit-scrollbar-track {
     }
     
     /* TABELAS COM SCROLL HORIZONTAL */
+    /* CORREÇÃO COMPLETA PARA TABELAS NO MOBILE */
+    .tech-table-wrapper {
+        position: relative;
+        overflow: hidden;
+        margin: 1rem -1rem;
+        width: calc(100% + 2rem);
+    }
+    
     .tech-table {
         display: block;
+        width: 100%;
         overflow-x: auto;
-        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid var(--border);
+        background: white;
+    }
+    
+    body.dark-theme .tech-table {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
+    
+    .tech-table tr:nth-child(even) {
+        background: #f8f9fa;
+    }
+    
+    body.dark-theme .tech-table tr:nth-child(even) {
+        background: #4a5568;
     }
     
     .tech-table th,
     .tech-table td {
-        padding: 0.75rem;
+        min-width: 140px;
+        padding: 0.8rem;
+        white-space: nowrap;
+        font-size: 0.9rem;
+    }
+    
+    .tech-table th {
+        position: sticky;
+        left: 0;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        z-index: 2;
         min-width: 120px;
+    }
+    
+    body.dark-theme .tech-table th {
+        background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    }
+    
+    .tech-table-wrapper::after {
+        content: '↔';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--primary);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        opacity: 0.7;
+        pointer-events: none;
+        z-index: 3;
+    }
+    
+    .tech-table + * {
+        clear: both;
+        margin-top: 1.5rem !important;
+    }
+    
+    .tech-accordion-content .tech-table-wrapper {
+        margin: 1rem -1.5rem;
+        width: calc(100% + 3rem);
+    }
+    
+    .tech-accordion-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .tech-card {
+        padding: 1rem;
+        overflow: hidden;
+    }
+    
+    .tech-accordion-item:hover {
+        transform: none !important;
     }
     
     /* GRIDS E LAYOUTS */

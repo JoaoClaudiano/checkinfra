@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ====================
     // SISTEMA DE ABAS
     // ====================
+    
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     

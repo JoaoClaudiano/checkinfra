@@ -37,16 +37,18 @@
   padding: 20px;
   max-height: 90vh;
   overflow-y: auto;
+  position: relative;
 }
 
 /* FECHAR */
 #feedback-close {
   position: absolute;
   top: 12px;
-  right: 16px;
-  font-size: 18px;
+  right: 12px;
   background: none;
   border: none;
+  font-size: 20px;
+  cursor: pointer;
 }
 
 /* TEXTO */

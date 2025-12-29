@@ -205,6 +205,29 @@ button.loading {
   color: #dc3545;
 }
 
+/* animação base */
+#feedback-modal {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+/* quando visível */
+#feedback-modal:not(.hidden) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* card deslizando */
+.feedback-card {
+  transform: translateY(40px);
+  transition: transform 0.3s ease;
+}
+
+#feedback-modal:not(.hidden) .feedback-card {
+  transform: translateY(0);
+}
+
 /* =========================
    DESKTOP
 ========================= */

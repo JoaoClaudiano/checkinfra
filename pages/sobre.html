@@ -2,206 +2,90 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Sobre o CheckInfra</title>
+  <title>Sobre – CheckInfra</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      color: #333;
-    }
-
-    .header {
-      background: #1f4fd8;
-      color: #fff;
-      padding: 24px;
-      text-align: center;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-      line-height: 1.7;
-    }
-
-    h1 {
-      color: #1f4fd8;
-      margin-bottom: 10px;
-    }
-
-    h2 {
-      color: #1f4fd8;
-      margin-top: 32px;
-      margin-bottom: 10px;
-    }
-
-    p {
-      margin-bottom: 14px;
-    }
-
-    ul {
-      margin-left: 20px;
-      margin-bottom: 20px;
-    }
-
-    li {
-      margin-bottom: 8px;
-    }
-
-    .box {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,.08);
-      margin-top: 30px;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 12px;
-      color: #666;
-      margin: 40px 0;
-    }
-
-    a {
-      color: #1f4fd8;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; color: #333; }
+    .header { background: #1f4fd8; color: #fff; padding: 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:15px; }
+    .header a { color:#fff; text-decoration:none; font-size:18px; }
+    .header a:hover { text-decoration:underline; }
+    .header-title { font-weight:bold; font-size:22px; flex:1; text-align:center; }
+    .container { max-width:900px; margin:40px auto; padding:0 20px; line-height:1.7; }
+    h1,h2 { color:#1f4fd8; margin-top:0; }
+    h2 { margin-top:30px; margin-bottom:12px; }
+    p { margin-bottom:16px; text-align:justify; }
+    ul { margin-left:20px; margin-bottom:20px; }
+    li { margin-bottom:10px; }
+    .box { background:#fff; border-radius:10px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,.08); margin-top:25px; }
+    a { color:#1f4fd8; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    footer { background:#1f4fd8; color:#fff; text-align:center; padding:20px; line-height:1.5; }
+    footer a { color:#fff; text-decoration:underline; margin:0 8px; }
+    footer a:hover { opacity:0.8; }
   </style>
 </head>
-
 <body>
 
+  <!-- Header padrão -->
   <header class="header">
-    <strong>CheckInfra</strong><br>
-    Sobre o Projeto
+    <a href="./index.html">← Voltar</a>
+    <div class="header-title">Sobre o Projeto</div>
   </header>
 
+  <!-- Conteúdo principal -->
   <main class="container">
 
     <h1>O que é o CheckInfra</h1>
-
-    <p>
-      O <strong>CheckInfra</strong> é uma plataforma digital de apoio ao
-      <strong>diagnóstico sanitário de banheiros escolares</strong>,
-      desenvolvida com base em critérios técnicos da
-      <strong>Engenharia Civil</strong>, da saúde ambiental e da gestão da infraestrutura.
-    </p>
-
-    <p>
-      O sistema foi concebido para auxiliar gestores públicos, equipes técnicas
-      e instituições educacionais na <strong>identificação, organização e priorização</strong>
-      de problemas relacionados às condições sanitárias em escolas.
-    </p>
+    <p>O <strong>CheckInfra</strong> é uma plataforma digital de apoio ao <strong>diagnóstico sanitário de banheiros escolares</strong>, desenvolvida com base em critérios técnicos da <strong>Engenharia Civil</strong>, saúde ambiental e gestão da infraestrutura educacional.</p>
+    <p>Auxilia gestores públicos, equipes técnicas e instituições educacionais na <strong>identificação, registro, organização e priorização</strong> de problemas relacionados às condições sanitárias das unidades escolares.</p>
 
     <h2>Por que o CheckInfra foi criado</h2>
-
-    <p>
-      A precariedade das condições sanitárias em ambientes escolares é um problema
-      recorrente, com impactos diretos na saúde, no bem-estar e na permanência dos alunos.
-      Apesar disso, muitas redes de ensino carecem de instrumentos simples e padronizados
-      para registrar e comparar essas condições.
-    </p>
-
-    <p>
-      O CheckInfra surge como uma resposta a esse desafio, transformando observações de campo
-      em <strong>diagnósticos estruturados</strong>, comparáveis e passíveis de análise técnica.
-    </p>
+    <p>O projeto surgiu diante da recorrente precariedade das condições sanitárias em escolas, que impacta diretamente na saúde, bem-estar e permanência dos alunos. Muitas redes de ensino carecem de instrumentos padronizados para registrar, comparar e priorizar essas condições.</p>
+    <p>O CheckInfra transforma observações de campo em <strong>diagnósticos estruturados</strong>, comparáveis e passíveis de análise técnica, promovendo suporte à tomada de decisão e planejamento de intervenções.</p>
 
     <h2>Como o sistema funciona</h2>
-
-    <p>
-      O CheckInfra utiliza <strong>checklists técnicos ponderados</strong>, organizados por
-      categorias, combinados com registro fotográfico e georreferenciamento das unidades avaliadas.
-    </p>
-
-    <p>
-      A partir das respostas, o sistema gera:
-    </p>
-
+    <p>O sistema combina:</p>
     <ul>
-      <li>Pontuação técnica da avaliação;</li>
-      <li>Classificação do nível de criticidade;</li>
-      <li>Relatórios em PDF;</li>
-      <li>Leitura individual e comparativa das unidades escolares.</li>
+      <li><strong>Checklists técnicos ponderados:</strong> critérios organizados por categorias;</li>
+      <li><strong>Registro fotográfico:</strong> documentação visual das condições;</li>
+      <li><strong>Georreferenciamento:</strong> localização das unidades avaliadas;</li>
+      <li>Geração de indicadores e relatórios em PDF para análise individual e comparativa.</li>
     </ul>
 
     <div class="box">
       <strong>Importante:</strong><br>
-      O CheckInfra <strong>não substitui</strong> vistorias técnicas,
-      inspeções prediais formais ou laudos de engenharia.
-      Trata-se de uma <strong>ferramenta de apoio à gestão e à tomada de decisão</strong>.
+      O CheckInfra <strong>não substitui</strong> vistorias técnicas, inspeções prediais formais ou laudos de engenharia. Trata-se de uma <strong>ferramenta de apoio à gestão e à tomada de decisão</strong>.
     </div>
 
     <h2>Base técnica e metodológica</h2>
-
-    <p>
-      A metodologia do CheckInfra é inspirada em normas técnicas,
-      boas práticas da engenharia civil e diretrizes de saúde ambiental,
-      incluindo referências como:
-    </p>
-
+    <p>A metodologia é inspirada em normas técnicas, boas práticas de engenharia civil e diretrizes de saúde ambiental, incluindo:</p>
     <ul>
       <li>Normas da ABNT aplicáveis à edificação e acessibilidade;</li>
       <li>Princípios de conforto ambiental (iluminação e ventilação);</li>
       <li>Boas práticas de manutenção predial;</li>
       <li>Diretrizes de vigilância sanitária.</li>
     </ul>
+    <p>Critérios, pesos e categorias estão detalhados na página <a href="../metodologia.html">Metodologia</a>.</p>
 
-    <p>
-      Os critérios, pesos e categorias adotados estão detalhados na página
-      <a href="metodologia.html">Metodologia</a>.
-    </p>
-
-    <h2>Quem desenvolve</h2>
-
-    <p>
-      O CheckInfra é desenvolvido por estudantes de
-      <strong>Engenharia Civil</strong>, no contexto acadêmico da disciplina
-      de <strong>Empreendedorismo</strong>, com foco em inovação aplicada
-      à gestão pública e à infraestrutura educacional.
-    </p>
+    <h2>Equipe de desenvolvimento</h2>
+    <p>Desenvolvido por estudantes de <strong>Engenharia Civil</strong>, no contexto acadêmico de <strong>Empreendedorismo</strong>, com foco em inovação aplicada à gestão pública e melhoria da infraestrutura educacional.</p>
 
     <h2>Estágio do projeto</h2>
+    <p>O sistema encontra-se em fase de desenvolvimento e validação, sendo continuamente aprimorado a partir de testes, feedbacks de usuários e refinamento metodológico.</p>
 
-    <p>
-      O sistema encontra-se em fase de desenvolvimento e validação,
-      sendo continuamente aprimorado a partir de testes, feedbacks
-      e refinamento metodológico.
-    </p>
-
-    <h2>Uso, licenciamento e dados</h2>
-
-    <p>
-      O CheckInfra é disponibilizado como um <strong>serviço digital</strong>,
-      podendo ser licenciado para uso institucional por prefeituras,
-      secretarias de educação e instituições privadas.
-    </p>
-
-    <p>
-      O tratamento de dados pessoais é realizado de forma mínima,
-      em conformidade com a Lei Geral de Proteção de Dados
-      (Lei nº 13.709/2018), conforme detalhado na
-      <a href="politica-privacidade.html">Política de Privacidade</a>.
-    </p>
-
-    <p>
-      O código do projeto é disponibilizado sob licença open source (MIT),
-      sem exposição pública de dados institucionais ou informações sensíveis.
-    </p>
+    <h2>Licenciamento e dados</h2>
+    <p>Disponibilizado como <strong>serviço digital licenciado</strong> para prefeituras, secretarias de educação e instituições privadas. O tratamento de dados segue a <a href="politica-privacidade.html">Política de Privacidade</a> e a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).</p>
 
   </main>
 
+  <!-- Footer padrão -->
   <footer>
-    © 2025 CheckInfra — Projeto acadêmico e tecnológico<br>
-    <a href="./index.html">Voltar para o site</a>
+    © 2026 CheckInfra — Apoio técnico à gestão escolar e melhoria da infraestrutura pública<br>
+    <a href="./index.html">Página inicial</a> |
+    <a href="./sobre.html">Sobre</a> |
+    <a href="./politica-privacidade.html">Política de Privacidade</a> |
+    <a href="./termos-de-uso.html">Termos de Uso</a> |
+    <a href="./contato.html">Contato</a>
   </footer>
 
 </body>

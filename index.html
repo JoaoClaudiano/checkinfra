@@ -277,13 +277,17 @@
 <div id="feedback-container"></div>
 
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-<script src="./feedback/feedback.js"></script>
 
 <script>
   fetch("./feedback/feedback.html")
     .then(res => res.text())
     .then(html => {
       document.getElementById("feedback-container").innerHTML = html;
+
+      // ⚠️ JS do feedback SÓ DEPOIS do HTML existir
+      const script = document.createElement("script");
+      script.src = "./feedback/feedback.js";
+      document.body.appendChild(script);
     });
 </script>
 
@@ -295,5 +299,6 @@ if ("serviceWorker" in navigator) {
     .catch(err => console.error("Erro no Service Worker", err));
 }
 </script>
+
 </body>
 </html>

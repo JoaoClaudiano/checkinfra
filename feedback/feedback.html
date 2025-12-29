@@ -1,52 +1,47 @@
-<div id="feedback-tab" title="Enviar feedback do projeto">
-  💬 Feedback
+<!-- BOTÃO FLUTUANTE -->
+<div id="feedback-fab" title="Enviar feedback">
+  💬
 </div>
 
-<div id="feedback-panel">
-  <h3>Feedback do CheckInfra</h3>
+<!-- MODAL / SANDBOX -->
+<div id="feedback-modal" class="hidden">
+  <div class="feedback-card">
 
-  <p class="feedback-text">
-    O CheckInfra está em fase de testes e aprimoramento.
-    Sua avaliação é anônima e contribui diretamente
-    para a melhoria da metodologia e da experiência do sistema.
-  </p>
+    <button id="feedback-close">✕</button>
 
-  <form
-    action="https://formspree.io/f/xdaobedn"
-    method="POST"
-    id="feedback-form"
-  >
+    <h3>Feedback do CheckInfra</h3>
 
-    <!-- Avaliação qualitativa -->
-    <label class="rating-label">Como você avalia sua experiência?</label>
-    <div class="rating-group">
-      <label><input type="radio" name="rating" value="Ruim"> 😞</label>
-      <label><input type="radio" name="rating" value="Regular"> 😐</label>
-      <label><input type="radio" name="rating" value="Boa"> 🙂</label>
-      <label><input type="radio" name="rating" value="Ótima"> 😄</label>
-    </div>
-
-    <!-- Nome opcional -->
-    <input
-      type="text"
-      name="name"
-      placeholder="Nome (opcional)"
-    >
-
-    <!-- Mensagem -->
-    <textarea
-      name="message"
-      required
-      placeholder="Descreva sua experiência, sugestões ou observações técnicas..."
-    ></textarea>
-
-    <!-- Campo oculto para identificar origem -->
-    <input type="hidden" name="source" value="Feedback MVP - CheckInfra">
-
-    <button type="submit">Enviar feedback</button>
-
-    <p class="feedback-note">
-      ✔️ Feedback anônimo • ✔️ Sem cadastro • ✔️ Leva menos de 1 minuto
+    <p>
+      O CheckInfra está em fase de testes.
+      Sua avaliação ajuda a aprimorar a metodologia e a experiência do sistema.
     </p>
-  </form>
+
+    <form id="feedback-form">
+      
+      <label>Avaliação geral</label>
+      <div class="rating">
+        <span data-value="😕">😕</span>
+        <span data-value="🙂">🙂</span>
+        <span data-value="😀">😀</span>
+        <span data-value="🤩">🤩</span>
+      </div>
+
+      <input type="hidden" name="rating" id="rating-value">
+
+      <label>Seu feedback</label>
+      <textarea
+        name="message"
+        required
+        placeholder="Sugestões, problemas, percepções técnicas..."
+      ></textarea>
+
+      <label>Nome (opcional)</label>
+      <input type="text" name="name" placeholder="Anônimo">
+
+      <button type="submit">Enviar feedback</button>
+
+      <p id="feedback-status"></p>
+    </form>
+
+  </div>
 </div>

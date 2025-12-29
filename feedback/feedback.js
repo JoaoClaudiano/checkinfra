@@ -20,6 +20,7 @@ document.querySelectorAll(".rating input").forEach(input => {
   });
 });
 
+
 // submit assíncrono
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -57,3 +58,4 @@ form.addEventListener("submit", async (e) => {
   submitBtn.disabled = false;
   submitBtn.textContent = "Enviar feedback";
 });
+

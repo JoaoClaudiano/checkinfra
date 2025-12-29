@@ -1,70 +1,76 @@
 <!-- BOTÃO FLUTUANTE -->
 <div id="feedback-fab" aria-label="Enviar feedback">💬</div>
 
-<!-- MODAL -->
+<!-- MODAL FEEDBACK -->
 <div id="feedback-modal" class="hidden">
   <div class="feedback-card">
+    <!-- FECHAR -->
     <button id="feedback-close" aria-label="Fechar">✕</button>
 
+    <!-- TÍTULO + PONTO ONLINE -->
     <h3 class="feedback-title">
       Feedback do CheckInfra
       <span class="status-dot" aria-label="Sistema ativo"></span>
     </h3>
 
+    <!-- INSTRUÇÃO -->
     <p>
-      O CheckInfra está em fase de testes e aprimoramento. Sua avaliação contribui para a melhoria da metodologia e da experiência do sistema.
+      O CheckInfra está em fase de testes e aprimoramento.
+      Sua avaliação contribui para a melhoria da metodologia
+      e da experiência do sistema.
     </p>
 
-    <form id="feedback-form" action="https://formspree.io/f/xdaobedn" method="POST">
-
-      <!-- URL automática -->
+    <!-- FORMULÁRIO -->
+    <form id="feedback-form">
+      <!-- URL da página automaticamente -->
       <input type="hidden" name="page_url" id="page-url">
 
-      <!-- RATING -->
+      <!-- AVALIAÇÃO GERAL -->
       <label><strong>Avaliação geral</strong></label>
-      <input type="hidden" id="rating-value" name="rating">
-
       <div class="rating">
         <label>
-          <input type="radio" name="rating_radio" value="Confusa" required>
+          <input type="radio" name="rating" value="Confusa" required>
           😕
           <span>Confusa</span>
         </label>
         <label>
-          <input type="radio" name="rating_radio" value="Regular">
+          <input type="radio" name="rating" value="Regular">
           😐
           <span>Regular</span>
         </label>
         <label>
-          <input type="radio" name="rating_radio" value="Boa">
+          <input type="radio" name="rating" value="Boa">
           🙂
           <span>Boa</span>
         </label>
         <label>
-          <input type="radio" name="rating_radio" value="Muito boa">
+          <input type="radio" name="rating" value="Muito boa">
           😃
           <span>Muito boa</span>
         </label>
         <label>
-          <input type="radio" name="rating_radio" value="Excelente">
+          <input type="radio" name="rating" value="Excelente">
           🤩
           <span>Excelente</span>
         </label>
       </div>
 
-      <!-- COMENTÁRIO -->
+      <!-- COMENTÁRIO OPCIONAL -->
       <label><strong>Comentário (opcional)</strong></label>
-      <textarea name="message" rows="4" placeholder="Sugestões, observações ou pontos de melhoria…"></textarea>
+      <textarea
+        name="message"
+        rows="4"
+        placeholder="Sugestões, observações ou pontos de melhoria…"></textarea>
 
-      <!-- NOME -->
+      <!-- NOME OPCIONAL -->
       <label><strong>Nome (opcional)</strong></label>
       <input type="text" name="name" placeholder="Anônimo">
 
-      <!-- BOTÃO -->
+      <!-- BOTÃO ENVIAR -->
       <button type="submit" id="feedback-submit">Enviar feedback</button>
 
-      <!-- STATUS -->
-      <div id="feedback-status"></div>
+      <!-- MENSAGEM DE STATUS -->
+      <div id="feedback-status" class="hidden"></div>
     </form>
   </div>
 </div>

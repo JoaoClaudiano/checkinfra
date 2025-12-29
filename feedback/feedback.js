@@ -9,6 +9,7 @@ fab.addEventListener("click", () => {
   modal.classList.remove("hidden");
 });
 
+
 /* FECHAR MODAL */
 closeBtn.addEventListener("click", () => {
   modal.classList.add("hidden");
@@ -58,6 +59,3 @@ function feedbackEnviado() {
       .forEach(l => l.classList.remove("active"));
   }, 2000);
 }
-
-document.querySelector(".status-dot")?.classList.add("sent");
-

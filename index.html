@@ -344,38 +344,81 @@
     e da experiência do sistema.
   </p>
 
-  <textarea id="feedback-textarea"
-    placeholder="Descreva sua experiência, sugestões ou observações técnicas...">
+  <div class="feedback-rating">
+    <span data-value="Excelente" title="Excelente">😍</span>
+    <span data-value="Boa" title="Boa">🙂</span>
+    <span data-value="Regular" title="Regular">😐</span>
+    <span data-value="Ruim" title="Ruim">😕</span>
+    <span data-value="Muito ruim" title="Muito ruim">😞</span>
+  </div>
+
+  <textarea
+    id="feedback-textarea"
+    placeholder="Descreva sua experiência, sugestões ou observações técnicas (opcional)...">
   </textarea>
 
   <button onclick="enviarFeedback()">Enviar feedback</button>
+
+  <div id="feedback-status"></div>
 </div>
 
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+
 <script>
-function toggleFeedback() {
-  const panel = document.getElementById("feedback-panel");
-  panel.style.right = panel.style.right === "0px" ? "-330px" : "0px";
-}
+  emailjs.init("vCgPESmVfPbJdk-U7");
 
-document.getElementById("feedback-tab")
-  .addEventListener("click", toggleFeedback);
+  let avaliacaoSelecionada = "";
 
-function enviarFeedback() {
-  const texto = document.getElementById("feedback-textarea").value;
-
-  if (!texto.trim()) {
-    alert("Por favor, escreva seu feedback antes de enviar.");
-    return;
+  function toggleFeedback() {
+    const panel = document.getElementById("feedback-panel");
+    panel.style.right = panel.style.right === "0px" ? "-330px" : "0px";
   }
 
-  const assunto = encodeURIComponent("Feedback – CheckInfra (MVP)");
-  const corpo = encodeURIComponent(
-    "Feedback enviado pelo site CheckInfra:\n\n" + texto
-  );
+  document
+    .getElementById("feedback-tab")
+    .addEventListener("click", toggleFeedback);
 
-  window.location.href =
-    `mailto:jooclaudiano@gmail.com?subject=${assunto}&body=${corpo}`;
-}
+  document.querySelectorAll(".feedback-rating span").forEach(item => {
+    item.addEventListener("click", () => {
+      document.querySelectorAll(".feedback-rating span")
+        .forEach(i => i.classList.remove("selected"));
+
+      item.classList.add("selected");
+      avaliacaoSelecionada = item.dataset.value;
+    });
+  });
+
+  function enviarFeedback() {
+    const mensagem =
+      document.getElementById("feedback-textarea").value ||
+      "Sem comentário adicional.";
+
+    if (!avaliacaoSelecionada) {
+      alert("Por favor, selecione uma avaliação.");
+      return;
+    }
+
+    emailjs.send(
+      "service_a519te7",
+      "template_oc2zio4",
+      {
+        rating: avaliacaoSelecionada,
+        message: mensagem
+      }
+    ).then(() => {
+      document.getElementById("feedback-status").innerText =
+        "Obrigado! Seu feedback foi enviado de forma anônima.";
+
+      document.getElementById("feedback-textarea").value = "";
+      avaliacaoSelecionada = "";
+      document.querySelectorAll(".feedback-rating span")
+        .forEach(i => i.classList.remove("selected"));
+    }).catch(err => {
+      console.error(err);
+      document.getElementById("feedback-status").innerText =
+        "Erro ao enviar. Tente novamente.";
+    });
+  }
 </script>
 
 <!-- ===== SERVICE WORKER ===== -->

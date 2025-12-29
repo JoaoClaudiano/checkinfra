@@ -1,0 +1,46 @@
+#feedback-tab {
+  position: fixed;
+  right: 0;
+  top: 40%;
+  background: #1f4fd8;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+#feedback-panel {
+  position: fixed;
+  right: -330px;
+  top: 0;
+  width: 330px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -4px 0 12px rgba(0,0,0,.15);
+  padding: 20px;
+  transition: right .3s ease;
+  z-index: 999;
+}
+
+.feedback-rating span {
+  font-size: 24px;
+  cursor: pointer;
+  opacity: .5;
+  margin-right: 6px;
+}
+
+.feedback-rating span.selected {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+#feedback-send {
+  background: #1f4fd8;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  border-radius: 6px;
+  cursor: pointer;
+}

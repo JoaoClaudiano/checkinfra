@@ -1,42 +1,36 @@
-emailjs.init("vCgPESmVfPbJdk-U7");
+(function () {
+  emailjs.init("vCgPESmVfPbJdk-U7"); // SUA PUBLIC KEY
+})();
 
-let avaliacaoSelecionada = "";
+function enviarFeedback() {
+  const texto = document.getElementById("feedback-textarea")?.value;
+  const rating = document.querySelector('input[name="rating"]:checked')?.value || "Não informado";
 
-document.getElementById("feedback-tab")
-  .addEventListener("click", () => {
-    const panel = document.getElementById("feedback-panel");
-    panel.style.right = panel.style.right === "0px" ? "-330px" : "0px";
-  });
+  if (!texto || !texto.trim()) {
+    alert("Por favor, escreva seu feedback antes de enviar.");
+    return;
+  }
 
-document.querySelectorAll(".feedback-rating span")
-  .forEach(span => {
-    span.addEventListener("click", () => {
-      document.querySelectorAll(".feedback-rating span")
-        .forEach(s => s.classList.remove("selected"));
+  const params = {
+    message: texto,
+    rating: rating,
+    name: "Usuário anônimo",
+  };
 
-      span.classList.add("selected");
-      avaliacaoSelecionada = span.dataset.value;
-    });
-  });
-
-document.getElementById("feedback-send")
-  .addEventListener("click", () => {
-    if (!avaliacaoSelecionada) {
-      alert("Selecione uma avaliação.");
-      return;
-    }
-
-    emailjs.send(
-      "service_a519te7",
-      "template_oc2zio4",
-      {
-        rating: avaliacaoSelecionada,
-        message:
-          document.getElementById("feedback-textarea").value ||
-          "Sem comentário adicional."
+  emailjs
+    .send(
+      "service_a519te7",     // SERVICE ID
+      "template_oc2zio4",    // TEMPLATE ID
+      params
+    )
+    .then(
+      () => {
+        alert("Feedback enviado com sucesso. Obrigado!");
+        document.getElementById("feedback-textarea").value = "";
+      },
+      (error) => {
+        console.error("EmailJS error:", error);
+        alert("Erro ao enviar feedback. Tente novamente.");
       }
-    ).then(() => {
-      document.getElementById("feedback-status")
-        .innerText = "Obrigado! Feedback enviado.";
-    });
-  });
+    );
+}

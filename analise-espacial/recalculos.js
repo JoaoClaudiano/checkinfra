@@ -1,9 +1,11 @@
+
 /* =========================
    RECÁLCULOS E INDICADORES
 ========================= */
 
-// camada de zonas e heatmap já estão definidas no mapa.js
-// dadosOriginais contém todas as escolas com lat, lng e status
+// NOTA: Assume que as variáveis globais estão disponíveis:
+// - map, camadaZonas, camadaHeatmap, modoIndicador, dadosOriginais
+// Essas são definidas em mapa.js
 
 function gerarGrid(bounds, tamanho) {
   const grid = [];
@@ -17,6 +19,12 @@ function gerarGrid(bounds, tamanho) {
 
 // Função principal de recalculo
 function recalcularMapa(dados) {
+  // Verificar se as camadas estão inicializadas
+  if (!camadaZonas || !camadaHeatmap) {
+    console.error("Camadas do mapa não inicializadas!");
+    return;
+  }
+  
   camadaZonas.clearLayers();
   camadaHeatmap.setLatLngs([]);
 
@@ -51,18 +59,20 @@ function recalcularMapa(dados) {
     .slice(0,5);
 
   const lista = document.getElementById("listaRanking");
-  lista.innerHTML = "";
+  if (lista) {
+    lista.innerHTML = "";
 
-  ranking.forEach((c, i) => {
-    const indice = Math.round((c.peso / maxPeso) * 100);
-    lista.innerHTML += `<li>Zona ${i+1} — Índice Territorial: ${indice}</li>`;
+    ranking.forEach((c, i) => {
+      const indice = Math.round((c.peso / maxPeso) * 100);
+      lista.innerHTML += `<li>Zona ${i+1} — Índice Territorial: ${indice}</li>`;
 
-    L.rectangle(c.bounds, {
-      color: "#de2d26",
-      fillOpacity: 0.4,
-      weight: 1
-    }).addTo(camadaZonas);
-  });
+      L.rectangle(c.bounds, {
+        color: "#de2d26",
+        fillOpacity: 0.4,
+        weight: 1
+      }).addTo(camadaZonas);
+    });
+  }
 
   return grid;
 }
@@ -109,3 +119,6 @@ function simularFechamento(escolaCritica) {
 
   return recalcularMapa(dadosSimulados);
 }
+
+
+

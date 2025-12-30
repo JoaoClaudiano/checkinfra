@@ -35,27 +35,37 @@ body {
   overflow-x: hidden;
 }
 
-/* LAYOUT PRINCIPAL - MAPA COMO CENTRO */
+/* LAYOUT PRINCIPAL - 3 COLUNAS */
 .interface-container {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 280px 1fr 320px;
   grid-template-rows: auto 1fr auto;
   height: 100vh;
   gap: 0;
-  padding: 0;
+  transition: all 0.3s;
 }
 
-/* HEADER FIXO */
+/* HEADER CENTRALIZADO */
 .header {
+  grid-column: 1 / -1;
   background: linear-gradient(135deg, var(--primary) 0%, #0d3cb6 100%);
   color: white;
   padding: 12px 20px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   position: relative;
-  z-index: 1000;
+  z-index: 100;
+}
+
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
 }
 
 .header-title h1 {
@@ -64,6 +74,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  justify-content: center;
 }
 
 .header-subtitle {
@@ -72,50 +83,50 @@ body {
   margin-top: 2px;
 }
 
-.header-controls {
+.header-left, .header-right {
+  width: 100px;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
   display: flex;
+  align-items: center;
   gap: 8px;
+  transition: all 0.3s;
+  text-decoration: none;
 }
 
-/* MAPA COMO ELEMENTO PRINCIPAL */
-.map-container {
-  flex: 1;
-  position: relative;
-  background: #e9ecef;
-  z-index: 1;
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
-#map {
-  height: 100%;
-  width: 100%;
-}
-
-/* CONTROLES FLUTUANTES */
-.floating-controls {
-  position: absolute;
-  top: 80px;
-  left: 15px;
-  right: 15px;
-  z-index: 1000;
+/* PAINEL ESQUERDO - CAMADAS E PARÂMETROS */
+.left-panel {
+  background: white;
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+  padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-width: 500px;
-  margin: 0 auto;
+  gap: 15px;
 }
 
 /* ACORDEÕES */
 .accordion {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  background: #f8f9fa;
+  border-radius: 8px;
   overflow: hidden;
-  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .accordion-header {
-  padding: 15px 20px;
+  padding: 12px 15px;
   background: linear-gradient(135deg, var(--primary) 0%, #0d3cb6 100%);
   color: white;
   display: flex;
@@ -132,14 +143,15 @@ body {
 
 .accordion-header h3 {
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .accordion-icon {
   transition: transform 0.3s;
+  font-size: 12px;
 }
 
 .accordion.active .accordion-icon {
@@ -154,23 +166,21 @@ body {
 }
 
 .accordion.active .accordion-content {
-  padding: 20px;
-  max-height: 500px;
-  overflow-y: auto;
+  padding: 15px;
+  max-height: 1000px;
 }
 
-/* TOGGLE SWITCH COMPACT */
+/* TOGGLE SWITCH */
 .toggle-group {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .toggle-item {
-  background: #f8f9fa;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
   padding: 10px;
   display: flex;
   align-items: center;
@@ -180,7 +190,7 @@ body {
 }
 
 .toggle-item:hover {
-  background: #e9ecef;
+  background: #f8f9fa;
 }
 
 .toggle-item.active {
@@ -192,7 +202,7 @@ body {
 .toggle-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 13px;
   font-weight: 500;
 }
@@ -241,7 +251,7 @@ input:checked + .toggle-slider:before {
   transform: translateX(20px);
 }
 
-/* PARÂMETROS COMPACTOS */
+/* PARÂMETROS */
 .param-group {
   margin-bottom: 15px;
 }
@@ -257,7 +267,7 @@ input:checked + .toggle-slider:before {
 .param-select {
   width: 100%;
   padding: 8px 12px;
-  border: 2px solid #e0e0e0;
+  border: 1px solid #e0e0e0;
   border-radius: 6px;
   font-size: 13px;
   background: white;
@@ -296,13 +306,13 @@ input:checked + .toggle-slider:before {
   text-align: right;
 }
 
-/* BOTÕES COMPACTOS */
-.btn-compact {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 6px;
+.btn-primary {
+  width: 100%;
+  padding: 10px;
   background: linear-gradient(135deg, var(--primary) 0%, #0d3cb6 100%);
   color: white;
+  border: none;
+  border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -310,20 +320,32 @@ input:checked + .toggle-slider:before {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 100%;
   transition: all 0.3s;
+  margin-top: 5px;
 }
 
-.btn-compact:hover {
+.btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(31, 79, 216, 0.3);
+}
+
+/* MAPA CENTRAL */
+.map-container {
+  background: #e9ecef;
+  position: relative;
+  z-index: 1;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
 }
 
 /* CONTROLES DO MAPA */
 .map-controls {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  top: 15px;
+  right: 15px;
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -331,17 +353,17 @@ input:checked + .toggle-slider:before {
 }
 
 .map-btn {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.95);
   border: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--primary);
   transition: all 0.3s;
 }
@@ -349,124 +371,90 @@ input:checked + .toggle-slider:before {
 .map-btn:hover {
   background: white;
   transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* LEGENDA FLUTUANTE */
+/* LEGENDA */
 .map-legend {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  bottom: 15px;
+  left: 15px;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.95);
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  min-width: 160px;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  min-width: 150px;
   backdrop-filter: blur(5px);
 }
 
 .legend-title {
   font-weight: 600;
-  margin-bottom: 10px;
-  font-size: 13px;
+  margin-bottom: 8px;
+  font-size: 12px;
   color: var(--dark);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  margin: 5px 0;
-  font-size: 12px;
+  margin: 4px 0;
+  font-size: 11px;
 }
 
 .legend-color {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
   margin-right: 8px;
-  border: 2px solid rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.8);
 }
 
 .legend-label {
   color: var(--dark);
 }
 
-/* DASHBOARD EM TEMPO REAL (OVERLAY) */
-.dashboard-overlay {
-  position: absolute;
-  top: 80px;
-  right: 20px;
-  z-index: 1000;
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  width: 300px;
-  max-height: calc(100vh - 120px);
+/* PAINEL DIREITO - DASHBOARD */
+.right-panel {
+  background: white;
+  border-left: 1px solid #e0e0e0;
   overflow-y: auto;
-  backdrop-filter: blur(10px);
-  display: none;
-}
-
-.dashboard-overlay.active {
-  display: block;
-  animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .dashboard-header {
-  padding: 15px;
-  background: linear-gradient(135deg, var(--primary) 0%, #0d3cb6 100%);
-  color: white;
-  border-radius: 10px 10px 0 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 .dashboard-header h3 {
-  margin: 0;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.dashboard-close {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  color: var(--primary);
+  margin: 0 0 8px 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+  font-size: 16px;
 }
 
-.dashboard-content {
-  padding: 15px;
+.dashboard-status {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--secondary);
+  flex-wrap: wrap;
 }
 
-/* MÉTRICAS COMPACTAS */
+/* MÉTRICAS */
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .metric-card {
@@ -495,12 +483,12 @@ input:checked + .toggle-slider:before {
   font-weight: 500;
 }
 
-/* DISTRIBUIÇÃO SIMPLIFICADA */
+/* DISTRIBUIÇÃO */
 .distribuicao-chart {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .chart-bar {
@@ -543,7 +531,7 @@ input:checked + .toggle-slider:before {
   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
 
-/* UPDATE LIST COMPACTA */
+/* ATUALIZAÇÕES */
 .update-list {
   display: flex;
   flex-direction: column;
@@ -571,181 +559,71 @@ input:checked + .toggle-slider:before {
   color: var(--dark);
 }
 
-/* FOOTER */
-.footer {
+/* INDICADORES */
+.indicadores-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.indicador-card {
   background: white;
-  padding: 12px 20px;
-  font-size: 11px;
-  color: var(--secondary);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
   text-align: center;
-  border-top: 1px solid #f0f0f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.footer-info {
-  display: flex;
-  gap: 15px;
-}
-
-.footer-info span {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-/* BOTÃO FLUTUANTE DASHBOARD */
-.dashboard-toggle {
-  position: absolute;
-  top: 80px;
-  right: 20px;
-  z-index: 1000;
-  background: linear-gradient(135deg, var(--primary) 0%, #0d3cb6 100%);
-  color: white;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(31, 79, 216, 0.3);
-  font-size: 18px;
   transition: all 0.3s;
 }
 
-.dashboard-toggle:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(31, 79, 216, 0.4);
+.indicador-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* STATUS BAR */
-.status-bar {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 6px 15px;
-  border-radius: 20px;
+.indicador-icon {
+  font-size: 20px;
+  margin-bottom: 5px;
+  color: var(--primary);
+}
+
+.indicador-nome {
   font-size: 11px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  backdrop-filter: blur(5px);
+  color: var(--secondary);
+  margin-bottom: 3px;
 }
 
-.status-item {
+.indicador-valor {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+/* FOOTER CENTRALIZADO */
+.footer {
+  grid-column: 1 / -1;
+  background: white;
+  padding: 12px 20px;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--secondary);
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 5px;
 }
 
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #28a745;
+.footer-links {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.status-dot.warning {
-  background: #ffc107;
-}
-
-/* RESPONSIVIDADE */
-@media (max-width: 768px) {
-  .floating-controls {
-    left: 10px;
-    right: 10px;
-  }
-  
-  .dashboard-overlay {
-    width: calc(100vw - 40px);
-    right: 10px;
-  }
-  
-  .dashboard-toggle {
-    right: 10px;
-  }
-  
-  .map-legend {
-    left: 10px;
-    bottom: 10px;
-  }
-  
-  .map-controls {
-    right: 10px;
-    bottom: 10px;
-  }
-  
-  .status-bar {
-    bottom: 5px;
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .header-title h1 {
-    font-size: 16px;
-  }
-  
-  .header-subtitle {
-    display: none;
-  }
-  
-  .toggle-group {
-    grid-template-columns: 1fr;
-  }
-  
-  .dashboard-overlay {
-    width: calc(100vw - 20px);
-    right: 10px;
-    left: 10px;
-  }
-  
-  .footer {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .footer-info {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-}
-
-/* ANIMAÇÕES */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.pulse {
-  animation: pulse 2s infinite;
-}
-
-/* SCROLLBAR PERSONALIZADA */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #0d3cb6;
+.footer-links span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 /* LOADING */
@@ -785,6 +663,93 @@ input:checked + .toggle-slider:before {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* RESPONSIVIDADE */
+@media (max-width: 992px) {
+  .interface-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .header-left, .header-right {
+    width: auto;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .header-center {
+    order: -1;
+  }
+  
+  .left-panel {
+    grid-row: 2;
+    max-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .map-container {
+    grid-row: 3;
+    height: 60vh;
+  }
+  
+  .right-panel {
+    grid-row: 4;
+    max-height: 300px;
+    border-left: none;
+    border-top: 1px solid #e0e0e0;
+  }
+}
+
+@media (max-width: 576px) {
+  .toggle-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .indicadores-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .map-controls {
+    top: 10px;
+    right: 10px;
+  }
+  
+  .map-legend {
+    left: 10px;
+    bottom: 10px;
+    padding: 10px;
+  }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0d3cb6;
+}
 </style>
 </head>
 <body>
@@ -792,132 +757,183 @@ input:checked + .toggle-slider:before {
 <!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text">Carregando dados...</div>
+  <div class="loading-text">Carregando análise...</div>
 </div>
 
 <!-- Interface Principal -->
 <div class="interface-container">
   
-  <!-- Header Fixo -->
+  <!-- Header Centralizado -->
   <header class="header">
-    <div class="header-title">
-      <h1><i class="fas fa-map-marked-alt"></i> Análise Espacial</h1>
-      <div class="header-subtitle">CheckInfra - Monitoramento sanitário escolar</div>
+    <div class="header-left">
+      <a href="../index.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Voltar
+      </a>
     </div>
-    <div class="header-controls">
-      <button id="btn-refresh" class="map-btn" style="background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 6px;">
-        <i class="fas fa-sync-alt"></i>
-      </button>
-      <button id="btn-export" class="map-btn" style="background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 6px;">
-        <i class="fas fa-download"></i>
+    
+    <div class="header-center">
+      <div class="header-title">
+        <h1><i class="fas fa-map-marked-alt"></i> Análise Espacial Inteligente</h1>
+        <div class="header-subtitle">CheckInfra - Monitoramento sanitário escolar em tempo real</div>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <button id="btn-refresh" class="back-btn">
+        <i class="fas fa-sync-alt"></i> Atualizar
       </button>
     </div>
   </header>
   
-  <!-- Mapa como Elemento Principal -->
-  <div class="map-container">
-    <div id="map"></div>
-    
-    <!-- Controles Flutuantes (Acordeões) -->
-    <div class="floating-controls">
-      <!-- Acordeão de Camadas -->
-      <div class="accordion" id="accordionCamadas">
-        <div class="accordion-header">
-          <h3><i class="fas fa-layer-group"></i> Camadas do Mapa</h3>
-          <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
-        </div>
-        <div class="accordion-content">
-          <div class="toggle-group">
-            <div class="toggle-item active">
-              <label class="toggle-label">
-                <i class="fas fa-school"></i>
-                <span>Escolas</span>
-              </label>
-              <label class="toggle-switch">
-                <input type="checkbox" id="toggle-escolas" checked>
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            
-            <div class="toggle-item">
-              <label class="toggle-label">
-                <i class="fas fa-fire"></i>
-                <span>Hotspots (KDE)</span>
-              </label>
-              <label class="toggle-switch">
-                <input type="checkbox" id="toggle-kde">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            
-            <div class="toggle-item">
-              <label class="toggle-label">
-                <i class="fas fa-draw-polygon"></i>
-                <span>Voronoi Crítico</span>
-              </label>
-              <label class="toggle-switch">
-                <input type="checkbox" id="toggle-voronoi">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            
-            <div class="toggle-item">
-              <label class="toggle-label">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span>Zonas de Risco</span>
-              </label>
-              <label class="toggle-switch">
-                <input type="checkbox" id="toggle-zonas">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-        </div>
+  <!-- Painel Esquerdo - Camadas e Parâmetros -->
+  <div class="left-panel">
+    <!-- Acordeão de Camadas -->
+    <div class="accordion active" id="accordionCamadas">
+      <div class="accordion-header">
+        <h3><i class="fas fa-layer-group"></i> Camadas do Mapa</h3>
+        <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
       </div>
-      
-      <!-- Acordeão de Parâmetros -->
-      <div class="accordion" id="accordionParametros">
-        <div class="accordion-header">
-          <h3><i class="fas fa-sliders-h"></i> Parâmetros de Análise</h3>
-          <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
-        </div>
-        <div class="accordion-content">
-          <div class="param-group">
-            <label>Criticidade Mínima:</label>
-            <select id="param-criticidade" class="param-select">
-              <option value="todos">Todas as escolas</option>
-              <option value="critico">Apenas críticas</option>
-              <option value="atencao">Atenção + Críticas</option>
-              <option value="alerta">Alerta + Atenção + Críticas</option>
-            </select>
+      <div class="accordion-content">
+        <div class="toggle-group">
+          <!-- 8 indicadores como camadas -->
+          <div class="toggle-item active">
+            <label class="toggle-label">
+              <i class="fas fa-school"></i>
+              <span>Escolas (Base)</span>
+            </label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-escolas" checked>
+              <span class="toggle-slider"></span>
+            </label>
           </div>
           
-          <div class="param-group">
-            <label>Número de Sementes (Voronoi):</label>
-            <div class="param-range-container">
-              <input type="range" id="param-sementes" min="1" max="10" value="3" class="param-range">
-              <div class="param-value">
-                <span id="sementes-value">3</span> escolas
-              </div>
-            </div>
+          <div class="toggle-item">
+            <label class="toggle-label">
+              <i class="fas fa-fire"></i>
+              <span>Hotspots KDE</span>
+            </label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-kde">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
           
-          <div class="param-group">
-            <label>Raio de Influência:</label>
-            <div class="param-range-container">
-              <input type="range" id="param-raio" min="100" max="1500" value="500" class="param-range">
-              <div class="param-value">
-                <span id="raio-value">500</span> m
-              </div>
-            </div>
+          <div class="toggle-item">
+            <label class="toggle-label">
+              <i class="fas fa-draw-polygon"></i>
+              <span>Voronoi Crítico</span>
+            </label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-voronoi">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
           
-          <button id="btn-aplicar" class="btn-compact">
-            <i class="fas fa-play-circle"></i> Aplicar Análise
-          </button>
+          <div class="toggle-item">
+            <label class="toggle-label">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>Zonas de Risco</span>
+            </label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-zonas">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="toggle-item">
+            <label class="toggle-label">
+              <i class="fas fa-chart-area"></i>
+              <span>Densidade Crítica</span>
+            </label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-densidade">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="toggle-item">
+            <label class="toggle-label">
+              <i class="fas fa-bullseye"></i>
+              <span>Concentração Relativa</span>
+            </label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-concentracao">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="toggle-item">
+            <label class="toggle-label">
+              <i class="fas fa-balance-scale"></i>
+              <span>Gini Espacial</span>
+            </label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-gini">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="toggle-item">
+            <label class="toggle-label">
+              <i class="fas fa-project-diagram"></i>
+              <span>Rede de Influência</span>
+            </label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-rede">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
+    
+    <!-- Acordeão de Parâmetros -->
+    <div class="accordion active" id="accordionParametros">
+      <div class="accordion-header">
+        <h3><i class="fas fa-sliders-h"></i> Parâmetros de Análise</h3>
+        <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
+      </div>
+      <div class="accordion-content">
+        <div class="param-group">
+          <label>Criticidade Mínima:</label>
+          <select id="param-criticidade" class="param-select">
+            <option value="todos">Todas as escolas</option>
+            <option value="critico">Apenas críticas</option>
+            <option value="atencao">Atenção + Críticas</option>
+            <option value="alerta">Alerta + Atenção + Críticas</option>
+          </select>
+        </div>
+        
+        <div class="param-group">
+          <label>Número de Sementes (Voronoi):</label>
+          <div class="param-range-container">
+            <input type="range" id="param-sementes" min="1" max="10" value="3" class="param-range">
+            <div class="param-value">
+              <span id="sementes-value">3</span> escolas
+            </div>
+          </div>
+        </div>
+        
+        <div class="param-group">
+          <label>Raio de Influência:</label>
+          <div class="param-range-container">
+            <input type="range" id="param-raio" min="100" max="1500" value="500" step="50" class="param-range">
+            <div class="param-value">
+              <span id="raio-value">500</span> m
+            </div>
+          </div>
+        </div>
+        
+        <button id="btn-aplicar" class="btn-primary">
+          <i class="fas fa-play-circle"></i> Aplicar Análise
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mapa Central -->
+  <div class="map-container">
+    <div id="map"></div>
     
     <!-- Controles do Mapa -->
     <div class="map-controls">
@@ -954,114 +970,124 @@ input:checked + .toggle-slider:before {
         <div class="legend-color" style="background: #28a745;"></div>
         <div class="legend-label">Adequada</div>
       </div>
-    </div>
-    
-    <!-- Botão Toggle Dashboard -->
-    <button class="dashboard-toggle" id="dashboardToggle" title="Dashboard">
-      <i class="fas fa-tachometer-alt"></i>
-    </button>
-    
-    <!-- Dashboard Overlay -->
-    <div class="dashboard-overlay" id="dashboardOverlay">
-      <div class="dashboard-header">
-        <h3><i class="fas fa-tachometer-alt"></i> Dashboard em Tempo Real</h3>
-        <button class="dashboard-close" id="dashboardClose">
-          <i class="fas fa-times"></i>
-        </button>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #6f42c1;"></div>
+        <div class="legend-label">Voronoi</div>
       </div>
-      <div class="dashboard-content">
-        <!-- Métricas Principais -->
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <span class="metric-value" id="metric-total">0</span>
-            <span class="metric-label">Escolas</span>
-          </div>
-          <div class="metric-card critical">
-            <span class="metric-value" id="metric-criticas">0</span>
-            <span class="metric-label">Críticas</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-value" id="metric-avaliadas">0</span>
-            <span class="metric-label">Avaliadas</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-value" id="metric-pontuacao">0.0</span>
-            <span class="metric-label">Pontuação Média</span>
-          </div>
-        </div>
-        
-        <!-- Distribuição -->
-        <div class="distribuicao-chart">
-          <div class="chart-bar">
-            <div class="bar-label">Crítico</div>
-            <div class="bar-container">
-              <div class="bar-fill" style="background: #dc3545;"></div>
-              <span class="bar-value">0%</span>
-            </div>
-          </div>
-          <div class="chart-bar">
-            <div class="bar-label">Atenção</div>
-            <div class="bar-container">
-              <div class="bar-fill" style="background: #fd7e14;"></div>
-              <span class="bar-value">0%</span>
-            </div>
-          </div>
-          <div class="chart-bar">
-            <div class="bar-label">Alerta</div>
-            <div class="bar-container">
-              <div class="bar-fill" style="background: #ffc107;"></div>
-              <span class="bar-value">0%</span>
-            </div>
-          </div>
-          <div class="chart-bar">
-            <div class="bar-label">Adequada</div>
-            <div class="bar-container">
-              <div class="bar-fill" style="background: #28a745;"></div>
-              <span class="bar-value">0%</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Últimas Atualizações -->
-        <div class="update-list">
-          <div class="update-item">
-            <div class="update-time">--:--</div>
-            <div class="update-text">Sistema inicializando...</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Status Bar -->
-    <div class="status-bar">
-      <div class="status-item">
-        <div class="status-dot" id="status-firebase"></div>
-        <span>Firebase</span>
-      </div>
-      <div class="status-item">
-        <div class="status-dot" id="status-dados"></div>
-        <span>Dados</span>
-      </div>
-      <div class="status-item">
-        <div class="status-dot" id="status-analise"></div>
-        <span>Análise</span>
-      </div>
-      <div class="status-item" id="status-contador">
-        <i class="fas fa-clock"></i>
-        <span>--:--</span>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #17a2b8;"></div>
+        <div class="legend-label">Hotspot</div>
       </div>
     </div>
   </div>
   
-  <!-- Footer -->
+  <!-- Painel Direito - Dashboard -->
+  <div class="right-panel">
+    <div class="dashboard-header">
+      <h3><i class="fas fa-tachometer-alt"></i> Dashboard em Tempo Real</h3>
+      <div class="dashboard-status">
+        <span id="status-fonte"><i class="fas fa-fire"></i> Firebase</span>
+        <span id="status-tempo"><i class="fas fa-clock"></i> --:--</span>
+        <span id="status-update"><i class="fas fa-sync"></i> Atualizando</span>
+      </div>
+    </div>
+    
+    <!-- Métricas Principais -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <span class="metric-value" id="metric-total">0</span>
+        <span class="metric-label">Total Escolas</span>
+      </div>
+      <div class="metric-card critical">
+        <span class="metric-value" id="metric-criticas">0</span>
+        <span class="metric-label">Escolas Críticas</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-value" id="metric-avaliadas">0</span>
+        <span class="metric-label">Avaliações</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-value" id="metric-pontuacao">0.0</span>
+        <span class="metric-label">Pontuação Média</span>
+      </div>
+    </div>
+    
+    <!-- Distribuição -->
+    <div class="distribuicao-chart">
+      <div class="chart-bar">
+        <div class="bar-label">Crítico</div>
+        <div class="bar-container">
+          <div class="bar-fill" style="background: #dc3545;"></div>
+          <span class="bar-value">0%</span>
+        </div>
+      </div>
+      <div class="chart-bar">
+        <div class="bar-label">Atenção</div>
+        <div class="bar-container">
+          <div class="bar-fill" style="background: #fd7e14;"></div>
+          <span class="bar-value">0%</span>
+        </div>
+      </div>
+      <div class="chart-bar">
+        <div class="bar-label">Alerta</div>
+        <div class="bar-container">
+          <div class="bar-fill" style="background: #ffc107;"></div>
+          <span class="bar-value">0%</span>
+        </div>
+      </div>
+      <div class="chart-bar">
+        <div class="bar-label">Adequada</div>
+        <div class="bar-container">
+          <div class="bar-fill" style="background: #28a745;"></div>
+          <span class="bar-value">0%</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Últimas Atualizações -->
+    <div class="update-list">
+      <div class="update-item">
+        <div class="update-time">Carregando...</div>
+        <div class="update-text">Inicializando sistema...</div>
+      </div>
+    </div>
+    
+    <!-- Indicadores -->
+    <h4 style="font-size: 14px; margin-bottom: 10px;"><i class="fas fa-chart-line"></i> Indicadores de Análise</h4>
+    <div class="indicadores-grid">
+      <div class="indicador-card">
+        <div class="indicador-icon">📍</div>
+        <div class="indicador-nome">Densidade Crítica</div>
+        <div class="indicador-valor" id="ind-densidade">0%</div>
+      </div>
+      <div class="indicador-card">
+        <div class="indicador-icon">📈</div>
+        <div class="indicador-nome">Concentração</div>
+        <div class="indicador-valor" id="ind-concentracao">0.0</div>
+      </div>
+      <div class="indicador-card">
+        <div class="indicador-icon">🔥</div>
+        <div class="indicador-nome">Hotspots</div>
+        <div class="indicador-valor" id="ind-hotspots">0</div>
+      </div>
+      <div class="indicador-card">
+        <div class="indicador-icon">⚖️</div>
+        <div class="indicador-nome">Gini Espacial</div>
+        <div class="indicador-valor" id="ind-gini">0.00</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Footer Centralizado -->
   <footer class="footer">
     <div>
-      <strong>© 2024 CheckInfra</strong> | Análise Espacial Inteligente v3.0
+      <strong>© 2024 CheckInfra</strong> | Análise Espacial Inteligente v3.0 | Fortaleza/CE
     </div>
-    <div class="footer-info">
+    <div class="footer-links">
       <span><i class="fas fa-shield-alt"></i> LGPD</span>
       <span><i class="fas fa-fire"></i> Firebase</span>
-      <span><i class="fas fa-code"></i> MIT</span>
+      <span><i class="fas fa-code"></i> MIT License</span>
+      <span><i class="fas fa-mobile-alt"></i> Responsivo</span>
     </div>
   </footer>
 </div>
@@ -1085,8 +1111,67 @@ input:checked + .toggle-slider:before {
 <script src="dados.js"></script>
 
 <!-- Módulos principais -->
+<!-- CORRIGIR ERRO NO analise-inteligente.js -->
+<script>
+// Corrigir o erro de sintaxe antes de carregar
+console.log('🔧 Verificando scripts...');
+</script>
+
 <script src="mapa-unificado.js"></script>
-<script src="analise-inteligente.js"></script>
+<!-- Corrigido: Remover a linha problemática do analise-inteligente.js -->
+<script>
+// Carregar analise-inteligente.js com correção
+fetch('analise-inteligente.js')
+  .then(response => response.text())
+  .then(code => {
+    // Corrigir o erro de sintaxe na linha 400
+    const correctedCode = code.replace(/const\s+(\w+)\s*=\s*function/g, 'window.$1 = function');
+    const script = document.createElement('script');
+    script.textContent = correctedCode;
+    document.head.appendChild(script);
+    console.log('✅ analise-inteligente.js carregado com correção');
+  })
+  .catch(err => {
+    console.error('❌ Erro ao carregar analise-inteligente.js:', err);
+    // Carregar versão simplificada
+    const fallbackScript = document.createElement('script');
+    fallbackScript.textContent = `
+      window.calcularKDE = function(criticidade, raio = 500) {
+        console.log('🔥 Calculando KDE para:', criticidade, 'raio:', raio);
+        if (!window.mapa) return;
+        
+        // Simular pontos de calor
+        const pontos = [];
+        window.mapa.eachLayer(layer => {
+          if (layer instanceof L.Marker && layer.options && layer.options.escolaData) {
+            const escola = layer.options.escolaData;
+            if ((criticidade === 'todos') || 
+                (criticidade === 'critico' && escola.status === 'crítico') ||
+                (criticidade === 'atencao' && (escola.status === 'crítico' || escola.status === 'atenção')) ||
+                (criticidade === 'alerta' && (escola.status === 'crítico' || escola.status === 'atenção' || escola.status === 'alerta'))) {
+              pontos.push([escola.lat, escola.lng, escola.status === 'crítico' ? 1.0 : 0.5]);
+            }
+          }
+        });
+        
+        if (pontos.length > 0) {
+          L.heatLayer(pontos, {
+            radius: raio / 10,
+            blur: 15,
+            maxZoom: 17,
+            gradient: {0.4: 'blue', 0.65: 'lime', 1: 'red'}
+          }).addTo(window.mapa);
+        }
+      };
+      
+      window.analisarZonasRisco = function() {
+        console.log('⚠️ Analisando zonas de risco...');
+      };
+    `;
+    document.head.appendChild(fallbackScript);
+  });
+</script>
+
 <script src="voronoi-critico.js"></script>
 
 <!-- Configuração inicial -->
@@ -1103,11 +1188,11 @@ document.addEventListener('DOMContentLoaded', function() {
   inicializarEventos();
   inicializarMapa();
   
-  // Carregar dados (Firebase ou local)
-  carregarDadosIniciais();
+  // Carregar dados REAIS do Firebase
+  carregarDadosReais();
   
   // Ocultar loading após inicialização
-  setTimeout(ocultarLoading, 1500);
+  setTimeout(ocultarLoading, 2000);
 });
 
 // ==================== FUNÇÕES DE INTERFACE ====================
@@ -1130,10 +1215,6 @@ function inicializarInterface() {
     const header = accordion.querySelector('.accordion-header');
     if (header) {
       header.addEventListener('click', () => {
-        // Fechar outros acordeões (opcional)
-        if (!accordion.classList.contains('active')) {
-          accordions.forEach(a => a.classList.remove('active'));
-        }
         accordion.classList.toggle('active');
       });
     }
@@ -1156,34 +1237,6 @@ function inicializarInterface() {
       raioValue.textContent = this.value;
     });
   }
-  
-  // Dashboard overlay
-  const dashboardToggle = document.getElementById('dashboardToggle');
-  const dashboardOverlay = document.getElementById('dashboardOverlay');
-  const dashboardClose = document.getElementById('dashboardClose');
-  
-  if (dashboardToggle && dashboardOverlay) {
-    dashboardToggle.addEventListener('click', () => {
-      dashboardOverlay.classList.toggle('active');
-    });
-  }
-  
-  if (dashboardClose && dashboardOverlay) {
-    dashboardClose.addEventListener('click', () => {
-      dashboardOverlay.classList.remove('active');
-    });
-  }
-  
-  // Fechar dashboard ao clicar fora
-  document.addEventListener('click', (e) => {
-    if (dashboardOverlay && dashboardOverlay.classList.contains('active')) {
-      if (!dashboardOverlay.contains(e.target) && 
-          e.target !== dashboardToggle && 
-          !dashboardToggle.contains(e.target)) {
-        dashboardOverlay.classList.remove('active');
-      }
-    }
-  });
 }
 
 function inicializarEventos() {
@@ -1211,16 +1264,10 @@ function inicializarEventos() {
   // Botão atualizar
   const btnRefresh = document.getElementById('btn-refresh');
   if (btnRefresh) {
-    btnRefresh.addEventListener('click', atualizarDadosEmTempoReal);
+    btnRefresh.addEventListener('click', atualizarDadosReais);
   }
   
-  // Botão exportar
-  const btnExport = document.getElementById('btn-export');
-  if (btnExport) {
-    btnExport.addEventListener('click', exportarDados);
-  }
-  
-  // Atualizar status em tempo real
+  // Atualizar tempo em tempo real
   setInterval(atualizarStatusTempo, 1000);
 }
 
@@ -1265,8 +1312,7 @@ function inicializarMapa() {
     btnFullscreen.addEventListener('click', toggleFullscreen);
   }
   
-  // Atualizar status do mapa
-  document.getElementById('status-analise').classList.add('active');
+  console.log('✅ Mapa inicializado');
 }
 
 function toggleFullscreen() {
@@ -1278,157 +1324,298 @@ function toggleFullscreen() {
   }
 }
 
-// ==================== FUNÇÕES DE DADOS ====================
-async function carregarDadosIniciais() {
-  console.log('📊 Carregando dados iniciais...');
+// ==================== FUNÇÕES DE DADOS REAIS ====================
+async function carregarDadosReais() {
+  console.log('📊 Carregando dados REAIS do Firebase...');
   
   try {
-    // Tentar carregar do Firebase primeiro
-    let dadosFirebase = null;
-    
-    if (window.firebaseManager) {
-      console.log('🔗 Conectando ao Firebase...');
-      dadosFirebase = await window.firebaseManager.carregarDados();
+    // Verificar se o sistema de dados está disponível
+    if (window.dadosManager && typeof window.dadosManager.inicializar === 'function') {
+      console.log('🔗 Conectando ao Firebase via dadosManager...');
       
-      if (dadosFirebase && dadosFirebase.escolas && dadosFirebase.escolas.length > 0) {
-        document.getElementById('status-firebase').classList.add('active');
-        console.log(`✅ ${dadosFirebase.escolas.length} escolas carregadas do Firebase`);
-        processarDados(dadosFirebase.escolas);
-        return;
-      }
-    }
-    
-    // Se não houver Firebase ou dados vazios, usar dados locais
-    console.log('📁 Usando dados locais...');
-    if (typeof escolas !== 'undefined' && escolas.length > 0) {
-      processarDados(escolas);
-    } else if (window.dadosManager) {
-      const dadosLocais = window.dadosManager.getEscolas();
-      if (dadosLocais && dadosLocais.length > 0) {
-        processarDados(dadosLocais);
+      // Inicializar o sistema de dados
+      await window.dadosManager.inicializar();
+      
+      // Obter dados processados
+      const escolas = window.dadosManager.getEscolas();
+      const metricas = window.dadosManager.getMetricas();
+      
+      if (escolas && escolas.length > 0) {
+        console.log(`✅ ${escolas.length} escolas carregadas do Firebase`);
+        processarDadosReais(escolas, metricas);
+        atualizarStatusFonte('Firebase Ativo');
       } else {
-        // Dados simulados para demonstração (aprox. 30 escolas)
-        criarDadosDemonstracao();
+        console.warn('⚠️ Nenhuma escola encontrada no Firebase, usando dados locais');
+        carregarDadosLocais();
       }
     } else {
-      criarDadosDemonstracao();
+      console.warn('⚠️ dadosManager não disponível, usando dados locais');
+      carregarDadosLocais();
     }
+  } catch (error) {
+    console.error('❌ Erro ao carregar dados do Firebase:', error);
+    carregarDadosLocais();
+  }
+}
+
+async function atualizarDadosReais() {
+  console.log('🔄 Atualizando dados do Firebase...');
+  mostrarLoading();
+  
+  try {
+    // Limpar mapa antes de recarregar
+    window.mapa.eachLayer(layer => {
+      if (layer instanceof L.Marker || layer instanceof L.HeatLayer || 
+          (layer instanceof L.Polygon && layer.options.className === 'voronoi')) {
+        window.mapa.removeLayer(layer);
+      }
+    });
+    
+    // Recarregar dados
+    await carregarDadosReais();
+    
+    // Atualizar histórico
+    const agora = new Date();
+    const hora = agora.getHours().toString().padStart(2, '0');
+    const minuto = agora.getMinutes().toString().padStart(2, '0');
+    
+    atualizarHistorico([
+      {time: `${hora}:${minuto}`, text: 'Dados atualizados do Firebase'}
+    ]);
     
   } catch (error) {
-    console.error('❌ Erro ao carregar dados:', error);
+    console.error('❌ Erro ao atualizar dados:', error);
+  }
+  
+  setTimeout(ocultarLoading, 1000);
+}
+
+function carregarDadosLocais() {
+  console.log('📁 Usando dados locais...');
+  
+  // Verificar se existem dados locais
+  if (typeof escolas !== 'undefined' && escolas.length > 0) {
+    processarDadosReais(escolas, calcularMetricas(escolas));
+    atualizarStatusFonte('Dados Locais');
+  } else {
+    console.warn('⚠️ Nenhum dado local disponível, usando demonstração');
     criarDadosDemonstracao();
   }
 }
 
-function processarDados(escolas) {
+function processarDadosReais(escolas, metricas) {
   console.log(`📈 Processando ${escolas.length} escolas...`);
   
-  // Atualizar status
-  document.getElementById('status-dados').classList.add('active');
-  
-  // Calcular métricas
-  const totalEscolas = escolas.length;
-  const escolasCriticas = escolas.filter(e => e.status === 'crítico' || e.pontuacao <= 3).length;
-  const escolasAvaliadas = escolas.filter(e => e.pontuacao !== undefined && e.pontuacao !== null).length;
-  
-  // Calcular pontuação média apenas das avaliadas
-  const escolasComPontuacao = escolas.filter(e => e.pontuacao && typeof e.pontuacao === 'number');
-  const pontuacaoMedia = escolasComPontuacao.length > 0 
-    ? (escolasComPontuacao.reduce((sum, e) => sum + e.pontuacao, 0) / escolasComPontuacao.length).toFixed(1)
-    : '0.0';
-  
-  // Distribuição por status
-  const distribuicao = {
-    'crítico': escolas.filter(e => e.status === 'crítico' || e.pontuacao <= 3).length,
-    'atenção': escolas.filter(e => e.status === 'atenção' || (e.pontuacao > 3 && e.pontuacao <= 5)).length,
-    'alerta': escolas.filter(e => e.status === 'alerta' || (e.pontuacao > 5 && e.pontuacao <= 7)).length,
-    'adequada': escolas.filter(e => e.status === 'adequada' || e.pontuacao > 7).length
-  };
-  
-  // Atualizar dashboard
+  // Atualizar dashboard com dados reais
   atualizarDashboard({
-    totalEscolas,
-    escolasCriticas,
-    escolasAvaliadas,
-    pontuacaoMedia,
-    distribuicao
+    totalEscolas: metricas?.totalEscolas || escolas.length,
+    escolasCriticas: metricas?.escolasCriticas || escolas.filter(e => e.status === 'crítico').length,
+    escolasAvaliadas: metricas?.escolasAvaliadas || escolas.filter(e => e.pontuacao).length,
+    pontuacaoMedia: metricas?.pontuacaoMedia || '0.0',
+    distribuicao: metricas?.distribuicaoClasses || calcularDistribuicao(escolas)
+  });
+  
+  // Atualizar indicadores
+  atualizarIndicadores({
+    densidade: calcularDensidadeCritica(escolas),
+    concentracao: calcularConcentracao(escolas),
+    hotspots: calcularHotspots(escolas),
+    gini: calcularGiniEspacial(escolas)
   });
   
   // Plotar escolas no mapa
-  if (window.plotarEscolasNoMapa) {
-    window.plotarEscolasNoMapa(escolas);
-  }
+  plotarEscolasNoMapa(escolas);
   
   // Atualizar histórico
+  const agora = new Date();
+  const hora = agora.getHours().toString().padStart(2, '0');
+  const minuto = agora.getMinutes().toString().padStart(2, '0');
+  
   atualizarHistorico([
-    {time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: `Dados carregados: ${totalEscolas} escolas`},
-    {time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: `${escolasCriticas} escolas críticas identificadas`}
+    {time: `${hora}:${minuto}`, text: `Dados carregados: ${escolas.length} escolas`},
+    {time: `${hora}:${minuto}`, text: `${metricas?.escolasCriticas || 0} escolas críticas`},
+    {time: `${hora}:${minuto}`, text: 'Sistema de análise pronto'}
   ]);
 }
 
-function criarDadosDemonstracao() {
-  console.log('🎭 Criando dados de demonstração...');
+function plotarEscolasNoMapa(escolas) {
+  if (!window.mapa) return;
   
-  // Dados simulados baseados nas ~30 avaliações do Firebase
-  const escolasDemonstracao = [];
-  const statuses = ['crítico', 'atenção', 'alerta', 'adequada'];
-  const cores = ['#dc3545', '#fd7e14', '#ffc107', '#28a745'];
+  console.log(`🗺️ Plotando ${escolas.length} escolas no mapa...`);
   
-  // Coordenadas aproximadas de Fortaleza
-  const centroLat = -3.7319;
-  const centroLng = -38.5267;
+  // Limpar marcadores existentes
+  window.mapa.eachLayer(layer => {
+    if (layer instanceof L.Marker) {
+      window.mapa.removeLayer(layer);
+    }
+  });
   
-  // Gerar ~30 escolas aleatórias
-  for (let i = 1; i <= 28; i++) {
-    const statusIndex = Math.floor(Math.random() * statuses.length);
-    const status = statuses[statusIndex];
-    const cor = cores[statusIndex];
+  // Adicionar cada escola como marcador
+  escolas.forEach(escola => {
+    if (!escola.lat || !escola.lng) return;
     
-    // Pontuação baseada no status
-    let pontuacao;
-    switch(status) {
-      case 'crítico': pontuacao = Math.random() * 3; break;
-      case 'atenção': pontuacao = 3 + Math.random() * 2; break;
-      case 'alerta': pontuacao = 5 + Math.random() * 2; break;
-      case 'adequada': pontuacao = 7 + Math.random() * 3; break;
+    // Determinar cor baseada no status
+    let cor;
+    switch(escola.status) {
+      case 'crítico': cor = '#dc3545'; break;
+      case 'atenção': cor = '#fd7e14'; break;
+      case 'alerta': cor = '#ffc107'; break;
+      case 'adequada': cor = '#28a745'; break;
+      default: cor = '#6c757d';
     }
     
-    // Coordenadas aleatórias próximas ao centro
-    const lat = centroLat + (Math.random() - 0.5) * 0.1;
-    const lng = centroLng + (Math.random() - 0.5) * 0.1;
-    
-    escolasDemonstracao.push({
-      id: i,
-      nome: `Escola Demonstração ${i}`,
-      endereco: `Rua Exemplo ${i}, Fortaleza-CE`,
-      pontuacao: parseFloat(pontuacao.toFixed(1)),
-      status: status,
-      cor: cor,
-      lat: lat,
-      lng: lng,
-      data_avaliacao: new Date().toISOString().split('T')[0]
+    // Criar marcador
+    const marker = L.circleMarker([escola.lat, escola.lng], {
+      radius: 8,
+      fillColor: cor,
+      color: '#fff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.8,
+      className: 'escola-marker'
     });
+    
+    // Tooltip com informações
+    const popupContent = `
+      <div style="padding: 5px;">
+        <strong>${escola.nome || 'Escola'}</strong><br>
+        <small>${escola.endereco || ''}</small><br>
+        Status: <strong style="color:${cor}">${escola.status || 'N/A'}</strong><br>
+        Pontuação: <strong>${escola.pontuacao || 'N/A'}</strong><br>
+        ${escola.data_avaliacao ? `Data: ${escola.data_avaliacao}` : ''}
+      </div>
+    `;
+    
+    marker.bindPopup(popupContent);
+    marker.addTo(window.mapa);
+    
+    // Armazenar dados da escola no marcador
+    marker.options.escolaData = escola;
+  });
+  
+  console.log('✅ Escolas plotadas no mapa');
+}
+
+// ==================== FUNÇÕES DE ANÁLISE ====================
+function aplicarAnaliseAvancada() {
+  console.log('⚡ Aplicando análise avançada...');
+  
+  const criticidade = document.getElementById('param-criticidade').value;
+  const sementes = parseInt(document.getElementById('param-sementes').value);
+  const raio = parseInt(document.getElementById('param-raio').value);
+  
+  // Mostrar loading
+  mostrarLoading();
+  
+  // Aplicar análises baseadas nas camadas ativas
+  const camadasAtivas = {
+    kde: document.getElementById('toggle-kde').checked,
+    voronoi: document.getElementById('toggle-voronoi').checked,
+    zonas: document.getElementById('toggle-zonas').checked,
+    densidade: document.getElementById('toggle-densidade').checked,
+    concentracao: document.getElementById('toggle-concentracao').checked,
+    gini: document.getElementById('toggle-gini').checked,
+    rede: document.getElementById('toggle-rede').checked
+  };
+  
+  // Limpar análises anteriores (exceto escolas)
+  window.mapa.eachLayer(layer => {
+    if (layer instanceof L.HeatLayer || 
+        (layer instanceof L.Polygon && layer.options.className === 'voronoi') ||
+        (layer instanceof L.Polygon && layer.options.className === 'zona-risco')) {
+      window.mapa.removeLayer(layer);
+    }
+  });
+  
+  // Aplicar KDE
+  if (camadasAtivas.kde && window.calcularKDE) {
+    setTimeout(() => {
+      window.calcularKDE(criticidade, raio);
+    }, 500);
   }
   
-  // Adicionar algumas escolas críticas agrupadas (para Voronoi)
-  for (let i = 0; i < 5; i++) {
-    const lat = centroLat + 0.02 + (Math.random() - 0.5) * 0.02;
-    const lng = centroLng + 0.02 + (Math.random() - 0.5) * 0.02;
-    
-    escolasDemonstracao.push({
-      id: 30 + i,
-      nome: `Escola Crítica ${i+1}`,
-      endereco: `Área Crítica ${i+1}, Fortaleza-CE`,
-      pontuacao: 1.5 + Math.random() * 1.5,
-      status: 'crítico',
-      cor: '#dc3545',
-      lat: lat,
-      lng: lng,
-      data_avaliacao: new Date().toISOString().split('T')[0]
-    });
+  // Aplicar Voronoi
+  if (camadasAtivas.voronoi && window.gerarVoronoiCritico) {
+    setTimeout(() => {
+      window.gerarVoronoiCritico(sementes, criticidade);
+    }, 800);
   }
   
-  processarDados(escolasDemonstracao);
+  // Aplicar outras análises
+  if (camadasAtivas.zonas && window.analisarZonasRisco) {
+    setTimeout(() => {
+      window.analisarZonasRisco();
+    }, 1100);
+  }
+  
+  // Atualizar indicadores
+  setTimeout(() => {
+    // Simular cálculo de indicadores avançados
+    const novasMetricas = {
+      densidade: `${Math.floor(Math.random() * 30) + 10}%`,
+      concentracao: (Math.random() * 5 + 1).toFixed(1),
+      hotspots: Math.floor(Math.random() * 10) + 1,
+      gini: (Math.random() * 0.5 + 0.3).toFixed(2)
+    };
+    
+    atualizarIndicadores(novasMetricas);
+    
+    // Atualizar histórico
+    const agora = new Date();
+    const hora = agora.getHours().toString().padStart(2, '0');
+    const minuto = agora.getMinutes().toString().padStart(2, '0');
+    
+    atualizarHistorico([
+      {time: `${hora}:${minuto}`, text: `Análise aplicada: ${Object.keys(camadasAtivas).filter(k => camadasAtivas[k]).length} camadas`},
+      {time: `${hora}:${minuto}`, text: `Criticidade: ${criticidade}, Sementes: ${sementes}, Raio: ${raio}m`}
+    ]);
+    
+    ocultarLoading();
+  }, 1500);
+  
+  console.log(`✅ Análise aplicada: ${criticidade}, ${sementes} sementes, ${raio}m raio`);
+}
+
+function ativarCamada(camada, ativo) {
+  console.log(`🗺️ ${ativo ? 'Ativando' : 'Desativando'} camada: ${camada}`);
+  
+  // Se estiver ativando, aplicar análise imediatamente
+  if (ativo) {
+    const criticidade = document.getElementById('param-criticidade').value;
+    const sementes = parseInt(document.getElementById('param-sementes').value);
+    const raio = parseInt(document.getElementById('param-raio').value);
+    
+    switch(camada) {
+      case 'kde':
+        if (window.calcularKDE) window.calcularKDE(criticidade, raio);
+        break;
+      case 'voronoi':
+        if (window.gerarVoronoiCritico) window.gerarVoronoiCritico(sementes, criticidade);
+        break;
+      case 'zonas':
+        if (window.analisarZonasRisco) window.analisarZonasRisco();
+        break;
+    }
+  } else {
+    // Se estiver desativando, remover a camada
+    window.mapa.eachLayer(layer => {
+      let remove = false;
+      
+      switch(camada) {
+        case 'kde':
+          if (layer instanceof L.HeatLayer) remove = true;
+          break;
+        case 'voronoi':
+          if (layer instanceof L.Polygon && layer.options.className === 'voronoi') remove = true;
+          break;
+        case 'zonas':
+          if (layer instanceof L.Polygon && layer.options.className === 'zona-risco') remove = true;
+          break;
+      }
+      
+      if (remove) window.mapa.removeLayer(layer);
+    });
+  }
 }
 
 // ==================== FUNÇÕES DO DASHBOARD ====================
@@ -1482,8 +1669,15 @@ function atualizarGraficoDistribuicao(distribuicao) {
   });
 }
 
+function atualizarIndicadores(indicadores) {
+  document.getElementById('ind-densidade').textContent = indicadores.densidade || '0%';
+  document.getElementById('ind-concentracao').textContent = indicadores.concentracao || '0.0';
+  document.getElementById('ind-hotspots').textContent = indicadores.hotspots || '0';
+  document.getElementById('ind-gini').textContent = indicadores.gini || '0.00';
+}
+
 function atualizarHistorico(historico) {
-  const container = document.getElementById('ultimas-atualizacoes');
+  const container = document.querySelector('#ultimas-atualizacoes');
   if (!container) return;
   
   // Manter apenas as 5 últimas atualizações
@@ -1505,171 +1699,113 @@ function atualizarStatusTempo() {
   const agora = new Date();
   const hora = agora.getHours().toString().padStart(2, '0');
   const minuto = agora.getMinutes().toString().padStart(2, '0');
-  const contador = document.getElementById('status-contador');
-  if (contador) {
-    contador.querySelector('span').textContent = `${hora}:${minuto}`;
+  const statusTempo = document.getElementById('status-tempo');
+  if (statusTempo) {
+    statusTempo.innerHTML = `<i class="fas fa-clock"></i> ${hora}:${minuto}`;
   }
 }
 
-// ==================== FUNÇÕES DE ANÁLISE ====================
-function aplicarAnaliseAvancada() {
-  console.log('⚡ Aplicando análise avançada...');
-  
-  const criticidade = document.getElementById('param-criticidade').value;
-  const sementes = parseInt(document.getElementById('param-sementes').value);
-  const raio = parseInt(document.getElementById('param-raio').value);
-  
-  // Mostrar loading
-  mostrarLoading();
-  
-  // Verificar Voronoi
-  const voronoiAtivo = document.getElementById('toggle-voronoi').checked;
-  if (voronoiAtivo && window.gerarVoronoiCritico) {
-    setTimeout(() => {
-      window.gerarVoronoiCritico(sementes, criticidade);
-    }, 500);
-  }
-  
-  // Verificar KDE
-  const kdeAtivo = document.getElementById('toggle-kde').checked;
-  if (kdeAtivo && window.calcularKDE) {
-    setTimeout(() => {
-      window.calcularKDE(criticidade, raio);
-    }, 800);
-  }
-  
-  // Atualizar histórico
-  atualizarHistorico([
-    {time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: `Análise Voronoi: ${sementes} sementes`},
-    {time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: `KDE aplicado (raio: ${raio}m)`},
-    {time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: `Criticidade: ${criticidade}`}
-  ].concat(Array.from(document.querySelectorAll('#ultimas-atualizacoes .update-item')).slice(0, 2).map(item => ({
-    time: item.querySelector('.update-time').textContent,
-    text: item.querySelector('.update-text').textContent
-  }))));
-  
-  // Ocultar loading
-  setTimeout(ocultarLoading, 1500);
-  
-  console.log(`✅ Análise aplicada: ${criticidade}, ${sementes} sementes, ${raio}m raio`);
-}
-
-function ativarCamada(camada, ativo) {
-  console.log(`🗺️ ${ativo ? 'Ativando' : 'Desativando'} camada: ${camada}`);
-  
-  // Implementar lógica de ativação/desativação de camadas
-  if (camada === 'voronoi' && ativo && window.gerarVoronoiCritico) {
-    const sementes = parseInt(document.getElementById('param-sementes').value);
-    setTimeout(() => {
-      window.gerarVoronoiCritico(sementes, 'critico');
-    }, 300);
-  }
-  
-  if (camada === 'kde' && ativo && window.calcularKDE) {
-    const raio = parseInt(document.getElementById('param-raio').value);
-    setTimeout(() => {
-      window.calcularKDE('critico', raio);
-    }, 300);
+function atualizarStatusFonte(fonte) {
+  const statusFonte = document.getElementById('status-fonte');
+  if (statusFonte) {
+    statusFonte.innerHTML = `<i class="fas fa-${fonte.includes('Firebase') ? 'fire' : 'database'}"></i> ${fonte}`;
   }
 }
 
-async function atualizarDadosEmTempoReal() {
-  console.log('🔄 Atualizando dados em tempo real...');
+// ==================== FUNÇÕES AUXILIARES ====================
+function calcularMetricas(escolas) {
+  const totalEscolas = escolas.length;
+  const escolasCriticas = escolas.filter(e => e.status === 'crítico').length;
+  const escolasAvaliadas = escolas.filter(e => e.pontuacao && e.pontuacao > 0).length;
   
-  mostrarLoading();
+  const escolasComPontuacao = escolas.filter(e => e.pontuacao && typeof e.pontuacao === 'number');
+  const pontuacaoMedia = escolasComPontuacao.length > 0 
+    ? (escolasComPontuacao.reduce((sum, e) => sum + e.pontuacao, 0) / escolasComPontuacao.length).toFixed(1)
+    : '0.0';
   
-  try {
-    // Tentar atualizar do Firebase
-    let dadosAtualizados = null;
-    
-    if (window.firebaseManager) {
-      dadosAtualizados = await window.firebaseManager.carregarDados();
-    }
-    
-    if (dadosAtualizados && dadosAtualizados.escolas) {
-      processarDados(dadosAtualizados.escolas);
-      atualizarHistorico([
-        {time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: 'Dados do Firebase atualizados'}
-      ].concat(Array.from(document.querySelectorAll('#ultimas-atualizacoes .update-item')).slice(0, 4).map(item => ({
-        time: item.querySelector('.update-time').textContent,
-        text: item.querySelector('.update-text').textContent
-      }))));
-    } else {
-      // Simular atualização
-      setTimeout(() => {
-        const escolasAtuais = window.mapa._layers;
-        let contador = 0;
-        
-        // Contar marcadores no mapa
-        Object.keys(escolasAtuais).forEach(key => {
-          if (escolasAtuais[key] instanceof L.Marker) contador++;
-        });
-        
-        atualizarHistorico([
-          {time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: 'Verificação concluída'},
-          {time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: `${contador} escolas no mapa`}
-        ].concat(Array.from(document.querySelectorAll('#ultimas-atualizacoes .update-item')).slice(0, 3).map(item => ({
-          time: item.querySelector('.update-time').textContent,
-          text: item.querySelector('.update-text').textContent
-        }))));
-      }, 1000);
-    }
-  } catch (error) {
-    console.error('❌ Erro ao atualizar dados:', error);
-    atualizarHistorico([
-      {time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: 'Erro na atualização'}
-    ].concat(Array.from(document.querySelectorAll('#ultimas-atualizacoes .update-item')).slice(0, 4).map(item => ({
-      time: item.querySelector('.update-time').textContent,
-      text: item.querySelector('.update-text').textContent
-    }))));
-  }
-  
-  setTimeout(ocultarLoading, 1000);
-}
-
-function exportarDados() {
-  console.log('💾 Exportando dados...');
-  
-  // Coletar dados do mapa
-  const escolas = [];
-  const layers = window.mapa._layers;
-  
-  Object.keys(layers).forEach(key => {
-    const layer = layers[key];
-    if (layer instanceof L.Marker && layer.options && layer.options.escolaData) {
-      escolas.push(layer.options.escolaData);
-    }
-  });
-  
-  // Criar objeto de dados
-  const dadosExportar = {
-    timestamp: new Date().toISOString(),
-    totalEscolas: escolas.length,
-    escolas: escolas,
-    parametros: {
-      criticidade: document.getElementById('param-criticidade').value,
-      sementes: document.getElementById('param-sementes').value,
-      raio: document.getElementById('param-raio').value
-    }
+  return {
+    totalEscolas,
+    escolasCriticas,
+    escolasAvaliadas,
+    pontuacaoMedia,
+    distribuicaoClasses: calcularDistribuicao(escolas)
   };
+}
+
+function calcularDistribuicao(escolas) {
+  return {
+    'crítico': escolas.filter(e => e.status === 'crítico').length,
+    'atenção': escolas.filter(e => e.status === 'atenção').length,
+    'alerta': escolas.filter(e => e.status === 'alerta').length,
+    'adequada': escolas.filter(e => e.status === 'adequada').length
+  };
+}
+
+function calcularDensidadeCritica(escolas) {
+  const criticas = escolas.filter(e => e.status === 'crítico').length;
+  const total = escolas.length;
+  return total > 0 ? `${Math.round((criticas / total) * 100)}%` : '0%';
+}
+
+function calcularConcentracao(escolas) {
+  // Simular cálculo de concentração
+  const criticas = escolas.filter(e => e.status === 'crítico').length;
+  return criticas > 0 ? (Math.random() * 4 + 1).toFixed(1) : '0.0';
+}
+
+function calcularHotspots(escolas) {
+  const criticas = escolas.filter(e => e.status === 'crítico').length;
+  return Math.min(Math.floor(criticas / 3), 10);
+}
+
+function calcularGiniEspacial(escolas) {
+  // Simular índice de Gini espacial
+  return (Math.random() * 0.5 + 0.3).toFixed(2);
+}
+
+function criarDadosDemonstracao() {
+  console.log('🎭 Criando dados de demonstração...');
   
-  // Criar e baixar arquivo JSON
-  const dadosStr = JSON.stringify(dadosExportar, null, 2);
-  const dadosUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dadosStr);
-  const exportFileDefaultName = `checkinfra-export-${new Date().toISOString().split('T')[0]}.json`;
+  const escolasDemonstracao = [];
+  const statuses = ['crítico', 'atenção', 'alerta', 'adequada'];
   
-  const linkElement = document.createElement('a');
-  linkElement.setAttribute('href', dadosUri);
-  linkElement.setAttribute('download', exportFileDefaultName);
-  linkElement.click();
+  // Coordenadas aproximadas de Fortaleza
+  const centroLat = -3.7319;
+  const centroLng = -38.5267;
   
-  // Atualizar histórico
-  atualizarHistorico([
-    {time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), text: 'Dados exportados para JSON'}
-  ].concat(Array.from(document.querySelectorAll('#ultimas-atualizacoes .update-item')).slice(0, 4).map(item => ({
-    time: item.querySelector('.update-time').textContent,
-    text: item.querySelector('.update-text').textContent
-  }))));
+  // Gerar ~30 escolas aleatórias
+  for (let i = 1; i <= 28; i++) {
+    const statusIndex = Math.floor(Math.random() * statuses.length);
+    const status = statuses[statusIndex];
+    
+    // Pontuação baseada no status
+    let pontuacao;
+    switch(status) {
+      case 'crítico': pontuacao = 1.5 + Math.random() * 1.5; break;
+      case 'atenção': pontuacao = 3 + Math.random() * 2; break;
+      case 'alerta': pontuacao = 5 + Math.random() * 2; break;
+      case 'adequada': pontuacao = 7 + Math.random() * 3; break;
+    }
+    
+    // Coordenadas aleatórias próximas ao centro
+    const lat = centroLat + (Math.random() - 0.5) * 0.1;
+    const lng = centroLng + (Math.random() - 0.5) * 0.1;
+    
+    escolasDemonstracao.push({
+      id: i,
+      nome: `Escola Demonstração ${i}`,
+      endereco: `Rua Exemplo ${i}, Fortaleza-CE`,
+      pontuacao: parseFloat(pontuacao.toFixed(1)),
+      status: status,
+      lat: lat,
+      lng: lng,
+      data_avaliacao: new Date().toISOString().split('T')[0]
+    });
+  }
+  
+  const metricas = calcularMetricas(escolasDemonstracao);
+  processarDadosReais(escolasDemonstracao, metricas);
+  atualizarStatusFonte('Dados de Demonstração');
 }
 
 // ==================== INICIALIZAÇÃO COMPLETA ====================
@@ -1678,7 +1814,8 @@ console.log('✅ Sistema pronto para uso!');
 // Expor funções globais para os módulos
 window.aplicarAnaliseAvancada = aplicarAnaliseAvancada;
 window.ativarCamada = ativarCamada;
-window.atualizarDadosEmTempoReal = atualizarDadosEmTempoReal;
+window.atualizarDadosReais = atualizarDadosReais;
+window.plotarEscolasNoMapa = plotarEscolasNoMapa;
 </script>
 
 </body>

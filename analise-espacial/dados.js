@@ -1,4 +1,5 @@
-// dados.js - VERSÃO CORRIGIDA PARA INTEGRAÇÃO COMPLETA
+// dados.js - PRIORIZANDO DADOS DO FIREBASE
+
 class DadosManager {
   constructor() {
     this.dados = {
@@ -9,37 +10,37 @@ class DadosManager {
     };
     
     this.eventListeners = new Map();
+    this.ultimaAtualizacao = null;
+    this.cacheFirebase = null;
+    this.cacheLocal = null;
   }
   
   async inicializar() {
-    console.log('🚀 Inicializando sistema de dados...');
+    console.log('🚀 Inicializando sistema de dados (Firebase primeiro)...');
     this.dados.status = 'carregando';
     this.notificar('status', 'carregando');
     
     try {
-      // 1. Carregar escolas locais (sempre primeiro)
-      await this.carregarEscolasLocais();
+      // 1. PRIMEIRO: Tentar carregar do Firebase
+      console.log('📡 Priorizando Firebase como fonte principal...');
+      const sucessoFirebase = await this.carregarDoFirebase();
       
-      // 2. Tentar carregar do Firebase (mas não bloquear)
-      this.carregarAvaliacoesFirebase().then(avaliacoes => {
-        console.log(`📡 ${avaliacoes.length} avaliações do Firebase processadas`);
-        
-        // 3. Combinar dados quando Firebase terminar
-        this.combinarDadosComFirebase(avaliacoes);
-        
-        // 4. Calcular métricas
-        this.calcularMetricas();
-        
-        // 5. Notificar que dados estão prontos
-        this.notificar('dados_atualizados', this.dados);
-      }).catch(error => {
-        console.warn('⚠️ Firebase falhou, usando apenas dados locais');
-        this.calcularMetricas();
-        this.notificar('dados_atualizados', this.dados);
-      });
+      // 2. SE FIREBASE FALHAR: Usar dados locais
+      if (!sucessoFirebase || this.dados.escolas.length === 0) {
+        console.log('⚠️ Firebase sem dados, usando backup local...');
+        await this.carregarDoLocal();
+      }
       
-      // Marcar como pronto (não esperar pelo Firebase)
+      // 3. Processar métricas
+      this.calcularMetricas();
+      
       this.dados.status = 'pronto';
+      this.ultimaAtualizacao = new Date();
+      
+      console.log(`✅ Sistema inicializado: ${this.dados.escolas.length} escolas carregadas`);
+      console.log(`📊 Fonte principal: ${sucessoFirebase ? 'Firebase' : 'Local'}`);
+      
+      this.notificar('dados_atualizados', this.dados);
       this.notificar('status', 'pronto');
       
       return this.dados;
@@ -52,99 +53,90 @@ class DadosManager {
     }
   }
   
-  carregarEscolasLocais() {
-    console.log('📂 Carregando escolas locais...');
-    
-    // Verificar se já temos as escolas no window
-    if (window.escolas && Array.isArray(window.escolas)) {
-      console.log(`📂 ${window.escolas.length} escolas encontradas no window.escolas`);
-      
-      // Processar escolas locais
-      this.dados.escolas = window.escolas.map((escola, index) => ({
-        id: `local-${index}`,
-        nome: escola.nome || `Escola ${index}`,
-        lat: parseFloat(escola.lat) || -3.717,
-        lng: parseFloat(escola.lng) || -38.543,
-        fonte: 'local',
-        classe: 'não avaliada',
-        pontuacao: 0,
-        peso: window.PESOS_CLASSE ? window.PESOS_CLASSE['não avaliada'] : 0.5,
-        avaliacoes: [],
-        metadata: { indice: index }
-      }));
-      
-      console.log(`✅ ${this.dados.escolas.length} escolas locais processadas`);
-      return this.dados.escolas;
-    }
-    
-    console.warn('⚠️ Nenhuma escola local encontrada');
-    return [];
-  }
-  
-  async carregarAvaliacoesFirebase() {
-    console.log('📡 Conectando ao Firebase...');
-    
-    // Verificar se Firebase está disponível
-    if (!window.firebaseManager) {
-      console.warn('⚠️ FirebaseManager não disponível');
-      return [];
-    }
-    
+  async carregarDoFirebase() {
     try {
-      // Testar conexão
-      const conectado = await window.firebaseManager.testarConexao();
-      if (!conectado) {
-        console.warn('⚠️ Sem conexão com Firebase');
-        return [];
+      if (!window.firebaseManager) {
+        console.warn('⚠️ Firebase não disponível');
+        return false;
       }
+      
+      console.log('🔥 Buscando dados do Firebase...');
       
       // Buscar avaliações
       const avaliacoes = await window.firebaseManager.buscarTodasAvaliacoes();
-      this.dados.avaliacoes = avaliacoes;
       
-      console.log(`✅ ${avaliacoes.length} avaliações do Firebase`);
+      if (avaliacoes.length === 0) {
+        console.log('📭 Firebase retornou 0 avaliações');
+        return false;
+      }
       
-      return avaliacoes;
+      console.log(`✅ ${avaliacoes.length} avaliações encontradas no Firebase`);
+      
+      // Processar avaliações para criar escolas únicas
+      this.processarAvaliacoesFirebase(avaliacoes);
+      
+      // Cache dos dados do Firebase
+      this.cacheFirebase = {
+        avaliacoes: avaliacoes,
+        escolas: [...this.dados.escolas],
+        timestamp: new Date()
+      };
+      
+      return true;
       
     } catch (error) {
-      console.error('❌ Erro no Firebase:', error);
-      return [];
+      console.error('❌ Erro ao carregar do Firebase:', error);
+      return false;
     }
   }
   
-  combinarDadosComFirebase(avaliacoesFirebase) {
-    console.log('🔗 Combinando dados locais com Firebase...');
+  processarAvaliacoesFirebase(avaliacoes) {
+    console.log('🔗 Processando avaliações do Firebase...');
     
-    // Se não houver avaliações do Firebase, apenas usar locais
-    if (!avaliacoesFirebase || avaliacoesFirebase.length === 0) {
-      console.log('⚠️ Nenhuma avaliação do Firebase para combinar');
-      return;
-    }
-    
-    // Mapa para armazenar escolas únicas por nome
+    // Agrupar avaliações por escola (chave única)
     const escolasMap = new Map();
     
-    // Primeiro, adicionar todas as escolas locais ao mapa
-    this.dados.escolas.forEach(escola => {
-      const chave = escola.nome.toLowerCase().trim();
-      escolasMap.set(chave, { ...escola });
-    });
+    // Ordenar por data (mais recente primeiro)
+    const avaliacoesOrdenadas = [...avaliacoes].sort((a, b) => 
+      new Date(b.createdAt) - new Date(a.createdAt)
+    );
     
-    // Agora, processar avaliações do Firebase
-    avaliacoesFirebase.forEach(avaliacao => {
-      const chave = avaliacao.nome.toLowerCase().trim();
+    // Processar cada avaliação
+    avaliacoesOrdenadas.forEach(avaliacao => {
+      // Criar chave única baseada em nome e coordenadas
+      const chave = this.criarChaveEscola(avaliacao);
       
-      if (escolasMap.has(chave)) {
-        // Escola já existe, atualizar com dados do Firebase
+      if (!escolasMap.has(chave)) {
+        // Nova escola
+        escolasMap.set(chave, {
+          id: `fb-${avaliacao.id || Date.now()}`,
+          nome: avaliacao.nome,
+          lat: avaliacao.lat,
+          lng: avaliacao.lng,
+          fonte: 'firebase',
+          avaliacoes: [avaliacao],
+          // Usar dados da avaliação mais recente
+          classe: avaliacao.classe,
+          pontuacao: avaliacao.pontuacao,
+          peso: this.calcularPeso(avaliacao.classe, avaliacao.pontuacao),
+          createdAt: avaliacao.createdAt,
+          updatedAt: avaliacao.createdAt,
+          metadata: {
+            totalAvaliacoes: 1,
+            primeiraAvaliacao: avaliacao.createdAt,
+            ultimaAvaliacao: avaliacao.createdAt
+          }
+        });
+      } else {
+        // Escola já existe, atualizar
         const escola = escolasMap.get(chave);
         
         // Adicionar avaliação
-        if (!escola.avaliacoes) escola.avaliacoes = [];
         escola.avaliacoes.push(avaliacao);
         
-        // Atualizar classe se for mais crítica
-        const pesoAtual = window.PESOS_CLASSE ? window.PESOS_CLASSE[escola.classe] || 0 : 0;
-        const pesoNovo = window.PESOS_CLASSE ? window.PESOS_CLASSE[avaliacao.classe] || 0 : 0;
+        // Manter a classe mais crítica
+        const pesoAtual = this.calcularPeso(escola.classe, escola.pontuacao);
+        const pesoNovo = this.calcularPeso(avaliacao.classe, avaliacao.pontuacao);
         
         if (pesoNovo > pesoAtual) {
           escola.classe = avaliacao.classe;
@@ -152,30 +144,81 @@ class DadosManager {
           escola.peso = pesoNovo;
         }
         
-        // Marcar que tem dados do Firebase
-        escola.fonte = 'local+firebase';
-        
-      } else {
-        // Escola nova do Firebase (não está na lista local)
-        escolasMap.set(chave, {
-          id: `firebase-${avaliacao.id}`,
-          nome: avaliacao.nome,
-          lat: avaliacao.lat,
-          lng: avaliacao.lng,
-          fonte: 'firebase',
-          classe: avaliacao.classe,
-          pontuacao: avaliacao.pontuacao,
-          peso: window.PESOS_CLASSE ? window.PESOS_CLASSE[avaliacao.classe] || 0.5 : 0.5,
-          avaliacoes: [avaliacao],
-          metadata: { fonte: 'firebase' }
-        });
+        // Atualizar metadados
+        escola.metadata.totalAvaliacoes++;
+        escola.updatedAt = avaliacao.createdAt;
+        escola.metadata.ultimaAvaliacao = avaliacao.createdAt;
       }
     });
     
-    // Converter mapa de volta para array
+    // Converter mapa para array
     this.dados.escolas = Array.from(escolasMap.values());
+    this.dados.avaliacoes = avaliacoes;
     
-    console.log(`🔗 ${this.dados.escolas.length} escolas após combinação`);
+    console.log(`✅ ${this.dados.escolas.length} escolas únicas do Firebase`);
+  }
+  
+  async carregarDoLocal() {
+    try {
+      console.log('📂 Carregando backup local...');
+      
+      // Verificar se escolas locais existem
+      if (!window.escolas || !Array.isArray(window.escolas)) {
+        console.warn('⚠️ Nenhuma escola local encontrada');
+        this.dados.escolas = [];
+        return false;
+      }
+      
+      // Processar escolas locais
+      const escolasLocais = window.escolas.map((escola, index) => ({
+        id: `local-${index}`,
+        nome: escola.nome,
+        lat: escola.lat,
+        lng: escola.lng,
+        fonte: 'local',
+        classe: 'não avaliada',
+        pontuacao: 0,
+        peso: 0.5,
+        avaliacoes: [],
+        metadata: {
+          backup: true
+        }
+      }));
+      
+      this.dados.escolas = escolasLocais;
+      this.cacheLocal = escolasLocais;
+      
+      console.log(`✅ ${escolasLocais.length} escolas do backup local`);
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Erro ao carregar backup local:', error);
+      return false;
+    }
+  }
+  
+  criarChaveEscola(avaliacao) {
+    // Criar chave única baseada em nome normalizado e coordenadas arredondadas
+    const nomeNormalizado = avaliacao.nome.toLowerCase().trim().replace(/\s+/g, '_');
+    const latArredondada = Math.round(avaliacao.lat * 10000) / 10000; // 4 casas decimais
+    const lngArredondada = Math.round(avaliacao.lng * 10000) / 10000;
+    
+    return `${nomeNormalizado}_${latArredondada}_${lngArredondada}`;
+  }
+  
+  calcularPeso(classe, pontuacao) {
+    const pesosBase = {
+      'adequada': 1,
+      'alerta': 2,
+      'atenção': 3,
+      'crítico': 5,
+      'não avaliada': 0.5
+    };
+    
+    const pesoClasse = pesosBase[classe] || 0.5;
+    const pesoPontuacao = pontuacao ? pontuacao / 100 : 0;
+    
+    return pesoClasse + pesoPontuacao;
   }
   
   calcularMetricas() {
@@ -183,21 +226,11 @@ class DadosManager {
     const total = escolas.length;
     
     if (total === 0) {
-      this.dados.metricas = {
-        totalEscolas: 0,
-        escolasCriticas: 0,
-        escolasAvaliadas: 0,
-        percentualCriticas: '0.0',
-        percentualAvaliadas: '0.0',
-        pontuacaoMedia: '0.0',
-        distribuicaoClasses: {},
-        ultimaAtualizacao: new Date().toISOString(),
-        fonteDados: 'Nenhuma'
-      };
+      this.dados.metricas = this.metricasVazias();
       return;
     }
     
-    // Calcular distribuição por classe
+    // Distribuição por classe
     const distribuicao = {};
     escolas.forEach(escola => {
       distribuicao[escola.classe] = (distribuicao[escola.classe] || 0) + 1;
@@ -210,19 +243,42 @@ class DadosManager {
     const media = pontuacoes.length > 0 ? 
       pontuacoes.reduce((a, b) => a + b, 0) / pontuacoes.length : 0;
     
+    // Escolas com dados do Firebase
+    const escolasFirebase = escolas.filter(e => e.fonte === 'firebase').length;
+    
     this.dados.metricas = {
       totalEscolas: total,
       escolasCriticas,
       escolasAvaliadas,
+      escolasFirebase,
       percentualCriticas: ((escolasCriticas / total) * 100).toFixed(1),
       percentualAvaliadas: ((escolasAvaliadas / total) * 100).toFixed(1),
+      percentualFirebase: ((escolasFirebase / total) * 100).toFixed(1),
       pontuacaoMedia: media.toFixed(1),
       distribuicaoClasses: distribuicao,
       ultimaAtualizacao: new Date().toISOString(),
-      fonteDados: this.dados.avaliacoes.length > 0 ? 'Firebase + Local' : 'Local apenas'
+      fontePrincipal: escolasFirebase > 0 ? 'Firebase' : 'Local',
+      status: 'ativo'
     };
     
     console.log('📊 Métricas calculadas:', this.dados.metricas);
+  }
+  
+  metricasVazias() {
+    return {
+      totalEscolas: 0,
+      escolasCriticas: 0,
+      escolasAvaliadas: 0,
+      escolasFirebase: 0,
+      percentualCriticas: '0.0',
+      percentualAvaliadas: '0.0',
+      percentualFirebase: '0.0',
+      pontuacaoMedia: '0.0',
+      distribuicaoClasses: {},
+      ultimaAtualizacao: new Date().toISOString(),
+      fontePrincipal: 'Nenhuma',
+      status: 'inativo'
+    };
   }
   
   // Métodos de acesso
@@ -230,8 +286,12 @@ class DadosManager {
     return this.dados.escolas; 
   }
   
-  getAvaliacoes() { 
-    return this.dados.avaliacoes; 
+  getEscolasCriticas() {
+    return this.dados.escolas.filter(e => e.classe === 'crítico');
+  }
+  
+  getEscolasPorClasse(classe) {
+    return this.dados.escolas.filter(e => e.classe === classe);
   }
   
   getMetricas() { 
@@ -240,6 +300,10 @@ class DadosManager {
   
   getStatus() { 
     return this.dados.status; 
+  }
+  
+  getUltimaAtualizacao() {
+    return this.ultimaAtualizacao;
   }
   
   // Sistema de eventos
@@ -261,20 +325,24 @@ class DadosManager {
       });
     }
   }
+  
+  // Verificar se há dados do Firebase
+  temDadosFirebase() {
+    return this.dados.escolas.some(e => e.fonte === 'firebase');
+  }
 }
 
-// Criar e inicializar o gerenciador de dados
+// Inicializar sistema
 const dadosManager = new DadosManager();
 window.dadosManager = dadosManager;
 
 // Inicializar quando a página carregar
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('📊 Inicializando sistema de dados...');
+  console.log('📊 Sistema de dados pronto para inicialização');
   
-  // Aguardar um pouco para garantir que tudo está carregado
   setTimeout(() => {
     dadosManager.inicializar();
   }, 1500);
 });
 
-console.log('✅ Sistema de dados carregado');
+console.log('✅ Sistema de dados (Firebase primeiro) carregado');

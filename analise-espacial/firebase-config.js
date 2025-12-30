@@ -1,7 +1,6 @@
-// firebase-config.js - VERSÃO CORRIGIDA
-// IMPORTANTE: Use Firebase v9+ (modular)
+// firebase-config.js - VERSÃO COMPAT (CORRIGIDA)
 
-// 🔥 Configuração do Firebase (mantenha suas credenciais)
+// 🔥 Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
@@ -11,22 +10,33 @@ const firebaseConfig = {
   appId: "1:206434271838:web:347d68e6956fe26ee1eacf"
 };
 
-// Inicializar Firebase apenas uma vez
-let firebaseApp, firestoreDb, firebaseManager;
+// Variáveis globais
+let firebaseApp = null;
+let firestoreDb = null;
+let firebaseManager = null;
 
 try {
-  // Verificar se Firebase já foi carregado
-  if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
-    firebaseApp = firebase.initializeApp(firebaseConfig);
+  // Verificar se firebase está disponível (versão compat)
+  if (typeof firebase !== 'undefined') {
+    // Inicializar apenas se não foi inicializado
+    if (!firebase.apps.length) {
+      firebaseApp = firebase.initializeApp(firebaseConfig);
+    } else {
+      firebaseApp = firebase.app();
+    }
+    
     firestoreDb = firebase.firestore();
     
-    console.log('✅ Firebase inicializado com sucesso!');
-  } else if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-    firebaseApp = firebase.app();
-    firestoreDb = firebase.firestore();
-    console.log('✅ Firebase já estava inicializado');
+    console.log('✅ Firebase COMPAT inicializado com sucesso!');
+    
+    // Testar conexão
+    firestoreDb.collection('avaliacoes').limit(1).get()
+      .then(() => console.log('✅ Conexão com Firestore estabelecida'))
+      .catch(err => console.warn('⚠️ Firestore disponível, mas erro na consulta:', err.message));
+    
   } else {
-    console.warn('⚠️ Firebase não encontrado. Usando modo offline.');
+    console.warn('⚠️ Firebase não encontrado. Certifique-se de usar:');
+    console.warn('   firebase-app-compat.js e firebase-firestore-compat.js');
   }
 } catch (error) {
   console.error('❌ Erro ao inicializar Firebase:', error);
@@ -46,26 +56,27 @@ const FirebaseManager = {
   async buscarTodasAvaliacoes() {
     try {
       if (!firestoreDb) {
-        console.warn('⚠️ Firestore não disponível. Retornando array vazio.');
+        console.warn('⚠️ Firestore não disponível. Verifique a conexão.');
         return [];
       }
       
       console.log('📡 Buscando avaliações do Firebase...');
       const snapshot = await firestoreDb.collection('avaliacoes')
         .orderBy('createdAt', 'desc')
-        .limit(100) // Limitar para evitar sobrecarga
+        .limit(500) // Limite razoável
         .get();
       
       const avaliacoes = [];
       snapshot.forEach(doc => {
         const data = doc.data();
-        // Tratar timestamps corretamente
+        
+        // Extrair timestamp corretamente
         let createdAt = new Date();
         if (data.createdAt) {
-          if (data.createdAt.toDate) {
+          if (data.createdAt.toDate && typeof data.createdAt.toDate === 'function') {
             createdAt = data.createdAt.toDate();
-          } else if (data.createdAt instanceof Date) {
-            createdAt = data.createdAt;
+          } else if (data.createdAt._seconds) {
+            createdAt = new Date(data.createdAt._seconds * 1000);
           }
         }
         
@@ -84,8 +95,7 @@ const FirebaseManager = {
       console.log(`✅ ${avaliacoes.length} avaliações carregadas do Firebase`);
       return avaliacoes;
     } catch (error) {
-      console.error('❌ Erro ao buscar avaliações:', error);
-      // Retornar array vazio para continuar funcionando
+      console.error('❌ Erro ao buscar avaliações:', error.message || error);
       return [];
     }
   },
@@ -111,15 +121,35 @@ const FirebaseManager = {
     }
   },
   
-  // Testar conexão
   async testarConexao() {
     try {
-      if (!firestoreDb) return false;
+      if (!firestoreDb) {
+        console.log('⚠️ Firestore não disponível para teste');
+        return false;
+      }
+      
+      // Teste simples
       await firestoreDb.collection('avaliacoes').limit(1).get();
       return true;
     } catch (error) {
-      console.error('❌ Teste de conexão falhou:', error);
+      console.log('❌ Teste de conexão falhou:', error.message);
       return false;
+    }
+  },
+  
+  async buscarAvaliacoesRecentes(limite = 50) {
+    try {
+      if (!firestoreDb) return [];
+      
+      const snapshot = await firestoreDb.collection('avaliacoes')
+        .orderBy('createdAt', 'desc')
+        .limit(limite)
+        .get();
+      
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error('Erro ao buscar avaliações recentes:', error);
+      return [];
     }
   }
 };
@@ -130,4 +160,4 @@ window.firestoreDb = firestoreDb;
 window.PESOS_CLASSE = PESOS_CLASSE;
 window.firebaseApp = firebaseApp;
 
-console.log('🔥 Firebase configurado para análise espacial');
+console.log('🔥 Firebase configurado (modo compat)');

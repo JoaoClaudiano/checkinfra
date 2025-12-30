@@ -10,6 +10,7 @@ headersPareto.forEach(header => {
       h.nextElementSibling.style.maxHeight = null;
     });
 
+
     if (!isOpen) {
       header.classList.add("active");
       content.style.maxHeight = content.scrollHeight + "px";

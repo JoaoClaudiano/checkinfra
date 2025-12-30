@@ -8,28 +8,483 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="estilo-avancado.css">
 
 <style>
-/* ESTILOS ESPECÍFICOS PARA MARKERS E POPUPS DO MAPA */
+/* ====== RESET E ESTILOS GERAIS ====== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f8f9fa;
+  color: #333;
+  overflow-x: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ====== HEADER MOBILE-FIRST ====== */
+.header {
+  background: linear-gradient(135deg, #1f4fd8 0%, #0d3cb6 100%);
+  color: white;
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  min-height: 60px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 100;
+}
+
+/* Seta de voltar à esquerda */
+.header-back {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Título centralizado */
+.header-center {
+  flex: 1;
+  text-align: center;
+  padding: 0 60px; /* Espaço para os botões laterais */
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-subtitle {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Botão de atualizar à direita */
+.header-refresh {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ====== LAYOUT PRINCIPAL ====== */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Em desktop, muda para row */
+@media (min-width: 992px) {
+  .main-content {
+    flex-direction: row;
+  }
+}
+
+/* ====== PAINEL ESQUERDO (ACORDEÕES) ====== */
+.left-panel {
+  background: white;
+  width: 100%;
+  border-bottom: 1px solid #e0e0e0;
+  overflow-y: auto;
+  max-height: 40vh;
+  padding: 15px;
+}
+
+@media (min-width: 992px) {
+  .left-panel {
+    width: 300px;
+    max-height: none;
+    border-bottom: none;
+    border-right: 1px solid #e0e0e0;
+  }
+}
+
+/* ====== ACORDEÕES CORRIGIDOS ====== */
+.accordion {
+  background: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.accordion-header {
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #1f4fd8 0%, #0d3cb6 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  min-height: 50px;
+  transition: background 0.3s;
+}
+
+.accordion-header:hover {
+  background: linear-gradient(135deg, #0d3cb6 0%, #1f4fd8 100%);
+}
+
+.accordion-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.accordion-icon {
+  transition: transform 0.3s ease;
+  font-size: 12px;
+}
+
+.accordion.active .accordion-icon {
+  transform: rotate(180deg);
+}
+
+/* CONTEÚDO DO ACORDEÃO (ESCONDIDO POR PADRÃO) */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: white;
+}
+
+/* Quando ativo, mostra o conteúdo */
+.accordion.active .accordion-content {
+  max-height: 1000px;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+/* ====== TOGGLE SWITCH ====== */
+.toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toggle-item {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-height: 50px;
+}
+
+.toggle-item:hover {
+  background: #f8f9fa;
+}
+
+.toggle-item.active {
+  background: #1f4fd8;
+  color: white;
+  border-color: #1f4fd8;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: #1f4fd8;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+/* ====== PARÂMETROS ====== */
+.param-group {
+  margin-bottom: 15px;
+}
+
+.param-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.param-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 13px;
+  background: white;
+}
+
+.param-range-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.param-range {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #e0e0e0;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.param-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #1f4fd8;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.param-value {
+  min-width: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1f4fd8;
+  text-align: right;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #1f4fd8 0%, #0d3cb6 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(31, 79, 216, 0.3);
+}
+
+/* ====== MAPA CENTRAL ====== */
+.map-container {
+  flex: 1;
+  background: #e9ecef;
+  position: relative;
+  min-height: 50vh;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+/* Controles do mapa */
+.map-controls {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.map-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: #1f4fd8;
+  transition: all 0.3s;
+}
+
+.map-btn:hover {
+  background: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Legenda */
+.map-legend {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  min-width: 150px;
+  backdrop-filter: blur(5px);
+}
+
+.legend-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #333;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin: 4px 0;
+  font-size: 11px;
+}
+
+.legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  margin-right: 8px;
+  border: 1px solid rgba(255,255,255,0.8);
+}
+
+.legend-label {
+  color: #333;
+}
+
+/* ====== RESPONSIVIDADE ====== */
+/* Esconde texto dos botões em mobile muito pequeno */
+@media (max-width: 360px) {
+  .back-btn span, .header-refresh span {
+    display: none;
+  }
+  
+  .header-center {
+    padding: 0 45px;
+  }
+}
+
+/* Em tablets, ajusta tamanhos */
+@media (min-width: 768px) and (max-width: 991px) {
+  .header-title h1 {
+    font-size: 18px;
+  }
+  
+  .header-subtitle {
+    font-size: 12px;
+  }
+  
+  .left-panel {
+    max-height: 35vh;
+  }
+}
+
+/* ====== ESTILOS PARA OS MARKERS DO MAPA ====== */
 .leaflet-popup-content {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.4;
 }
 
 .leaflet-popup-content h4 {
   margin: 0 0 8px 0;
   padding: 0;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.leaflet-popup-content p {
-  margin: 4px 0;
-}
-
-.leaflet-popup-content strong {
+  font-size: 15px;
   font-weight: 600;
 }
 
@@ -53,68 +508,42 @@
   border-color: #1e7e34 !important;
 }
 
-/* Animações para os markers */
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+/* Loading */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.98);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
 }
 
-.escola-marker {
-  animation: pulse 2s infinite;
+.loading-overlay.active {
+  opacity: 1;
+  visibility: visible;
 }
 
-/* Estilo para quando o marker tem popup aberto */
-.escola-marker.active {
-  animation: none;
-  transform: scale(1.1);
-  z-index: 1000 !important;
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1f4fd8;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
 }
 
-/* Ajustes para popups em mobile */
-@media (max-width: 768px) {
-  .leaflet-popup {
-    max-width: 280px !important;
-  }
-  
-  .leaflet-popup-content {
-    font-size: 11px;
-  }
-  
-  .leaflet-popup-content h4 {
-    font-size: 13px;
-  }
-}
-
-/* Scrollbars personalizados */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #0d3cb6;
-}
-
-/* Estilos para toque em dispositivos móveis */
-@media (hover: none) and (pointer: coarse) {
-  .toggle-item, .accordion-header, .btn-primary, .back-btn {
-    min-height: 44px;
-  }
-  
-  input, select, button {
-    font-size: 16px !important; /* Prevenir zoom no iOS */
-  }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>
 </head>
@@ -126,41 +555,44 @@
   <div class="loading-text">Carregando análise...</div>
 </div>
 
-<!-- Interface Principal -->
-<div class="interface-container">
+<!-- Header Mobile-First -->
+<header class="header">
+  <!-- Seta de voltar à esquerda -->
+  <div class="header-back">
+    <a href="../index.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i> <span>Voltar</span>
+    </a>
+  </div>
   
-  <!-- Header Centralizado -->
-  <header class="header">
-    <div class="header-left">
-      <a href="../index.html" class="back-btn">
-        <i class="fas fa-arrow-left"></i> <span class="back-text">Voltar</span>
-      </a>
+  <!-- Título centralizado -->
+  <div class="header-center">
+    <div class="header-title">
+      <h1><i class="fas fa-map-marked-alt"></i> Análise Espacial</h1>
+      <div class="header-subtitle">CheckInfra - Monitoramento sanitário escolar</div>
     </div>
-    
-    <div class="header-center">
-      <div class="header-title">
-        <h1><i class="fas fa-map-marked-alt"></i> Análise Espacial</h1>
-        <div class="header-subtitle">CheckInfra - Monitoramento sanitário escolar</div>
-      </div>
-    </div>
-    
-    <div class="header-right">
-      <button id="btn-refresh" class="back-btn" title="Atualizar dados">
-        <i class="fas fa-sync-alt"></i> <span class="refresh-text">Atualizar</span>
-      </button>
-    </div>
-  </header>
+  </div>
   
-  <!-- Painel Esquerdo - Camadas e Parâmetros -->
+  <!-- Botão de atualizar à direita -->
+  <div class="header-refresh">
+    <button id="btn-refresh" class="back-btn" title="Atualizar dados">
+      <i class="fas fa-sync-alt"></i> <span>Atualizar</span>
+    </button>
+  </div>
+</header>
+
+<!-- Conteúdo Principal -->
+<div class="main-content">
+  <!-- Painel Esquerdo com Acordeões -->
   <div class="left-panel">
-    <!-- Acordeão de Camadas -->
-    <div class="accordion active" id="accordionCamadas">
+    <!-- Acordeão de Camadas do Mapa -->
+    <div class="accordion" id="accordionCamadas">
       <div class="accordion-header">
         <h3><i class="fas fa-layer-group"></i> Camadas do Mapa</h3>
         <span class="accordion-icon"><i class="fas fa-chevron-down"></i></span>
       </div>
       <div class="accordion-content">
         <div class="toggle-group">
+          <!-- 8 INDICADORES COMO CAMADAS -->
           <div class="toggle-item active">
             <label class="toggle-label">
               <i class="fas fa-school"></i>
@@ -175,7 +607,7 @@
           <div class="toggle-item">
             <label class="toggle-label">
               <i class="fas fa-fire"></i>
-              <span>Hotspots KDE</span>
+              <span>Hotspots (Kernel Density)</span>
             </label>
             <label class="toggle-switch">
               <input type="checkbox" id="toggle-kde">
@@ -337,137 +769,18 @@
       </div>
     </div>
   </div>
-  
-  <!-- Painel Direito - Dashboard -->
-  <div class="right-panel">
-    <div class="dashboard-header">
-      <h3><i class="fas fa-tachometer-alt"></i> Dashboard em Tempo Real</h3>
-      <div class="dashboard-status">
-        <span id="status-fonte"><i class="fas fa-fire"></i> Firebase</span>
-        <span id="status-tempo"><i class="fas fa-clock"></i> --:--</span>
-        <span id="status-update"><i class="fas fa-sync"></i> Atualizando</span>
-      </div>
-    </div>
-    
-    <!-- Métricas Principais -->
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <span class="metric-value" id="metric-total">0</span>
-        <span class="metric-label">Total Escolas</span>
-      </div>
-      <div class="metric-card critical">
-        <span class="metric-value" id="metric-criticas">0</span>
-        <span class="metric-label">Escolas Críticas</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-value" id="metric-avaliadas">0</span>
-        <span class="metric-label">Avaliações</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-value" id="metric-pontuacao">0.0</span>
-        <span class="metric-label">Pontuação Média</span>
-      </div>
-    </div>
-    
-    <!-- Distribuição -->
-    <div class="distribuicao-chart">
-      <div class="chart-bar">
-        <div class="bar-label">Crítico</div>
-        <div class="bar-container">
-          <div class="bar-fill" style="background: #dc3545;"></div>
-          <span class="bar-value">0%</span>
-        </div>
-      </div>
-      <div class="chart-bar">
-        <div class="bar-label">Atenção</div>
-        <div class="bar-container">
-          <div class="bar-fill" style="background: #fd7e14;"></div>
-          <span class="bar-value">0%</span>
-        </div>
-      </div>
-      <div class="chart-bar">
-        <div class="bar-label">Alerta</div>
-        <div class="bar-container">
-          <div class="bar-fill" style="background: #ffc107;"></div>
-          <span class="bar-value">0%</span>
-        </div>
-      </div>
-      <div class="chart-bar">
-        <div class="bar-label">Adequada</div>
-        <div class="bar-container">
-          <div class="bar-fill" style="background: #28a745;"></div>
-          <span class="bar-value">0%</span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Últimas Atualizações -->
-    <div class="update-list">
-      <div class="update-item">
-        <div class="update-time">Carregando...</div>
-        <div class="update-text">Inicializando sistema...</div>
-      </div>
-    </div>
-    
-    <!-- Indicadores -->
-    <h4 style="font-size: 13px; margin-bottom: 8px; font-weight: 600;"><i class="fas fa-chart-line"></i> Indicadores de Análise</h4>
-    <div class="indicadores-grid">
-      <div class="indicador-card">
-        <div class="indicador-icon">📍</div>
-        <div class="indicador-nome">Densidade Crítica</div>
-        <div class="indicador-valor" id="ind-densidade">0%</div>
-      </div>
-      <div class="indicador-card">
-        <div class="indicador-icon">📈</div>
-        <div class="indicador-nome">Concentração</div>
-        <div class="indicador-valor" id="ind-concentracao">0.0</div>
-      </div>
-      <div class="indicador-card">
-        <div class="indicador-icon">🔥</div>
-        <div class="indicador-nome">Hotspots</div>
-        <div class="indicador-valor" id="ind-hotspots">0</div>
-      </div>
-      <div class="indicador-card">
-        <div class="indicador-icon">⚖️</div>
-        <div class="indicador-nome">Gini Espacial</div>
-        <div class="indicador-valor" id="ind-gini">0.00</div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Footer Centralizado -->
-  <footer class="footer">
-    <div>
-      <strong>© 2024 CheckInfra</strong> | Análise Espacial Inteligente v3.0 | Fortaleza/CE
-    </div>
-    <div class="footer-links">
-      <span><i class="fas fa-shield-alt"></i> LGPD</span>
-      <span><i class="fas fa-fire"></i> Firebase</span>
-      <span><i class="fas fa-code"></i> MIT License</span>
-      <span><i class="fas fa-mobile-alt"></i> Responsivo</span>
-    </div>
-  </footer>
 </div>
 
 <!-- Scripts -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-<!-- Dados locais -->
-<script src="../mapa/escolas.js"></script>
-
-<!-- Bibliotecas para mapas -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-
-<!-- Turf.js para análises geoespaciais -->
 <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
 
 <!-- Sistema de dados -->
 <script src="firebase-config.js"></script>
 <script src="dados.js"></script>
-
-<!-- Módulos principais -->
 <script src="mapa-unificado.js"></script>
 <script src="analise-inteligente.js"></script>
 <script src="voronoi-critico.js"></script>
@@ -476,14 +789,7 @@
 <script>
 // ==================== CONFIGURAÇÃO INICIAL ====================
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🚀 CheckInfra - Análise Espacial Inteligente');
-  
-  // Detectar dispositivo
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  console.log(`📱 Dispositivo: ${isMobile ? 'Mobile' : 'Desktop'}`);
-  
-  // Mostrar loading
-  mostrarLoading();
+  console.log('🚀 CheckInfra - Análise Espacial (Mobile First)');
   
   // Inicializar interface
   inicializarInterface();
@@ -492,51 +798,42 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(() => {
     inicializarMapa();
     carregarDadosReais();
-  }, 500);
+  }, 300);
 });
 
 // ==================== FUNÇÕES DE INTERFACE ====================
-function mostrarLoading() {
-  const loading = document.getElementById('loadingOverlay');
-  if (loading) loading.classList.add('active');
-}
-
-function ocultarLoading() {
-  const loading = document.getElementById('loadingOverlay');
-  if (loading) loading.classList.remove('active');
-}
-
 function inicializarInterface() {
   console.log('🎨 Inicializando interface...');
   
-  // Ajustar textos para mobile
-  const isMobile = window.innerWidth <= 768;
-  if (isMobile) {
-    document.querySelector('.back-text').style.display = 'none';
-    document.querySelector('.refresh-text').style.display = 'none';
-  }
-  
-  // Acordeões
+  // ACORDEÕES - AGORA FUNCIONANDO CORRETAMENTE
   document.querySelectorAll('.accordion-header').forEach(header => {
     header.addEventListener('click', function() {
       const accordion = this.parentElement;
+      const content = this.nextElementSibling;
+      
+      // Alternar classe active
       accordion.classList.toggle('active');
       
-      // Em mobile, fechar outros acordeões
-      if (window.innerWidth <= 768 && accordion.classList.contains('active')) {
+      // Fechar outros acordeões se for mobile
+      if (window.innerWidth <= 768) {
         document.querySelectorAll('.accordion').forEach(acc => {
-          if (acc !== accordion) acc.classList.remove('active');
+          if (acc !== accordion) {
+            acc.classList.remove('active');
+          }
         });
       }
     });
   });
   
   // Sliders
-  document.getElementById('param-sementes').addEventListener('input', function() {
+  const sementesSlider = document.getElementById('param-sementes');
+  const raioSlider = document.getElementById('param-raio');
+  
+  sementesSlider.addEventListener('input', function() {
     document.getElementById('sementes-value').textContent = this.value;
   });
   
-  document.getElementById('param-raio').addEventListener('input', function() {
+  raioSlider.addEventListener('input', function() {
     document.getElementById('raio-value').textContent = this.value;
   });
   
@@ -548,11 +845,11 @@ function inicializarInterface() {
       const checkbox = this.querySelector('input[type="checkbox"]');
       checkbox.checked = !checkbox.checked;
       
-      // Ativar/desativar camada
+      // Feedback visual
       if (checkbox.checked) {
-        ativarCamada(checkbox.id.replace('toggle-', ''));
+        console.log(`✅ Ativada camada: ${checkbox.id.replace('toggle-', '')}`);
       } else {
-        desativarCamada(checkbox.id.replace('toggle-', ''));
+        console.log(`❌ Desativada camada: ${checkbox.id.replace('toggle-', '')}`);
       }
     });
   });
@@ -561,17 +858,14 @@ function inicializarInterface() {
   document.getElementById('btn-aplicar').addEventListener('click', aplicarAnalise);
   document.getElementById('btn-refresh').addEventListener('click', atualizarDados);
   
-  // Atualizar tempo em tempo real
-  setInterval(atualizarStatusTempo, 1000);
+  // Mostrar/ocultar loading
+  window.mostrarLoading = function() {
+    document.getElementById('loadingOverlay').classList.add('active');
+  };
   
-  // Redimensionar mapa quando a janela muda de tamanho
-  window.addEventListener('resize', function() {
-    if (window.mapa) {
-      setTimeout(() => {
-        window.mapa.invalidateSize();
-      }, 300);
-    }
-  });
+  window.ocultarLoading = function() {
+    document.getElementById('loadingOverlay').classList.remove('active');
+  };
   
   console.log('✅ Interface inicializada');
 }
@@ -584,11 +878,8 @@ function inicializarMapa() {
     window.mapa.remove();
   }
   
-  // Criar novo mapa centralizado em Fortaleza
-  window.mapa = L.map('map', {
-    zoomControl: false, // Vamos usar controles customizados
-    attributionControl: false
-  }).setView([-3.7319, -38.5267], 12);
+  // Criar novo mapa
+  window.mapa = L.map('map').setView([-3.7319, -38.5267], 12);
   
   // Adicionar tile layer
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -596,58 +887,39 @@ function inicializarMapa() {
     maxZoom: 19
   }).addTo(window.mapa);
   
-  // Adicionar controle de atribuição
-  L.control.attribution({
-    position: 'bottomright',
-    prefix: '© OpenStreetMap'
-  }).addTo(window.mapa);
-  
-  // Controles customizados do mapa
-  document.getElementById('btn-zoom-in').addEventListener('click', () => {
-    window.mapa.zoomIn();
-  });
-  
-  document.getElementById('btn-zoom-out').addEventListener('click', () => {
-    window.mapa.zoomOut();
-  });
-  
+  // Controles do mapa
+  document.getElementById('btn-zoom-in').addEventListener('click', () => window.mapa.zoomIn());
+  document.getElementById('btn-zoom-out').addEventListener('click', () => window.mapa.zoomOut());
   document.getElementById('btn-locate').addEventListener('click', () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          window.mapa.setView([pos.coords.latitude, pos.coords.longitude], 15);
-          L.marker([pos.coords.latitude, pos.coords.longitude])
-            .addTo(window.mapa)
-            .bindPopup('Sua localização atual')
-            .openPopup();
-        },
-        error => {
-          alert('Não foi possível obter sua localização. Permissão negada ou serviço indisponível.');
-        },
-        { timeout: 10000 }
-      );
-    } else {
-      alert('Seu navegador não suporta geolocalização.');
+      navigator.geolocation.getCurrentPosition(pos => {
+        window.mapa.setView([pos.coords.latitude, pos.coords.longitude], 15);
+      });
     }
   });
-  
   document.getElementById('btn-fullscreen').addEventListener('click', () => {
     const container = document.querySelector('.map-container');
     if (!document.fullscreenElement) {
-      container.requestFullscreen?.().catch(err => {
-        console.log('Erro ao entrar em tela cheia:', err);
-      });
+      container.requestFullscreen();
     } else {
-      document.exitFullscreen?.();
+      document.exitFullscreen();
     }
+  });
+  
+  // Redimensionar mapa quando necessário
+  window.addEventListener('resize', function() {
+    setTimeout(() => {
+      if (window.mapa) window.mapa.invalidateSize();
+    }, 300);
   });
   
   console.log('✅ Mapa inicializado');
 }
 
-// ==================== FUNÇÕES DE DADOS E MAPA ====================
+// ==================== FUNÇÕES DE DADOS ====================
 async function carregarDadosReais() {
   console.log('📊 Carregando dados...');
+  mostrarLoading();
   
   try {
     let escolas = [];
@@ -659,19 +931,16 @@ async function carregarDadosReais() {
       escolas = window.dadosManager.getEscolas() || [];
       fonte = 'Firebase';
       console.log(`✅ ${escolas.length} escolas do Firebase`);
-      document.getElementById('status-fonte').innerHTML = '<i class="fas fa-fire"></i> Firebase Ativo';
     } 
     // Fallback para dados locais
     else if (typeof escolas !== 'undefined' && escolas.length > 0) {
       console.log(`✅ ${escolas.length} escolas locais`);
-      document.getElementById('status-fonte').innerHTML = '<i class="fas fa-database"></i> Dados Locais';
     }
     // Fallback para dados de demonstração
     else {
       escolas = criarDadosDemonstracao();
       fonte = 'Demonstração';
       console.log(`🎭 ${escolas.length} escolas de demonstração`);
-      document.getElementById('status-fonte').innerHTML = '<i class="fas fa-demo"></i> Dados de Demonstração';
     }
     
     // Processar dados
@@ -679,7 +948,6 @@ async function carregarDadosReais() {
     
   } catch (error) {
     console.error('❌ Erro ao carregar dados:', error);
-    document.getElementById('status-fonte').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro de Conexão';
     
     // Usar dados de demonstração como último recurso
     const escolasDemo = criarDadosDemonstracao();
@@ -687,7 +955,7 @@ async function carregarDadosReais() {
   }
   
   // Ocultar loading
-  setTimeout(ocultarLoading, 500);
+  setTimeout(ocultarLoading, 800);
 }
 
 function criarDadosDemonstracao() {
@@ -711,8 +979,8 @@ function criarDadosDemonstracao() {
     }
     
     // Coordenadas aleatórias próximas ao centro
-    const lat = centroLat + (Math.random() - 0.5) * 0.1;
-    const lng = centroLng + (Math.random() - 0.5) * 0.1;
+    const lat = centroLat + (Math.random() - 0.5) * 0.08;
+    const lng = centroLng + (Math.random() - 0.5) * 0.08;
     
     escolas.push({
       id: i,
@@ -732,73 +1000,25 @@ function criarDadosDemonstracao() {
 function processarDados(escolas, fonte) {
   console.log(`📈 Processando ${escolas.length} escolas...`);
   
-  // Calcular métricas
-  const totalEscolas = escolas.length;
-  const escolasCriticas = escolas.filter(e => e.status === 'crítico').length;
-  const escolasAvaliadas = escolas.filter(e => e.pontuacao && e.pontuacao > 0).length;
-  
-  const escolasComPontuacao = escolas.filter(e => e.pontuacao && typeof e.pontuacao === 'number');
-  const pontuacaoMedia = escolasComPontuacao.length > 0 
-    ? (escolasComPontuacao.reduce((sum, e) => sum + e.pontuacao, 0) / escolasComPontuacao.length).toFixed(1)
-    : '0.0';
-  
-  // Calcular distribuição
-  const distribuicao = {
-    'crítico': escolas.filter(e => e.status === 'crítico').length,
-    'atenção': escolas.filter(e => e.status === 'atenção').length,
-    'alerta': escolas.filter(e => e.status === 'alerta').length,
-    'adequada': escolas.filter(e => e.status === 'adequada').length
-  };
-  
-  const total = Object.values(distribuicao).reduce((a, b) => a + b, 0);
-  
-  // Atualizar dashboard
-  atualizarDashboard({
-    totalEscolas,
-    escolasCriticas,
-    escolasAvaliadas,
-    pontuacaoMedia,
-    distribuicao
-  });
-  
-  // Atualizar indicadores
-  atualizarIndicadores({
-    densidade: `${Math.round((escolasCriticas / totalEscolas) * 100)}%`,
-    concentracao: (escolasCriticas / 5).toFixed(1),
-    hotspots: Math.min(Math.floor(escolasCriticas / 3), 10),
-    gini: (Math.random() * 0.5 + 0.3).toFixed(2)
-  });
-  
-  // Plotar escolas no mapa (com cores corretas)
+  // Plotar escolas no mapa
   plotarEscolasNoMapa(escolas);
   
-  // Atualizar histórico
-  const agora = new Date();
-  const hora = agora.getHours().toString().padStart(2, '0');
-  const minuto = agora.getMinutes().toString().padStart(2, '0');
-  
-  atualizarHistorico([
-    {time: `${hora}:${minuto}`, text: `Dados carregados: ${fonte}`},
-    {time: `${hora}:${minuto}`, text: `${totalEscolas} escolas, ${escolasCriticas} críticas`},
-    {time: `${hora}:${minuto}`, text: `Pontuação média: ${pontuacaoMedia}`}
-  ]);
-  
-  document.getElementById('status-update').innerHTML = '<i class="fas fa-check"></i> Atualizado';
+  console.log(`✅ ${escolas.length} escolas processadas de ${fonte}`);
 }
 
 function plotarEscolasNoMapa(escolas) {
   if (!window.mapa) return;
   
-  console.log(`🗺️ Plotando ${escolas.length} escolas no mapa...`);
+  console.log(`🗺️ Plotando ${escolas.length} escolas...`);
   
   // Limpar marcadores existentes
   window.mapa.eachLayer(layer => {
-    if (layer instanceof L.CircleMarker || (layer instanceof L.Marker && layer.options.className === 'escola-marker')) {
+    if (layer instanceof L.CircleMarker || (layer instanceof L.Marker && layer.options.className)) {
       window.mapa.removeLayer(layer);
     }
   });
   
-  // Adicionar cada escola como marcador colorido
+  // Adicionar cada escola como marcador
   escolas.forEach(escola => {
     if (!escola.lat || !escola.lng) return;
     
@@ -834,62 +1054,32 @@ function plotarEscolasNoMapa(escolas) {
       weight: 2,
       opacity: 1,
       fillOpacity: 0.8,
-      className: `escola-marker ${classe}`
+      className: classe
     });
     
-    // Conteúdo do popup com informações detalhadas
+    // Conteúdo do popup
     const popupContent = `
-      <div style="min-width: 220px; font-family: Arial, sans-serif;">
-        <h4 style="margin: 0 0 8px 0; padding: 0; color: ${cor}; font-size: 14px; font-weight: bold;">
-          <i class="fas fa-school" style="margin-right: 5px;"></i>${escola.nome || 'Escola'}
+      <div style="min-width: 200px; padding: 5px;">
+        <h4 style="margin: 0 0 8px 0; color: ${cor};">
+          <i class="fas fa-school"></i> ${escola.nome || 'Escola'}
         </h4>
-        
-        <div style="margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span style="font-weight: bold;">Status:</span>
-            <span style="color: ${cor}; font-weight: bold;">${escola.status || 'Não informado'}</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span style="font-weight: bold;">Pontuação:</span>
-            <span style="font-weight: bold;">${escola.pontuacao || 'N/A'}</span>
-          </div>
-        </div>
-        
-        <div style="font-size: 12px; color: #555;">
-          <p style="margin: 4px 0;"><i class="fas fa-map-marker-alt" style="margin-right: 5px; color: #888;"></i>${escola.endereco || 'Endereço não informado'}</p>
-          ${escola.data_avaliacao ? `<p style="margin: 4px 0;"><i class="fas fa-calendar-alt" style="margin-right: 5px; color: #888;"></i>Avaliação: ${escola.data_avaliacao}</p>` : ''}
-        </div>
-        
-        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; font-size: 11px; color: #888;">
-          <i class="fas fa-info-circle" style="margin-right: 5px;"></i>Clique fora para fechar
-        </div>
+        <p style="margin: 5px 0;"><strong>Status:</strong> <span style="color: ${cor};">${escola.status}</span></p>
+        <p style="margin: 5px 0;"><strong>Pontuação:</strong> ${escola.pontuacao || 'N/A'}</p>
+        <p style="margin: 5px 0;"><strong>Endereço:</strong> ${escola.endereco || 'Não informado'}</p>
+        ${escola.data_avaliacao ? `<p style="margin: 5px 0;"><strong>Data:</strong> ${escola.data_avaliacao}</p>` : ''}
       </div>
     `;
     
-    // Bind popup com configurações
-    marker.bindPopup(popupContent, {
-      maxWidth: 300,
-      minWidth: 250,
-      className: 'escola-popup'
-    });
+    // Adicionar popup
+    marker.bindPopup(popupContent);
     
     // Eventos para feedback visual
     marker.on('popupopen', function() {
-      this.setStyle({
-        fillOpacity: 1,
-        weight: 3,
-        radius: 12
-      });
-      this.getElement().classList.add('active');
+      this.setStyle({ fillOpacity: 1, weight: 3 });
     });
     
     marker.on('popupclose', function() {
-      this.setStyle({
-        fillOpacity: 0.8,
-        weight: 2,
-        radius: 10
-      });
-      this.getElement().classList.remove('active');
+      this.setStyle({ fillOpacity: 0.8, weight: 2 });
     });
     
     // Adicionar ao mapa
@@ -899,105 +1089,17 @@ function plotarEscolasNoMapa(escolas) {
     marker.options.escolaData = escola;
   });
   
-  console.log(`✅ ${escolas.length} escolas plotadas com cores`);
-}
-
-// ==================== FUNÇÕES DO DASHBOARD ====================
-function atualizarDashboard(dados) {
-  // Métricas principais
-  document.getElementById('metric-total').textContent = dados.totalEscolas || 0;
-  document.getElementById('metric-criticas').textContent = dados.escolasCriticas || 0;
-  document.getElementById('metric-avaliadas').textContent = dados.escolasAvaliadas || 0;
-  document.getElementById('metric-pontuacao').textContent = dados.pontuacaoMedia || '0.0';
-  
-  // Distribuição por classe
-  if (dados.distribuicao) {
-    atualizarGraficoDistribuicao(dados.distribuicao);
-  }
-}
-
-function atualizarGraficoDistribuicao(distribuicao) {
-  const total = Object.values(distribuicao).reduce((a, b) => a + b, 0);
-  if (total === 0) return;
-  
-  const classes = [
-    {nome: 'Crítico', cor: '#dc3545', chave: 'crítico'},
-    {nome: 'Atenção', cor: '#fd7e14', chave: 'atenção'},
-    {nome: 'Alerta', cor: '#ffc107', chave: 'alerta'},
-    {nome: 'Adequada', cor: '#28a745', chave: 'adequada'}
-  ];
-  
-  classes.forEach(classe => {
-    const quantidade = distribuicao[classe.chave] || 0;
-    const percentual = total > 0 ? Math.round((quantidade / total) * 100) : 0;
-    
-    // Encontrar a barra correspondente
-    const barra = Array.from(document.querySelectorAll('.bar-label'))
-      .find(el => el.textContent === classe.nome)?.parentNode;
-    
-    if (barra) {
-      const barFill = barra.querySelector('.bar-fill');
-      const barValue = barra.querySelector('.bar-value');
-      
-      if (barFill) {
-        setTimeout(() => {
-          barFill.style.width = `${percentual}%`;
-          barFill.style.background = classe.cor;
-        }, 100);
-      }
-      
-      if (barValue) {
-        barValue.textContent = `${percentual}%`;
-      }
-    }
-  });
-}
-
-function atualizarIndicadores(indicadores) {
-  document.getElementById('ind-densidade').textContent = indicadores.densidade || '0%';
-  document.getElementById('ind-concentracao').textContent = indicadores.concentracao || '0.0';
-  document.getElementById('ind-hotspots').textContent = indicadores.hotspots || '0';
-  document.getElementById('ind-gini').textContent = indicadores.gini || '0.00';
-}
-
-function atualizarHistorico(historico) {
-  const container = document.querySelector('.update-list');
-  if (!container) return;
-  
-  // Manter apenas as 5 últimas atualizações
-  const historicoLimitado = historico.slice(0, 5);
-  
-  container.innerHTML = '';
-  historicoLimitado.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'update-item';
-    div.innerHTML = `
-      <div class="update-time">${item.time}</div>
-      <div class="update-text">${item.text}</div>
-    `;
-    container.appendChild(div);
-  });
-}
-
-function atualizarStatusTempo() {
-  const agora = new Date();
-  const hora = agora.getHours().toString().padStart(2, '0');
-  const minuto = agora.getMinutes().toString().padStart(2, '0');
-  const statusTempo = document.getElementById('status-tempo');
-  if (statusTempo) {
-    statusTempo.innerHTML = `<i class="fas fa-clock"></i> ${hora}:${minuto}`;
-  }
+  console.log(`✅ ${escolas.length} escolas plotadas`);
 }
 
 // ==================== FUNÇÕES DE ANÁLISE ====================
 function aplicarAnalise() {
   console.log('⚡ Aplicando análise...');
+  mostrarLoading();
   
   const criticidade = document.getElementById('param-criticidade').value;
   const sementes = parseInt(document.getElementById('param-sementes').value);
   const raio = parseInt(document.getElementById('param-raio').value);
-  
-  mostrarLoading();
   
   // Coletar camadas ativas
   const camadasAtivas = [];
@@ -1008,92 +1110,37 @@ function aplicarAnalise() {
     }
   });
   
-  // Aplicar análises
+  console.log(`📊 Camadas ativas: ${camadasAtivas.join(', ')}`);
+  console.log(`⚙️ Parâmetros: ${criticidade}, ${sementes} sementes, ${raio}m`);
+  
+  // Aplicar KDE se ativo
   if (camadasAtivas.includes('kde') && window.calcularKDE) {
     setTimeout(() => {
       window.calcularKDE(criticidade, raio);
+      console.log('✅ KDE aplicado');
     }, 500);
   }
   
+  // Aplicar Voronoi se ativo
   if (camadasAtivas.includes('voronoi') && window.gerarVoronoiCritico) {
     setTimeout(() => {
       window.gerarVoronoiCritico(sementes, criticidade);
+      console.log('✅ Voronoi aplicado');
     }, 800);
   }
   
-  // Atualizar histórico
-  const agora = new Date();
-  const hora = agora.getHours().toString().padStart(2, '0');
-  const minuto = agora.getMinutes().toString().padStart(2, '0');
-  
-  atualizarHistorico([
-    {time: `${hora}:${minuto}`, text: `Análise aplicada: ${camadasAtivas.length} camadas`},
-    {time: `${hora}:${minuto}`, text: `Criticidade: ${criticidade}, Sementes: ${sementes}, Raio: ${raio}m`}
-  ]);
-  
-  // Ocultar loading
-  setTimeout(ocultarLoading, 1000);
-  
-  console.log(`✅ Análise aplicada: ${criticidade}, ${sementes} sementes, ${raio}m raio`);
-}
-
-function ativarCamada(camada) {
-  console.log(`🗺️ Ativando camada: ${camada}`);
-  
-  switch(camada) {
-    case 'kde':
-      if (window.calcularKDE) {
-        const criticidade = document.getElementById('param-criticidade').value;
-        const raio = parseInt(document.getElementById('param-raio').value);
-        window.calcularKDE(criticidade, raio);
-      }
-      break;
-      
-    case 'voronoi':
-      if (window.gerarVoronoiCritico) {
-        const sementes = parseInt(document.getElementById('param-sementes').value);
-        const criticidade = document.getElementById('param-criticidade').value;
-        window.gerarVoronoiCritico(sementes, criticidade);
-      }
-      break;
-      
-    default:
-      console.log(`⚠️ Camada ${camada} ainda não implementada`);
-  }
-}
-
-function desativarCamada(camada) {
-  console.log(`🗺️ Desativando camada: ${camada}`);
-  
-  // Remover camada específica do mapa
-  window.mapa.eachLayer(layer => {
-    let remover = false;
-    
-    switch(camada) {
-      case 'kde':
-        if (layer instanceof L.HeatLayer) remover = true;
-        break;
-        
-      case 'voronoi':
-        if (layer instanceof L.Polygon && layer.options.className === 'voronoi') remover = true;
-        break;
-        
-      case 'zonas':
-        if (layer instanceof L.Polygon && layer.options.className === 'zona-risco') remover = true;
-        break;
-    }
-    
-    if (remover) {
-      window.mapa.removeLayer(layer);
-    }
-  });
+  // Feedback
+  setTimeout(() => {
+    alert(`Análise aplicada com sucesso!\n\nCamadas: ${camadasAtivas.length}\nCriticidade: ${criticidade}\nSementes: ${sementes}\nRaio: ${raio}m`);
+    ocultarLoading();
+  }, 1200);
 }
 
 async function atualizarDados() {
   console.log('🔄 Atualizando dados...');
-  
-  // Mostrar loading e animar ícone
   mostrarLoading();
+  
+  // Animar botão de atualizar
   const refreshBtn = document.getElementById('btn-refresh');
   refreshBtn.querySelector('i').style.transform = 'rotate(360deg)';
   
@@ -1103,9 +1150,6 @@ async function atualizarDados() {
   
   // Recarregar dados
   await carregarDadosReais();
-  
-  // Atualizar status
-  document.getElementById('status-update').innerHTML = '<i class="fas fa-check"></i> Atualizado agora';
   
   console.log('✅ Dados atualizados');
 }

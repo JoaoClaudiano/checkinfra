@@ -1,56 +1,49 @@
 /* =====================
-   SIDEBAR – EXPLICAÇÃO METODOLÓGICA
+   SIDEBAR – Indicadores
 ===================== */
-
+const btnSidebar = document.getElementById("btn-sidebar");
 const sidebar = document.getElementById("sidebar");
-const toggle = document.getElementById("sidebar-toggle");
-const closeBtn = document.getElementById("sidebar-close");
-const frame = document.getElementById("sidebar-frame");
+const btnCloseSidebar = document.getElementById("close-sidebar");
+const menuItems = document.querySelectorAll("#sidebar-menu li");
+const sidebarContent = document.getElementById("sidebar-content");
 
-/**
- * Abre o sidebar e carrega o indicador
- * @param {string} indicador - Caminho relativo do indicador (ex: "./pareto/index.html")
- */
-function abrirSidebar(indicador) {
-  if (indicador) frame.src = indicador;
-  sidebar.classList.remove("hidden");
-}
-
-/**
- * Fecha o sidebar e limpa o conteúdo do iframe
- */
-function fecharSidebar() {
-  sidebar.classList.add("hidden");
-  frame.src = "";
-}
-
-/* =====================
-   EVENTOS DE INTERAÇÃO
-===================== */
-
-// Botão toggle no header (ℹ️)
-toggle.addEventListener("click", () => {
-  // Por padrão, abre o Pareto (pode ser alterado dinamicamente)
-  abrirSidebar("./pareto/index.html");
+// Toggle sidebar
+btnSidebar.addEventListener("click", () => {
+  sidebar.classList.add("visible");
 });
 
-// Botão de fechar dentro do sidebar
-closeBtn.addEventListener("click", fecharSidebar);
-
-// Fechar sidebar ao clicar fora (opcional, melhora UX)
-sidebar.addEventListener("click", (e) => {
-  if (e.target === sidebar) fecharSidebar();
+btnCloseSidebar.addEventListener("click", () => {
+  sidebar.classList.remove("visible");
 });
 
-/* =====================
-   FUNÇÃO PARA INDICADORES DINÂMICOS
-===================== */
+// Função para carregar indicador no iframe
+function carregarIndicador(indicador) {
+  // Atualiza classe ativa
+  menuItems.forEach(li => li.classList.remove("ativa"));
+  const item = document.querySelector(`#sidebar-menu li[data-indicador="${indicador}"]`);
+  item.classList.add("ativa");
 
-/**
- * Função utilitária para abrir qualquer indicador
- * Exemplo:
- * abrirIndicador("./densidade/index.html")
- */
-function abrirIndicador(caminho) {
-  abrirSidebar(caminho);
+  // Define caminho do HTML do indicador
+  const caminho = `indicadores/${indicador}/index.html`;
+
+  // Cria ou atualiza iframe
+  sidebarContent.innerHTML = `<iframe src="${caminho}" frameborder="0"></iframe>`;
 }
+
+// Inicializa com Pareto
+carregarIndicador("pareto");
+
+// Menu click
+menuItems.forEach(li => {
+  li.addEventListener("click", () => {
+    const indicador = li.getAttribute("data-indicador");
+    carregarIndicador(indicador);
+  });
+});
+
+// Fecha sidebar ao clicar fora (opcional)
+document.addEventListener("click", (e) => {
+  if (!sidebar.contains(e.target) && !btnSidebar.contains(e.target)) {
+    sidebar.classList.remove("visible");
+  }
+});

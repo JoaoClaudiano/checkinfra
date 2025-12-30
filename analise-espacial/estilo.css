@@ -526,4 +526,62 @@ input[type="checkbox"] {
   color: #666;
 }
 
+/* Análise Avançada */
+.resultado-voronoi,
+.resultado-impacto,
+.estatisticas-detalhadas {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #1f4fd8;
+}
+
+.resultado-voronoi h5,
+.resultado-impacto h5,
+.estatisticas-detalhadas h5 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.estat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.estat-item {
+    text-align: center;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.estat-valor {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1f4fd8;
+}
+
+.estat-label {
+    font-size: 11px;
+    color: #666;
+}
+
+.grafico-impacto {
+    margin-top: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+}
+
+.erro-avancado {
+    padding: 15px;
+    background: #ffe6e6;
+    border: 1px solid #ff9999;
+    border-radius: 6px;
+    color: #cc0000;
+    text-align: center;
+}
 

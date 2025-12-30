@@ -44,27 +44,81 @@
   <button onclick="abrirAba('ranking')">📊 Ranking</button>
   <button onclick="abrirAba('metodologia')">📘 Metodologia</button>
   <button onclick="abrirAba('avancada')">🚀 Análise Avançada</button>
+  <button onclick="abrirAba('dados')">📊 Dashboard de Dados</button>
+</div>
+
+<!-- DASHBOARD DE DADOS -->
+<div id="dados" class="secao">
+  <h3>📊 Dashboard de Dados em Tempo Real</h3>
+  <div id="dashboard-dados"></div>
+  
+  <div class="dados-detalhes">
+    <div class="dados-coluna">
+      <h4>📡 Conexão de Dados</h4>
+      <div class="conexao-status" id="conexao-status">
+        <p>🔄 Verificando conexões...</p>
+      </div>
+      
+      <h4>📂 Fontes de Dados</h4>
+      <ul id="fontes-dados">
+        <li>Escolas locais: <span id="contador-local">carregando...</span></li>
+        <li>Avaliações Firebase: <span id="contador-firebase">carregando...</span></li>
+        <li>Escolas processadas: <span id="contador-total">0</span></li>
+      </ul>
+      
+      <button id="btn-atualizar-dados" class="btn-dados">
+        🔄 Atualizar Dados Agora
+      </button>
+    </div>
+    
+    <div class="dados-coluna">
+      <h4>📈 Métricas Instantâneas</h4>
+      <div id="metricas-instantaneas">
+        <div class="metrica-instantanea">
+          <div class="valor" id="metricas-criticas">0</div>
+          <div class="label">Escolas Críticas</div>
+        </div>
+        <div class="metrica-instantanea">
+          <div class="valor" id="metricas-avaliadas">0%</div>
+          <div class="label">Taxa de Avaliação</div>
+        </div>
+        <div class="metrica-instantanea">
+          <div class="valor" id="metricas-pontuacao">0</div>
+          <div class="label">Pontuação Média</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- MAPA -->
 <div id="mapa" class="secao ativa">
   <div class="painel">
-    <label>
-      Indicador:
-      <select id="seletorIndicador">
-        <option value="1">Indicador 1 — Densidade Crítica</option>
-        <option value="2">Indicador 2 — Concentração Relativa</option>
-      </select>
-    </label>
-    <label>
-      <input type="checkbox" id="toggleZonas" checked>
-      🟥 Zonas prioritárias
-    </label>
-    <label>
-      <button id="btn-voronoi" style="margin-left: 10px; padding: 5px 10px; cursor: pointer;">
-        🧩 Gerar Voronoi
-      </button>
-    </label>
+    <div class="painel-superior">
+      <label>
+        Indicador:
+        <select id="seletorIndicador">
+          <option value="densidade-critica">📍 Densidade Crítica</option>
+          <option value="concentracao-relativa">📈 Concentração Relativa</option>
+          <option value="zonas-prioritarias">🟥 Zonas Prioritárias</option>
+          <option value="kde">🔥 KDE (Hotspots)</option>
+          <option value="gini">⚖️ Gini (Desigualdade)</option>
+        </select>
+      </label>
+      <label>
+        <input type="checkbox" id="toggleZonas" checked>
+        🟥 Zonas prioritárias
+      </label>
+      <label>
+        <button id="btn-voronoi" style="margin-left: 10px; padding: 5px 10px; cursor: pointer;">
+          🧩 Gerar Voronoi
+        </button>
+      </label>
+    </div>
+    
+    <div class="painel-inferior">
+      <div id="status-mapa"></div>
+    </div>
   </div>
   <div id="map"></div>
 </div>
@@ -72,6 +126,18 @@
 <!-- RANKING -->
 <div id="ranking" class="secao">
   <h3>📊 Ranking Territorial — Zonas Prioritárias</h3>
+  <div class="ranking-filtros">
+    <label>
+      Filtrar por:
+      <select id="filtro-ranking">
+        <option value="todas">Todas as Escolas</option>
+        <option value="criticas">Apenas Críticas</option>
+        <option value="atencao">Atenção + Críticas</option>
+        <option value="avaliadas">Apenas Avaliadas</option>
+      </select>
+    </label>
+    <button id="btn-exportar-ranking">📥 Exportar CSV</button>
+  </div>
   <ol id="listaRanking"></ol>
 </div>
 
@@ -79,27 +145,43 @@
 <div id="metodologia" class="secao">
   <h3>📘 Metodologia e Indicadores</h3>
   <div class="metodologia-content">
-    <h4>📋 Indicadores Disponíveis:</h4>
-    <ul>
-      <li><strong>📊 Pareto</strong>: Identifica os 20% de escolas que concentram 80% dos problemas</li>
-      <li><strong>📍 Densidade Crítica</strong>: Mede a concentração espacial de ocorrências</li>
-      <li><strong>📈 Concentração Relativa</strong>: Compara densidade local com média global</li>
-      <li><strong>🟥 Zonas Prioritárias</strong>: Áreas com múltiplas vulnerabilidades sobrepostas</li>
-      <li><strong>🔥 KDE</strong>: Kernel Density Estimation para identificação de hotspots</li>
-      <li><strong>⚖️ Gini Espacial</strong>: Mede desigualdade na distribuição espacial</li>
-      <li><strong>📈 Location Quotient</strong>: Identifica especialização regional</li>
-      <li><strong>🔗 Índice de Moran</strong>: Detecta autocorrelação espacial</li>
-    </ul>
+    <div class="metodologia-coluna">
+      <h4>📋 Indicadores Disponíveis:</h4>
+      <ul>
+        <li><strong>📊 Pareto</strong>: Identifica os 20% de escolas que concentram 80% dos problemas</li>
+        <li><strong>📍 Densidade Crítica</strong>: Mede a concentração espacial de ocorrências</li>
+        <li><strong>📈 Concentração Relativa</strong>: Compara densidade local com média global</li>
+        <li><strong>🟥 Zonas Prioritárias</strong>: Áreas com múltiplas vulnerabilidades sobrepostas</li>
+        <li><strong>🔥 KDE (Kernel Density Estimation)</strong>: Identificação estatística de hotspots</li>
+        <li><strong>⚖️ Coeficiente de Gini Espacial</strong>: Mede desigualdade na distribuição espacial</li>
+        <li><strong>📈 Location Quotient (LQ)</strong>: Identifica especialização regional</li>
+        <li><strong>🔗 Índice de Moran</strong>: Detecta autocorrelação espacial (clusters)</li>
+      </ul>
+    </div>
     
-    <h4>🎯 Metodologia:</h4>
-    <p>As análises são exploratórias e baseadas em:</p>
-    <ol>
-      <li>Dados geoespaciais das escolas</li>
-      <li>Indicadores de condições sanitárias</li>
-      <li>Análises estatísticas espaciais</li>
-      <li>Visualização interativa</li>
-    </ol>
-    <p><em>⚠️ As análises não substituem vistorias técnicas presenciais.</em></p>
+    <div class="metodologia-coluna">
+      <h4>🎯 Fontes de Dados:</h4>
+      <ul>
+        <li><strong>Dados Locais</strong>: Base oficial de escolas municipais de Fortaleza (mapa/escolas.js)</li>
+        <li><strong>Firebase</strong>: Avaliações em tempo real dos usuários (classe, pontuação, timestamp)</li>
+        <li><strong>Integração</strong>: Combinação automática de múltiplas fontes</li>
+      </ul>
+      
+      <h4>🔧 Tecnologias Utilizadas:</h4>
+      <ul>
+        <li>Leaflet.js para visualização de mapas</li>
+        <li>Firebase Firestore para banco de dados em tempo real</li>
+        <li>JavaScript puro para análise espacial</li>
+        <li>Algoritmos estatísticos para cálculos avançados</li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="metodologia-aviso">
+    <h4>⚠️ Limitações e Considerações:</h4>
+    <p>As análises são <strong>exploratórias e indicativas</strong>, baseadas em dados disponíveis. 
+    Não substituem vistorias técnicas presenciais nem diagnóstico especializado. 
+    Os resultados devem ser interpretados por profissionais qualificados.</p>
   </div>
 </div>
 
@@ -146,11 +228,24 @@
 <footer>
   © 2026 CheckInfra — Código MIT | 🔒 LGPD conforme lei nº 13.709/2018
   <div style="font-size: 11px; margin-top: 5px; opacity: 0.8;">
-    v2.0 | Análise Espacial com 8 indicadores integrados
+    v2.0 | Análise Espacial com 8 indicadores integrados | Fortaleza/CE
   </div>
 </footer>
 
-<!-- Scripts -->
+<!-- Scripts Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js"></script>
+
+<!-- Dados locais - AJUSTE O CAMINHO CONFORME SUA ESTRUTURA -->
+<script src="../mapa/escolas.js"></script>
+
+<!-- Configuração do Firebase (crie este arquivo na pasta análise-espacial) -->
+<script src="firebase-config.js"></script>
+
+<!-- Sistema de dados integrado (crie este arquivo na pasta análise-espacial) -->
+<script src="dados.js"></script>
+
+<!-- Bibliotecas para mapas -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
@@ -163,6 +258,9 @@
 <script src="mapa.js"></script>
 <script src="eventos.js"></script>
 <script src="sidebar.js"></script>
+
+<!-- Dashboard de dados -->
+<script src="dashboard-dados.js"></script>
 
 <!-- Scripts de análise avançada -->
 <script src="analise-avancada.js"></script>
@@ -180,7 +278,7 @@ document.getElementById('btn-voltar').addEventListener('click', function() {
   }
 });
 
-// Adiciona a aba "Análise Avançada" à função abrirAba
+// Sistema de abas atualizado
 function abrirAba(nome) {
   // Esconde todas as seções
   document.querySelectorAll('.secao').forEach(sec => {
@@ -198,39 +296,169 @@ function abrirAba(nome) {
     secao.classList.add('ativa');
     
     // Ativa o botão correspondente
-    document.querySelectorAll('.abas button').forEach(btn => {
-      if (btn.textContent.includes(nome === 'mapa' ? '🗺️' : 
-                                   nome === 'ranking' ? '📊' : 
-                                   nome === 'metodologia' ? '📘' : '🚀')) {
-        btn.classList.add('ativa');
-      }
+    const botao = Array.from(document.querySelectorAll('.abas button')).find(btn => {
+      const texto = btn.textContent;
+      return (nome === 'mapa' && texto.includes('🗺️')) ||
+             (nome === 'ranking' && texto.includes('📊')) ||
+             (nome === 'metodologia' && texto.includes('📘')) ||
+             (nome === 'avancada' && texto.includes('🚀')) ||
+             (nome === 'dados' && texto.includes('📊'));
     });
     
-    // Se for a aba de mapa, garante que o mapa seja redimensionado
-    if (nome === 'mapa') {
-      setTimeout(() => {
-        if (window.map) {
-          window.map.invalidateSize();
-        }
-      }, 300);
+    if (botao) {
+      botao.classList.add('ativa');
     }
     
-    // Se for a aba avançada, inicializa o mapa avançado
-    if (nome === 'avancada') {
-      setTimeout(() => {
-        if (typeof inicializarMapaAvancado === 'function') {
-          inicializarMapaAvancado();
-        }
-      }, 300);
-    }
+    // Ações específicas para cada aba
+    setTimeout(() => {
+      // Mapa - redimensionar
+      if (nome === 'mapa' && window.map) {
+        window.map.invalidateSize();
+      }
+      
+      // Análise avançada - inicializar mapa avançado
+      if (nome === 'avancada' && typeof inicializarMapaAvancado === 'function') {
+        inicializarMapaAvancado();
+      }
+      
+      // Dados - atualizar dashboard
+      if (nome === 'dados' && window.dashboardDados) {
+        window.dashboardDados.atualizar();
+      }
+    }, 300);
   }
 }
 
 // Inicialização quando a página carrega
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Análise Espacial v2.0 carregada');
-  console.log('Indicadores disponíveis: Pareto, Densidade Crítica, Concentração Relativa, Zonas Prioritárias, KDE, Gini, LQ, Moran');
+  console.log('📍 Base de dados: Escolas municipais de Fortaleza');
+  console.log('📊 8 indicadores disponíveis:');
+  console.log('   - Pareto, Densidade Crítica, Concentração Relativa, Zonas Prioritárias');
+  console.log('   - KDE, Gini Espacial, Location Quotient, Índice de Moran');
+  
+  // Botão para atualizar dados
+  const btnAtualizar = document.getElementById('btn-atualizar-dados');
+  if (btnAtualizar) {
+    btnAtualizar.addEventListener('click', function() {
+      if (window.dadosManager) {
+        console.log('🔄 Atualizando dados manualmente...');
+        window.dadosManager.inicializar();
+        btnAtualizar.textContent = '🔄 Atualizando...';
+        btnAtualizar.disabled = true;
+        
+        setTimeout(() => {
+          btnAtualizar.textContent = '🔄 Atualizar Dados Agora';
+          btnAtualizar.disabled = false;
+        }, 3000);
+      }
+    });
+  }
+  
+  // Botão para exportar ranking
+  const btnExportar = document.getElementById('btn-exportar-ranking');
+  if (btnExportar) {
+    btnExportar.addEventListener('click', function() {
+      exportarRankingCSV();
+    });
+  }
+  
+  // Atualizar status da conexão
+  function atualizarStatusConexao() {
+    const statusDiv = document.getElementById('conexao-status');
+    if (!statusDiv) return;
+    
+    if (window.firebaseManager) {
+      statusDiv.innerHTML = '<p style="color: #28a745;">✅ Conectado ao Firebase</p>';
+    } else {
+      statusDiv.innerHTML = '<p style="color: #dc3545;">⚠️ Firebase não configurado</p>';
+    }
+  }
+  
+  // Escutar eventos do sistema de dados
+  if (window.dadosManager) {
+    window.dadosManager.adicionarListener('dados_atualizados', function(dados) {
+      console.log('📊 Dados atualizados:', dados.escolas.length, 'escolas');
+      
+      // Atualizar contadores
+      const escolasLocal = dados.escolas.filter(e => e.fonte === 'local').length;
+      const escolasFirebase = dados.escolas.filter(e => e.fonte === 'firebase').length;
+      const total = dados.escolas.length;
+      
+      document.getElementById('contador-local').textContent = escolasLocal;
+      document.getElementById('contador-firebase').textContent = escolasFirebase;
+      document.getElementById('contador-total').textContent = total;
+      
+      // Atualizar métricas
+      if (dados.metricas) {
+        document.getElementById('metricas-criticas').textContent = dados.metricas.escolasCriticas || 0;
+        document.getElementById('metricas-avaliadas').textContent = dados.metricas.percentualAvaliadas || '0%';
+        document.getElementById('metricas-pontuacao').textContent = dados.metricas.pontuacaoMedia || '0';
+      }
+    });
+    
+    window.dadosManager.adicionarListener('status', function(status, erro) {
+      const statusMapa = document.getElementById('status-mapa');
+      if (statusMapa) {
+        switch(status) {
+          case 'inicializando':
+            statusMapa.innerHTML = '<p>🔄 Carregando dados...</p>';
+            break;
+          case 'carregando':
+            statusMapa.innerHTML = '<p>📡 Conectando ao Firebase...</p>';
+            break;
+          case 'pronto':
+            statusMapa.innerHTML = '<p>✅ Dados carregados!</p>';
+            break;
+          case 'erro':
+            statusMapa.innerHTML = `<p>❌ Erro: ${erro?.message || 'Desconhecido'}</p>`;
+            break;
+        }
+      }
+    });
+  }
+  
+  // Inicializar status
+  setTimeout(atualizarStatusConexao, 1000);
 });
+
+// Função para exportar ranking como CSV
+function exportarRankingCSV() {
+  if (!window.dadosManager) {
+    alert('Dados não disponíveis');
+    return;
+  }
+  
+  const escolas = window.dadosManager.getEscolas();
+  if (!escolas || escolas.length === 0) {
+    alert('Nenhuma escola para exportar');
+    return;
+  }
+  
+  // Ordenar por criticidade (peso)
+  const escolasOrdenadas = [...escolas].sort((a, b) => b.peso - a.peso);
+  
+  // Criar cabeçalho CSV
+  let csv = 'Nome,Latitude,Longitude,Classe,Pontuação,Avaliações,Fonte\n';
+  
+  // Adicionar dados
+  escolasOrdenadas.forEach(escola => {
+    csv += `"${escola.nome}",${escola.lat},${escola.lng},${escola.classe},${escola.pontuacao},${escola.avaliacoes?.length || 0},${escola.fonte}\n`;
+  });
+  
+  // Criar blob e fazer download
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `ranking-escolas-${new Date().toISOString().slice(0, 10)}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  console.log('📥 Ranking exportado como CSV');
+}
 </script>
 
 </body>

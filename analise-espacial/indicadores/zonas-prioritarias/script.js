@@ -1,0 +1,1 @@
+console.log("Zonas Prioritárias carregada");

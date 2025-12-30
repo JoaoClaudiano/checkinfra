@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Location Quotient (LQ)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<main>
+<div class="card">
+<h1>📈 Location Quotient (LQ)</h1>
+<p class="subtitulo"><strong>Concentração Relativa: </strong>Compara a proporção local com a média da cidade</p>
+
+<div class="formula-principal">
+<div class="formula-box">
+<span class="formula-titulo">Fórmula do LQ</span>
+<div class="formula-equacao">
+LQ = (Criticas<sub>local</sub> / Escolas<sub>local</sub>) ÷ (Criticas<sub>cidade</sub> / Escolas<sub>cidade</sub>)
+</div>
+</div>
+</div>
+
+<div class="interpretacao">
+<h2>🎯 Como Interpretar o LQ</h2>
+
+<div class="tabela-lq">
+<div class="cabecalho">
+<span>Valor LQ</span>
+<span>Interpretação</span>
+<span>Implicação</span>
+</div>
+
+<div class="linha" style="background:#e8f5e9;">
+<span class="valor-lq">LQ ≥ 2.0</span>
+<span class="descricao">Concentração muito alta</span>
+<span class="implicacao">Prioridade máxima</span>
+</div>
+
+<div class="linha" style="background:#fff3e0;">
+<span class="valor-lq">1.5 ≤ LQ < 2.0</span>
+<span class="descricao">Concentração alta</span>
+<span class="implicacao">Intervenção necessária</span>
+</div>
+
+<div class="linha" style="background:#fff9c4;">
+<span class="valor-lq">1.0 ≤ LQ < 1.5</span>
+<span class="descricao">Próximo da média</span>
+<span class="implicacao">Monitorar</span>
+</div>
+
+<div class="linha" style="background:#e8eaf6;">
+<span class="valor-lq">0.5 ≤ LQ < 1.0</span>
+<span class="descricao">Abaixo da média</span>
+<span class="implicacao">Situação melhor</span>
+</div>
+
+<div class="linha" style="background:#f3e5f5;">
+<span class="valor-lq">LQ < 0.5</span>
+<span class="descricao">Muito abaixo</span>
+<span class="implicacao">Baixa criticidade</span>
+</div>
+</div>
+</div>
+
+<div class="exemplo">
+<h2>🧮 Exemplo Prático</h2>
+<div class="cenario">
+<div class="dados">
+<h3>Cidade (Total):</h3>
+<p>100 escolas, 20 críticas</p>
+<p>Proporção: 20%</p>
+</div>
+
+<div class="dados">
+<h3>Bairro X:</h3>
+<p>10 escolas, 5 críticas</p>
+<p>Proporção: 50%</p>
+</div>
+
+<div class="calculo">
+<h3>Cálculo do LQ:</h3>
+<p>LQ = (50% ÷ 20%) = 2.5</p>
+<p class="conclusao">Este bairro tem 2.5x mais escolas críticas que a média da cidade!</p>
+</div>
+</div>
+</div>
+
+<div class="aplicacao">
+<h2>🏫 Aplicação no Planejamento</h2>
+<div class="vantagens">
+<div class="vantagem">
+<span class="icone">🎯</span>
+<h3>Detecta Desigualdade</h3>
+<p>Identifica bairros desproporcionalmente afetados</p>
+</div>
+
+<div class="vantagem">
+<span class="icone">📊</span>
+<h3>Padroniza Análise</h3>
+<p>Permite comparação entre áreas de tamanhos diferentes</p>
+</div>
+
+<div class="vantagem">
+<span class="icone">⚖️</span>
+<h3>Base para Políticas</h3>
+<p>Direciona recursos para áreas mais vulneráveis</p>
+</div>
+</div>
+</div>
+
+<div class="limites">
+<h2>⚠️ Limitações do LQ</h2>
+<ul>
+<li>Sensível a áreas com poucas escolas (n pequeno)</li>
+<li>Não considera vizinhança espacial</li>
+<li>Deve ser usado em conjunto com outros indicadores</li>
+</ul>
+</div>
+</div>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

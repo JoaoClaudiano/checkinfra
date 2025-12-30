@@ -77,13 +77,25 @@
 <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
 <script src="abas.js"></script>
-<script src="mapa.js"></script>
-<script src="recalculos.js"></script>
+
+<!-- ALTERAÇÃO: Carregar mapa.js DEPOIS das funções de recálculo -->
+<script src="recalculos.js"></script> <!-- Primeiro: funções de cálculo -->
+<script src="mapa.js"></script>       <!-- Depois: inicialização (usa funções acima) -->
+
 <script src="eventos.js"></script>
 <script src="sidebar.js"></script>
 
-<!-- Pareto JS -->
-<script src="indicadores/pareto/pareto.js"></script>
+<!-- Handler para botão voltar -->
+<script>
+document.getElementById('btn-voltar').addEventListener('click', function() {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.location.href = '/';
+  }
+});
+</script>
 
 </body>
 </html>
+

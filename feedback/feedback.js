@@ -5,57 +5,66 @@ const form = document.getElementById("feedback-form");
 const status = document.getElementById("feedback-status");
 const submitBtn = document.getElementById("feedback-submit");
 
-// abrir / fechar
+/* abrir / fechar */
 fab.onclick = () => modal.classList.remove("hidden");
 closeBtn.onclick = () => modal.classList.add("hidden");
 
-// capturar URL automaticamente
+/* capturar URL automaticamente */
 document.getElementById("page-url").value = window.location.href;
 
-// rating clicável
+/* capturar rating */
 document.querySelectorAll(".rating input").forEach(input => {
   input.addEventListener("change", () => {
-    document.querySelectorAll(".rating label span").forEach(s => s.style.fontWeight = "normal");
-    input.nextElementSibling.style.fontWeight = "bold";
+    submitBtn.dataset.rating = input.value;
   });
 });
 
-
-// submit assíncrono
+/* SUBMIT ASSÍNCRONO - Web3Form */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  // estado inicial
-  status.className = "";
+  // limpar status
   status.textContent = "";
+  status.className = "";
   submitBtn.classList.add("loading");
-  submitBtn.disabled = true;
   submitBtn.textContent = "Enviando…";
+  submitBtn.disabled = true;
 
-  const data = new FormData(form);
-  
+  const formData = new FormData(form);
+  formData.append("access_key", "dda02135-5247-43ee-b75c-5b259ae11f5b");
 
   try {
-    const res = await fetch("https://formspree.io/f/xdaobedn", {
+    const response = await fetch("https://api.web3forms.com/submit", {
       method: "POST",
-      body: data,
-      headers: { "Accept": "application/json" }
+      body: formData
     });
 
-    if (res.ok) {
-      status.textContent = "✅ Obrigado! Seu feedback foi enviado.";
+    const data = await response.json();
+
+    if (response.ok) {
+      status.textContent = "✅ Obrigado! Seu feedback foi enviado! ☁️";
       status.classList.add("success");
       form.reset();
+
+      setTimeout(() => {
+        modal.classList.add("hidden");
+        status.textContent = "";
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Enviar feedback";
+        submitBtn.classList.remove("loading");
+      }, 1800);
+
     } else {
-      throw new Error("Erro no envio");
+      status.textContent = "⚠️ Erro: " + (data.message || "Tente novamente.");
+      status.classList.add("error");
     }
-  } catch {
-    status.textContent = "⚠️ Não foi possível enviar agora. Tente novamente.";
+
+  } catch (error) {
+    status.textContent = "⚠️ Falha de conexão. Tente novamente.";
     status.classList.add("error");
   }
 
-  submitBtn.classList.remove("loading");
   submitBtn.disabled = false;
   submitBtn.textContent = "Enviar feedback";
+  submitBtn.classList.remove("loading");
 });
-

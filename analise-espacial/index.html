@@ -21,7 +21,7 @@
 </header>
 
 <!-- Sidebar -->
-<div id="sidebar" class="sidebar hidden">
+<div id="sidebar" class="sidebar">
   <button id="close-sidebar" aria-label="Fechar">✕</button>
   <nav id="sidebar-menu">
     <ul>
@@ -77,16 +77,14 @@
 <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
 <script src="abas.js"></script>
-
-<!-- ALTERAÇÃO: Carregar mapa.js DEPOIS das funções de recálculo -->
-<script src="recalculos.js"></script> <!-- Primeiro: funções de cálculo -->
-<script src="mapa.js"></script>       <!-- Depois: inicialização (usa funções acima) -->
-
+<script src="recalculos.js"></script>
+<script src="mapa.js"></script>
 <script src="eventos.js"></script>
 <script src="sidebar.js"></script>
 
-<!-- Handler para botão voltar -->
+<!-- Pareto JS -->
 <script>
+// Handler para botão voltar
 document.getElementById('btn-voltar').addEventListener('click', function() {
   if (window.history.length > 1) {
     window.history.back();
@@ -98,4 +96,3 @@ document.getElementById('btn-voltar').addEventListener('click', function() {
 
 </body>
 </html>
-

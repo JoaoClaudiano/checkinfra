@@ -4,3 +4,4 @@ function abrirAba(id) {
   document.getElementById(id).classList.add("ativa");
   event.target.classList.add("ativa");
 }
+

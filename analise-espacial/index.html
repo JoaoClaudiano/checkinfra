@@ -1689,7 +1689,6 @@ function ativarCamada(camada) {
   const raio = parseInt(document.getElementById('param-raio')?.value || 500);
 
   switch (camada) {
-
     case 'escolas':
       if (window.layerEscolas) {
         window.mapa.addLayer(window.layerEscolas);
@@ -1743,32 +1742,45 @@ function ativarCamada(camada) {
   }
 }
 
-
 function desativarCamada(camada) {
   console.log(`🗺️ Desativando camada: ${camada}`);
   
-  // Remover camada específica do mapa
-  window.mapa.eachLayer(layer => {
-    let remover = false;
-    
-    switch(camada) {
-      case 'kde':
-        if (layer instanceof L.HeatLayer) remover = true;
-        break;
-        
-      case 'voronoi':
-        if (layer instanceof L.Polygon && layer.options && layer.options.className === 'voronoi') remover = true;
-        break;
-        
-      case 'zonas':
-        if (layer instanceof L.Polygon && layer.options && layer.options.className === 'zona-risco') remover = true;
-        break;
-    }
-    
-    if (remover) {
-      window.mapa.removeLayer(layer);
-    }
-  });
+  // Chamar função de remoção específica de cada handler
+  switch(camada) {
+    case 'kde':
+      if (window.kdeHandler) window.kdeHandler.remover();
+      break;
+      
+    case 'voronoi':
+      if (window.voronoiCritico) window.voronoiCritico.limpar();
+      break;
+      
+    case 'zonas':
+      if (window.zonasRiscoHandler) window.zonasRiscoHandler.remover();
+      break;
+      
+    case 'densidade':
+      if (window.densidadeCriticaHandler) window.densidadeCriticaHandler.remover();
+      break;
+      
+    case 'concentracao':
+      if (window.concentracaoRelativaHandler) window.concentracaoRelativaHandler.remover();
+      break;
+      
+    case 'gini':
+      if (window.giniEspacialHandler) window.giniEspacialHandler.remover();
+      break;
+      
+    case 'rede':
+      if (window.redeInfluenciaHandler) window.redeInfluenciaHandler.remover();
+      break;
+      
+    case 'escolas':
+      if (window.layerEscolas) {
+        window.mapa.removeLayer(window.layerEscolas);
+      }
+      break;
+  }
 }
 
 async function atualizarDados() {

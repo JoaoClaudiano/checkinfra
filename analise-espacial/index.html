@@ -1510,8 +1510,11 @@ function plotarEscolasNoMapa(escolas) {
   
   console.log(`🗺️ Plotando ${escolas.length} escolas no mapa...`);
   
-  // 🔍 DEPURAÇÃO: Ver estrutura dos dados
-  console.log('📋 ESTRUTURA DE DADOS RECEBIDA:', escolas.length > 0 ? Object.keys(escolas[0]) : 'Sem dados');
+  // 🔍 DEPURAÇÃO: Ver estrutura do primeiro item
+  if (escolas.length > 0) {
+    console.log('🔍 ESTRUTURA DO PRIMEIRO ITEM:', Object.keys(escolas[0]));
+    console.log('📋 DADOS DO PRIMEIRO ITEM:', escolas[0]);
+  }
   
   // Limpar marcadores existentes
   if (window.layerEscolas) {
@@ -1520,7 +1523,7 @@ function plotarEscolasNoMapa(escolas) {
     window.layerEscolas = L.layerGroup().addTo(window.mapa);
   }
   
-  // 🔥 MAPEAMENTO CORRETO para os status do Firebase
+  // 🔥 MAPEAMENTO DIRETO - Status do Firebase → Cores
   const coresStatus = {
     'critico': '#F44336',    // Vermelho
     'atencao': '#FF9800',    // Laranja  
@@ -1528,91 +1531,46 @@ function plotarEscolasNoMapa(escolas) {
     'ok': '#4CAF50'          // Verde
   };
   
-  // Nomes formatados para exibição
   const nomesStatus = {
     'critico': 'Crítico',
-    'atencao': 'Atenção',
+    'atencao': 'Atenção', 
     'alerta': 'Alerta',
     'ok': 'Adequado'
   };
   
-  // 🔥 FUNÇÃO MELHORADA PARA BUSCAR NOME DA ESCOLA
-  function obterNomeEscola(escola) {
-    // Tentar todos os campos possíveis (em ordem de prioridade)
-    const camposPossiveis = [
-      'escola',      // Espanhol
-      'nome',        // Português
-      'escola',      // Firebase padrão
-      'escola_nome', // Outro possível
-      'name',        // Inglês
-      'titulo',      // Outra possibilidade
-      'escuela',     // Espanhol alternativo
-      'school',      // Inglês
-      'instituicao', // Instituição
-      'instituição'  // Com acento
-    ];
-    
-    for (const campo of camposPossiveis) {
-      if (escola[campo] && typeof escola[campo] === 'string' && escola[campo].trim() !== '') {
-        console.log(`   ✅ Nome encontrado no campo "${campo}": ${escola[campo]}`);
-        return escola[campo].trim();
-      }
-    }
-    
-    // Se não encontrou em nenhum campo específico, buscar qualquer campo string
-    for (const key in escola) {
-      if (typeof escola[key] === 'string' && escola[key].length > 5) {
-        // Verificar se parece ser um nome (tem espaços, não é um ID)
-        if (escola[key].includes(' ') && !escola[key].startsWith('Escola')) {
-          console.log(`   🔍 Possível nome no campo genérico "${key}": ${escola[key]}`);
-          return escola[key].trim();
-        }
-      }
-    }
-    
-    // Último recurso: usar ID
-    const id = escola.id || escola._id || escola.codigo || 'não identificada';
-    console.log(`   ❌ Nome não encontrado, usando ID: ${id}`);
-    return `Escola ${id}`;
-  }
-  
-  // Adicionar cada escola como marcador colorido
+  // 🔥 PLOTAR CADA ESCOLA
   escolas.forEach((escola, index) => {
     if (!escola.lat || !escola.lng) {
-      console.warn(`⚠️ Escola ${index} sem coordenadas`);
+      console.warn(`⚠️ Item ${index} sem coordenadas:`, escola);
       return;
     }
     
-    console.log(`\n🏫 Escola ${index + 1}:`);
-    
-    // 🔥 OBTER STATUS DO FIREBASE
+    // 🔥 OBTER STATUS - pode vir como 'clase' ou 'status'
     let status = (escola.clase || escola.status || '').toLowerCase().trim();
-    console.log(`   Status: "${status}"`);
     
-    // 🔥 OBTER NOME USANDO A FUNÇÃO MELHORADA
-    const nomeEscola = obterNomeEscola(escola);
+    // 🔥 OBTER NOME DA ESCOLA - campo correto é 'escola'
+    const nomeEscola = escola.escola || `Escola ${index + 1}`;
+    
+    console.log(`🏫 ${index + 1}: "${nomeEscola}" - Status: ${status}`);
     
     // Fallback para status inválido
     if (!status || !coresStatus[status]) {
-      console.warn(`   Status inválido, tentando inferir...`);
-      if (escola.pontuacao !== undefined) {
+      console.warn(`   Status "${status}" inválido, usando pontuação para inferir`);
+      if (escola.pontuacao !== undefined && escola.pontuacao !== null) {
         if (escola.pontuacao <= 2) status = 'critico';
         else if (escola.pontuacao <= 4) status = 'atencao';
         else if (escola.pontuacao <= 6) status = 'alerta';
         else status = 'ok';
-        console.log(`   Status inferido pela pontuação ${escola.pontuacao}: ${status}`);
+        console.log(`   Status inferido: ${status} (pontuação: ${escola.pontuacao})`);
       } else {
         status = 'desconhecido';
       }
     }
     
-    // Determinar cor e nome do status
     const cor = coresStatus[status] || '#6c757d';
     const nomeStatus = nomesStatus[status] || status;
     
-    console.log(`   Cor: ${cor}, Nome para tooltip: "${nomeEscola}"`);
-    
-    // Criar marcador circular colorido
+    // 🔥 CRIAR MARCADOR
     const marker = L.circleMarker([escola.lat, escola.lng], {
       radius: 10,
       color: '#ffffff',
@@ -1622,46 +1580,41 @@ function plotarEscolasNoMapa(escolas) {
       opacity: 1
     });
     
-    // Conteúdo do popup
+    // 🔥 POPUP COM INFORMAÇÕES
     const popupContent = `
       <div style="min-width: 250px; padding: 12px; font-family: -apple-system, sans-serif;">
         <h4 style="margin: 0 0 10px 0; color: ${cor}; border-bottom: 1px solid #eee; padding-bottom: 5px;">
           <i class="fas fa-school"></i> ${nomeEscola}
         </h4>
         <p style="margin: 8px 0; font-size: 13px;">
-          <strong style="color: #555;">Status:</strong> 
+          <strong>Status:</strong> 
           <span style="color: ${cor}; font-weight: bold; padding: 2px 8px; border-radius: 12px; background: ${cor}20;">
             ${nomeStatus}
           </span>
         </p>
-        ${escola.pontuacao !== undefined ? `
+        <p style="margin: 8px 0; font-size: 13px;">
+          <strong>Pontuação:</strong> ${escola.pontuacao !== undefined ? escola.pontuacao : 'N/A'}
+        </p>
+        <p style="margin: 8px 0; font-size: 13px;">
+          <strong>Endereço:</strong> ${escola.endereco || 'Não informado'}
+        </p>
+        ${escola.data_avaliacao ? `
           <p style="margin: 8px 0; font-size: 13px;">
-            <strong style="color: #555;">Pontuação:</strong> ${escola.pontuacao}
-          </p>
-        ` : ''}
-        ${escola.endereco || escola.endereço ? `
-          <p style="margin: 8px 0; font-size: 13px;">
-            <strong style="color: #555;">Endereço:</strong> ${escola.endereco || escola.endereço}
-          </p>
-        ` : ''}
-        ${escola.bairro ? `
-          <p style="margin: 8px 0; font-size: 13px;">
-            <strong style="color: #555;">Bairro:</strong> ${escola.bairro}
+            <strong>Data da avaliação:</strong> ${escola.data_avaliacao}
           </p>
         ` : ''}
         <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; font-size: 11px; color: #888;">
-          <i class="fas fa-info-circle"></i> Clique fora para fechar
+          <i class="fas fa-info-circle"></i> ID: ${escola.id || index}
         </div>
       </div>
     `;
     
-    // Adicionar popup
     marker.bindPopup(popupContent, {
       maxWidth: 300,
       minWidth: 250
     });
     
-    // 🔥 TOOLTIP CORRETO - usar nomeEscola
+    // 🔥 TOOLTIP COM NOME DA ESCOLA (campo 'escola')
     marker.bindTooltip(nomeEscola, {
       direction: 'top',
       offset: [0, -10],
@@ -1671,8 +1624,8 @@ function plotarEscolasNoMapa(escolas) {
       className: 'escola-tooltip'
     });
     
-    // Eventos para tooltip
-    marker.on('mouseover', function(e) {
+    // Eventos de hover
+    marker.on('mouseover', function() {
       this.openTooltip();
       this.setStyle({
         fillOpacity: 1,
@@ -1681,7 +1634,7 @@ function plotarEscolasNoMapa(escolas) {
       });
     });
     
-    marker.on('mouseout', function(e) {
+    marker.on('mouseout', function() {
       this.closeTooltip();
       this.setStyle({
         fillOpacity: 0.8,
@@ -1690,31 +1643,25 @@ function plotarEscolasNoMapa(escolas) {
       });
     });
     
-    // Evento de clique para debug
-    marker.on('click', function(e) {
-      console.log(`📍 Clicou em: ${nomeEscola}`);
-      console.log(`📊 Status: ${status}, Dados completos:`, escola);
-    });
-    
     // Adicionar ao mapa
     marker.addTo(window.layerEscolas);
     
     // Armazenar dados
     marker.options.escolaData = escola;
-    marker.options.statusOriginal = status;
-    marker.options.nomeEscola = nomeEscola;
   });
   
-  console.log(`\n✅ ${escolas.length} escolas plotadas`);
-  
-  // 🔍 DEPURAÇÃO FINAL: Mostrar algumas escolas como exemplo
-  if (escolas.length > 0) {
-    console.log('\n📋 AMOSTRA DOS DADOS (3 primeiras escolas):');
-    escolas.slice(0, 3).forEach((escola, i) => {
-      console.log(`\n🏫 Escola ${i + 1}:`);
-      console.log('  Dados completos:', escola);
-    });
-  }
+  console.log(`✅ ${escolas.length} escolas plotadas com sucesso!`);
+  console.log('📊 Contagem por status:', contarStatus(escolas));
+}
+
+// 🔍 FUNÇÃO AUXILIAR PARA CONTAR STATUS
+function contarStatus(escolas) {
+  const contagem = {};
+  escolas.forEach(e => {
+    const status = (e.clase || e.status || '').toLowerCase().trim();
+    contagem[status] = (contagem[status] || 0) + 1;
+  });
+  return contagem;
 }
 
 

@@ -1,24 +1,39 @@
-// popup-glow-responsive.js
+// popup-glow-intenso.js
 (function() {
     'use strict';
     
-    // ==================== CONFIGURAÇÃO ====================
+    // ==================== CONFIGURAÇÃO INTENSA ====================
     const CONFIG = {
-        popupId: 'glow-popup',
-        storageKey: 'glowPopupHiddenUntil',
+        popupId: 'glow-intenso-popup',
+        storageKey: 'glowIntensoPopupHidden',
         hideDays: 7,
-        showDelay: 3000, // ms antes de mostrar automaticamente
+        showDelay: 2000,
+        
+        // CORES VIBRANTES E INTENSAS
         colors: {
-            primary: '#7C3AED',
-            primaryDark: '#5B21B6',
-            secondary: '#F9FAFB',
-            textPrimary: '#1F2937',
-            textSecondary: '#6B7280'
+            primary: '#FF6B6B',      // Vermelho vibrante
+            primaryDark: '#FF4757',  // Vermelho mais intenso
+            secondary: '#FFD93D',    // Amarelo dourado
+            accent: '#6BC5FF',       // Azul neon
+            glowLight: '#FF9E6D',    // Laranja para glow
+            glowDark: '#FF2E63',     // Rosa neon
+            textPrimary: '#FFFFFF',
+            textSecondary: '#F0F0F0'
         },
+        
+        // ANIMAÇÕES MAIS RÁPIDAS E MARCANTES
         animations: {
-            glowPulse: '3s ease-in-out infinite',
-            cardSlideIn: '0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            fadeIn: '0.4s ease-out'
+            glowPulse: '2s ease-in-out infinite',
+            cardSlideIn: '0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+            fadeIn: '0.4s ease-out',
+            shake: '0.5s ease-in-out'
+        },
+        
+        // GLOW MAIS INTENSO
+        glow: {
+            blur: '25px',
+            intensity: '0.8',
+            spread: '15px'
         }
     };
     
@@ -27,113 +42,319 @@
         return;
     }
     
-    // ==================== CRIAÇÃO DO CSS ====================
+    // ==================== CSS COM EFEITOS INTENSOS ====================
     const style = document.createElement('style');
     style.textContent = `
-        /* OVERLAY */
-        .glow-popup-overlay {
+        /* OVERLAY COM GRADIENTE DINÂMICO */
+        .glow-intenso-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: linear-gradient(
+                135deg,
+                rgba(0, 0, 0, 0.9) 0%,
+                rgba(30, 30, 60, 0.9) 100%
+            );
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            backdrop-filter: blur(3px);
-            animation: glowOverlayFadeIn ${CONFIG.animations.fadeIn};
+            backdrop-filter: blur(10px);
+            animation: overlayGradientShift 10s ease infinite;
         }
         
-        @keyframes glowOverlayFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @keyframes overlayGradientShift {
+            0%, 100% {
+                background: linear-gradient(
+                    135deg,
+                    rgba(0, 0, 0, 0.9) 0%,
+                    rgba(30, 30, 60, 0.9) 100%
+                );
+            }
+            50% {
+                background: linear-gradient(
+                    135deg,
+                    rgba(20, 10, 40, 0.9) 0%,
+                    rgba(50, 20, 60, 0.9) 100%
+                );
+            }
         }
         
-        /* CARD COM GLOW */
-        .glow-popup-card {
-            background: white;
-            border-radius: 16px;
+        /* CARD COM GLOW MUITO INTENSO */
+        .glow-intenso-card {
+            background: linear-gradient(
+                145deg,
+                rgba(255, 255, 255, 0.95),
+                rgba(255, 255, 255, 0.85)
+            );
+            border-radius: 20px;
             width: 92%;
-            max-width: 420px;
+            max-width: 440px;
             overflow: hidden;
             position: relative;
             z-index: 1;
-            animation: glowCardSlideIn ${CONFIG.animations.cardSlideIn};
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            animation: intenseCardEntrance ${CONFIG.animations.cardSlideIn};
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            
+            /* Sombra estática já intensa */
             box-shadow: 
-                0 10px 40px rgba(0, 0, 0, 0.1),
-                0 0 0 1px rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
+                0 0 30px ${CONFIG.colors.primary},
+                0 0 60px rgba(255, 107, 107, 0.3),
+                0 20px 60px rgba(0, 0, 0, 0.4);
+            
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        /* EFEITO GLOW EXTERNO COM RESPIRAÇÃO */
-        .glow-popup-card::before {
+        /* EFEITO GLOW EXTERNO MUITO FORTE */
+        .glow-intenso-card::before {
             content: '';
             position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
+            top: -${CONFIG.glow.spread};
+            left: -${CONFIG.glow.spread};
+            right: -${CONFIG.glow.spread};
+            bottom: -${CONFIG.glow.spread};
             background: linear-gradient(
                 45deg,
                 ${CONFIG.colors.primary},
-                #8B5CF6,
+                ${CONFIG.colors.secondary},
+                ${CONFIG.colors.accent},
+                ${CONFIG.colors.glowLight},
                 ${CONFIG.colors.primary}
             );
-            border-radius: 18px;
+            background-size: 400% 400%;
+            border-radius: 25px;
             z-index: -1;
-            opacity: 0.3;
-            filter: blur(12px);
-            animation: glowPulseEffect ${CONFIG.animations.glowPulse};
+            opacity: ${CONFIG.glow.intensity};
+            filter: blur(${CONFIG.glow.blur});
+            animation: intenseGlowPulse ${CONFIG.animations.glowPulse},
+                       gradientShift 6s ease infinite;
         }
         
-        @keyframes glowCardSlideIn {
+        /* ANIMAÇÃO DE ENTRADA DRAMÁTICA */
+        @keyframes intenseCardEntrance {
             0% {
                 opacity: 0;
-                transform: translateY(20px) scale(0.95);
+                transform: translateY(40px) scale(0.8) rotateX(-10deg);
+            }
+            70% {
+                transform: translateY(-10px) scale(1.05) rotateX(2deg);
             }
             100% {
                 opacity: 1;
-                transform: translateY(0) scale(1);
+                transform: translateY(0) scale(1) rotateX(0);
             }
         }
         
-        @keyframes glowPulseEffect {
+        /* PULSAÇÃO INTENSA DO GLOW */
+        @keyframes intenseGlowPulse {
             0%, 100% {
-                opacity: 0.3;
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            25% {
+                opacity: 0.8;
+                transform: scale(1.02);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            75% {
+                opacity: 0.8;
+                transform: scale(1.02);
+            }
+        }
+        
+        /* ANIMAÇÃO DO GRADIENTE */
+        @keyframes gradientShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+        
+        /* EFEITO HOVER MUITO DRAMÁTICO */
+        .glow-intenso-card:hover {
+            transform: 
+                translateY(-8px) 
+                scale(1.02) 
+                rotateX(5deg);
+            box-shadow: 
+                0 0 50px ${CONFIG.colors.secondary},
+                0 0 80px rgba(255, 217, 61, 0.4),
+                0 30px 80px rgba(0, 0, 0, 0.5);
+        }
+        
+        .glow-intenso-card:hover::before {
+            opacity: 1;
+            filter: blur(35px);
+            animation-duration: 1.5s, 4s;
+        }
+        
+        /* CABEÇALHO COM NEON INTENSO */
+        .glow-intenso-header {
+            background: linear-gradient(
+                135deg, 
+                ${CONFIG.colors.primary} 0%, 
+                ${CONFIG.colors.glowDark} 100%
+            );
+            color: ${CONFIG.colors.textPrimary};
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            
+            /* EFEITO NEON NO CABEÇALHO */
+            box-shadow: 
+                inset 0 0 20px rgba(255, 255, 255, 0.3),
+                0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* EFEITO DE PARTÍCULAS NO CABEÇALHO */
+        .glow-intenso-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 2px, transparent 2px),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.2) 1px, transparent 1px),
+                radial-gradient(circle at 40% 50%, rgba(255, 255, 255, 0.4) 3px, transparent 3px);
+            background-size: 100px 100px, 150px 150px, 200px 200px;
+            animation: particlesFloat 20s linear infinite;
+            opacity: 0.5;
+        }
+        
+        @keyframes particlesFloat {
+            0% {
+                background-position: 0 0, 0 0, 0 0;
+            }
+            100% {
+                background-position: 100px 100px, 150px 150px, 200px 200px;
+            }
+        }
+        
+        .intenso-header-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* ÍCONE PISCANTE */
+        .glow-intenso-icon {
+            font-size: 24px;
+            background: rgba(255, 255, 255, 0.25);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            animation: iconPulse 2s infinite, iconFloat 3s ease-in-out infinite;
+            box-shadow: 
+                0 0 15px ${CONFIG.colors.accent},
+                inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        @keyframes iconPulse {
+            0%, 100% {
+                box-shadow: 
+                    0 0 15px ${CONFIG.colors.accent},
+                    inset 0 0 10px rgba(255, 255, 255, 0.5);
                 transform: scale(1);
             }
             50% {
-                opacity: 0.5;
-                transform: scale(1.01);
+                box-shadow: 
+                    0 0 30px ${CONFIG.colors.accent},
+                    0 0 40px ${CONFIG.colors.primary},
+                    inset 0 0 15px rgba(255, 255, 255, 0.8);
+                transform: scale(1.1);
             }
         }
         
-        /* EFEITO HOVER */
-        .glow-popup-card:hover {
-            transform: translateY(-2px);
+        @keyframes iconFloat {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-5px) rotate(5deg);
+            }
+            66% {
+                transform: translateY(5px) rotate(-5deg);
+            }
+        }
+        
+        .glow-intenso-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.3;
+            flex: 1;
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                0 0 10px rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.5px;
+        }
+        
+        /* BOTÃO FECHAR COM EFEITO ESPECIAL */
+        .glow-intenso-close {
+            background: rgba(255, 255, 255, 0.25);
+            border: none;
+            color: ${CONFIG.colors.textPrimary};
+            font-size: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            flex-shrink: 0;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        .glow-intenso-close:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: 
+                scale(1.2) 
+                rotate(180deg);
             box-shadow: 
-                0 15px 50px rgba(0, 0, 0, 0.15),
-                0 0 0 1px rgba(255, 255, 255, 0.2);
+                0 0 20px ${CONFIG.colors.primary},
+                0 0 30px rgba(255, 107, 107, 0.5);
         }
         
-        .glow-popup-card:hover::before {
-            opacity: 0.4;
-        }
-        
-        /* CABEÇALHO */
-        .glow-popup-header {
-            background: linear-gradient(135deg, ${CONFIG.colors.primary} 0%, ${CONFIG.colors.primaryDark} 100%);
-            color: white;
-            padding: 20px 24px;
+        /* CONTEÚDO COM BACKGROUND GRADIENTE */
+        .glow-intenso-content {
+            padding: 30px;
+            color: #2D3436;
+            line-height: 1.6;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.95) 0%,
+                rgba(248, 249, 250, 0.9) 100%
+            );
             position: relative;
             overflow: hidden;
         }
         
-        .glow-popup-header::after {
+        .glow-intenso-content::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -141,391 +362,401 @@
             width: 200%;
             height: 200%;
             background: linear-gradient(
-                to right,
-                transparent,
-                rgba(255, 255, 255, 0.1),
-                transparent
+                45deg,
+                transparent 30%,
+                rgba(255, 107, 107, 0.05) 50%,
+                transparent 70%
             );
-            transform: rotate(30deg);
-            animation: glowShine 6s infinite linear;
+            animation: contentShimmer 8s linear infinite;
         }
         
-        @keyframes glowShine {
-            0% { transform: translateX(-100%) rotate(30deg); }
-            100% { transform: translateX(100%) rotate(30deg); }
+        @keyframes contentShimmer {
+            0% { transform: rotate(0deg) translateX(-25%); }
+            100% { transform: rotate(360deg) translateX(-25%); }
         }
         
-        .glow-header-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .glow-popup-icon {
-            font-size: 20px;
-            background: rgba(255, 255, 255, 0.15);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .glow-popup-header h3 {
-            margin: 0;
+        .intenso-message {
+            margin: 0 0 30px 0;
             font-size: 16px;
-            font-weight: 600;
-            line-height: 1.4;
-            flex: 1;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-        
-        .glow-close-btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: white;
-            font-size: 20px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
             position: relative;
             z-index: 1;
         }
         
-        .glow-close-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: scale(1.1) rotate(90deg);
-        }
-        
-        /* CONTEÚDO */
-        .glow-popup-content {
-            padding: 24px;
-            color: ${CONFIG.colors.textPrimary};
-            line-height: 1.5;
-            background: ${CONFIG.colors.secondary};
-        }
-        
-        .glow-popup-message {
-            margin: 0 0 20px 0;
-            font-size: 14px;
-            text-align: center;
-        }
-        
-        .glow-popup-message strong {
+        .intenso-message strong {
             display: block;
-            color: ${CONFIG.colors.textPrimary};
-            font-size: 15px;
-            margin-bottom: 8px;
-            font-weight: 600;
+            color: ${CONFIG.colors.primary};
+            font-size: 22px;
+            margin-bottom: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
         
-        /* PROGRESS DOTS */
-        .glow-progress-container {
+        /* ANIMAÇÃO DE LOADING ESPECTACULAR */
+        .intenso-loading {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
-            margin: 20px 0;
+            gap: 20px;
+            margin: 30px 0;
+            position: relative;
+            z-index: 1;
         }
         
-        .glow-progress-dots {
-            display: flex;
-            gap: 8px;
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            position: relative;
         }
         
-        .glow-progress-dot {
-            width: 8px;
-            height: 8px;
-            background: ${CONFIG.colors.primary};
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            opacity: 0.3;
-            animation: glowDotPulse 2s infinite;
+            border: 4px solid transparent;
+            animation: spinnerRotate 2s linear infinite;
         }
         
-        .glow-progress-dot:nth-child(1) { animation-delay: 0s; }
-        .glow-progress-dot:nth-child(2) { animation-delay: 0.2s; }
-        .glow-progress-dot:nth-child(3) { animation-delay: 0.4s; }
+        .spinner-ring:nth-child(1) {
+            border-top: 4px solid ${CONFIG.colors.primary};
+            animation-delay: 0s;
+        }
         
-        @keyframes glowDotPulse {
-            0%, 100% { 
-                opacity: 0.3;
-                transform: scale(0.9);
+        .spinner-ring:nth-child(2) {
+            border-right: 4px solid ${CONFIG.colors.secondary};
+            animation-delay: 0.2s;
+        }
+        
+        .spinner-ring:nth-child(3) {
+            border-bottom: 4px solid ${CONFIG.colors.accent};
+            animation-delay: 0.4s;
+        }
+        
+        .spinner-ring:nth-child(4) {
+            border-left: 4px solid ${CONFIG.colors.glowDark};
+            animation-delay: 0.6s;
+        }
+        
+        @keyframes spinnerRotate {
+            0% {
+                transform: rotate(0deg);
             }
-            50% { 
-                opacity: 0.8;
-                transform: scale(1.1);
+            100% {
+                transform: rotate(360deg);
             }
         }
         
-        .glow-progress-text {
-            font-size: 12px;
-            color: ${CONFIG.colors.textSecondary};
+        .loading-text {
+            font-size: 14px;
+            color: #636E72;
             text-align: center;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            animation: textGlow 3s ease-in-out infinite;
         }
         
-        /* RODAPÉ E BOTÕES */
-        .glow-popup-footer {
-            padding: 0 24px 24px;
+        @keyframes textGlow {
+            0%, 100% {
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            }
+            50% {
+                text-shadow: 
+                    0 0 10px ${CONFIG.colors.accent},
+                    0 0 20px rgba(107, 197, 255, 0.3);
+            }
+        }
+        
+        /* BOTÕES COM EFEITOS ESPECIAIS */
+        .glow-intenso-footer {
+            padding: 0 30px 30px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
         }
         
-        .glow-popup-btn {
-            padding: 14px 20px;
+        .intenso-btn {
+            padding: 18px 24px;
             border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             font-family: inherit;
             text-align: center;
             position: relative;
             overflow: hidden;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
         
-        .glow-popup-btn::before {
+        .intenso-btn::before {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+            );
+            transition: left 0.7s ease;
         }
         
-        .glow-popup-btn:hover::before {
-            width: 300px;
-            height: 300px;
+        .intenso-btn:hover::before {
+            left: 100%;
         }
         
-        .glow-primary-btn {
-            background: linear-gradient(135deg, ${CONFIG.colors.primary} 0%, ${CONFIG.colors.primaryDark} 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
-        }
-        
-        .glow-primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
-        }
-        
-        .glow-secondary-btn {
-            background: white;
+        .intenso-primary-btn {
+            background: linear-gradient(
+                135deg,
+                ${CONFIG.colors.primary} 0%,
+                ${CONFIG.colors.glowDark} 100%
+            );
             color: ${CONFIG.colors.textPrimary};
-            border: 1px solid #E5E7EB;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            box-shadow: 
+                0 6px 20px rgba(255, 107, 107, 0.4),
+                0 0 15px rgba(255, 107, 107, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
         
-        .glow-secondary-btn:hover {
-            background: #F9FAFB;
-            border-color: #D1D5DB;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        .intenso-primary-btn:hover {
+            transform: 
+                translateY(-5px) 
+                scale(1.05);
+            box-shadow: 
+                0 12px 30px rgba(255, 107, 107, 0.6),
+                0 0 25px rgba(255, 107, 107, 0.5),
+                inset 0 0 15px rgba(255, 255, 255, 0.2);
+            background: linear-gradient(
+                135deg,
+                ${CONFIG.colors.glowDark} 0%,
+                ${CONFIG.colors.primary} 100%
+            );
         }
         
-        /* OPÇÕES */
-        .glow-popup-options {
-            padding: 0 24px 20px;
+        .intenso-secondary-btn {
+            background: linear-gradient(
+                135deg,
+                ${CONFIG.colors.accent} 0%,
+                #4D96FF 100%
+            );
+            color: ${CONFIG.colors.textPrimary};
+            box-shadow: 
+                0 6px 20px rgba(107, 197, 255, 0.4),
+                0 0 15px rgba(107, 197, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .intenso-secondary-btn:hover {
+            transform: 
+                translateY(-5px) 
+                scale(1.05);
+            box-shadow: 
+                0 12px 30px rgba(107, 197, 255, 0.6),
+                0 0 25px rgba(107, 197, 255, 0.5),
+                inset 0 0 15px rgba(255, 255, 255, 0.2);
+            background: linear-gradient(
+                135deg,
+                #4D96FF 0%,
+                ${CONFIG.colors.accent} 100%
+            );
+        }
+        
+        /* CHECKBOX COM ANIMAÇÃO */
+        .glow-intenso-options {
+            padding: 0 30px 25px;
             text-align: center;
         }
         
-        .glow-option-label {
+        .intenso-option-label {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             cursor: pointer;
-            color: ${CONFIG.colors.textSecondary};
-            font-size: 12px;
-            transition: color 0.2s;
+            color: #636E72;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
-        .glow-option-label:hover {
-            color: ${CONFIG.colors.textPrimary};
+        .intenso-option-label:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
         
-        .glow-option-checkbox {
-            width: 14px;
-            height: 14px;
-            border-radius: 4px;
-            border: 1.5px solid #D1D5DB;
+        .intenso-option-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: 2px solid ${CONFIG.colors.primary};
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             position: relative;
             flex-shrink: 0;
+            background: white;
         }
         
-        .glow-option-checkbox:checked {
+        .intenso-option-checkbox:checked {
             background: ${CONFIG.colors.primary};
             border-color: ${CONFIG.colors.primary};
+            box-shadow: 0 0 10px ${CONFIG.colors.primary};
         }
         
-        .glow-option-checkbox:checked::after {
-            content: '';
+        .intenso-option-checkbox:checked::after {
+            content: '✓';
             position: absolute;
-            top: 2px;
-            left: 4px;
-            width: 4px;
-            height: 8px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: checkPop 0.3s ease-out;
+        }
+        
+        @keyframes checkPop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            70% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
         }
         
         /* ============================= */
-        /* RESPONSIVIDADE - TELAS PEQUENAS */
+        /* RESPONSIVIDADE INTENSA */
         /* ============================= */
         
-        /* Para telas até 480px */
         @media (max-width: 480px) {
-            .glow-popup-card {
-                width: 95%;
-                max-width: 350px;
-                margin: 0 12px;
-                border-radius: 14px;
+            .glow-intenso-card {
+                width: 96%;
+                max-width: 360px;
+                margin: 0 8px;
+                border-radius: 16px;
             }
             
-            .glow-popup-header {
-                padding: 18px 20px;
-            }
-            
-            .glow-header-content {
-                gap: 10px;
-            }
-            
-            .glow-popup-icon {
-                width: 36px;
-                height: 36px;
-                font-size: 18px;
-            }
-            
-            .glow-popup-header h3 {
-                font-size: 15px;
-            }
-            
-            .glow-close-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 18px;
-            }
-            
-            .glow-popup-content {
+            .glow-intenso-header {
                 padding: 20px;
             }
             
-            .glow-popup-message {
-                font-size: 13px;
+            .intenso-header-content {
+                gap: 12px;
             }
             
-            .glow-popup-message strong {
+            .glow-intenso-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+            
+            .glow-intenso-header h3 {
+                font-size: 18px;
+            }
+            
+            .glow-intenso-close {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .glow-intenso-content {
+                padding: 24px;
+            }
+            
+            .intenso-message {
                 font-size: 14px;
             }
             
-            .glow-popup-footer {
-                padding: 0 20px 20px;
-                gap: 10px;
+            .intenso-message strong {
+                font-size: 18px;
             }
             
-            .glow-popup-btn {
-                padding: 12px 18px;
-                font-size: 13px;
+            .loading-spinner {
+                width: 60px;
+                height: 60px;
             }
             
-            .glow-popup-options {
-                padding: 0 20px 18px;
+            .glow-intenso-footer {
+                padding: 0 24px 24px;
+                gap: 12px;
             }
             
-            .glow-popup-card::before {
-                filter: blur(8px);
+            .intenso-btn {
+                padding: 16px 20px;
+                font-size: 14px;
             }
             
-            @keyframes glowPulseEffect {
-                0%, 100% {
-                    opacity: 0.2;
-                    transform: scale(1);
-                }
-                50% {
-                    opacity: 0.3;
-                    transform: scale(1.01);
-                }
+            .glow-intenso-options {
+                padding: 0 24px 20px;
+            }
+            
+            /* Ajusta glow para mobile */
+            .glow-intenso-card::before {
+                filter: blur(15px);
+                top: -10px;
+                left: -10px;
+                right: -10px;
+                bottom: -10px;
             }
         }
         
-        /* Para telas muito pequenas (até 360px) */
         @media (max-width: 360px) {
-            .glow-popup-card {
+            .glow-intenso-card {
                 width: 98%;
                 max-width: 320px;
-                margin: 0 8px;
-                border-radius: 12px;
+                margin: 0 4px;
             }
             
-            .glow-popup-header {
-                padding: 16px 18px;
+            .glow-intenso-header h3 {
+                font-size: 16px;
             }
             
-            .glow-popup-header h3 {
-                font-size: 14px;
+            .glow-intenso-content {
+                padding: 20px;
             }
             
-            .glow-popup-content {
-                padding: 18px;
-            }
-            
-            .glow-popup-btn {
-                padding: 11px 16px;
+            .intenso-btn {
+                padding: 14px 18px;
             }
         }
         
-        /* Para telas em modo paisagem */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .glow-popup-card {
-                max-width: 380px;
-                max-height: 90vh;
-                overflow-y: auto;
+        /* ANIMAÇÃO DE SAÍDA DRAMÁTICA */
+        @keyframes intenseFadeOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
             }
-            
-            .glow-popup-content {
-                padding: 16px 24px;
+            50% {
+                opacity: 0.7;
+                transform: translateY(-20px) scale(1.05);
             }
-            
-            .glow-popup-footer {
-                padding: 0 24px 16px;
+            100% {
+                opacity: 0;
+                transform: translateY(40px) scale(0.9);
             }
         }
         
-        /* ANIMAÇÃO DE SAÍDA */
-        @keyframes glowFadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-        
-        /* ACESSIBILIDADE */
+        /* PERFORMANCE E ACESSIBILIDADE */
         @media (prefers-reduced-motion: reduce) {
-            .glow-popup-card,
-            .glow-popup-card::before,
-            .glow-popup-header::after,
-            .glow-progress-dot,
-            .glow-close-btn,
-            .glow-popup-btn {
+            .glow-intenso-card,
+            .glow-intenso-card::before,
+            .glow-intenso-header::before,
+            .glow-intenso-icon,
+            .spinner-ring,
+            .intenso-btn,
+            .glow-intenso-close,
+            .intenso-option-checkbox {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
@@ -535,46 +766,47 @@
     
     document.head.appendChild(style);
     
-    // ==================== CRIAÇÃO DO HTML ====================
+    // ==================== CRIAÇÃO DO HTML INTENSO ====================
     const popupHTML = `
-        <div id="${CONFIG.popupId}" class="glow-popup-overlay">
-            <div class="glow-popup-card">
-                <div class="glow-popup-header">
-                    <div class="glow-header-content">
-                        <div class="glow-popup-icon">⚠️</div>
-                        <h3>Página em Desenvolvimento</h3>
-                        <button class="glow-close-btn" aria-label="Fechar">&times;</button>
+        <div id="${CONFIG.popupId}" class="glow-intenso-overlay">
+            <div class="glow-intenso-card">
+                <div class="glow-intenso-header">
+                    <div class="intenso-header-content">
+                        <div class="glow-intenso-icon">⚡</div>
+                        <h3>🚀 DESENVOLVIMENTO EM ANDAMENTO 🚀</h3>
+                        <button class="glow-intenso-close" aria-label="Fechar">&times;</button>
                     </div>
                 </div>
                 
-                <div class="glow-popup-content">
-                    <div class="glow-popup-message">
-                        <strong>Estamos trabalhando nas melhorias</strong>
-                        Esta seção do site está em desenvolvimento ativo. Algumas funcionalidades podem estar temporariamente indisponíveis enquanto implementamos as atualizações.
+                <div class="glow-intenso-content">
+                    <div class="intenso-message">
+                        <strong>ESTAMOS CONSTRUINDO ALGO INCRÍVEL!</strong>
+                        Esta página está em desenvolvimento acelerado. Novas funcionalidades estão sendo implementadas neste momento!
                     </div>
                     
-                    <div class="glow-progress-container">
-                        <div class="glow-progress-dots">
-                            <div class="glow-progress-dot"></div>
-                            <div class="glow-progress-dot"></div>
-                            <div class="glow-progress-dot"></div>
+                    <div class="intenso-loading">
+                        <div class="loading-spinner">
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
                         </div>
-                        <div class="glow-progress-text">Em progresso • Agradecemos sua paciência</div>
+                        <div class="loading-text">CARREGANDO NOVIDADES...</div>
                     </div>
                 </div>
                 
-                <div class="glow-popup-footer">
-                    <button class="glow-popup-btn glow-primary-btn" id="glowUnderstandBtn">
-                        Entendi, obrigado!
+                <div class="glow-intenso-footer">
+                    <button class="intenso-btn intenso-primary-btn" id="intensoUnderstandBtn">
+                        👌 ENTENDI, CONTINUEM O BOM TRABALHO!
                     </button>
-                    <button class="glow-popup-btn glow-secondary-btn" id="glowFeedbackBtn">
-                        Receber atualizações
+                    <button class="intenso-btn intenso-secondary-btn" id="intensoFeedbackBtn">
+                        💡 DAR SUGESTÕES
                     </button>
                 </div>
                 
-                <div class="glow-popup-options">
-                    <label class="glow-option-label">
-                        <input type="checkbox" class="glow-option-checkbox" id="glowDontShowAgain">
+                <div class="glow-intenso-options">
+                    <label class="intenso-option-label">
+                        <input type="checkbox" class="intenso-option-checkbox" id="intensoDontShowAgain">
                         Não mostrar novamente por 7 dias
                     </label>
                 </div>
@@ -584,7 +816,7 @@
     
     document.body.insertAdjacentHTML('beforeend', popupHTML);
     
-    // ==================== LÓGICA DO POPUP ====================
+    // ==================== LÓGICA DO POPUP INTENSO ====================
     const popup = document.getElementById(CONFIG.popupId);
     let popupShown = false;
     
@@ -595,36 +827,40 @@
         return Date.now() > parseInt(hideUntil, 10);
     }
     
-    // Mostra o popup
+    // Mostra o popup com efeitos intensos
     function showPopup() {
         if (popupShown) return;
         popupShown = true;
         
+        // Efeito sonoro opcional (descomente se quiser)
+        // playSoundEffect();
+        
         popup.style.display = 'flex';
         
-        // Foco no botão principal
+        // Efeito de entrada dramática
         setTimeout(() => {
-            const understandBtn = document.getElementById('glowUnderstandBtn');
-            if (understandBtn) understandBtn.focus();
-        }, 400);
+            const understandBtn = document.getElementById('intensoUnderstandBtn');
+            if (understandBtn) {
+                understandBtn.focus();
+                // Adiciona efeito de brilho no foco
+                understandBtn.style.animation = 'textGlow 2s ease-in-out infinite';
+            }
+        }, 500);
         
-        // Adiciona eventos
+        // Configura eventos
         setupEventListeners();
         
-        // Log para debug (opcional)
-        if (console && typeof console.log === 'function') {
-            console.log('Popup glow mostrado - Largura:', window.innerWidth + 'px');
-        }
+        // Efeitos adicionais
+        addExtraEffects();
     }
     
-    
-    
-    // Fecha o popup
+    // Fecha o popup com efeito dramático
     function closePopup() {
-        popup.style.animation = 'glowFadeOut 0.3s ease-out forwards';
+        // Animação de saída
+        popup.style.animation = 'intenseFadeOut 0.6s ease-out forwards';
         
         // Salva preferência
-        const dontShowAgain = document.getElementById('glowDontShowAgain');
+        const dontShowAgain = document.getElementById('intensoDontShowAgain');
         if (dontShowAgain && dontShowAgain.checked) {
             const hideUntil = Date.now() + (CONFIG.hideDays * 24 * 60 * 60 * 1000);
             localStorage.setItem(CONFIG.storageKey, hideUntil.toString());
@@ -638,17 +874,27 @@
         setTimeout(() => {
             popup.style.display = 'none';
             popup.style.animation = '';
-        }, 300);
+        }, 600);
     }
     
-    // Handler para teclado
+    // Handler para teclado com efeitos
     function handleKeyboard(event) {
         // ESC fecha o popup
         if (event.key === 'Escape') {
-            closePopup();
+            // Efeito visual antes de fechar
+            const card = popup.querySelector('.glow-intenso-card');
+            if (card) {
+                card.style.animation = 'shake 0.3s ease-in-out';
+                setTimeout(() => {
+                    card.style.animation = '';
+                    closePopup();
+                }, 300);
+            } else {
+                closePopup();
+            }
         }
         
-        // Navegação por Tab dentro do popup
+        // Navegação por Tab
         else if (event.key === 'Tab') {
             const focusableElements = popup.querySelectorAll(
                 'button, input, [tabindex]:not([tabindex="-1"])'
@@ -659,15 +905,23 @@
             const firstElement = focusableElements[0];
             const lastElement = focusableElements[focusableElements.length - 1];
             
+            // Efeito visual no elemento focado
+            const currentElement = document.activeElement;
+            if (currentElement) {
+                currentElement.style.transform = 'scale(1)';
+            }
+            
             if (event.shiftKey) {
                 if (document.activeElement === firstElement) {
                     event.preventDefault();
                     lastElement.focus();
+                    lastElement.style.transform = 'scale(1.05)';
                 }
             } else {
                 if (document.activeElement === lastElement) {
                     event.preventDefault();
                     firstElement.focus();
+                    firstElement.style.transform = 'scale(1.05)';
                 }
             }
         }
@@ -676,34 +930,138 @@
     // Fecha ao clicar fora
     function closeOnOutsideClick(event) {
         if (event.target === popup) {
-            closePopup();
+            // Efeito de ondulação
+            createRippleEffect(event);
+            setTimeout(closePopup, 300);
         }
     }
     
-    // Feedback interativo
+    // Cria efeito de ondulação
+    function createRippleEffect(event) {
+        const ripple = document.createElement('div');
+        ripple.style.position = 'absolute';
+        ripple.style.borderRadius = '50%';
+        ripple.style.background = 'rgba(255, 255, 255, 0.6)';
+        ripple.style.transform = 'scale(0)';
+        ripple.style.animation = 'ripple 0.6s linear';
+        ripple.style.pointerEvents = 'none';
+        
+        const rect = popup.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = event.clientX - rect.left - size / 2;
+        const y = event.clientY - rect.top - size / 2;
+        
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        
+        // Adiciona CSS para animação
+        if (!document.getElementById('ripple-style')) {
+            const rippleStyle = document.createElement('style');
+            rippleStyle.id = 'ripple-style';
+            rippleStyle.textContent = `
+                @keyframes ripple {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(rippleStyle);
+        }
+        
+        popup.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+    }
+    
+    // Feedback interativo com efeitos
     function showFeedback() {
-        const feedbackBtn = document.getElementById('glowFeedbackBtn');
+        const feedbackBtn = document.getElementById('intensoFeedbackBtn');
         if (!feedbackBtn) return;
         
         const originalText = feedbackBtn.textContent;
-        feedbackBtn.textContent = 'Inscrito ✓';
+        feedbackBtn.textContent = '💌 OBRIGADO PELA SUGESTÃO!';
         feedbackBtn.disabled = true;
         
-        // Muda a aparência do botão
+        // Efeito de confete
+        createConfettiEffect();
+        
+        // Muda aparência do botão
         feedbackBtn.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
-        feedbackBtn.style.color = 'white';
-        feedbackBtn.style.border = 'none';
+        feedbackBtn.style.boxShadow = '0 0 30px #10B981, 0 0 50px rgba(16, 185, 129, 0.5)';
         
         setTimeout(() => {
             closePopup();
-        }, 1500);
+        }, 2000);
     }
     
-    // Configura todos os event listeners
+    // Efeito de confete
+    function createConfettiEffect() {
+        const confettiCount = 50;
+        const colors = [CONFIG.colors.primary, CONFIG.colors.secondary, CONFIG.colors.accent, CONFIG.colors.glowDark];
+        
+        for (let i = 0; i < confettiCount; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-20px';
+                confetti.style.zIndex = '10000';
+                confetti.style.pointerEvents = 'none';
+                confetti.style.animation = `confettiFall ${Math.random() * 1 + 1}s linear forwards`;
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 2000);
+            }, i * 20);
+        }
+        
+        // Adiciona animação CSS se não existir
+        if (!document.getElementById('confetti-style')) {
+            const confettiStyle = document.createElement('style');
+            confettiStyle.id = 'confetti-style';
+            confettiStyle.textContent = `
+                @keyframes confettiFall {
+                    0% {
+                        transform: translateY(0) rotate(0deg);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(100vh) rotate(${Math.random() * 360}deg);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(confettiStyle);
+        }
+    }
+    
+    // Efeitos extras
+    function addExtraEffects() {
+        // Pisca o título
+        const title = popup.querySelector('h3');
+        if (title) {
+            let blinkCount = 0;
+            const blinkInterval = setInterval(() => {
+                title.style.opacity = title.style.opacity === '0.7' ? '1' : '0.7';
+                blinkCount++;
+                if (blinkCount > 6) {
+                    clearInterval(blinkInterval);
+                    title.style.opacity = '1';
+                }
+            }, 300);
+        }
+    }
+    
+    // Configura event listeners
     function setupEventListeners() {
-        const closeBtn = popup.querySelector('.glow-close-btn');
-        const understandBtn = document.getElementById('glowUnderstandBtn');
-        const feedbackBtn = document.getElementById('glowFeedbackBtn');
+        const closeBtn = popup.querySelector('.glow-intenso-close');
+        const understandBtn = document.getElementById('intensoUnderstandBtn');
+        const feedbackBtn = document.getElementById('intensoFeedbackBtn');
         
         if (closeBtn) closeBtn.addEventListener('click', closePopup);
         if (understandBtn) understandBtn.addEventListener('click', closePopup);
@@ -711,44 +1069,38 @@
         
         document.addEventListener('keydown', handleKeyboard);
         popup.addEventListener('click', closeOnOutsideClick);
-    }
-    
-    // Estratégia de exibição inteligente
-    function initPopup() {
-        // Função para mostrar na interação
-        const showOnInteraction = () => {
-            if (!popupShown) showPopup();
-        };
         
-        // Eventos de interação (mostra imediatamente)
-        const interactionEvents = ['scroll', 'mousemove', 'click', 'touchstart'];
-        interactionEvents.forEach(event => {
-            window.addEventListener(event, showOnInteraction, { 
-                once: true,
-                passive: true 
+        // Efeito hover nos botões
+        const buttons = popup.querySelectorAll('.intenso-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-3px) scale(1.03)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = '';
             });
         });
+    }
+    
+    // Estratégia de exibição
+    function initPopup() {
+        // Mostra imediatamente - os efeitos são a atração principal
+        setTimeout(showPopup, CONFIG.showDelay);
         
-        // Fallback após delay
-        setTimeout(() => {
-            if (!popupShown) showPopup();
-        }, CONFIG.showDelay);
+        // Monitora interação para mostrar mais cedo
+        const interactionEvents = ['click', 'scroll', 'mousemove', 'keydown'];
+        const earlyShow = () => {
+            if (!popupShown) {
+                showPopup();
+                interactionEvents.forEach(event => {
+                    window.removeEventListener(event, earlyShow);
+                });
+            }
+        };
         
-        // Monitora redimensionamento da tela
-        let resizeTimeout;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function() {
-                // Recalcula layout se necessário
-                if (popupShown && popup.style.display === 'flex') {
-                    // Força um reflow para ajustar responsividade
-                    popup.style.display = 'none';
-                    setTimeout(() => {
-                        popup.style.display = 'flex';
-                    }, 10);
-                }
-            }, 250);
-        }, { passive: true });
+        interactionEvents.forEach(event => {
+            window.addEventListener(event, earlyShow, { once: true });
+        });
     }
     
     // ==================== INICIALIZAÇÃO ====================
@@ -758,8 +1110,8 @@
         initPopup();
     }
     
-    // ==================== API PÚBLICA ====================
-    window.glowPopup = {
+    // ==================== API PÚBLICA INTENSA ====================
+    window.intensePopup = {
         show: function() {
             showPopup();
         },
@@ -771,11 +1123,23 @@
             popupShown = false;
             showPopup();
         },
-        updateConfig: function(newConfig) {
-            Object.assign(CONFIG, newConfig);
+        explode: function() {
+            // Efeito especial explosivo
+            createConfettiEffect();
+            const card = popup.querySelector('.glow-intenso-card');
+            if (card) {
+                card.style.animation = 'intenseFadeOut 0.5s ease-out forwards';
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                    card.style.animation = '';
+                }, 500);
+            }
         },
         isVisible: function() {
             return popupShown && popup.style.display === 'flex';
+        },
+        getConfig: function() {
+            return { ...CONFIG };
         }
     };
     

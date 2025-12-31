@@ -1,10 +1,12 @@
-// popup-counter-api-final.js
+// popup-counter-api-documentacao.js
 (function() {
     'use strict';
     
-    // ==================== CONFIGURAÇÃO DA API ====================
+    // ==================== CONFIGURAÇÃO DA API (SEGUNDO SUA DOCUMENTAÇÃO) ====================
     const API_CONFIG = {
+        // Base Endpoint exatamente como na documentação
         baseUrl: "https://api.counterapi.dev/v2/joao-claudianos-team-2325/first-counter-2325",
+        // Seu token de API
         apiToken: "ut_CldwAFarCYi9tYcS4IZToYMDqjoUsRa0ToUv46zN"
     };
     
@@ -26,27 +28,14 @@
         }
     };
     
-    // ==================== SISTEMA DE API SIMPLIFICADO ====================
+    // ==================== FUNÇÕES DE API SEGUINDO A DOCUMENTAÇÃO ====================
     
-    // Função para testar a API
-    async function testApiConnection() {
+    // Função para buscar o valor do contador (GET)
+    // Documentação: curl https://api.counterapi.dev/v2/joao-claudianos-team-2325/first-counter-2325 -H "Authorization: Bearer YOUR_API_KEY"
+    async function getCounterValue() {
         try {
-            console.log('Testando conexão com API...');
+            console.log('Buscando valor do contador...');
             
-            // Primeiro testamos sem headers para ver se a API responde
-            const testResponse = await fetch(API_CONFIG.baseUrl, {
-                method: 'GET',
-                mode: 'no-cors' // Usamos no-cors para evitar problemas CORS no teste
-            }).catch(e => {
-                console.log('Teste no-cors falhou:', e);
-                return null;
-            });
-            
-            if (testResponse && testResponse.ok) {
-                return { success: true };
-            }
-            
-            // Agora testamos com o token
             const response = await fetch(API_CONFIG.baseUrl, {
                 method: 'GET',
                 headers: {
@@ -55,61 +44,37 @@
                 mode: 'cors'
             });
             
-            console.log('Status da API:', response.status);
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log('API respondeu:', data);
-                return { success: true, data: data };
-            }
-            
-            return { 
-                success: false, 
-                error: `API Error: ${response.status}` 
-            };
-            
-        } catch (error) {
-            console.error('Erro ao testar API:', error);
-            return { 
-                success: false, 
-                error: error.message 
-            };
-        }
-    }
-    
-    // Função para buscar o total de cafés
-    async function fetchCoffeeCount() {
-        try {
-            console.log('Buscando total de cafés...');
-            
-            const response = await fetch(API_CONFIG.baseUrl, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${API_CONFIG.apiToken}`
-                },
-                mode: 'cors'
-            });
+            console.log('Status da resposta:', response.status);
             
             if (!response.ok) {
-                throw new Error(`API Error: ${response.status}`);
+                throw new Error(`Erro HTTP: ${response.status} ${response.statusText}`);
             }
             
             const data = await response.json();
-            console.log('Resposta da API:', data);
+            console.log('Dados recebidos:', data);
             
-            // Extrai o valor do contador
+            // Baseado na documentação da CounterAPI, vamos tentar extrair o valor
             let count = 0;
+            
+            // A CounterAPI geralmente retorna { count: number } ou { value: number }
             if (data && typeof data.count === 'number') {
                 count = data.count;
-            } else if (data && data.value !== undefined) {
+            } else if (data && typeof data.value === 'number') {
                 count = data.value;
             } else if (typeof data === 'number') {
                 count = data;
+            } else if (data && data.data && typeof data.data.count === 'number') {
+                count = data.data.count;
+            } else {
+                console.warn('Formato de resposta inesperado:', data);
+                // Se não conseguimos extrair, retornamos 0
+                count = 0;
             }
             
             return {
                 success: true,
-                count: count
+                count: count,
+                rawData: data
             };
             
         } catch (error) {
@@ -122,68 +87,89 @@
         }
     }
     
-    // Função para enviar um café
-    async function sendCoffee() {
+    // Função para incrementar o contador (POST /up)
+    // Documentação: curl https://api.counterapi.dev/v2/joao-claudianos-team-2325/first-counter-2325/up -H "Authorization: Bearer YOUR_API_KEY"
+    async function incrementCounter() {
         try {
-            console.log('Enviando café...');
+            console.log('Incrementando contador via POST /up...');
             
-            // Tentamos primeiro sem headers para ver se funciona
-            try {
-                const simpleResponse = await fetch(`${API_CONFIG.baseUrl}/up`, {
-                    method: 'POST',
-                    mode: 'cors'
-                });
-                
-                if (simpleResponse.ok) {
-                    const data = await simpleResponse.json();
-                    console.log('Café enviado (sem auth):', data);
-                    
-                    // Busca o novo total
-                    const updated = await fetchCoffeeCount();
-                    return {
-                        success: true,
-                        newCount: updated.success ? updated.count : 0
-                    };
-                }
-            } catch (simpleError) {
-                console.log('Tentativa sem auth falhou:', simpleError);
-            }
-            
-            // Se sem auth falhou, tenta com auth
             const response = await fetch(`${API_CONFIG.baseUrl}/up`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${API_CONFIG.apiToken}`,
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${API_CONFIG.apiToken}`
                 },
                 mode: 'cors'
             });
             
-            console.log('Status do envio (com auth):', response.status);
+            console.log('Status do incremento:', response.status);
             
             if (!response.ok) {
-                throw new Error(`API Error: ${response.status}`);
+                // Vamos tentar ver se há uma mensagem de erro
+                let errorMsg = `Erro HTTP: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    errorMsg = `${errorMsg} - ${JSON.stringify(errorData)}`;
+                } catch (e) {
+                    // Ignora se não conseguir parsear JSON
+                }
+                throw new Error(errorMsg);
             }
             
             const data = await response.json();
-            console.log('Café enviado:', data);
+            console.log('Resposta do incremento:', data);
             
-            // Busca o novo total
-            const updated = await fetchCoffeeCount();
+            // Após incrementar, busca o novo valor
+            const updatedCount = await getCounterValue();
             
             return {
                 success: true,
-                newCount: updated.success ? updated.count : 0
+                newCount: updatedCount.success ? updatedCount.count : 0,
+                rawData: data
             };
             
         } catch (error) {
-            console.error('Erro ao enviar café:', error);
+            console.error('Erro ao incrementar contador:', error);
             
             // Fallback local
             const newCount = incrementLocalCount();
             return {
                 success: false,
                 newCount: newCount,
+                error: error.message
+            };
+        }
+    }
+    
+    // Função para obter estatísticas (GET /stats) - Opcional
+    // Documentação: curl https://api.counterapi.dev/v2/joao-claudianos-team-2325/first-counter-2325/stats -H "Authorization: Bearer YOUR_API_KEY"
+    async function getCounterStats() {
+        try {
+            console.log('Buscando estatísticas...');
+            
+            const response = await fetch(`${API_CONFIG.baseUrl}/stats`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${API_CONFIG.apiToken}`
+                },
+                mode: 'cors'
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Estatísticas:', data);
+            
+            return {
+                success: true,
+                stats: data
+            };
+            
+        } catch (error) {
+            console.error('Erro ao buscar estatísticas:', error);
+            return {
+                success: false,
                 error: error.message
             };
         }
@@ -511,6 +497,19 @@
             50% { opacity: 0.5; }
         }
         
+        /* DEBUG INFO */
+        .debug-info {
+            font-size: 10px;
+            color: #999;
+            text-align: center;
+            margin-top: 10px;
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 5px;
+            border-radius: 4px;
+            display: none; /* Oculto por padrão */
+        }
+        
         /* OPÇÃO NÃO MOSTRAR */
         .counter-option {
             margin-top: 20px;
@@ -642,6 +641,11 @@
             .counter-option {
                 border-color: #444;
             }
+            
+            .debug-info {
+                background: #2D2D2D;
+                color: #AAA;
+            }
         }
         
         @media (prefers-reduced-motion: reduce) {
@@ -706,6 +710,11 @@
                         <span id="apiStatusText">Conectando à API...</span>
                     </div>
                     
+                    <!-- INFO DE DEBUG (oculto por padrão) -->
+                    <div class="debug-info" id="debugInfo">
+                        Endpoint: ${API_CONFIG.baseUrl}
+                    </div>
+                    
                     <div class="counter-option">
                         <label class="counter-option-label">
                             <input type="checkbox" class="counter-checkbox" id="dontShowAgain">
@@ -727,30 +736,31 @@
     const totalCountElement = document.getElementById('totalCoffeeCount');
     const apiStatusIndicator = document.getElementById('apiStatusIndicator');
     const apiStatusText = document.getElementById('apiStatusText');
-    const tetrisCard = document.getElementById('tetrisCard');
+    const debugInfo = document.getElementById('debugInfo');
     
     let currentCount = 0;
     let popupShown = false;
     let apiConnected = false;
     let tetrisGame = null;
     
-    // ==================== JOGO TETRIS ====================
+    // ==================== JOGO TETRIS (integrando sua função) ====================
     function createTetrisGame() {
+        const container = document.getElementById('tetrisCard');
         const canvas = document.getElementById('game-canvas');
         const context = canvas.getContext('2d');
-        const grid = 20; // Tamanho menor para canvas menor
+        const grid = 20;
         const tetrominoSequence = [];
         const playfield = [];
         
-        // Cria o campo de jogo
-        for (let row = -2; row < 10; row++) { // Menos linhas para canvas menor
+        // 1. Inicializar campo de jogo
+        for (let row = -2; row < 10; row++) {
             playfield[row] = [];
             for (let col = 0; col < 10; col++) {
                 playfield[row][col] = 0;
             }
         }
         
-        // Define os tetrominós
+        // 2. Definir tetrominós
         const tetrominos = {
             'I': [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
             'J': [[1,0,0],[1,1,1],[0,0,0]],
@@ -762,21 +772,20 @@
         };
         
         const colors = {
-            'I': '#00f0f0', // cyan
-            'O': '#f0f000', // yellow
-            'T': '#a000f0', // purple
-            'S': '#00f000', // green
-            'Z': '#f00000', // red
-            'J': '#0000f0', // blue
-            'L': '#f0a000'  // orange
+            'I': '#00f0f0',
+            'O': '#f0f000',
+            'T': '#a000f0',
+            'S': '#00f000',
+            'Z': '#f00000',
+            'J': '#0000f0',
+            'L': '#f0a000'
         };
         
-        // Funções auxiliares
+        // 3. Funções auxiliares
         function getRandomInt(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
         
-        // Gera sequência de tetrominós
         function generateSequence() {
             const sequence = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
             while (sequence.length) {
@@ -785,7 +794,6 @@
             }
         }
         
-        // Pega o próximo tetrominó
         function getNextTetromino() {
             if (tetrominoSequence.length === 0) {
                 generateSequence();
@@ -797,7 +805,6 @@
             return { name, matrix, row, col };
         }
         
-        // Rotaciona a matriz
         function rotate(matrix) {
             const N = matrix.length;
             const result = [];
@@ -810,7 +817,6 @@
             return result;
         }
         
-        // Verifica se o movimento é válido
         function isValidMove(matrix, cellRow, cellCol) {
             for (let r = 0; r < matrix.length; r++) {
                 for (let c = 0; c < matrix[r].length; c++) {
@@ -827,13 +833,11 @@
             return true;
         }
         
-        // Coloca o tetrominó no campo
         function placeTetromino() {
             for (let r = 0; r < tetromino.matrix.length; r++) {
                 for (let c = 0; c < tetromino.matrix[r].length; c++) {
                     if (tetromino.matrix[r][c]) {
                         if (tetromino.row + r < 0) {
-                            // Game over
                             showGameOver();
                             return;
                         }
@@ -842,10 +846,9 @@
                 }
             }
             
-            // Verifica linhas completas
+            // Verificar linhas completas
             for (let row = playfield.length - 1; row >= 0; ) {
                 if (playfield[row].every(cell => !!cell)) {
-                    // Remove a linha e move todas acima para baixo
                     for (let r = row; r >= 0; r--) {
                         for (let c = 0; c < playfield[0].length; c++) {
                             playfield[r][c] = r > 0 ? playfield[r-1][c] : 0;
@@ -859,10 +862,11 @@
             tetromino = getNextTetromino();
         }
         
-        // Mostra game over
         function showGameOver() {
-            cancelAnimationFrame(rAF);
-            gameOver = true;
+            if (rAF) {
+                cancelAnimationFrame(rAF);
+                rAF = null;
+            }
             
             context.fillStyle = 'rgba(0,0,0,0.75)';
             context.fillRect(0, canvas.height / 2 - 20, canvas.width, 40);
@@ -871,15 +875,40 @@
             context.font = '16px monospace';
             context.textAlign = 'center';
             context.fillText('FIM DE JOGO', canvas.width / 2, canvas.height / 2 + 5);
+            
+            // Reinicia após 3 segundos
+            setTimeout(() => {
+                restartGame();
+            }, 3000);
         }
         
-        // Variáveis do jogo
+        function restartGame() {
+            // Limpa campo
+            for (let row = -2; row < 10; row++) {
+                for (let col = 0; col < 10; col++) {
+                    playfield[row][col] = 0;
+                }
+            }
+            
+            // Reseta sequência
+            tetrominoSequence.length = 0;
+            
+            // Reseta tetrominó atual
+            tetromino = getNextTetromino();
+            
+            // Reinicia animação
+            if (!rAF) {
+                rAF = requestAnimationFrame(loop);
+            }
+        }
+        
+        // 4. Variáveis do jogo
         let count = 0;
         let tetromino = getNextTetromino();
         let rAF = null;
         let gameOver = false;
         
-        // Loop do jogo
+        // 5. Loop do jogo
         function loop() {
             rAF = requestAnimationFrame(loop);
             context.clearRect(0, 0, canvas.width, canvas.height);
@@ -896,7 +925,7 @@
             
             // Desenha o tetrominó atual
             if (tetromino) {
-                if (++count > 25) { // Velocidade aumentada
+                if (++count > 25) {
                     tetromino.row++;
                     count = 0;
                     
@@ -922,9 +951,9 @@
             }
         }
         
-        // Controles
+        // 6. Controles
         const keydownHandler = (e) => {
-            if (gameOver) return;
+            if (!rAF) return;
             
             // Esquerda
             if (e.keyCode === 37) {
@@ -968,9 +997,11 @@
             cleanup: () => {
                 if (rAF) {
                     cancelAnimationFrame(rAF);
+                    rAF = null;
                 }
                 document.removeEventListener('keydown', keydownHandler);
-            }
+            },
+            restart: restartGame
         };
     }
     
@@ -1020,7 +1051,7 @@
         try {
             updateApiStatus('connecting', 'Buscando dados...');
             
-            const result = await fetchCoffeeCount();
+            const result = await getCounterValue();
             if (result.success) {
                 currentCount = result.count;
                 totalCountElement.textContent = currentCount;
@@ -1056,7 +1087,7 @@
             
             // Envia para a API
             updateApiStatus('connecting', 'Enviando café...');
-            const result = await sendCoffee();
+            const result = await incrementCounter();
             
             if (result.success) {
                 // Atualiza o contador
@@ -1246,26 +1277,93 @@
             showPopup();
         },
         getCount: async () => {
-            const result = await fetchCoffeeCount();
+            const result = await getCounterValue();
             return result.success ? result.count : getLocalCount();
         },
         sendCoffee: handleSendCoffee,
         
-        // Debug
+        // Debug - mostra informações úteis
         debug: {
-            testApi: async function() {
-                console.log('=== Testando API ===');
-                const result = await testApiConnection();
-                console.log('Resultado:', result);
-                return result;
+            showInfo: function() {
+                debugInfo.style.display = 'block';
+                console.log('=== DEBUG INFO ===');
+                console.log('Base URL:', API_CONFIG.baseUrl);
+                console.log('Token:', API_CONFIG.apiToken ? 'Presente' : 'Ausente');
+                console.log('Token (primeiros 10 chars):', API_CONFIG.apiToken ? API_CONFIG.apiToken.substring(0, 10) + '...' : 'N/A');
             },
-            testSendCoffee: async function() {
-                console.log('=== Testando envio de café ===');
-                const result = await sendCoffee();
-                console.log('Resultado:', result);
-                return result;
+            
+            testApi: async function() {
+                console.log('=== TESTANDO API ===');
+                console.log('1. Testando GET (buscar valor)...');
+                const getResult = await getCounterValue();
+                console.log('Resultado GET:', getResult);
+                
+                console.log('2. Testando POST /up (incrementar)...');
+                const postResult = await incrementCounter();
+                console.log('Resultado POST /up:', postResult);
+                
+                console.log('3. Testando GET /stats (estatísticas)...');
+                const statsResult = await getCounterStats();
+                console.log('Resultado GET /stats:', statsResult);
+                
+                return { getResult, postResult, statsResult };
+            },
+            
+            // Função para testar manualmente com fetch
+            testManual: async function() {
+                console.log('=== TESTE MANUAL ===');
+                
+                // Teste GET
+                try {
+                    console.log('Testando GET com fetch...');
+                    const response = await fetch(API_CONFIG.baseUrl, {
+                        headers: {
+                            'Authorization': `Bearer ${API_CONFIG.apiToken}`
+                        }
+                    });
+                    console.log('Status GET:', response.status);
+                    console.log('Headers GET:', Object.fromEntries(response.headers.entries()));
+                    const text = await response.text();
+                    console.log('Texto GET:', text);
+                    try {
+                        console.log('JSON GET:', JSON.parse(text));
+                    } catch {
+                        console.log('GET não retornou JSON válido');
+                    }
+                } catch (error) {
+                    console.error('Erro no GET:', error);
+                }
+                
+                // Teste POST /up
+                try {
+                    console.log('Testando POST /up com fetch...');
+                    const response = await fetch(`${API_CONFIG.baseUrl}/up`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${API_CONFIG.apiToken}`
+                        }
+                    });
+                    console.log('Status POST /up:', response.status);
+                    console.log('Headers POST /up:', Object.fromEntries(response.headers.entries()));
+                    const text = await response.text();
+                    console.log('Texto POST /up:', text);
+                    try {
+                        console.log('JSON POST /up:', JSON.parse(text));
+                    } catch {
+                        console.log('POST /up não retornou JSON válido');
+                    }
+                } catch (error) {
+                    console.error('Erro no POST /up:', error);
+                }
             }
         }
+    };
+    
+    // Para facilitar o debug, expõe as funções de API
+    window.coffeeCounterAPI = {
+        getCounterValue,
+        incrementCounter,
+        getCounterStats
     };
     
 })();

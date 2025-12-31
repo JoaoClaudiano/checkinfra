@@ -710,24 +710,25 @@ body {
   font-weight: 600;
 }
 
+/* Estilos para os marcadores circulares */
 .escola-critico {
-  background-color: #dc3545 !important;
-  border-color: #c82333 !important;
+  background-color: #F44336 !important;
+  border-color: #d32f2f !important;
 }
 
 .escola-atencao {
-  background-color: #fd7e14 !important;
-  border-color: #e0a800 !important;
+  background-color: #FF9800 !important;
+  border-color: #ef6c00 !important;
 }
 
 .escola-alerta {
-  background-color: #ffc107 !important;
-  border-color: #d39e00 !important;
+  background-color: #FFD700 !important;
+  border-color: #ffa000 !important;
 }
 
 .escola-adequada {
-  background-color: #28a745 !important;
-  border-color: #1e7e34 !important;
+  background-color: #4CAF50 !important;
+  border-color: #388e3c !important;
 }
 
 /* Loading */
@@ -1459,12 +1460,20 @@ function plotarEscolasNoMapa(escolas) {
     window.layerEscolas = L.layerGroup().addTo(window.mapa);
   }
   
-  // Mapeamento direto de status para classes CSS
-  const statusParaClasse = {
-    'crítico': 'escola-critico',
-    'atenção': 'escola-atencao',
-    'alerta': 'escola-alerta',
-    'adequada': 'escola-adequada'
+  // Mapeamento de status para cores (do exemplo fornecido)
+  const coresStatus = {
+    'crítico': '#F44336',     // Vermelho
+    'atenção': '#FF9800',     // Laranja
+    'alerta': '#FFD700',      // Amarelo
+    'adequada': '#4CAF50'     // Verde
+  };
+  
+  // Nomes formatados para exibição
+  const nomesStatus = {
+    'crítico': 'Crítico',
+    'atenção': 'Atenção',
+    'alerta': 'Alerta',
+    'adequada': 'Adequado'
   };
   
   // Adicionar cada escola como marcador colorido
@@ -1474,43 +1483,53 @@ function plotarEscolasNoMapa(escolas) {
       return;
     }
     
+    // Obter status da escola
+    const status = escola.status || escola.clase || 'desconhecido';
+    console.log(`🏫 Escola "${escola.nome}": status = "${status}"`);
+    
     // Determinar cor baseada no status
-    let cor;
-    const status = escola.status || escola.clase;
-    switch(status) {
-      case 'crítico': cor = '#dc3545'; break;
-      case 'atenção': cor = '#fd7e14'; break;
-      case 'alerta': cor = '#ffc107'; break;
-      case 'adequada': cor = '#28a745'; break;
-      default: cor = '#6c757d';
-    }
+    const cor = coresStatus[status] || '#6c757d';
+    const nomeStatus = nomesStatus[status] || 'Desconhecido';
     
-    // Determinar classe CSS baseada no status
-    const classeCSS = statusParaClasse[status] || 'escola-desconhecido';
-    console.log(`Escola ${escola.nome}: status="${status}", classe="${classeCSS}"`);
-    
-    // Criar marcador circular colorido
+    // Criar marcador circular colorido (como no exemplo)
     const marker = L.circleMarker([escola.lat, escola.lng], {
       radius: 10,
-      fillColor: cor,
       color: '#ffffff',
       weight: 2,
-      opacity: 1,
+      fillColor: cor,
       fillOpacity: 0.8,
-      className: classeCSS  // AQUI: usar a classe CSS mapeada
+      opacity: 1
     });
     
-    // Conteúdo do popup (mantenha igual)
+    // Conteúdo do popup (estilo similar ao exemplo)
     const popupContent = `
-      <div style="min-width: 200px; padding: 10px; font-family: Arial, sans-serif;">
-        <h4 style="margin: 0 0 10px 0; color: ${cor}; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+      <div style="min-width: 250px; padding: 12px; font-family: -apple-system, sans-serif;">
+        <h4 style="margin: 0 0 10px 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 5px;">
           <i class="fas fa-school"></i> ${escola.nome || 'Escola'}
         </h4>
-        <p style="margin: 5px 0;"><strong>Status:</strong> <span style="color: ${cor}; font-weight: bold;">${escola.status || 'N/A'}</span></p>
-        <p style="margin: 5px 0;"><strong>Pontuação:</strong> ${escola.pontuacao || 'N/A'}</p>
-        <p style="margin: 5px 0;"><strong>Endereço:</strong> ${escola.endereco || 'Não informado'}</p>
-        ${escola.data_avaliacao ? `<p style="margin: 5px 0;"><strong>Data da avaliação:</strong> ${escola.data_avaliacao}</p>` : ''}
-        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; font-size: 11px; color: #888;">
+        <p style="margin: 8px 0; font-size: 13px;">
+          <strong style="color: #555;">Status:</strong> 
+          <span style="color: ${cor}; font-weight: bold; padding: 2px 8px; border-radius: 12px; background: ${cor}20;">
+            ${nomeStatus}
+          </span>
+        </p>
+        <p style="margin: 8px 0; font-size: 13px;">
+          <strong style="color: #555;">Pontuação:</strong> ${escola.pontuacao || 'N/A'}
+        </p>
+        <p style="margin: 8px 0; font-size: 13px;">
+          <strong style="color: #555;">Endereço:</strong> ${escola.endereco || 'Não informado'}
+        </p>
+        ${escola.data_avaliacao ? `
+          <p style="margin: 8px 0; font-size: 13px;">
+            <strong style="color: #555;">Data da avaliação:</strong> ${escola.data_avaliacao}
+          </p>
+        ` : ''}
+        ${escola.bairro ? `
+          <p style="margin: 8px 0; font-size: 13px;">
+            <strong style="color: #555;">Bairro:</strong> ${escola.bairro}
+          </p>
+        ` : ''}
+        <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; font-size: 11px; color: #888;">
           <i class="fas fa-info-circle"></i> Clique fora para fechar
         </div>
       </div>
@@ -1522,20 +1541,25 @@ function plotarEscolasNoMapa(escolas) {
       minWidth: 250
     });
     
+    // Adicionar tooltip (hover)
+    marker.bindTooltip(escola.nome || 'Escola', {
+      direction: 'top',
+      offset: [0, -5],
+      opacity: 0.9
+    });
+    
     // Eventos para feedback visual
-    marker.on('popupopen', function() {
+    marker.on('mouseover', function() {
       this.setStyle({
         fillOpacity: 1,
-        weight: 3,
-        radius: 12
+        weight: 3
       });
     });
     
-    marker.on('popupclose', function() {
+    marker.on('mouseout', function() {
       this.setStyle({
         fillOpacity: 0.8,
-        weight: 2,
-        radius: 10
+        weight: 2
       });
     });
     
@@ -1546,9 +1570,8 @@ function plotarEscolasNoMapa(escolas) {
     marker.options.escolaData = escola;
   });
   
-  console.log(`✅ ${escolas.length} escolas plotadas com classes CSS`);
+  console.log(`✅ ${escolas.length} escolas plotadas`);
 }
-
 
 // ==================== FUNÇÕES DO DASHBOARD ====================
 function atualizarDashboard(dados) {

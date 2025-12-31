@@ -12,9 +12,14 @@ function inicializarMapa() {
   if (window.map && window.map instanceof L.Map) {
     map = window.map;
     console.log('🗺️ Usando mapa global existente');
-    setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 200);
+
+    setTimeout(() => {
+      try { map.invalidateSize(); } catch (e) {}
+    }, 200);
+
     return map;
   }
+
   console.error('❌ Mapa global não encontrado');
   return null;
 }
@@ -22,6 +27,7 @@ function inicializarMapa() {
 // Plotar escolas (layer separada)
 function plotarEscolas() {
   if (!map || !window.dadosManager) return;
+
   if (escolasLayer) map.removeLayer(escolasLayer);
 
   const marcadores = [];
@@ -29,20 +35,10 @@ function plotarEscolas() {
   window.dadosManager.getEscolas().forEach(escola => {
     if (!escola.lat || !escola.lng) return;
 
-    // Normaliza a classe/status para mapeamento de cores
-    const statusRaw = (escola.classe || escola.status || '').toLowerCase();
-    const statusMapeado = ({
-      ok: 'adequada',
-      adequada: 'adequada',
-      alerta: 'alerta',
-      atencao: 'atencao',
-      atenção: 'atencao',
-      critico: 'critico',
-      crítico: 'critico'
-    })[statusRaw] || 'desconhecido';
+    // Usar classe ou status para determinar cor
+    const cor = getCorPorClasse(escola.classe || escola.status);
 
-    const cor = getCorPorClasse(statusMapeado);
-
+    // Criar marcador circular colorido
     const marker = L.circleMarker([escola.lat, escola.lng], {
       radius: 6,
       fillColor: cor,
@@ -50,6 +46,7 @@ function plotarEscolas() {
       fillOpacity: 0.8
     });
 
+    // Conteúdo do popup detalhado
     const popupContent = `
       <div style="min-width:200px; padding:10px; font-family: Arial, sans-serif;">
         <h4 style="margin:0 0 10px 0; color:${cor}; border-bottom:1px solid #eee; padding-bottom:5px;">
@@ -65,7 +62,9 @@ function plotarEscolas() {
       </div>
     `;
 
+    // Adicionar popup
     marker.bindPopup(popupContent, { maxWidth: 300, minWidth: 250 });
+
     marcadores.push(marker);
   });
 
@@ -78,6 +77,7 @@ function plotarEscolas() {
 // Heatmap
 function adicionarMapaCalor() {
   if (!map || !window.dadosManager) return;
+
   if (heatLayer) map.removeLayer(heatLayer);
 
   const pontos = window.dadosManager.getEscolas()
@@ -86,7 +86,12 @@ function adicionarMapaCalor() {
 
   if (!pontos.length) return;
 
-  heatLayer = L.heatLayer(pontos, { radius: 25, blur: 15, maxZoom: 17 }).addTo(map);
+  heatLayer = L.heatLayer(pontos, {
+    radius: 25,
+    blur: 15,
+    maxZoom: 17
+  }).addTo(map);
+
   console.log('🔥 Heatmap adicionado');
 
   atualizarControleLayers();
@@ -95,14 +100,16 @@ function adicionarMapaCalor() {
 // Zonas críticas
 function adicionarZonasRisco() {
   if (!map || !window.dadosManager) return;
+
   if (zonasLayer) map.removeLayer(zonasLayer);
 
   const circulos = window.dadosManager.getEscolas()
-    .filter(e => {
-      const c = (e.classe || e.status || '').toLowerCase();
-      return c.includes('critico') || c.includes('crítico');
-    })
-    .map(e => L.circle([e.lat, e.lng], { radius: 500, color: '#dc3545', fillOpacity: 0.2 }));
+    .filter(e => e.classe?.toLowerCase().includes('crít'))
+    .map(e => L.circle([e.lat, e.lng], {
+      radius: 500,
+      color: '#dc3545',
+      fillOpacity: 0.2
+    }));
 
   zonasLayer = L.layerGroup(circulos).addTo(map);
   console.log(`🟥 ${circulos.length} zonas de risco`);
@@ -119,23 +126,33 @@ function atualizarControleLayers() {
   if (heatLayer) overlays["Heatmap"] = heatLayer;
   if (zonasLayer) overlays["Zonas de risco"] = zonasLayer;
 
-  if (layersControl) layersControl.remove();
+  if (layersControl) {
+    layersControl.remove();
+  }
+
   layersControl = L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 }
 
-// Cor por classe
+// Cor por classe – unifica várias variações do Firebase
 function getCorPorClasse(classe) {
   if (!classe) return '#6c757d';
-  return {
-    'adequada': '#28a745',
-    'alerta': '#ffc107',
-    'atencao': '#fd7e14',
-    'critico': '#dc3545'
-  }[classe] || '#6c757d';
+  const c = classe.toString().toLowerCase().trim();
+  const map = {
+    ok: '#28a745',
+    adequada: '#28a745',
+    alerta: '#ffc107',
+    atencao: '#fd7e14',
+    atenção: '#fd7e14',
+    critico: '#dc3545',
+    crítico: '#dc3545'
+  };
+  return map[c] || '#6c757d';
 }
 
 // Init
-document.addEventListener('DOMContentLoaded', () => { setTimeout(inicializarMapa, 1000); });
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(inicializarMapa, 1000);
+});
 
 window.inicializarMapa = inicializarMapa;
 window.plotarEscolas = plotarEscolas;

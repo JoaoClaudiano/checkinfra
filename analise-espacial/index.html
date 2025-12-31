@@ -1297,6 +1297,8 @@ function inicializarMapa() {
   });
   
   console.log('✅ Mapa inicializado');
+  // 🔧 ALIAS CRÍTICO PARA COMPATIBILIDADE
+window.map = window.mapa;
 }
 
 // ==================== FUNÇÕES DE DADOS ====================
@@ -1466,6 +1468,11 @@ if (window.layerEscolas) {
       default: cor = '#6c757d';
     }
     
+    const statusNormalizado = escola.status
+  ?.toLowerCase()
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '');
+    
     // Criar marcador circular colorido
     const marker = L.circleMarker([escola.lat, escola.lng], {
       radius: 10,
@@ -1474,7 +1481,7 @@ if (window.layerEscolas) {
       weight: 2,
       opacity: 1,
       fillOpacity: 0.8,
-      className: `escola-marker escola-${escola.status}`
+      className: `escola-marker escola-${statusNormalizado}`
     });
     
     // Conteúdo do popup

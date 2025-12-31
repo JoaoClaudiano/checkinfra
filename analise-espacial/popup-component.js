@@ -1,13 +1,15 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site em Desenvolvimento</title>
-    <style>
-        /* ====================
-           ESTILOS DO POPUP
-           ==================== */
+// popup-desenvolvimento.js
+(function() {
+    // Verifica se já existe um popup ou se o usuário optou por não ver novamente
+    if (document.getElementById('devPopup') || !shouldShowPopup()) {
+        return;
+    }
+
+    // =============================================
+    // 1. ADICIONA CSS DINAMICAMENTE
+    // =============================================
+    const style = document.createElement('style');
+    style.textContent = `
         .popup-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -62,11 +64,13 @@
             border-radius: 50%;
             cursor: pointer;
             line-height: 1;
+            transition: background 0.3s;
         }
 
-        /* ====================
-           CONTAINER DA ANIMAÇÃO
-           ==================== */
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
         .animation-container {
             background: linear-gradient(to bottom, #87CEEB 50%, #f4f4f4 50%);
             height: 200px;
@@ -75,18 +79,14 @@
             margin: 0;
         }
 
-        /* ====================
-           CENÁRIO QUE SE MOVE (NUVENS E CHÃO)
-           ==================== */
         .scrolling-background {
             position: absolute;
-            width: 200%; /* Largura dobrada para criar loop */
+            width: 200%;
             height: 100%;
             top: 0; left: 0;
             animation: scrollBackground 6s linear infinite;
         }
 
-        /* Camada de nuvens (mais lenta, maior parallax) */
         .cloud-layer {
             position: absolute;
             width: 100%;
@@ -96,7 +96,6 @@
             animation: scrollClouds 30s linear infinite;
         }
 
-        /* Camada do chão (mais rápida) */
         .ground-layer {
             position: absolute;
             bottom: 0;
@@ -106,19 +105,15 @@
             border-top: 3px solid #654321;
         }
 
-        /* ====================
-           PERSONAGEM MARIO
-           ==================== */
         .mario-character {
             position: absolute;
-            bottom: 30px; /* Sentado no chão */
+            bottom: 30px;
             left: 80px;
             width: 60px; height: 90px;
             z-index: 10;
             animation: marioJump 1.2s ease-in-out infinite;
         }
 
-        /* Cabeça */
         .mario-head {
             position: absolute;
             width: 50px; height: 40px;
@@ -128,7 +123,6 @@
             border: 2px solid #000;
         }
 
-        /* Face e detalhes */
         .mario-face {
             position: absolute;
             width: 40px; height: 25px;
@@ -156,9 +150,6 @@
             border: 2px solid #000;
         }
 
-        /* ====================
-           CONTEÚDO DO POPUP
-           ==================== */
         .popup-content {
             padding: 25px;
             line-height: 1.6;
@@ -192,10 +183,19 @@
             color: white;
         }
 
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
         .secondary-btn {
             background: #ecf0f1;
             color: #2c3e50;
             border: 2px solid #bdc3c7;
+        }
+
+        .secondary-btn:hover {
+            background: #d5dbdb;
         }
 
         .popup-options {
@@ -205,10 +205,14 @@
             font-size: 14px;
         }
 
-        /* ====================
-           ANIMAÇÕES (KEYFRAMES)
-           ==================== */
-        /* Animação principal do Mario pulando[citation:3] */
+        .popup-options label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
         @keyframes marioJump {
             0%, 100% { 
                 bottom: 30px; 
@@ -216,25 +220,20 @@
             }
             50% { 
                 bottom: 120px; 
-                transform: scale(1.05, 0.95); /* Leve compressão no pico do pulo */
+                transform: scale(1.05, 0.95);
             }
         }
 
-        /* Animação do fundo se movendo (efeito T-Rex Runner)[citation:6] */
         @keyframes scrollBackground {
             0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); } /* Move metade da largura para criar loop */
+            100% { transform: translateX(-50%); }
         }
 
-        /* Animação das nuvens (velocidade diferente para parallax) */
         @keyframes scrollClouds {
             0% { background-position: 0 0; }
             100% { background-position: 200px 0; }
         }
 
-        /* ====================
-           RESPONSIVO
-           ==================== */
         @media (max-width: 600px) {
             .popup-card {
                 width: 95%;
@@ -247,124 +246,129 @@
                 left: 50px;
             }
         }
-    </style>
-</head>
-<body style="margin:0; padding:20px; background:#f5f5f5; min-height:100vh;">
+    `;
+    document.head.appendChild(style);
 
-    <!-- Conteúdo da sua página principal -->
-    <h1>Bem-vindo ao Meu Site</h1>
-    <p>Esta é uma página de exemplo. O popup com a animação aparecerá automaticamente.</p>
-    <p>Conteúdo principal do seu site viria aqui...</p>
-
-    <!-- ====================
-         POPUP
-         ==================== -->
-    <div id="devPopup" class="popup-overlay">
-        <div class="popup-card">
-            <div class="popup-header">
-                <h2><span class="popup-icon">🚧</span> Página em Desenvolvimento</h2>
-                <button class="close-btn" aria-label="Fechar">&times;</button>
-            </div>
-
-            <!-- Container da Animação -->
-            <div class="animation-container">
-                <div class="scrolling-background">
-                    <div class="cloud-layer"></div>
-                    <div class="ground-layer"></div>
+    // =============================================
+    // 2. CRIA O HTML DO POPUP DINAMICAMENTE
+    // =============================================
+    const popupHTML = `
+        <div id="devPopup" class="popup-overlay">
+            <div class="popup-card">
+                <div class="popup-header">
+                    <h2><span class="popup-icon">🚧</span> Página em Desenvolvimento</h2>
+                    <button class="close-btn" aria-label="Fechar">&times;</button>
                 </div>
-                
-                <!-- Personagem Mario -->
-                <div class="mario-character">
-                    <div class="mario-hat"></div>
-                    <div class="mario-head">
-                        <div class="mario-face"></div>
+
+                <div class="animation-container">
+                    <div class="scrolling-background">
+                        <div class="cloud-layer"></div>
+                        <div class="ground-layer"></div>
                     </div>
-                    <div class="mario-body"></div>
+                    
+                    <div class="mario-character">
+                        <div class="mario-hat"></div>
+                        <div class="mario-head">
+                            <div class="mario-face"></div>
+                        </div>
+                        <div class="mario-body"></div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="popup-content">
-                <p><strong>Estamos trabalhando para melhorar sua experiência!</strong></p>
-                <p>Algumas funcionalidades desta página ainda estão sendo finalizadas. Agradecemos sua paciência e compreensão.</p>
-            </div>
+                <div class="popup-content">
+                    <p><strong>Estamos trabalhando para melhorar sua experiência!</strong></p>
+                    <p>Algumas funcionalidades desta página ainda estão sendo finalizadas. Agradecemos sua paciência e compreensão.</p>
+                </div>
 
-            <div class="popup-footer">
-                <button class="primary-btn" id="understandBtn">Entendi, obrigado!</button>
-                <button class="secondary-btn" id="feedbackBtn">Enviar Feedback</button>
-            </div>
+                <div class="popup-footer">
+                    <button class="primary-btn" id="understandBtn">Entendi, obrigado!</button>
+                    <button class="secondary-btn" id="feedbackBtn">Enviar Feedback</button>
+                </div>
 
-            <div class="popup-options">
-                <label>
-                    <input type="checkbox" id="dontShowAgain">
-                    Não mostrar este aviso novamente por 7 dias
-                </label>
+                <div class="popup-options">
+                    <label>
+                        <input type="checkbox" id="dontShowAgain">
+                        Não mostrar este aviso novamente por 7 dias
+                    </label>
+                </div>
             </div>
         </div>
-    </div>
+    `;
 
-    <script>
-        // ====================
-        // CONTROLE DO POPUP
-        // ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            const popup = document.getElementById('devPopup');
-            const closeBtn = document.querySelector('.close-btn');
-            const understandBtn = document.getElementById('understandBtn');
-            const feedbackBtn = document.getElementById('feedbackBtn');
-            const dontShowAgain = document.getElementById('dontShowAgain');
+    // Insere o popup no final do body
+    document.body.insertAdjacentHTML('beforeend', popupHTML);
 
-            // Verifica se deve mostrar (com base no localStorage)
-            function shouldShowPopup() {
-                const hideUntil = localStorage.getItem('devPopupHideUntil');
-                if (!hideUntil) return true;
-                return Date.now() > parseInt(hideUntil);
-            }
+    // =============================================
+    // 3. ADICIONA A LÓGICA DO POPUP
+    // =============================================
+    const popup = document.getElementById('devPopup');
+    const closeBtn = popup.querySelector('.close-btn');
+    const understandBtn = document.getElementById('understandBtn');
+    const feedbackBtn = document.getElementById('feedbackBtn');
+    const dontShowAgain = document.getElementById('dontShowAgain');
 
-            // Mostra o popup com delay
-            function showPopup() {
-                setTimeout(() => {
-                    popup.style.display = 'flex';
-                    document.addEventListener('keydown', closeOnEscape);
-                    popup.addEventListener('click', closeOnOutsideClick);
-                }, 800);
-            }
+    // Função para verificar se deve mostrar o popup
+    function shouldShowPopup() {
+        const hideUntil = localStorage.getItem('devPopupHideUntil');
+        if (!hideUntil) return true;
+        return Date.now() > parseInt(hideUntil);
+    }
 
-            // Fecha o popup
-            function closePopup() {
-                popup.style.display = 'none';
-                document.removeEventListener('keydown', closeOnEscape);
-                popup.removeEventListener('click', closeOnOutsideClick);
-                
-                // Se marcado, salva a preferência[citation:1]
-                if (dontShowAgain.checked) {
-                    const hideUntil = Date.now() + (7 * 24 * 60 * 60 * 1000);
-                    localStorage.setItem('devPopupHideUntil', hideUntil);
-                }
-            }
+    // Mostra o popup
+    function showPopup() {
+        setTimeout(() => {
+            popup.style.display = 'flex';
+            // Adiciona eventos de fechamento
+            document.addEventListener('keydown', closeOnEscape);
+            popup.addEventListener('click', closeOnOutsideClick);
+        }, 1000); // Delay de 1 segundo
+    }
 
-            // Fecha com tecla ESC
-            function closeOnEscape(event) {
-                if (event.key === 'Escape') closePopup();
-            }
+    // Fecha o popup
+    function closePopup() {
+        popup.style.display = 'none';
+        document.removeEventListener('keydown', closeOnEscape);
+        popup.removeEventListener('click', closeOnOutsideClick);
+        
+        // Salva preferência se marcado
+        if (dontShowAgain.checked) {
+            const hideUntil = Date.now() + (7 * 24 * 60 * 60 * 1000);
+            localStorage.setItem('devPopupHideUntil', hideUntil.toString());
+        }
+    }
 
-            // Fecha ao clicar fora do card
-            function closeOnOutsideClick(event) {
-                if (event.target === popup) closePopup();
-            }
+    // Fecha com tecla ESC
+    function closeOnEscape(event) {
+        if (event.key === 'Escape') closePopup();
+    }
 
-            // Event Listeners
-            closeBtn.addEventListener('click', closePopup);
-            understandBtn.addEventListener('click', closePopup);
-            feedbackBtn.addEventListener('click', function() {
-                alert('Obrigado pelo interesse! Em um site real, isso abriria um formulário de feedback.');
-                closePopup();
-            });
+    // Fecha ao clicar fora
+    function closeOnOutsideClick(event) {
+        if (event.target === popup) closePopup();
+    }
 
-            // Inicialização
-            if (shouldShowPopup()) {
-                showPopup();
-            }
-        });
-    </script>
-</body>
-</html>
+    // Adiciona event listeners
+    closeBtn.addEventListener('click', closePopup);
+    understandBtn.addEventListener('click', closePopup);
+    feedbackBtn.addEventListener('click', function() {
+        // Aqui você pode redirecionar para um formulário ou abrir modal
+        alert('Obrigado pelo interesse em nos ajudar a melhorar!');
+        closePopup();
+    });
+
+    // Inicia o popup
+    showPopup();
+
+    // =============================================
+    // 4. EXPORTA FUNÇÕES PARA USO EXTERNO (OPCIONAL)
+    // =============================================
+    window.devPopup = {
+        show: showPopup,
+        hide: closePopup,
+        reset: function() {
+            localStorage.removeItem('devPopupHideUntil');
+            showPopup();
+        }
+    };
+
+})();

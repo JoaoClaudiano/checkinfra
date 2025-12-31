@@ -1,15 +1,11 @@
-// popup-counter-api-tetris.js
+// popup-counter-api-final.js
 (function() {
     'use strict';
     
     // ==================== CONFIGURAÇÃO DA API ====================
     const API_CONFIG = {
         baseUrl: "https://api.counterapi.dev/v2/joao-claudianos-team-2325/first-counter-2325",
-        apiToken: "ut_CldwAFarCYi9tYcS4IZToYMDqjoUsRa0ToUv46zN",
-        headers: {
-            'Authorization': 'Bearer ut_CldwAFarCYi9tYcS4IZToYMDqjoUsRa0ToUv46zN',
-            'Content-Type': 'application/json'
-        }
+        apiToken: "ut_CldwAFarCYi9tYcS4IZToYMDqjoUsRa0ToUv46zN"
     };
     
     // ==================== CONFIGURAÇÃO DO POPUP ====================
@@ -26,47 +22,51 @@
             cafeBrown: '#A0522D',
             cafeLight: '#DEB887',
             success: '#10B981',
-            warning: '#F59E0B',
-            tetrisBlue: '#3498db',
-            tetrisGreen: '#2ecc71',
-            tetrisRed: '#e74c3c',
-            tetrisYellow: '#f1c40f',
-            tetrisPurple: '#9b59b6',
-            tetrisCyan: '#1abc9c',
-            tetrisOrange: '#e67e22'
+            warning: '#F59E0B'
         }
     };
     
-    // ==================== SISTEMA DE API ====================
+    // ==================== SISTEMA DE API SIMPLIFICADO ====================
     
-    // Testa a conexão com a API
+    // Função para testar a API
     async function testApiConnection() {
         try {
             console.log('Testando conexão com API...');
             
-            // Primeiro, vamos testar sem CORS para ver se a API responde
-            const testUrl = 'https://api.counterapi.dev/v2/joao-claudianos-team-2325/first-counter-2325';
-            
-            const response = await fetch(testUrl, {
+            // Primeiro testamos sem headers para ver se a API responde
+            const testResponse = await fetch(API_CONFIG.baseUrl, {
                 method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ut_CldwAFarCYi9tYcS4IZToYMDqjoUsRa0ToUv46zN'
-                }
+                mode: 'no-cors' // Usamos no-cors para evitar problemas CORS no teste
+            }).catch(e => {
+                console.log('Teste no-cors falhou:', e);
+                return null;
             });
             
-            console.log('Status da API:', response.status, response.statusText);
+            if (testResponse && testResponse.ok) {
+                return { success: true };
+            }
+            
+            // Agora testamos com o token
+            const response = await fetch(API_CONFIG.baseUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${API_CONFIG.apiToken}`
+                },
+                mode: 'cors'
+            });
+            
+            console.log('Status da API:', response.status);
             
             if (response.ok) {
                 const data = await response.json();
-                console.log('Dados da API:', data);
+                console.log('API respondeu:', data);
                 return { success: true, data: data };
-            } else {
-                console.error('API retornou erro:', response.status);
-                return { 
-                    success: false, 
-                    error: `API Error: ${response.status} ${response.statusText}` 
-                };
             }
+            
+            return { 
+                success: false, 
+                error: `API Error: ${response.status}` 
+            };
             
         } catch (error) {
             console.error('Erro ao testar API:', error);
@@ -84,143 +84,129 @@
             
             const response = await fetch(API_CONFIG.baseUrl, {
                 method: 'GET',
-                headers: API_CONFIG.headers,
-                mode: 'cors',
-                credentials: 'omit'
+                headers: {
+                    'Authorization': `Bearer ${API_CONFIG.apiToken}`
+                },
+                mode: 'cors'
             });
             
-            console.log('Response status:', response.status);
-            
             if (!response.ok) {
-                // Vamos tentar sem o Content-Type header
-                console.log('Tentando sem Content-Type header...');
-                const simpleResponse = await fetch(API_CONFIG.baseUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': API_CONFIG.headers.Authorization
-                    },
-                    mode: 'cors'
-                });
-                
-                if (!simpleResponse.ok) {
-                    throw new Error(`API Error: ${simpleResponse.status} ${simpleResponse.statusText}`);
-                }
-                
-                const data = await simpleResponse.json();
-                console.log('Resposta simples da API:', data);
-                
-                let count = extractCountFromData(data);
-                return {
-                    success: true,
-                    count: count,
-                    data: data
-                };
+                throw new Error(`API Error: ${response.status}`);
             }
             
             const data = await response.json();
             console.log('Resposta da API:', data);
             
             // Extrai o valor do contador
-            let count = extractCountFromData(data);
+            let count = 0;
+            if (data && typeof data.count === 'number') {
+                count = data.count;
+            } else if (data && data.value !== undefined) {
+                count = data.value;
+            } else if (typeof data === 'number') {
+                count = data;
+            }
             
             return {
                 success: true,
-                count: count,
-                data: data
+                count: count
             };
             
         } catch (error) {
             console.error('Erro ao buscar contador:', error);
             return {
                 success: false,
-                count: 0,
+                count: getLocalCount(),
                 error: error.message
             };
         }
-    }
-    
-    // Função para extrair contador
-    function extractCountFromData(data) {
-        if (data && typeof data.count === 'number') {
-            return data.count;
-        } else if (data && data.value !== undefined) {
-            return data.value;
-        } else if (typeof data === 'number') {
-            return data;
-        } else if (data && data.data && typeof data.data.count === 'number') {
-            return data.data.count;
-        }
-        return 0;
     }
     
     // Função para enviar um café
     async function sendCoffee() {
         try {
-            console.log('Enviando café para API...');
+            console.log('Enviando café...');
             
-            // Primeiro testamos a conexão
-            const testResult = await testApiConnection();
-            if (!testResult.success) {
-                throw new Error(`API não está acessível: ${testResult.error}`);
-            }
-            
-            // Tenta diferentes métodos
-            const endpoints = [
-                { url: `${API_CONFIG.baseUrl}/up`, method: 'POST' },
-                { url: API_CONFIG.baseUrl, method: 'PUT' }
-            ];
-            
-            let lastError;
-            
-            for (const endpoint of endpoints) {
-                try {
-                    console.log(`Tentando ${endpoint.method} ${endpoint.url}`);
+            // Tentamos primeiro sem headers para ver se funciona
+            try {
+                const simpleResponse = await fetch(`${API_CONFIG.baseUrl}/up`, {
+                    method: 'POST',
+                    mode: 'cors'
+                });
+                
+                if (simpleResponse.ok) {
+                    const data = await simpleResponse.json();
+                    console.log('Café enviado (sem auth):', data);
                     
-                    const response = await fetch(endpoint.url, {
-                        method: endpoint.method,
-                        headers: {
-                            'Authorization': API_CONFIG.headers.Authorization,
-                            'Content-Type': 'application/json'
-                        },
-                        body: endpoint.method === 'PUT' ? JSON.stringify({ value: 1 }) : null,
-                        mode: 'cors',
-                        credentials: 'omit'
-                    });
-                    
-                    console.log(`${endpoint.method} Status:`, response.status);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log(`${endpoint.method} Success:`, data);
-                        
-                        // Busca o novo total
-                        const updated = await fetchCoffeeCount();
-                        
-                        return {
-                            success: true,
-                            newCount: updated.success ? updated.count : 0,
-                            method: endpoint.method,
-                            data: data
-                        };
-                    } else {
-                        lastError = new Error(`${endpoint.method} failed: ${response.status}`);
-                        console.warn(lastError.message);
-                    }
-                    
-                } catch (error) {
-                    lastError = error;
-                    console.warn(`Erro no ${endpoint.method}:`, error);
+                    // Busca o novo total
+                    const updated = await fetchCoffeeCount();
+                    return {
+                        success: true,
+                        newCount: updated.success ? updated.count : 0
+                    };
                 }
+            } catch (simpleError) {
+                console.log('Tentativa sem auth falhou:', simpleError);
             }
             
-            throw lastError || new Error('Todos os métodos falharam');
+            // Se sem auth falhou, tenta com auth
+            const response = await fetch(`${API_CONFIG.baseUrl}/up`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${API_CONFIG.apiToken}`,
+                    'Content-Type': 'application/json'
+                },
+                mode: 'cors'
+            });
+            
+            console.log('Status do envio (com auth):', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Café enviado:', data);
+            
+            // Busca o novo total
+            const updated = await fetchCoffeeCount();
+            
+            return {
+                success: true,
+                newCount: updated.success ? updated.count : 0
+            };
             
         } catch (error) {
             console.error('Erro ao enviar café:', error);
+            
+            // Fallback local
+            const newCount = incrementLocalCount();
             return {
                 success: false,
+                newCount: newCount,
                 error: error.message
             };
+        }
+    }
+    
+    // Funções de fallback local
+    function getLocalCount() {
+        try {
+            const localData = JSON.parse(localStorage.getItem('coffeeCount') || '{"count": 0}');
+            return localData.count || 0;
+        } catch (e) {
+            return 0;
+        }
+    }
+    
+    function incrementLocalCount() {
+        try {
+            const localData = JSON.parse(localStorage.getItem('coffeeCount') || '{"count": 0}');
+            localData.count = (localData.count || 0) + 1;
+            localStorage.setItem('coffeeCount', JSON.stringify(localData));
+            return localData.count;
+        } catch (e) {
+            return 1;
         }
     }
     
@@ -229,7 +215,7 @@
         return;
     }
     
-    // ==================== CSS COM TETRIS REAL ====================
+    // ==================== CSS DO POPUP ====================
     const style = document.createElement('style');
     style.textContent = `
         /* OVERLAY */
@@ -259,7 +245,7 @@
             background: white;
             border-radius: 24px;
             width: 90%;
-            max-width: 450px;
+            max-width: 500px;
             overflow: hidden;
             animation: cardSlide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             border: 1px solid rgba(0, 0, 0, 0.1);
@@ -344,104 +330,41 @@
             font-weight: 700;
         }
         
-        /* JOGO TETRIS - GRADE E PEÇAS */
-        .tetris-game-container {
-            height: 150px;
-            background: #0a0a1a;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
+        /* JOGO TETRIS */
+        .tetris-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 15px;
             margin: 20px 0;
-            border: 3px solid #1a1a2e;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-family: 'Courier New', monospace;
+            color: white;
+            text-align: center;
+            border: 2px solid #333;
         }
         
-        .tetris-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .tetris-card h3 { 
+            margin: 0 0 10px 0; 
+            font-size: 1.2rem; 
+            color: #ffeb3b; 
+            text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+        }
+        
+        .tetris-card canvas {
+            border: 2px solid #333;
+            background: #000;
+            display: block;
+            margin: 0 auto;
             width: 100%;
-            height: 100%;
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-            gap: 1px;
-            padding: 2px;
-            box-sizing: border-box;
+            max-width: 200px;
+            height: 200px;
+            image-rendering: pixelated;
         }
         
-        .tetris-cell {
-            background: rgba(30, 30, 46, 0.3);
-            border-radius: 2px;
-        }
-        
-        .tetris-cell.filled {
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.2);
-        }
-        
-        /* PEÇAS DO TETRIS */
-        .tetris-piece {
-            position: absolute;
-            display: grid;
-            gap: 0;
-            z-index: 10;
-        }
-        
-        .tetris-block {
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.2);
-        }
-        
-        /* ANIMAÇÃO DA PEÇA VINDO DA DIREITA */
-        @keyframes slideFromRight {
-            0% {
-                transform: translateX(120%) translateY(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateX(-120%) translateY(0);
-                opacity: 0;
-            }
-        }
-        
-        /* ANIMAÇÃO DE ENCAIXE */
-        @keyframes snapIntoPlace {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-        
-        /* LINHAS COMPLETAS */
-        .tetris-row-complete {
-            animation: rowComplete 0.5s ease-out;
-        }
-        
-        @keyframes rowComplete {
-            0% {
-                background: white;
-                transform: scaleY(1);
-            }
-            50% {
-                background: gold;
-                transform: scaleY(1.2);
-            }
-            100% {
-                background: transparent;
-                transform: scaleY(1);
-            }
+        .tetris-card p {
+            font-size: 10px; 
+            color: #888;
+            margin: 8px 0 0 0;
         }
         
         /* BOTÕES LADO A LADO */
@@ -579,6 +502,10 @@
             background: ${POPUP_CONFIG.colors.warning};
         }
         
+        .status-indicator.error {
+            background: #EF4444;
+        }
+        
         @keyframes statusBlink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -659,7 +586,7 @@
         @media (max-width: 480px) {
             .counter-popup-card {
                 width: 95%;
-                max-width: 320px;
+                max-width: 350px;
                 border-radius: 20px;
             }
             
@@ -678,8 +605,9 @@
                 font-size: 18px;
             }
             
-            .tetris-game-container {
-                height: 120px;
+            .tetris-card canvas {
+                max-width: 180px;
+                height: 180px;
             }
             
             .counter-popup-header {
@@ -703,15 +631,6 @@
                 color: #FF8585;
             }
             
-            .tetris-game-container {
-                background: #0a0a0a;
-                border-color: #333;
-            }
-            
-            .tetris-cell {
-                background: rgba(50, 50, 50, 0.3);
-            }
-            
             .counter-circle {
                 border-color: #1E1E1E;
             }
@@ -727,7 +646,6 @@
         
         @media (prefers-reduced-motion: reduce) {
             .counter-popup-card,
-            .tetris-piece,
             .coffee-icon,
             .counter-circle,
             .coffee-action-btn,
@@ -759,9 +677,10 @@
                     </div>
                     
                     <!-- JOGO TETRIS -->
-                    <div class="tetris-game-container">
-                        <div class="tetris-grid" id="tetrisGrid"></div>
-                        <div id="tetrisPiecesContainer"></div>
+                    <div class="tetris-card" id="tetrisCard">
+                        <h3>MINI TETRIS</h3>
+                        <canvas width="200" height="200" id="game-canvas"></canvas>
+                        <p>Use as setas para jogar</p>
                     </div>
                     
                     <!-- BOTÕES LADO A LADO -->
@@ -806,271 +725,253 @@
     const understandBtn = document.getElementById('understandBtn');
     const closeBtn = popup.querySelector('.counter-close-btn');
     const totalCountElement = document.getElementById('totalCoffeeCount');
-    const tetrisGrid = document.getElementById('tetrisGrid');
-    const tetrisPiecesContainer = document.getElementById('tetrisPiecesContainer');
     const apiStatusIndicator = document.getElementById('apiStatusIndicator');
     const apiStatusText = document.getElementById('apiStatusText');
+    const tetrisCard = document.getElementById('tetrisCard');
     
     let currentCount = 0;
     let popupShown = false;
     let apiConnected = false;
-    let tetrisInterval;
-    let filledCells = [];
+    let tetrisGame = null;
     
     // ==================== JOGO TETRIS ====================
-    
-    // Definições das peças do Tetris
-    const TETROMINOS = [
-        {
-            // I-piece
-            shape: [[1, 1, 1, 1]],
-            color: POPUP_CONFIG.colors.tetrisCyan,
-            name: 'I'
-        },
-        {
-            // O-piece
-            shape: [[1, 1], [1, 1]],
-            color: POPUP_CONFIG.colors.tetrisYellow,
-            name: 'O'
-        },
-        {
-            // T-piece
-            shape: [[0, 1, 0], [1, 1, 1]],
-            color: POPUP_CONFIG.colors.tetrisPurple,
-            name: 'T'
-        },
-        {
-            // S-piece
-            shape: [[0, 1, 1], [1, 1, 0]],
-            color: POPUP_CONFIG.colors.tetrisGreen,
-            name: 'S'
-        },
-        {
-            // Z-piece
-            shape: [[1, 1, 0], [0, 1, 1]],
-            color: POPUP_CONFIG.colors.tetrisRed,
-            name: 'Z'
-        },
-        {
-            // J-piece
-            shape: [[1, 0, 0], [1, 1, 1]],
-            color: POPUP_CONFIG.colors.tetrisBlue,
-            name: 'J'
-        },
-        {
-            // L-piece
-            shape: [[0, 0, 1], [1, 1, 1]],
-            color: POPUP_CONFIG.colors.tetrisOrange,
-            name: 'L'
-        }
-    ];
-    
-    // Cria a grade do Tetris
-    function createTetrisGrid() {
-        if (!tetrisGrid) return;
+    function createTetrisGame() {
+        const canvas = document.getElementById('game-canvas');
+        const context = canvas.getContext('2d');
+        const grid = 20; // Tamanho menor para canvas menor
+        const tetrominoSequence = [];
+        const playfield = [];
         
-        tetrisGrid.innerHTML = '';
-        const rows = 8;
-        const cols = 12;
-        
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                const cell = document.createElement('div');
-                cell.className = 'tetris-cell';
-                cell.dataset.row = row;
-                cell.dataset.col = col;
-                tetrisGrid.appendChild(cell);
+        // Cria o campo de jogo
+        for (let row = -2; row < 10; row++) { // Menos linhas para canvas menor
+            playfield[row] = [];
+            for (let col = 0; col < 10; col++) {
+                playfield[row][col] = 0;
             }
         }
-    }
-    
-    // Gera uma peça aleatória
-    function getRandomTetromino() {
-        const randomIndex = Math.floor(Math.random() * TETROMINOS.length);
-        return { ...TETROMINOS[randomIndex] };
-    }
-    
-    // Cria uma peça animada que vem da direita
-    function createAnimatedPiece() {
-        const tetromino = getRandomTetromino();
-        const piece = document.createElement('div');
-        piece.className = 'tetris-piece';
         
-        // Define o grid interno da peça
-        const shape = tetromino.shape;
-        const rows = shape.length;
-        const cols = shape[0].length;
+        // Define os tetrominós
+        const tetrominos = {
+            'I': [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+            'J': [[1,0,0],[1,1,1],[0,0,0]],
+            'L': [[0,0,1],[1,1,1],[0,0,0]],
+            'O': [[1,1],[1,1]],
+            'S': [[0,1,1],[1,1,0],[0,0,0]],
+            'Z': [[1,1,0],[0,1,1],[0,0,0]],
+            'T': [[0,1,0],[1,1,1],[0,0,0]]
+        };
         
-        piece.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-        piece.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-        piece.style.gap = '0';
-        piece.style.width = `${cols * 25}px`;
-        piece.style.height = `${rows * 18}px`;
+        const colors = {
+            'I': '#00f0f0', // cyan
+            'O': '#f0f000', // yellow
+            'T': '#a000f0', // purple
+            'S': '#00f000', // green
+            'Z': '#f00000', // red
+            'J': '#0000f0', // blue
+            'L': '#f0a000'  // orange
+        };
         
-        // Cria os blocos da peça
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                if (shape[r][c]) {
-                    const block = document.createElement('div');
-                    block.className = 'tetris-block';
-                    block.style.background = tetromino.color;
-                    block.style.borderRadius = '3px';
-                    piece.appendChild(block);
+        // Funções auxiliares
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        // Gera sequência de tetrominós
+        function generateSequence() {
+            const sequence = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
+            while (sequence.length) {
+                const rand = getRandomInt(0, sequence.length - 1);
+                tetrominoSequence.push(sequence.splice(rand, 1)[0]);
+            }
+        }
+        
+        // Pega o próximo tetrominó
+        function getNextTetromino() {
+            if (tetrominoSequence.length === 0) {
+                generateSequence();
+            }
+            const name = tetrominoSequence.pop();
+            const matrix = tetrominos[name];
+            const col = playfield[0].length / 2 - Math.ceil(matrix[0].length / 2);
+            const row = name === 'I' ? -1 : -2;
+            return { name, matrix, row, col };
+        }
+        
+        // Rotaciona a matriz
+        function rotate(matrix) {
+            const N = matrix.length;
+            const result = [];
+            for (let i = 0; i < N; i++) {
+                result[i] = [];
+                for (let j = 0; j < N; j++) {
+                    result[i][j] = matrix[N - j - 1][i];
                 }
             }
+            return result;
         }
         
-        // Posiciona a peça à direita (fora da tela)
-        const containerHeight = 150; // Altura do container
-        const maxRow = 8 - rows; // Máxima linha possível
-        const startRow = Math.floor(Math.random() * maxRow);
-        
-        piece.style.position = 'absolute';
-        piece.style.right = '-100px';
-        piece.style.top = `${startRow * (containerHeight / 8)}px`;
-        
-        tetrisPiecesContainer.appendChild(piece);
-        
-        // Animação: vem da direita, move para esquerda
-        piece.style.animation = `slideFromRight ${1.5 + Math.random() * 0.5}s linear forwards`;
-        
-        // Quando a animação termina, "encaixa" a peça
-        setTimeout(() => {
-            // Remove a peça animada
-            piece.remove();
-            
-            // Adiciona a peça à grade (encaxa)
-            addPieceToGrid(tetromino, startRow);
-            
-            // Cria uma nova peça após um delay
-            setTimeout(createAnimatedPiece, 500);
-        }, 1500 + Math.random() * 500);
-    }
-    
-    // Adiciona uma peça à grade (encaxa)
-    function addPieceToGrid(tetromino, startRow) {
-        const shape = tetromino.shape;
-        const rows = shape.length;
-        const cols = shape[0].length;
-        
-        // Escolhe uma coluna para encaixar (entre 0 e 12-cols)
-        const startCol = Math.floor(Math.random() * (12 - cols));
-        
-        // Adiciona cada bloco à grade
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                if (shape[r][c]) {
-                    const cellRow = startRow + r;
-                    const cellCol = startCol + c;
-                    
-                    if (cellRow >= 0 && cellRow < 8 && cellCol >= 0 && cellCol < 12) {
-                        const cellIndex = cellRow * 12 + cellCol;
-                        const cell = tetrisGrid.children[cellIndex];
-                        
-                        if (cell) {
-                            cell.classList.add('filled');
-                            cell.style.background = tetromino.color;
-                            cell.style.boxShadow = `inset 0 0 10px ${tetromino.color}`;
-                            
-                            // Animação de encaixe
-                            cell.style.animation = 'snapIntoPlace 0.3s ease-out';
-                            
-                            // Remove a animação após terminar
-                            setTimeout(() => {
-                                cell.style.animation = '';
-                            }, 300);
-                            
-                            // Adiciona à lista de células preenchidas
-                            filledCells.push({ row: cellRow, col: cellCol });
-                        }
+        // Verifica se o movimento é válido
+        function isValidMove(matrix, cellRow, cellCol) {
+            for (let r = 0; r < matrix.length; r++) {
+                for (let c = 0; c < matrix[r].length; c++) {
+                    if (matrix[r][c] && (
+                        cellCol + c < 0 ||
+                        cellCol + c >= playfield[0].length ||
+                        cellRow + r >= playfield.length ||
+                        (cellRow + r >= 0 && playfield[cellRow + r][cellCol + c])
+                    )) {
+                        return false;
                     }
                 }
             }
+            return true;
         }
         
-        // Verifica se alguma linha está completa
-        checkCompleteRows();
-    }
-    
-    // Verifica linhas completas
-    function checkCompleteRows() {
-        for (let row = 7; row >= 0; row--) {
-            let rowComplete = true;
-            
-            for (let col = 0; col < 12; col++) {
-                const cellIndex = row * 12 + col;
-                const cell = tetrisGrid.children[cellIndex];
-                
-                if (!cell.classList.contains('filled')) {
-                    rowComplete = false;
-                    break;
+        // Coloca o tetrominó no campo
+        function placeTetromino() {
+            for (let r = 0; r < tetromino.matrix.length; r++) {
+                for (let c = 0; c < tetromino.matrix[r].length; c++) {
+                    if (tetromino.matrix[r][c]) {
+                        if (tetromino.row + r < 0) {
+                            // Game over
+                            showGameOver();
+                            return;
+                        }
+                        playfield[tetromino.row + r][tetromino.col + c] = tetromino.name;
+                    }
                 }
             }
             
-            if (rowComplete) {
-                // Anima a linha completa
-                for (let col = 0; col < 12; col++) {
-                    const cellIndex = row * 12 + col;
-                    const cell = tetrisGrid.children[cellIndex];
-                    cell.classList.add('tetris-row-complete');
+            // Verifica linhas completas
+            for (let row = playfield.length - 1; row >= 0; ) {
+                if (playfield[row].every(cell => !!cell)) {
+                    // Remove a linha e move todas acima para baixo
+                    for (let r = row; r >= 0; r--) {
+                        for (let c = 0; c < playfield[0].length; c++) {
+                            playfield[r][c] = r > 0 ? playfield[r-1][c] : 0;
+                        }
+                    }
+                } else {
+                    row--;
+                }
+            }
+            
+            tetromino = getNextTetromino();
+        }
+        
+        // Mostra game over
+        function showGameOver() {
+            cancelAnimationFrame(rAF);
+            gameOver = true;
+            
+            context.fillStyle = 'rgba(0,0,0,0.75)';
+            context.fillRect(0, canvas.height / 2 - 20, canvas.width, 40);
+            
+            context.fillStyle = 'white';
+            context.font = '16px monospace';
+            context.textAlign = 'center';
+            context.fillText('FIM DE JOGO', canvas.width / 2, canvas.height / 2 + 5);
+        }
+        
+        // Variáveis do jogo
+        let count = 0;
+        let tetromino = getNextTetromino();
+        let rAF = null;
+        let gameOver = false;
+        
+        // Loop do jogo
+        function loop() {
+            rAF = requestAnimationFrame(loop);
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenha o campo
+            for (let r = 0; r < 10; r++) {
+                for (let c = 0; c < 10; c++) {
+                    if (playfield[r] && playfield[r][c]) {
+                        context.fillStyle = colors[playfield[r][c]];
+                        context.fillRect(c * grid, r * grid, grid-1, grid-1);
+                    }
+                }
+            }
+            
+            // Desenha o tetrominó atual
+            if (tetromino) {
+                if (++count > 25) { // Velocidade aumentada
+                    tetromino.row++;
+                    count = 0;
                     
-                    setTimeout(() => {
-                        cell.classList.remove('tetris-row-complete');
-                        cell.classList.remove('filled');
-                        cell.style.background = '';
-                        cell.style.boxShadow = '';
-                    }, 500);
+                    if (!isValidMove(tetromino.matrix, tetromino.row, tetromino.col)) {
+                        tetromino.row--;
+                        placeTetromino();
+                    }
                 }
                 
-                // Remove as células da lista
-                filledCells = filledCells.filter(cell => cell.row !== row);
-                
-                // Move as linhas acima para baixo
-                for (let r = row - 1; r >= 0; r--) {
-                    for (let c = 0; c < 12; c++) {
-                        const cellIndex = r * 12 + c;
-                        const cell = tetrisGrid.children[cellIndex];
-                        
-                        if (cell.classList.contains('filled')) {
-                            // Move para baixo
-                            const newRow = r + 1;
-                            const newCellIndex = newRow * 12 + c;
-                            const newCell = tetrisGrid.children[newCellIndex];
-                            
-                            // Copia estilo
-                            newCell.classList.add('filled');
-                            newCell.style.background = cell.style.background;
-                            newCell.style.boxShadow = cell.style.boxShadow;
-                            
-                            // Limpa célula original
-                            cell.classList.remove('filled');
-                            cell.style.background = '';
-                            cell.style.boxShadow = '';
-                            
-                            // Atualiza lista
-                            const cellIndexInList = filledCells.findIndex(
-                                item => item.row === r && item.col === c
+                context.fillStyle = colors[tetromino.name];
+                for (let r = 0; r < tetromino.matrix.length; r++) {
+                    for (let c = 0; c < tetromino.matrix[r].length; c++) {
+                        if (tetromino.matrix[r][c]) {
+                            context.fillRect(
+                                (tetromino.col + c) * grid,
+                                (tetromino.row + r) * grid,
+                                grid-1,
+                                grid-1
                             );
-                            if (cellIndexInList !== -1) {
-                                filledCells[cellIndexInList].row = newRow;
-                            }
                         }
                     }
                 }
             }
         }
-    }
-    
-    // Inicia o jogo Tetris
-    function startTetrisGame() {
-        createTetrisGrid();
-        filledCells = [];
         
-        // Limpa peças existentes
-        tetrisPiecesContainer.innerHTML = '';
+        // Controles
+        const keydownHandler = (e) => {
+            if (gameOver) return;
+            
+            // Esquerda
+            if (e.keyCode === 37) {
+                const col = tetromino.col - 1;
+                if (isValidMove(tetromino.matrix, tetromino.row, col)) {
+                    tetromino.col = col;
+                }
+            }
+            // Direita
+            else if (e.keyCode === 39) {
+                const col = tetromino.col + 1;
+                if (isValidMove(tetromino.matrix, tetromino.row, col)) {
+                    tetromino.col = col;
+                }
+            }
+            // Cima (rotacionar)
+            else if (e.keyCode === 38) {
+                const matrix = rotate(tetromino.matrix);
+                if (isValidMove(matrix, tetromino.row, tetromino.col)) {
+                    tetromino.matrix = matrix;
+                }
+            }
+            // Baixo (descer rápido)
+            else if (e.keyCode === 40) {
+                const row = tetromino.row + 1;
+                if (!isValidMove(tetromino.matrix, row, tetromino.col)) {
+                    tetromino.row = row - 1;
+                    placeTetromino();
+                    return;
+                }
+                tetromino.row = row;
+            }
+        };
         
-        // Inicia a primeira peça
-        createAnimatedPiece();
+        // Inicia o jogo
+        document.addEventListener('keydown', keydownHandler);
+        rAF = requestAnimationFrame(loop);
+        
+        // Retorna função para limpar
+        return {
+            cleanup: () => {
+                if (rAF) {
+                    cancelAnimationFrame(rAF);
+                }
+                document.removeEventListener('keydown', keydownHandler);
+            }
+        };
     }
     
     // ==================== FUNÇÕES AUXILIARES ====================
@@ -1087,29 +988,28 @@
         apiConnected = status === 'connected';
         
         if (apiStatusIndicator && apiStatusText) {
+            apiStatusIndicator.className = 'status-indicator';
+            
             switch(status) {
                 case 'connected':
-                    apiStatusIndicator.className = 'status-indicator';
                     apiStatusIndicator.style.background = POPUP_CONFIG.colors.success;
                     apiStatusText.textContent = message || 'API Conectada';
                     break;
                 case 'connecting':
-                    apiStatusIndicator.className = 'status-indicator';
                     apiStatusIndicator.style.background = POPUP_CONFIG.colors.warning;
                     apiStatusText.textContent = message || 'Conectando...';
                     break;
+                case 'offline':
+                    apiStatusIndicator.classList.add('offline');
+                    apiStatusIndicator.style.background = POPUP_CONFIG.colors.warning;
+                    apiStatusText.textContent = message || 'Modo Offline';
+                    break;
                 case 'error':
-                    apiStatusIndicator.className = 'status-indicator offline';
+                    apiStatusIndicator.classList.add('error');
                     apiStatusIndicator.style.background = '#EF4444';
                     apiStatusText.textContent = message || 'Erro na API';
                     break;
-                case 'offline':
-                    apiStatusIndicator.className = 'status-indicator offline';
-                    apiStatusIndicator.style.background = POPUP_CONFIG.colors.warning;
-                    apiStatusText.textContent = message || 'Modo Local';
-                    break;
                 default:
-                    apiStatusIndicator.className = 'status-indicator';
                     apiStatusText.textContent = message || 'Desconectado';
             }
         }
@@ -1127,7 +1027,7 @@
                 
                 updateApiStatus('connected', `API Online (${currentCount} cafés)`);
                 
-                // Efeito visual ao atualizar
+                // Efeito visual
                 totalCountElement.style.transform = 'scale(1.3)';
                 setTimeout(() => {
                     totalCountElement.style.transform = 'scale(1)';
@@ -1151,11 +1051,8 @@
         sendBtn.innerHTML = '<span class="coffee-icon">⏳</span><span>Enviando...</span>';
         
         try {
-            // Efeito visual de cafés flutuantes
+            // Efeito visual
             createCoffeeFloats();
-            
-            // Efeito especial no Tetris
-            createTetrisExplosion();
             
             // Envia para a API
             updateApiStatus('connecting', 'Enviando café...');
@@ -1163,46 +1060,51 @@
             
             if (result.success) {
                 // Atualiza o contador
-                await updateCoffeeCounter();
+                currentCount = result.newCount;
+                totalCountElement.textContent = currentCount;
+                
+                // Efeito visual
+                totalCountElement.style.transform = 'scale(1.5)';
+                setTimeout(() => {
+                    totalCountElement.style.transform = 'scale(1)';
+                }, 300);
                 
                 // Mostra notificação
                 showNotification('☕ Café enviado com sucesso!');
                 
-                // Efeito de confirmação no botão
+                // Efeito no botão
                 sendBtn.innerHTML = '<span class="coffee-icon">✅</span><span>Enviado!</span>';
                 sendBtn.style.background = `linear-gradient(135deg, ${POPUP_CONFIG.colors.success} 0%, #0DA271 100%)`;
                 
+                updateApiStatus('connected', `Café enviado! Total: ${currentCount}`);
+                
             } else {
-                throw new Error(result.error);
+                // Fallback local
+                currentCount = result.newCount;
+                totalCountElement.textContent = currentCount;
+                
+                // Efeito visual
+                totalCountElement.style.transform = 'scale(1.5)';
+                setTimeout(() => {
+                    totalCountElement.style.transform = 'scale(1)';
+                }, 300);
+                
+                showNotification('☕ Café salvo localmente!');
+                
+                sendBtn.innerHTML = '<span class="coffee-icon">☕</span><span>Salvo Local</span>';
+                sendBtn.style.background = `linear-gradient(135deg, ${POPUP_CONFIG.colors.warning} 0%, #D97706 100%)`;
+                
+                updateApiStatus('offline', 'Modo Local Ativo');
             }
             
         } catch (error) {
             console.error('Erro:', error);
-            showNotification('⚠️ Usando modo offline - café salvo localmente');
+            showNotification('⚠️ Erro ao enviar café');
             
-            // Fallback local
-            currentCount++;
-            totalCountElement.textContent = currentCount;
+            sendBtn.innerHTML = '<span class="coffee-icon">❌</span><span>Erro</span>';
+            sendBtn.style.background = `linear-gradient(135deg, #EF4444 0%, #DC2626 100%)`;
             
-            // Efeito visual
-            totalCountElement.style.transform = 'scale(1.5)';
-            setTimeout(() => {
-                totalCountElement.style.transform = 'scale(1)';
-            }, 300);
-            
-            // Salva localmente
-            try {
-                const localData = JSON.parse(localStorage.getItem('localCoffeeCount') || '{"count": 0}');
-                localData.count = (localData.count || 0) + 1;
-                localStorage.setItem('localCoffeeCount', JSON.stringify(localData));
-            } catch (e) {
-                console.error('Erro ao salvar localmente:', e);
-            }
-            
-            sendBtn.innerHTML = '<span class="coffee-icon">☕</span><span>Salvo Local</span>';
-            sendBtn.style.background = `linear-gradient(135deg, ${POPUP_CONFIG.colors.warning} 0%, #D97706 100%)`;
-            
-            updateApiStatus('offline', 'Modo Local Ativo');
+            updateApiStatus('error', 'Erro ao enviar');
             
         } finally {
             // Restaura o botão após 2 segundos
@@ -1211,53 +1113,6 @@
                 sendBtn.innerHTML = originalText;
                 sendBtn.style.background = `linear-gradient(135deg, ${POPUP_CONFIG.colors.cafeBrown} 0%, #8B4513 100%)`;
             }, 2000);
-        }
-    }
-    
-    // Efeito especial no Tetris ao enviar café
-    function createTetrisExplosion() {
-        // Cria várias peças simultaneamente
-        for (let i = 0; i < 3; i++) {
-            setTimeout(() => {
-                const tetromino = getRandomTetromino();
-                const piece = document.createElement('div');
-                piece.className = 'tetris-piece';
-                
-                const shape = tetromino.shape;
-                const rows = shape.length;
-                const cols = shape[0].length;
-                
-                piece.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-                piece.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-                piece.style.gap = '0';
-                piece.style.width = `${cols * 25}px`;
-                piece.style.height = `${rows * 18}px`;
-                
-                for (let r = 0; r < rows; r++) {
-                    for (let c = 0; c < cols; c++) {
-                        if (shape[r][c]) {
-                            const block = document.createElement('div');
-                            block.className = 'tetris-block';
-                            block.style.background = tetromino.color;
-                            block.style.borderRadius = '3px';
-                            piece.appendChild(block);
-                        }
-                    }
-                }
-                
-                piece.style.position = 'absolute';
-                piece.style.right = '-100px';
-                piece.style.top = `${Math.random() * 100}px`;
-                
-                tetrisPiecesContainer.appendChild(piece);
-                
-                // Animação mais rápida para o efeito
-                piece.style.animation = `slideFromRight ${0.8 + Math.random() * 0.4}s linear forwards`;
-                
-                setTimeout(() => {
-                    piece.remove();
-                }, 1200);
-            }, i * 200);
         }
     }
     
@@ -1307,16 +1162,16 @@
             localStorage.setItem(POPUP_CONFIG.storageKey, hideUntil.toString());
         }
         
+        // Para o jogo Tetris
+        if (tetrisGame && tetrisGame.cleanup) {
+            tetrisGame.cleanup();
+        }
+        
         popup.style.animation = 'overlayFade 0.3s ease-out reverse forwards';
         setTimeout(() => {
             popup.style.display = 'none';
             popup.style.animation = '';
         }, 300);
-        
-        // Limpa o intervalo do Tetris
-        if (tetrisInterval) {
-            clearInterval(tetrisInterval);
-        }
     }
     
     // Mostra o popup
@@ -1327,21 +1182,10 @@
         popup.style.display = 'flex';
         
         // Inicia o jogo Tetris
-        startTetrisGame();
+        tetrisGame = createTetrisGame();
         
         // Carrega o contador atual
         await updateCoffeeCounter();
-        
-        // Carrega contador local se existir
-        try {
-            const localData = JSON.parse(localStorage.getItem('localCoffeeCount') || '{"count": 0}');
-            if (localData.count > 0) {
-                currentCount += localData.count;
-                totalCountElement.textContent = currentCount;
-            }
-        } catch (e) {
-            console.error('Erro ao carregar dados locais:', e);
-        }
         
         // Configura eventos
         setupEventListeners();
@@ -1361,18 +1205,7 @@
         // Fecha com ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closePopup();
-            if (e.key === 'Enter' && e.target === sendBtn) handleSendCoffee();
         });
-        
-        // Reinicia Tetris a cada 30 segundos para evitar muita acumulação
-        tetrisInterval = setInterval(() => {
-            if (filledCells.length > 30) { // Se muitas células preenchidas
-                createTetrisGrid();
-                filledCells = [];
-                tetrisPiecesContainer.innerHTML = '';
-                setTimeout(createAnimatedPiece, 500);
-            }
-        }, 30000);
     }
     
     // Inicialização
@@ -1408,59 +1241,29 @@
         hide: closePopup,
         reset: function() {
             localStorage.removeItem(POPUP_CONFIG.storageKey);
-            localStorage.removeItem('localCoffeeCount');
+            localStorage.removeItem('coffeeCount');
             popupShown = false;
             showPopup();
         },
         getCount: async () => {
             const result = await fetchCoffeeCount();
-            const localData = JSON.parse(localStorage.getItem('localCoffeeCount') || '{"count": 0}');
-            return (result.success ? result.count : 0) + (localData.count || 0);
+            return result.success ? result.count : getLocalCount();
         },
         sendCoffee: handleSendCoffee,
         
-        // Debug functions
+        // Debug
         debug: {
             testApi: async function() {
-                console.log('=== Testando API CounterAPI ===');
-                
-                // Test GET
-                try {
-                    const response = await fetch('https://api.counterapi.dev/v2/joao-claudianos-team-2325/first-counter-2325', {
-                        headers: {
-                            'Authorization': 'Bearer ut_CldwAFarCYi9tYcS4IZToYMDqjoUsRa0ToUv46zN'
-                        }
-                    });
-                    console.log('GET Response:', response);
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('GET Data:', data);
-                    }
-                } catch (error) {
-                    console.error('GET Error:', error);
-                }
-                
-                // Test POST
-                try {
-                    const response = await fetch('https://api.counterapi.dev/v2/joao-claudianos-team-2325/first-counter-2325/up', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': 'Bearer ut_CldwAFarCYi9tYcS4IZToYMDqjoUsRa0ToUv46zN'
-                        }
-                    });
-                    console.log('POST Response:', response);
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('POST Data:', data);
-                    }
-                } catch (error) {
-                    console.error('POST Error:', error);
-                }
+                console.log('=== Testando API ===');
+                const result = await testApiConnection();
+                console.log('Resultado:', result);
+                return result;
             },
-            
-            clearLocalData: function() {
-                localStorage.removeItem('localCoffeeCount');
-                console.log('Dados locais limpos');
+            testSendCoffee: async function() {
+                console.log('=== Testando envio de café ===');
+                const result = await sendCoffee();
+                console.log('Resultado:', result);
+                return result;
             }
         }
     };

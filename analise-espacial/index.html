@@ -1183,12 +1183,12 @@ function inicializarInterface() {
       // Atualizar visual do slider
       const slider = checkbox.nextElementSibling;
       if (checkbox.checked) {
-        slider.style.backgroundColor = '#1f4fd8';
-        slider.querySelector('.toggle-slider:before').style.transform = 'translateX(20px)';
-      } else {
-        slider.style.backgroundColor = '#ccc';
-        slider.querySelector('.toggle-slider:before').style.transform = 'translateX(0)';
-      }
+  slider.style.backgroundColor = '#1f4fd8';
+  slider.classList.add('ativo');
+} else {
+  slider.style.backgroundColor = '#ccc';
+  slider.classList.remove('ativo');
+}
       
       // Feedback
       const camada = checkbox.id.replace('toggle-', '');

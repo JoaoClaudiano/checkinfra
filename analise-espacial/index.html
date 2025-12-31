@@ -1413,7 +1413,9 @@ function processarDados(escolas, fonte) {
       'adequada': escolas.filter(e => e.status === 'adequada').length
     }
   });
+
   
+      
   // Plotar escolas no mapa
   plotarEscolasNoMapa(escolas);
   
@@ -1431,7 +1433,16 @@ function processarDados(escolas, fonte) {
   document.getElementById('status-update').innerHTML = '<i class="fas fa-check"></i> Atualizado';
   console.log(`✅ ${escolas.length} escolas processadas`);
 }
+function plotarEscolasNoMapa(escolas) {
 
+  if (!window.layerEscolas) {
+    window.layerEscolas = L.layerGroup().addTo(window.mapa);
+  } else {
+    window.layerEscolas.clearLayers();
+  }
+
+  ...
+}
 function plotarEscolasNoMapa(escolas) {
   if (!window.mapa) {
     console.error('❌ Mapa não inicializado');
@@ -1441,11 +1452,11 @@ function plotarEscolasNoMapa(escolas) {
   console.log(`🗺️ Plotando ${escolas.length} escolas no mapa...`);
   
   // Limpar marcadores existentes
-  window.mapa.eachLayer(layer => {
-    if (layer instanceof L.CircleMarker || (layer instanceof L.Marker && layer.options && layer.options.className && layer.options.className.includes('escola'))) {
-      window.mapa.removeLayer(layer);
-    }
-  });
+if (window.layerEscolas) {
+  window.layerEscolas.clearLayers();
+} else {
+  window.layerEscolas = L.layerGroup().addTo(window.mapa);
+}
   
   // Adicionar cada escola como marcador colorido
   escolas.forEach(escola => {
@@ -1515,7 +1526,7 @@ function plotarEscolasNoMapa(escolas) {
     });
     
     // Adicionar ao mapa
-    marker.addTo(window.mapa);
+    marker.addTo(window.layerEscolas);
     
     // Armazenar dados da escola no marcador
     marker.options.escolaData = escola;
@@ -1665,30 +1676,61 @@ function aplicarAnalise() {
 
 function ativarCamada(camada) {
   console.log(`🗺️ Ativando camada: ${camada}`);
-  
-  switch(camada) {
+
+  const criticidade = document.getElementById('param-criticidade')?.value || 'todas';
+  const sementes = parseInt(document.getElementById('param-sementes')?.value || 10);
+  const raio = parseInt(document.getElementById('param-raio')?.value || 500);
+
+  switch (camada) {
+
     case 'escolas':
-      // Já está ativado por padrão
+      // já renderizadas
       break;
-      
+
     case 'kde':
       if (window.calcularKDE) {
-        const criticidade = document.getElementById('param-criticidade').value;
-        const raio = parseInt(document.getElementById('param-raio').value);
         window.calcularKDE(criticidade, raio);
       }
       break;
-      
+
     case 'voronoi':
       if (window.gerarVoronoiCritico) {
-        const sementes = parseInt(document.getElementById('param-sementes').value);
-        const criticidade = document.getElementById('param-criticidade').value;
         window.gerarVoronoiCritico(sementes, criticidade);
       }
       break;
-      
+
+    case 'zonas':
+      if (window.gerarZonasRisco) {
+        window.gerarZonasRisco();
+      }
+      break;
+
+    case 'densidade':
+      if (window.calcularDensidadeCritica) {
+        window.calcularDensidadeCritica();
+      }
+      break;
+
+    case 'concentracao':
+      if (window.calcularConcentracaoRelativa) {
+        window.calcularConcentracaoRelativa();
+      }
+      break;
+
+    case 'gini':
+      if (window.calcularGiniEspacial) {
+        window.calcularGiniEspacial();
+      }
+      break;
+
+    case 'rede':
+      if (window.gerarRedeInfluencia) {
+        window.gerarRedeInfluencia();
+      }
+      break;
+
     default:
-      console.log(`⚠️ Camada ${camada} ainda não implementada`);
+      console.warn('⚠️ Camada desconhecida:', camada);
   }
 }
 

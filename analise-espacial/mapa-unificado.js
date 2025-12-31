@@ -34,8 +34,10 @@ function plotarEscolas() {
   window.dadosManager.getEscolas().forEach(escola => {
     if (!escola.lat || !escola.lng) return;
 
-    const cor = getCorPorClasse(escola.classe);
+    // Usar classe ou status para determinar cor
+    const cor = getCorPorClasse(escola.classe || escola.status);
 
+    // Criar marcador circular colorido
     const marker = L.circleMarker([escola.lat, escola.lng], {
       radius: 6,
       fillColor: cor,
@@ -43,7 +45,25 @@ function plotarEscolas() {
       fillOpacity: 0.8
     });
 
-    marker.bindTooltip(escola.nome || 'Escola');
+    // Conteúdo do popup detalhado
+    const popupContent = `
+      <div style="min-width:200px; padding:10px; font-family: Arial, sans-serif;">
+        <h4 style="margin:0 0 10px 0; color:${cor}; border-bottom:1px solid #eee; padding-bottom:5px;">
+          <i class="fas fa-school"></i> ${escola.nome || 'Escola'}
+        </h4>
+        <p style="margin:5px 0;"><strong>Status:</strong> <span style="color:${cor}; font-weight:bold;">${escola.status || 'N/A'}</span></p>
+        <p style="margin:5px 0;"><strong>Pontuação:</strong> ${escola.pontuacao || 'N/A'}</p>
+        <p style="margin:5px 0;"><strong>Endereço:</strong> ${escola.endereco || 'Não informado'}</p>
+        ${escola.data_avaliacao ? `<p style="margin:5px 0;"><strong>Data da avaliação:</strong> ${escola.data_avaliacao}</p>` : ''}
+        <div style="margin-top:10px; padding-top:10px; border-top:1px solid #eee; font-size:11px; color:#888;">
+          <i class="fas fa-info-circle"></i> Clique fora para fechar
+        </div>
+      </div>
+    `;
+
+    // Adicionar popup
+    marker.bindPopup(popupContent, { maxWidth: 300, minWidth: 250 });
+
     marcadores.push(marker);
   });
 

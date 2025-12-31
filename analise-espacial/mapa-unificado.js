@@ -5,6 +5,7 @@ let map = null;
 let escolasLayer = null;
 let heatLayer = null;
 let zonasLayer = null;
+let layersControl = null; // NOVO: controle de camadas
 
 // Inicializar (USAR MAPA EXISTENTE)
 function inicializarMapa() {
@@ -69,6 +70,8 @@ function plotarEscolas() {
 
   escolasLayer = L.layerGroup(marcadores).addTo(map);
   console.log(`✅ ${marcadores.length} escolas (layer unificado)`);
+
+  atualizarControleLayers();
 }
 
 // Heatmap
@@ -90,6 +93,8 @@ function adicionarMapaCalor() {
   }).addTo(map);
 
   console.log('🔥 Heatmap adicionado');
+
+  atualizarControleLayers();
 }
 
 // Zonas críticas
@@ -108,6 +113,24 @@ function adicionarZonasRisco() {
 
   zonasLayer = L.layerGroup(circulos).addTo(map);
   console.log(`🟥 ${circulos.length} zonas de risco`);
+
+  atualizarControleLayers();
+}
+
+// Atualiza ou cria o controle de camadas
+function atualizarControleLayers() {
+  if (!map) return;
+
+  const overlays = {};
+  if (escolasLayer) overlays["Escolas"] = escolasLayer;
+  if (heatLayer) overlays["Heatmap"] = heatLayer;
+  if (zonasLayer) overlays["Zonas de risco"] = zonasLayer;
+
+  if (layersControl) {
+    layersControl.remove();
+  }
+
+  layersControl = L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 }
 
 // Cor por classe

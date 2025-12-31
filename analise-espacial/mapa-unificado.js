@@ -35,7 +35,7 @@ function plotarEscolas() {
   window.dadosManager.getEscolas().forEach(escola => {
     if (!escola.lat || !escola.lng) return;
 
-    // Usar classe ou status para determinar cor
+    // Usar classe ou status para determinar cor compatível com Firebase
     const cor = getCorPorClasse(escola.classe || escola.status);
 
     // Criar marcador circular colorido
@@ -133,17 +133,18 @@ function atualizarControleLayers() {
   layersControl = L.control.layers(null, overlays, { collapsed: false }).addTo(map);
 }
 
-// Cor por classe
+// Cor por classe (compatível com Firebase)
 function getCorPorClasse(classe) {
   if (!classe) return '#6c757d';
   const c = classe.toLowerCase().trim();
   return {
+    'ok': '#4CAF50',        // Adequado
+    'alerta': '#FFD700',
+    'atencao': '#FF9800',    // Atenção
+    'critico': '#F44336',    // Crítico
     'adequada': '#28a745',
-    'alerta': '#ffc107',
     'atenção': '#fd7e14',
-    'atencao': '#fd7e14',
-    'crítico': '#dc3545',
-    'critico': '#dc3545'
+    'crítico': '#dc3545'
   }[c] || '#6c757d';
 }
 

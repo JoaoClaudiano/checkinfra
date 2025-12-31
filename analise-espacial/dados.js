@@ -117,7 +117,7 @@ class DadosManager {
           avaliacoes: [avaliacao],
           // Usar dados da avaliação mais recente
           classe: avaliacao.classe,
-          status: avaliacao.classe,
+          status: avaliacao.classe,  // ← ADICIONADO para compatibilidade
           pontuacao: avaliacao.pontuacao,
           peso: this.calcularPeso(avaliacao.classe, avaliacao.pontuacao),
           createdAt: avaliacao.createdAt,
@@ -141,15 +141,10 @@ class DadosManager {
         
         if (pesoNovo > pesoAtual) {
           escola.classe = avaliacao.classe;
+          escola.status = avaliacao.classe;  // ← ADICIONADO para compatibilidade
           escola.pontuacao = avaliacao.pontuacao;
           escola.peso = pesoNovo;
         }
-        
-        // Após linha 145 no dados.js, dentro do processarAvaliacoesFirebase:
-classe: avaliacao.classe,
-status: avaliacao.classe,  // ← ADICIONE ESTA LINHA para compatibilidade
-pontuacao: avaliacao.pontuacao,
-peso: this.calcularPeso(avaliacao.classe, avaliacao.pontuacao),
         
         // Atualizar metadados
         escola.metadata.totalAvaliacoes++;
@@ -184,6 +179,7 @@ peso: this.calcularPeso(avaliacao.classe, avaliacao.pontuacao),
         lng: escola.lng,
         fonte: 'local',
         classe: 'não avaliada',
+        status: 'não avaliada',  // ← ADICIONADO para compatibilidade
         pontuacao: 0,
         peso: 0.5,
         avaliacoes: [],

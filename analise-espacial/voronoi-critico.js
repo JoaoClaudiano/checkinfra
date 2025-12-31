@@ -74,6 +74,11 @@ class VoronoiCritico {
   gerar(numSementes = 5, filtroClasse = 'critico') {
     console.log(`🧩 Gerando Voronoi: ${numSementes} sementes, filtro: ${filtroClasse}`);
     
+    if (!window.map || !(window.map instanceof L.Map)) {
+  console.warn('⏳ Mapa Leaflet ainda não pronto. Voronoi adiado.');
+  return;
+}
+    
     // Validar parâmetros
     if (numSementes < 2) {
       console.warn('⚠️ Mínimo 2 sementes para Voronoi');

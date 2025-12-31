@@ -1546,10 +1546,10 @@ function plotarEscolasNoMapa(escolas) {
     }
     
     // 🔥 OBTER STATUS - pode vir como 'clase' ou 'status'
-    let status = (escola.clase || escola.status || '').toLowerCase().trim();
+    let status = (escola.classe || escola.status || '').toLowerCase().trim();
     
     // 🔥 OBTER NOME DA ESCOLA - campo correto é 'escola'
-    const nomeEscola = escola.escola || `Escola ${index + 1}`;
+    const nomeEscola = escola.escola || `escola ${index + 1}`;
     
     console.log(`🏫 ${index + 1}: "${nomeEscola}" - Status: ${status}`);
     

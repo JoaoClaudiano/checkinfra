@@ -117,6 +117,7 @@ class DadosManager {
           avaliacoes: [avaliacao],
           // Usar dados da avaliação mais recente
           classe: avaliacao.classe,
+          status: avaliacao.classe,
           pontuacao: avaliacao.pontuacao,
           peso: this.calcularPeso(avaliacao.classe, avaliacao.pontuacao),
           createdAt: avaliacao.createdAt,

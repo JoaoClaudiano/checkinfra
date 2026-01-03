@@ -30,6 +30,138 @@
     <!-- Estilos -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilo adicional para ajustar tabelas -->
+    <style>
+        /* AJUSTES ESPECÍFICOS PARA TABELAS EM MOBILE */
+        @media (max-width: 768px) {
+            /* HEADER COMPACTO */
+            .header-container {
+                flex-wrap: wrap;
+                padding: 0 10px;
+            }
+            
+            .header-content {
+                order: 3;
+                width: 100%;
+                padding: 10px 0 0;
+            }
+            
+            .header-btn {
+                width: 44px;
+                height: 44px;
+                margin: 0;
+            }
+            
+            /* TABELAS COMPACTAS */
+            .compact-table {
+                display: block;
+                width: 100%;
+                overflow-x: visible;
+            }
+            
+            .compact-table table {
+                min-width: 100% !important;
+                width: 100% !important;
+                font-size: 0.85rem;
+            }
+            
+            .compact-table th,
+            .compact-table td {
+                padding: 0.6rem 0.4rem !important;
+                font-size: 0.8rem;
+                line-height: 1.3;
+            }
+            
+            .compact-table th {
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+            
+            /* Reduzir espaçamento em cards */
+            .methodology-card,
+            .tech-card {
+                padding: 1rem;
+                margin: 0.8rem 0;
+            }
+            
+            .tech-accordion-header {
+                padding: 0.9rem;
+                font-size: 1rem;
+            }
+            
+            /* Ajustar texto em tabelas */
+            .table-cell-compact {
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .table-cell-multiline {
+                white-space: normal;
+                word-break: break-word;
+                line-height: 1.2;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* HEADER ULTRA COMPACTO */
+            header h1 {
+                font-size: 1.5rem;
+                line-height: 1.2;
+            }
+            
+            .header-container {
+                padding: 0 8px;
+            }
+            
+            .header-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            /* TABELAS MAIS COMPACTAS AINDA */
+            .compact-table table {
+                font-size: 0.8rem;
+            }
+            
+            .compact-table th,
+            .compact-table td {
+                padding: 0.5rem 0.3rem !important;
+                font-size: 0.75rem;
+            }
+            
+            /* Esconder colunas menos importantes */
+            .mobile-hide {
+                display: none;
+            }
+            
+            /* Badges menores */
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 4px 8px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .header-btn {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .compact-table th,
+            .compact-table td {
+                padding: 0.4rem 0.2rem !important;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- HEADER COM BOTÕES DE NAVEGAÇÃO -->
@@ -514,46 +646,46 @@
             <div class="methodology-card">
                 <h3><i class="fas fa-cogs"></i> 1. Fundamentação Normativa do Checklist</h3>
                 
-                <div class="table-container">
+                <div class="compact-table">
                     <table>
                         <thead>
                             <tr>
-                                <th>Dimensão Técnica</th>
-                                <th>Itens Avaliados</th>
-                                <th>Peso Técnico</th>
-                                <th>Fundamentação Normativa</th>
+                                <th class="table-cell-compact">Dimensão Técnica</th>
+                                <th class="table-cell-compact">Itens Avaliados</th>
+                                <th class="table-cell-compact">Peso Técnico</th>
+                                <th class="mobile-hide">Fundamentação Normativa</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td><strong>Estrutura Física</strong></td>
-                                <td>Mofo/umidade, piso quebrado, infiltrações</td>
-                                <td>3 pontos cada</td>
-                                <td>ABNT NBR 15575 (Desempenho) + ABNT NBR 5674 (Manutenção)</td>
+                                <td class="table-cell-compact"><strong>Estrutura Física</strong></td>
+                                <td class="table-cell-compact">Mofo/umidade, piso quebrado, infiltrações</td>
+                                <td class="table-cell-compact">3 pontos cada</td>
+                                <td class="table-cell-multiline mobile-hide">ABNT NBR 15575 (Desempenho) + ABNT NBR 5674 (Manutenção)</td>
                             </tr>
                             <tr>
-                                <td><strong>Higiene e Limpeza</strong></td>
-                                <td>Limpeza inadequada, mau cheiro</td>
-                                <td>2 pontos cada</td>
-                                <td>RDC ANVISA 216/2004 + Portaria MS 1.914/2014</td>
+                                <td class="table-cell-compact"><strong>Higiene e Limpeza</strong></td>
+                                <td class="table-cell-compact">Limpeza inadequada, mau cheiro</td>
+                                <td class="table-cell-compact">2 pontos cada</td>
+                                <td class="table-cell-multiline mobile-hide">RDC ANVISA 216/2004 + Portaria MS 1.914/2014</td>
                             </tr>
                             <tr>
-                                <td><strong>Conforto Ambiental</strong></td>
-                                <td>Iluminação, ventilação</td>
-                                <td>1 ponto cada</td>
-                                <td>NBR 15220 (Desempenho Térmico) + NBR 5413 (Iluminação)</td>
+                                <td class="table-cell-compact"><strong>Conforto Ambiental</strong></td>
+                                <td class="table-cell-compact">Iluminação, ventilação</td>
+                                <td class="table-cell-compact">1 ponto cada</td>
+                                <td class="table-cell-multiline mobile-hide">NBR 15220 (Desempenho Térmico) + NBR 5413 (Iluminação)</td>
                             </tr>
                             <tr>
-                                <td><strong>Equipamentos Sanitários</strong></td>
-                                <td>Vasos, pias, torneiras</td>
-                                <td>2-3 pontos</td>
-                                <td>ABNT NBR 5626 (Água) + NBR 8160 (Esgoto)</td>
+                                <td class="table-cell-compact"><strong>Equipamentos Sanitários</strong></td>
+                                <td class="table-cell-compact">Vasos, pias, torneiras</td>
+                                <td class="table-cell-compact">2-3 pontos</td>
+                                <td class="table-cell-multiline mobile-hide">ABNT NBR 5626 (Água) + NBR 8160 (Esgoto)</td>
                             </tr>
                             <tr>
-                                <td><strong>Acessibilidade</strong></td>
-                                <td>Banheiro acessível</td>
-                                <td>4 pontos</td>
-                                <td>NBR 9050 (Acessibilidade) + Lei 13.146/2015</td>
+                                <td class="table-cell-compact"><strong>Acessibilidade</strong></td>
+                                <td class="table-cell-compact">Banheiro acessível</td>
+                                <td class="table-cell-compact">4 pontos</td>
+                                <td class="table-cell-multiline mobile-hide">NBR 9050 (Acessibilidade) + Lei 13.146/2015</td>
                             </tr>
                         </tbody>
                     </table>
@@ -586,40 +718,40 @@
                             
                             <h4>Mapeamento Técnico</h4>
                             <p><strong>No sistema, o GS corresponde ao peso (1-4) derivado do status da avaliação:</strong></p>
-                            <div class="table-container">
+                            <div class="compact-table">
                                 <table class="tech-table">
                                     <thead>
                                         <tr>
-                                            <th>Pontuação (IT)</th>
-                                            <th>Status</th>
-                                            <th>GS</th>
-                                            <th>Interpretação</th>
+                                            <th class="table-cell-compact">Pontuação (IT)</th>
+                                            <th class="table-cell-compact">Status</th>
+                                            <th class="table-cell-compact">GS</th>
+                                            <th class="mobile-hide">Interpretação</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>0-3 pontos</td>
-                                            <td>Adequada</td>
-                                            <td>1</td>
-                                            <td>Infraestrutura dentro dos padrões</td>
+                                            <td class="table-cell-compact">0-3 pontos</td>
+                                            <td class="table-cell-compact">Adequada</td>
+                                            <td class="table-cell-compact">1</td>
+                                            <td class="table-cell-multiline mobile-hide">Infraestrutura dentro dos padrões</td>
                                         </tr>
                                         <tr>
-                                            <td>4-7 pontos</td>
-                                            <td>Alerta</td>
-                                            <td>2</td>
-                                            <td>Problemas leves, monitoramento necessário</td>
+                                            <td class="table-cell-compact">4-7 pontos</td>
+                                            <td class="table-cell-compact">Alerta</td>
+                                            <td class="table-cell-compact">2</td>
+                                            <td class="table-cell-multiline mobile-hide">Problemas leves, monitoramento necessário</td>
                                         </tr>
                                         <tr>
-                                            <td>8-11 pontos</td>
-                                            <td>Atenção</td>
-                                            <td>3</td>
-                                            <td>Problemas significativos, risco médio</td>
+                                            <td class="table-cell-compact">8-11 pontos</td>
+                                            <td class="table-cell-compact">Atenção</td>
+                                            <td class="table-cell-compact">3</td>
+                                            <td class="table-cell-multiline mobile-hide">Problemas significativos, risco médio</td>
                                         </tr>
                                         <tr>
-                                            <td>12-13 pontos</td>
-                                            <td>Crítica</td>
-                                            <td>4</td>
-                                            <td>Problemas graves, risco imediato</td>
+                                            <td class="table-cell-compact">12-13 pontos</td>
+                                            <td class="table-cell-compact">Crítica</td>
+                                            <td class="table-cell-compact">4</td>
+                                            <td class="table-cell-multiline mobile-hide">Problemas graves, risco imediato</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -653,30 +785,30 @@
                             <h4>Cálculo Detalhado</h4>
                             <p><strong>No sistema, o IT corresponde à soma dos pesos dos problemas identificados no checklist:</strong></p>
                             
-                            <div class="table-container">
+                            <div class="compact-table">
                                 <table class="tech-table">
                                     <thead>
                                         <tr>
-                                            <th>Tipo de Problema</th>
-                                            <th>Peso</th>
-                                            <th>Exemplos</th>
+                                            <th class="table-cell-compact">Tipo de Problema</th>
+                                            <th class="table-cell-compact">Peso</th>
+                                            <th class="table-cell-compact">Exemplos</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>Problemas Graves</td>
-                                            <td>3 pontos</td>
-                                            <td>Mofo ou umidade excessiva</td>
+                                            <td class="table-cell-compact">Problemas Graves</td>
+                                            <td class="table-cell-compact">3 pontos</td>
+                                            <td class="table-cell-compact">Mofo ou umidade excessiva</td>
                                         </tr>
                                         <tr>
-                                            <td>Problemas Médios</td>
-                                            <td>2 pontos</td>
-                                            <td>Infiltrações visíveis, piso quebrado, limpeza inadequada, mau cheiro</td>
+                                            <td class="table-cell-compact">Problemas Médios</td>
+                                            <td class="table-cell-compact">2 pontos</td>
+                                            <td class="table-cell-compact">Infiltrações visíveis, piso quebrado, limpeza inadequada, mau cheiro</td>
                                         </tr>
                                         <tr>
-                                            <td>Problemas Leves</td>
-                                            <td>1 ponto</td>
-                                            <td>Iluminação insuficiente, ventilação inadequada</td>
+                                            <td class="table-cell-compact">Problemas Leves</td>
+                                            <td class="table-cell-compact">1 ponto</td>
+                                            <td class="table-cell-compact">Iluminação insuficiente, ventilação inadequada</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -721,35 +853,35 @@
                                 • Normaliza para escala 1-4
                             </div>
                             
-                            <div class="table-container">
+                            <div class="compact-table">
                                 <table class="tech-table">
                                     <thead>
                                         <tr>
-                                            <th>Ocorrências</th>
-                                            <th>RT</th>
-                                            <th>Interpretação</th>
+                                            <th class="table-cell-compact">Ocorrências</th>
+                                            <th class="table-cell-compact">RT</th>
+                                            <th class="table-cell-compact">Interpretação</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>0 ocorrências anteriores</td>
-                                            <td>1</td>
-                                            <td>Baixa recorrência</td>
+                                            <td class="table-cell-compact">0 ocorrências anteriores</td>
+                                            <td class="table-cell-compact">1</td>
+                                            <td class="table-cell-compact">Baixa recorrência</td>
                                         </tr>
                                         <tr>
-                                            <td>1-2 ocorrências</td>
-                                            <td>2</td>
-                                            <td>Média recorrência</td>
+                                            <td class="table-cell-compact">1-2 ocorrências</td>
+                                            <td class="table-cell-compact">2</td>
+                                            <td class="table-cell-compact">Média recorrência</td>
                                         </tr>
                                         <tr>
-                                            <td>3-4 ocorrências</td>
-                                            <td>3</td>
-                                            <td>Alta recorrência</td>
+                                            <td class="table-cell-compact">3-4 ocorrências</td>
+                                            <td class="table-cell-compact">3</td>
+                                            <td class="table-cell-compact">Alta recorrência</td>
                                         </tr>
                                         <tr>
-                                            <td>5+ ocorrências</td>
-                                            <td>4</td>
-                                            <td>Muito alta recorrência</td>
+                                            <td class="table-cell-compact">5+ ocorrências</td>
+                                            <td class="table-cell-compact">4</td>
+                                            <td class="table-cell-compact">Muito alta recorrência</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -795,40 +927,40 @@
             <div class="methodology-card">
                 <h3><i class="fas fa-sort-amount-down"></i> 2. Sistema de Classificação Detalhado</h3>
                 
-                <div class="table-container">
+                <div class="compact-table">
                     <table>
                         <thead>
                             <tr>
-                                <th>Faixa de Pontos</th>
-                                <th>Classificação</th>
-                                <th>Significado Técnico</th>
-                                <th>Implicações para Gestão</th>
+                                <th class="table-cell-compact">Faixa de Pontos</th>
+                                <th class="table-cell-compact">Classificação</th>
+                                <th class="table-cell-compact">Significado Técnico</th>
+                                <th class="mobile-hide">Implicações para Gestão</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>0-3 pontos</td>
-                                <td><span class="status-badge status-ok">Adequada</span></td>
-                                <td>Condições dentro dos parâmetros normativos</td>
-                                <td>Manutenção preventiva regular</td>
+                                <td class="table-cell-compact">0-3 pontos</td>
+                                <td class="table-cell-compact"><span class="status-badge status-ok">Adequada</span></td>
+                                <td class="table-cell-compact">Condições dentro dos parâmetros normativos</td>
+                                <td class="table-cell-multiline mobile-hide">Manutenção preventiva regular</td>
                             </tr>
                             <tr>
-                                <td>4-6 pontos</td>
-                                <td><span class="status-badge status-alert">Alerta</span></td>
-                                <td>Problemas menores que podem evoluir</td>
-                                <td>Ações corretivas em 90 dias</td>
+                                <td class="table-cell-compact">4-6 pontos</td>
+                                <td class="table-cell-compact"><span class="status-badge status-alert">Alerta</span></td>
+                                <td class="table-cell-compact">Problemas menores que podem evoluir</td>
+                                <td class="table-cell-multiline mobile-hide">Ações corretivas em 90 dias</td>
                             </tr>
                             <tr>
-                                <td>7-8 pontos</td>
-                                <td><span class="status-badge status-atencao">Atenção Elevada</span></td>
-                                <td>Problemas significativos com risco sanitário</td>
-                                <td>Intervenção em 30 dias</td>
+                                <td class="table-cell-compact">7-8 pontos</td>
+                                <td class="table-cell-compact"><span class="status-badge status-atencao">Atenção Elevada</span></td>
+                                <td class="table-cell-compact">Problemas significativos com risco sanitário</td>
+                                <td class="table-cell-multiline mobile-hide">Intervenção em 30 dias</td>
                             </tr>
                             <tr>
-                                <td>≥9 pontos</td>
-                                <td><span class="status-badge status-critical">Crítica</span></td>
-                                <td>Risco imediato à saúde e segurança</td>
-                                <td>Intervenção imediata (7 dias)</td>
+                                <td class="table-cell-compact">≥9 pontos</td>
+                                <td class="table-cell-compact"><span class="status-badge status-critical">Crítica</span></td>
+                                <td class="table-cell-compact">Risco imediato à saúde e segurança</td>
+                                <td class="table-cell-multiline mobile-hide">Intervenção imediata (7 dias)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1063,40 +1195,40 @@
             <div class="methodology-card">
                 <h3><i class="fas fa-chart-pie"></i> 4. Indicadores de Desempenho Institucional</h3>
                 
-                <div class="table-container">
+                <div class="compact-table">
                     <table>
                         <thead>
                             <tr>
-                                <th>Indicador</th>
-                                <th>Fórmula</th>
-                                <th>Interpretação</th>
-                                <th>Meta Institucional</th>
+                                <th class="table-cell-compact">Indicador</th>
+                                <th class="table-cell-compact">Fórmula</th>
+                                <th class="table-cell-compact">Interpretação</th>
+                                <th class="mobile-hide">Meta Institucional</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td><strong>IPT Médio Municipal</strong></td>
-                                <td>Σ(IPTᵢ) ÷ N</td>
-                                <td>"Termômetro" da rede escolar</td>
-                                <td>&lt; 2.0 (baixa criticidade)</td>
+                                <td class="table-cell-compact"><strong>IPT Médio Municipal</strong></td>
+                                <td class="table-cell-compact">Σ(IPTᵢ) ÷ N</td>
+                                <td class="table-cell-compact">"Termômetro" da rede escolar</td>
+                                <td class="table-cell-compact mobile-hide">&lt; 2.0 (baixa criticidade)</td>
                             </tr>
                             <tr>
-                                <td><strong>Densidade Crítica</strong></td>
-                                <td>Nº críticas ÷ Área</td>
-                                <td>Intensidade espacial dos problemas</td>
-                                <td>Redução anual de 10%</td>
+                                <td class="table-cell-compact"><strong>Densidade Crítica</strong></td>
+                                <td class="table-cell-compact">Nº críticas ÷ Área</td>
+                                <td class="table-cell-compact">Intensidade espacial dos problemas</td>
+                                <td class="table-cell-compact mobile-hide">Redução anual de 10%</td>
                             </tr>
                             <tr>
-                                <td><strong>Concentração Relativa Máxima</strong></td>
-                                <td>Max(CRᵢ)</td>
-                                <td>Desigualdade territorial</td>
-                                <td>&lt; 1.5 (redução desigualdade)</td>
+                                <td class="table-cell-compact"><strong>Concentração Relativa Máxima</strong></td>
+                                <td class="table-cell-compact">Max(CRᵢ)</td>
+                                <td class="table-cell-compact">Desigualdade territorial</td>
+                                <td class="table-cell-compact mobile-hide">&lt; 1.5 (redução desigualdade)</td>
                             </tr>
                             <tr>
-                                <td><strong>Cobertura do Sistema</strong></td>
-                                <td>Escolas avaliadas ÷ Total</td>
-                                <td>Abragência do monitoramento</td>
-                                <td>100% (todas escolas)</td>
+                                <td class="table-cell-compact"><strong>Cobertura do Sistema</strong></td>
+                                <td class="table-cell-compact">Escolas avaliadas ÷ Total</td>
+                                <td class="table-cell-compact">Abragência do monitoramento</td>
+                                <td class="table-cell-compact mobile-hide">100% (todas escolas)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1238,40 +1370,40 @@
             <div class="methodology-card">
                 <h3><i class="fas fa-user-tie"></i> 1. Perfis de Usuário Institucionais</h3>
                 
-                <div class="table-container">
+                <div class="compact-table">
                     <table>
                         <thead>
                             <tr>
-                                <th>Perfil</th>
-                                <th>Foco Principal</th>
-                                <th>Indicadores-Chave</th>
-                                <th>Ações Típicas</th>
+                                <th class="table-cell-compact">Perfil</th>
+                                <th class="table-cell-compact">Foco Principal</th>
+                                <th class="table-cell-compact">Indicadores-Chave</th>
+                                <th class="mobile-hide">Ações Típicas</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td><strong>Gestor Municipal</strong></td>
-                                <td>Alocação de recursos</td>
-                                <td>IPT médio, Zonas Prioritárias</td>
-                                <td>Planejamento orçamentário, definição de prioridades</td>
+                                <td class="table-cell-compact"><strong>Gestor Municipal</strong></td>
+                                <td class="table-cell-compact">Alocação de recursos</td>
+                                <td class="table-cell-compact">IPT médio, Zonas Prioritárias</td>
+                                <td class="table-cell-multiline mobile-hide">Planejamento orçamentário, definição de prioridades</td>
                             </tr>
                             <tr>
-                                <td><strong>Técnico da Secretaria</strong></td>
-                                <td>Execução de intervenções</td>
-                                <td>Ranking IPT, Problemas frequentes</td>
-                                <td>Elaboração de projetos, acompanhamento de obras</td>
+                                <td class="table-cell-compact"><strong>Técnico da Secretaria</strong></td>
+                                <td class="table-cell-compact">Execução de intervenções</td>
+                                <td class="table-cell-compact">Ranking IPT, Problemas frequentes</td>
+                                <td class="table-cell-multiline mobile-hide">Elaboração de projetos, acompanhamento de obras</td>
                             </tr>
                             <tr>
-                                <td><strong>Diretor Escolar</strong></td>
-                                <td>Condição da própria escola</td>
-                                <td>Status, Pontuação específica</td>
-                                <td>Solicitação de reparos, manutenção preventiva</td>
+                                <td class="table-cell-compact"><strong>Diretor Escolar</strong></td>
+                                <td class="table-cell-compact">Condição da própria escola</td>
+                                <td class="table-cell-compact">Status, Pontuação específica</td>
+                                <td class="table-cell-multiline mobile-hide">Solicitação de reparos, manutenção preventiva</td>
                             </tr>
                             <tr>
-                                <td><strong>Auditor/Conselheiro</strong></td>
-                                <td>Transparência e conformidade</td>
-                                <td>Evolução temporal, Distribuição</td>
-                                <td>Fiscalização, controle social</td>
+                                <td class="table-cell-compact"><strong>Auditor/Conselheiro</strong></td>
+                                <td class="table-cell-compact">Transparência e conformidade</td>
+                                <td class="table-cell-compact">Evolução temporal, Distribuição</td>
+                                <td class="table-cell-multiline mobile-hide">Fiscalização, controle social</td>
                             </tr>
                         </tbody>
                     </table>

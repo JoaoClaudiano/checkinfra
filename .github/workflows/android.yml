@@ -1,4 +1,4 @@
-name: Build Android App (TWA / Bubblewrap)
+name: Build Android App (TWA)
 
 on:
 workflow_dispatch:
@@ -21,9 +21,7 @@ run: npm install -g @bubblewrap/cli
 
 - name: Inicializar projeto TWA
 run: |
-bubblewrap init \
---manifest https://github.com/JoaoClaudiano/checkinfra/manifest.json \
---skip-prompt
+bubblewrap init --manifest https://github.com/JoaoClaudiano/checkinfra/manifest.json --skip-prompt
 
 - name: Build Android App Bundle
 run: |

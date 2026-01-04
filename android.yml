@@ -1,11 +1,1 @@
-name: Android Build Test
 
-on:
-  workflow_dispatch:
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Teste simples
-        run: echo "Workflow funcionando"

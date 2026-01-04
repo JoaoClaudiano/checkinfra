@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Java 17
@@ -17,23 +17,28 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
-      - name: Initialize Android Project
+      - name: Initialize Android Project (non-interactive)
         run: |
           bubblewrap init \
             --manifest=https://joaoclaudiano.github.io/checkinfra/manifest.json \
             --directory=android \
             --skipPwaValidation \
-            --skipJdkDownload
+            --nonInteractive
 
-      - name: Build Android App Bundle
+      - name: Build Android App Bundle (.aab)
         run: |
           cd android
           ./gradlew bundleRelease
 
-      - name: Upload AAB
+      - name: Upload Android App Bundle
         uses: actions/upload-artifact@v4
         with:
           name: checkinfra-aab

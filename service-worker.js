@@ -4,7 +4,7 @@
 ========================================= */
 
 // 🔁 ATUALIZE APENAS ESTA LINHA A CADA DEPLOY
-const BUILD_VERSION = "2025-12-24-01"; 
+const BUILD_VERSION = "2026-01-04-01"; 
 // Exemplo: YYYY-MM-DD-XX
 
 const CACHE_NAME = `checkinfra-${BUILD_VERSION}`;

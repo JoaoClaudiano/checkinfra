@@ -16,9 +16,10 @@ const FILES_TO_CACHE = [
   "/",
   "/index.html",
   "/avaliacao.html",
-  "/analise-espacial.html",
+  "/analise-espacial/index.html",
   "/manifest.json",
   "/mapa/escolas.js",
+   "/mapa/index.html",
    "/painel/index.html"
 ];
 

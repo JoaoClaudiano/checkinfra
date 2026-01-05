@@ -45,7 +45,7 @@ Você pode baixar os builds do CheckInfra diretamente:
 
 ---
 
-## 🫱🏼‍🫲🏾 Contribuições
+## 🤝 Contribuições
 
 Sugestões, melhorias e adaptações são bem-vindas, especialmente para uso em
 contextos educacionais e de gestão pública.

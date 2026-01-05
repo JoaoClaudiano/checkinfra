@@ -1,4 +1,4 @@
-// popup-counter-tetris-final-fixed.js
+// popup-counter-tetris-horizontal.js
 (function() {
     'use strict';
     
@@ -106,15 +106,15 @@
         return newCount;
     }
     
-    // ==================== TETRIS CORRIGIDO ====================
+    // ==================== TETRIS HORIZONTAL ====================
     class MiniTetris {
         constructor(canvas) {
             this.canvas = canvas;
             this.ctx = canvas.getContext('2d');
             
-            // Dimensões do jogo
-            this.cols = 10;  // Menos colunas para caber melhor
-            this.rows = 14;  // Menos linhas também
+            // DIMENSÕES HORIZONTAIS (mais largo que alto)
+            this.cols = 16;  // Mais colunas para horizontal
+            this.rows = 8;   // Menos linhas
             
             this.shapes = [
                 [[1,1,1,1]], // I
@@ -142,7 +142,7 @@
             this.gameOver = false;
             this.score = 0;
             this.lastDropTime = 0;
-            this.dropInterval = 600;
+            this.dropInterval = 500; // Mais rápido
             this.cellSize = 0;
             
             this.reset();
@@ -154,10 +154,10 @@
             const container = this.canvas.parentElement;
             if (!container) return;
             
-            const containerWidth = container.clientWidth - 16; // - padding
-            const containerHeight = container.clientHeight - 16;
+            const containerWidth = container.clientWidth - 20; // - padding
+            const containerHeight = container.clientHeight - 20;
             
-            // Calcula tamanho baseado no container
+            // Para horizontal, priorizamos a largura
             const widthBasedCell = Math.floor(containerWidth / this.cols);
             const heightBasedCell = Math.floor(containerHeight / this.rows);
             
@@ -166,7 +166,7 @@
             this.canvas.width = this.cols * this.cellSize;
             this.canvas.height = this.rows * this.cellSize;
             
-            console.log(`Tetris: ${this.canvas.width}x${this.canvas.height}, Célula: ${this.cellSize}px`);
+            console.log(`Tetris Horizontal: ${this.canvas.width}x${this.canvas.height}, Célula: ${this.cellSize}px`);
         }
         
         reset() {
@@ -204,7 +204,7 @@
                             return false;
                         }
                         
-                        // Verifica colisão com peças existentes (CORRIGIDO: board[newRow][newCol] deve existir)
+                        // Verifica colisão com peças existentes
                         if (newRow >= 0 && this.board[newRow] && this.board[newRow][newCol]) {
                             return false;
                         }
@@ -215,17 +215,14 @@
         }
         
         mergePiece() {
-            // CORREÇÃO: Agora realmente fixa a peça no tabuleiro
             for (let r = 0; r < this.currentPiece.shape.length; r++) {
                 for (let c = 0; c < this.currentPiece.shape[r].length; c++) {
                     if (this.currentPiece.shape[r][c]) {
                         const row = this.currentPiece.row + r;
                         const col = this.currentPiece.col + c;
                         
-                        // Só adiciona se estiver dentro do tabuleiro
                         if (row >= 0 && row < this.rows && col >= 0 && col < this.cols) {
                             this.board[row][col] = this.currentPiece.color;
-                            console.log(`Peça fixada em [${row}][${col}] = ${this.currentPiece.color}`);
                         }
                     }
                 }
@@ -238,7 +235,6 @@
             for (let row = this.rows - 1; row >= 0; row--) {
                 let isLineComplete = true;
                 
-                // Verifica se a linha está completa
                 for (let col = 0; col < this.cols; col++) {
                     if (!this.board[row][col]) {
                         isLineComplete = false;
@@ -247,18 +243,15 @@
                 }
                 
                 if (isLineComplete) {
-                    // Remove a linha
                     this.board.splice(row, 1);
-                    // Adiciona nova linha vazia no topo
                     this.board.unshift(Array(this.cols).fill(0));
                     linesCleared++;
-                    row++; // Reavalia a mesma posição
+                    row++;
                 }
             }
             
             if (linesCleared > 0) {
                 this.score += linesCleared * 100;
-                console.log(`Linhas removidas: ${linesCleared}, Pontuação: ${this.score}`);
             }
         }
         
@@ -273,8 +266,7 @@
                 if (this.isValidMove(this.currentPiece, this.currentPiece.row + 1, this.currentPiece.col)) {
                     this.currentPiece.row++;
                 } else {
-                    // Não pode mover mais, fixa a peça
-                    console.log('Fixando peça no tabuleiro...');
+                    // Fixa a peça
                     this.mergePiece();
                     this.clearLines();
                     
@@ -282,10 +274,9 @@
                     this.currentPiece = this.nextPiece;
                     this.nextPiece = this.createRandomPiece();
                     
-                    // Verifica se a nova peça já colide (game over)
+                    // Verifica game over
                     if (!this.isValidMove(this.currentPiece, this.currentPiece.row, this.currentPiece.col)) {
                         this.gameOver = true;
-                        console.log('GAME OVER!');
                         setTimeout(() => {
                             this.reset();
                             this.draw();
@@ -293,16 +284,16 @@
                     }
                 }
                 
-                // Movimento lateral aleatório (IA)
-                if (Math.random() < 0.3) {
+                // IA: Movimento lateral inteligente
+                if (Math.random() < 0.4) {
                     const direction = Math.random() < 0.5 ? -1 : 1;
                     if (this.isValidMove(this.currentPiece, this.currentPiece.row, this.currentPiece.col + direction)) {
                         this.currentPiece.col += direction;
                     }
                 }
                 
-                // Rotação aleatória
-                if (Math.random() < 0.2) {
+                // IA: Rotação inteligente
+                if (Math.random() < 0.3) {
                     this.rotateCurrentPiece();
                 }
                 
@@ -338,7 +329,7 @@
             this.ctx.fillStyle = '#000';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             
-            // Desenha peças fixas no tabuleiro (FUNDO)
+            // Desenha peças fixas no tabuleiro
             for (let row = 0; row < this.rows; row++) {
                 for (let col = 0; col < this.cols; col++) {
                     if (this.board[row][col]) {
@@ -347,7 +338,7 @@
                 }
             }
             
-            // Desenha a peça atual (se existir)
+            // Desenha a peça atual
             if (this.currentPiece && !this.gameOver) {
                 for (let r = 0; r < this.currentPiece.shape.length; r++) {
                     for (let c = 0; c < this.currentPiece.shape[r].length; c++) {
@@ -355,7 +346,6 @@
                             const col = this.currentPiece.col + c;
                             const row = this.currentPiece.row + r;
                             
-                            // Só desenha se estiver dentro do canvas
                             if (row >= 0 && row < this.rows && col >= 0 && col < this.cols) {
                                 this.drawCell(col, row, this.currentPiece.color, true);
                             }
@@ -364,7 +354,7 @@
                 }
             }
             
-            // Grade
+            // Grade sutil
             this.drawGrid();
         }
         
@@ -380,22 +370,26 @@
             if (!isCurrent) {
                 // Efeito 3D para peças fixas
                 this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                this.ctx.fillRect(x + 1, y + 1, size - 2, 2); // Topo
-                this.ctx.fillRect(x + 1, y + 1, 2, size - 2); // Esquerda
+                this.ctx.fillRect(x + 1, y + 1, size - 2, 2);
+                this.ctx.fillRect(x + 1, y + 1, 2, size - 2);
                 
                 this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                this.ctx.fillRect(x + size - 3, y + 1, 2, size - 2); // Direita
-                this.ctx.fillRect(x + 1, y + size - 3, size - 2, 2); // Baixo
+                this.ctx.fillRect(x + size - 3, y + 1, 2, size - 2);
+                this.ctx.fillRect(x + 1, y + size - 3, size - 2, 2);
             } else {
                 // Contorno para peça atual
                 this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
                 this.ctx.lineWidth = 1;
                 this.ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
+                
+                // Brilho interno
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                this.ctx.fillRect(x + 2, y + 2, size - 4, size - 4);
             }
         }
         
         drawGrid() {
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
             this.ctx.lineWidth = 0.5;
             
             // Linhas verticais
@@ -468,7 +462,7 @@
                 background: white;
                 border-radius: 16px;
                 width: 90%;
-                max-width: 380px;
+                max-width: 420px; /* Um pouco mais largo para o Tetris horizontal */
                 overflow: hidden;
                 transform: translateY(20px) scale(0.95);
                 opacity: 0;
@@ -537,27 +531,32 @@
                 margin-bottom: 4px;
             }
             
-            /* AVISO DE CONSTRUÇÃO */
+            /* AVISO DE CONSTRUÇÃO - POSICIONADO ANTES DO TETRIS */
             .warning-message {
                 background: rgba(255, 107, 107, 0.1);
-                border-left: 3px solid ${CONFIG.colors.primary};
+                border: 1px solid rgba(255, 107, 107, 0.3);
                 padding: 8px 10px;
                 margin: 0 0 12px 0;
-                border-radius: 4px;
+                border-radius: 6px;
                 font-size: 11px;
                 color: #666;
                 line-height: 1.3;
-                text-align: left;
+                text-align: center;
             }
             
-            /* TETRIS COMPACTO */
+            .warning-message strong {
+                color: ${CONFIG.colors.primary};
+                font-size: 11px;
+            }
+            
+            /* TETRIS HORIZONTAL - MAIS LARGO */
             .tetris-section {
                 background: #000;
-                border-radius: 6px;
+                border-radius: 8px;
                 overflow: hidden;
                 margin: 12px 0;
                 border: 2px solid #1a1a2e;
-                height: 160px;
+                height: 140px; /* Mais baixo, mais largo */
                 display: flex;
                 flex-direction: column;
                 position: relative;
@@ -751,11 +750,11 @@
                 to { transform: translateY(-50px) rotate(15deg); opacity: 0; }
             }
             
-            /* RESPONSIVIDADE MELHORADA */
+            /* RESPONSIVIDADE */
             @media (max-width: 480px) {
                 .popup-card {
                     width: 95%;
-                    max-width: 300px;
+                    max-width: 350px;
                     border-radius: 12px;
                 }
                 
@@ -772,7 +771,7 @@
                 }
                 
                 .tetris-section {
-                    height: 140px;
+                    height: 120px;
                 }
                 
                 .tetris-header h4 {
@@ -808,11 +807,11 @@
             
             @media (max-width: 360px) {
                 .tetris-section {
-                    height: 130px;
+                    height: 110px;
                 }
                 
                 .popup-card {
-                    max-width: 280px;
+                    max-width: 320px;
                 }
             }
             
@@ -833,7 +832,7 @@
                 .warning-message {
                     background: rgba(255, 107, 107, 0.15);
                     color: #aaa;
-                    border-left-color: ${CONFIG.colors.primary};
+                    border-color: rgba(255, 107, 107, 0.4);
                 }
                 
                 .counter-label {
@@ -868,13 +867,15 @@
                             Estamos trabalhando para melhorar esta página.
                         </p>
                         
+                        <!-- TEXTO DE AVISO ADICIONADO -->
                         <div class="warning-message">
-                            ⚠️ <strong>Atenção:</strong> Esta funcionalidade ainda está sendo construída e testada e pode apresentar bugs, erros ou instabilidades de funcionamento.
+                            <strong>⚠️ ATENÇÃO:</strong> Esta funcionalidade ainda está sendo construída e testada e pode apresentar bugs, erros ou instabilidades de funcionamento.
                         </div>
                         
+                        <!-- TETRIS HORIZONTAL -->
                         <div class="tetris-section">
                             <div class="tetris-header">
-                                <h4>TETRIS AUTO</h4>
+                                <h4>TETRIS AUTO - MODO HORIZONTAL</h4>
                             </div>
                             <div class="tetris-container">
                                 <canvas id="tetrisCanvas"></canvas>
@@ -1120,20 +1121,19 @@
         createStyles();
         elements = createPopup();
         
-        // Inicia Tetris
-        if (elements.canvas) {
-            // Pequeno delay para garantir que o container está renderizado
-            setTimeout(() => {
+        // Inicia Tetris com delay para garantir renderização
+        setTimeout(() => {
+            if (elements.canvas) {
                 state.tetris = new MiniTetris(elements.canvas);
-            }, 100);
-        }
+            }
+        }, 100);
         
         // Atualiza contador da API
         await updateCounter();
         
         setupEventListeners();
         
-        // Mostra o popup com delay
+        // Mostra o popup
         setTimeout(() => {
             if (elements && elements.popup) {
                 elements.popup.classList.add('show');

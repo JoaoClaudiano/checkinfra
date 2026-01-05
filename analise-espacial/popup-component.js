@@ -1,4 +1,4 @@
-// popup-counter-tetris-horizontal.js
+// popup-counter-tetris-aligned.js
 (function() {
     'use strict';
     
@@ -106,16 +106,17 @@
         return newCount;
     }
     
-    // ==================== TETRIS HORIZONTAL ====================
+    // ==================== TETRIS VERTICAL ALINHADO ====================
     class MiniTetris {
         constructor(canvas) {
             this.canvas = canvas;
             this.ctx = canvas.getContext('2d');
             
-            // DIMENSÕES HORIZONTAIS (mais largo que alto)
-            this.cols = 16;  // Mais colunas para horizontal
-            this.rows = 8;   // Menos linhas
+            // Grid original do Tetris (10x20 é padrão, mas vamos usar 10x14 para caber melhor)
+            this.cols = 10;
+            this.rows = 14;
             
+            // Tetrominós
             this.shapes = [
                 [[1,1,1,1]], // I
                 [[1,1],[1,1]], // O
@@ -138,11 +139,10 @@
             
             this.board = [];
             this.currentPiece = null;
-            this.nextPiece = null;
             this.gameOver = false;
             this.score = 0;
             this.lastDropTime = 0;
-            this.dropInterval = 500; // Mais rápido
+            this.dropInterval = 600;
             this.cellSize = 0;
             
             this.reset();
@@ -154,19 +154,32 @@
             const container = this.canvas.parentElement;
             if (!container) return;
             
-            const containerWidth = container.clientWidth - 20; // - padding
-            const containerHeight = container.clientHeight - 20;
+            // Obtém o tamanho disponível no container
+            const containerWidth = container.clientWidth - 16; // - padding
+            const containerHeight = container.clientHeight - 16;
             
-            // Para horizontal, priorizamos a largura
-            const widthBasedCell = Math.floor(containerWidth / this.cols);
-            const heightBasedCell = Math.floor(containerHeight / this.rows);
+            // Calcula o tamanho máximo da célula baseado nas dimensões do container
+            // Garantindo que o grid inteiro caiba perfeitamente
+            const maxCellWidth = Math.floor(containerWidth / this.cols);
+            const maxCellHeight = Math.floor(containerHeight / this.rows);
             
-            this.cellSize = Math.min(widthBasedCell, heightBasedCell) - 1;
+            // Usa o menor valor para manter proporção
+            this.cellSize = Math.min(maxCellWidth, maxCellHeight);
             
+            // Ajusta o canvas para que o grid termine exatamente no fim do container
             this.canvas.width = this.cols * this.cellSize;
             this.canvas.height = this.rows * this.cellSize;
             
-            console.log(`Tetris Horizontal: ${this.canvas.width}x${this.canvas.height}, Célula: ${this.cellSize}px`);
+            // Centraliza o canvas no container se necessário
+            const remainingWidth = containerWidth - this.canvas.width;
+            const remainingHeight = containerHeight - this.canvas.height;
+            
+            if (remainingWidth > 0 || remainingHeight > 0) {
+                this.canvas.style.marginLeft = `${remainingWidth / 2}px`;
+                this.canvas.style.marginTop = `${remainingHeight / 2}px`;
+            }
+            
+            console.log(`Tetris Alinhado: ${this.canvas.width}x${this.canvas.height}, Célula: ${this.cellSize}px, Grid: ${this.cols}x${this.rows}`);
         }
         
         reset() {
@@ -175,9 +188,8 @@
             this.score = 0;
             this.gameOver = false;
             
-            // Gera peças iniciais
+            // Gera peça inicial
             this.currentPiece = this.createRandomPiece();
-            this.nextPiece = this.createRandomPiece();
         }
         
         createRandomPiece() {
@@ -250,9 +262,7 @@
                 }
             }
             
-            if (linesCleared > 0) {
-                this.score += linesCleared * 100;
-            }
+            return linesCleared;
         }
         
         update() {
@@ -268,11 +278,13 @@
                 } else {
                     // Fixa a peça
                     this.mergePiece();
-                    this.clearLines();
+                    const linesCleared = this.clearLines();
+                    if (linesCleared > 0) {
+                        this.score += linesCleared * 100;
+                    }
                     
-                    // Pega a próxima peça
-                    this.currentPiece = this.nextPiece;
-                    this.nextPiece = this.createRandomPiece();
+                    // Nova peça
+                    this.currentPiece = this.createRandomPiece();
                     
                     // Verifica game over
                     if (!this.isValidMove(this.currentPiece, this.currentPiece.row, this.currentPiece.col)) {
@@ -284,41 +296,8 @@
                     }
                 }
                 
-                // IA: Movimento lateral inteligente
-                if (Math.random() < 0.4) {
-                    const direction = Math.random() < 0.5 ? -1 : 1;
-                    if (this.isValidMove(this.currentPiece, this.currentPiece.row, this.currentPiece.col + direction)) {
-                        this.currentPiece.col += direction;
-                    }
-                }
-                
-                // IA: Rotação inteligente
-                if (Math.random() < 0.3) {
-                    this.rotateCurrentPiece();
-                }
-                
                 this.draw();
             }
-        }
-        
-        rotateCurrentPiece() {
-            const rotated = this.rotateMatrix(this.currentPiece.shape);
-            if (this.isValidMove({...this.currentPiece, shape: rotated}, this.currentPiece.row, this.currentPiece.col)) {
-                this.currentPiece.shape = rotated;
-            }
-        }
-        
-        rotateMatrix(matrix) {
-            const rows = matrix.length;
-            const cols = matrix[0].length;
-            const rotated = Array(cols).fill().map(() => Array(rows).fill(0));
-            
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    rotated[c][rows - 1 - r] = matrix[r][c];
-                }
-            }
-            return rotated;
         }
         
         draw() {
@@ -354,7 +333,7 @@
                 }
             }
             
-            // Grade sutil
+            // Grade bem definida
             this.drawGrid();
         }
         
@@ -363,36 +342,34 @@
             const y = row * this.cellSize;
             const size = this.cellSize;
             
-            // Cor principal
+            // Célula principal
             this.ctx.fillStyle = color;
-            this.ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
+            this.ctx.fillRect(x, y, size, size);
             
+            // Efeitos visuais
             if (!isCurrent) {
-                // Efeito 3D para peças fixas
-                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                this.ctx.fillRect(x + 1, y + 1, size - 2, 2);
-                this.ctx.fillRect(x + 1, y + 1, 2, size - 2);
-                
+                // Sombra para peças fixas
                 this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                this.ctx.fillRect(x + size - 3, y + 1, 2, size - 2);
-                this.ctx.fillRect(x + 1, y + size - 3, size - 2, 2);
+                this.ctx.fillRect(x, y, size, 2);
+                this.ctx.fillRect(x, y, 2, size);
+                
+                // Brilho para peças fixas
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                this.ctx.fillRect(x + size - 2, y, 2, size);
+                this.ctx.fillRect(x, y + size - 2, size, 2);
             } else {
                 // Contorno para peça atual
                 this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
                 this.ctx.lineWidth = 1;
-                this.ctx.strokeRect(x + 1, y + 1, size - 2, size - 2);
-                
-                // Brilho interno
-                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-                this.ctx.fillRect(x + 2, y + 2, size - 4, size - 4);
+                this.ctx.strokeRect(x, y, size, size);
             }
         }
         
         drawGrid() {
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            // Linhas verticais
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
             this.ctx.lineWidth = 0.5;
             
-            // Linhas verticais
             for (let col = 0; col <= this.cols; col++) {
                 const x = col * this.cellSize;
                 this.ctx.beginPath();
@@ -409,6 +386,11 @@
                 this.ctx.lineTo(this.canvas.width, y);
                 this.ctx.stroke();
             }
+            
+            // Borda do grid
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
         }
         
         start() {
@@ -462,7 +444,7 @@
                 background: white;
                 border-radius: 16px;
                 width: 90%;
-                max-width: 420px; /* Um pouco mais largo para o Tetris horizontal */
+                max-width: 380px;
                 overflow: hidden;
                 transform: translateY(20px) scale(0.95);
                 opacity: 0;
@@ -531,7 +513,7 @@
                 margin-bottom: 4px;
             }
             
-            /* AVISO DE CONSTRUÇÃO - POSICIONADO ANTES DO TETRIS */
+            /* AVISO DE CONSTRUÇÃO */
             .warning-message {
                 background: rgba(255, 107, 107, 0.1);
                 border: 1px solid rgba(255, 107, 107, 0.3);
@@ -549,14 +531,14 @@
                 font-size: 11px;
             }
             
-            /* TETRIS HORIZONTAL - MAIS LARGO */
+            /* TETRIS VERTICAL ALINHADO */
             .tetris-section {
                 background: #000;
                 border-radius: 8px;
                 overflow: hidden;
                 margin: 12px 0;
                 border: 2px solid #1a1a2e;
-                height: 140px; /* Mais baixo, mais largo */
+                height: 200px; /* Altura fixa para garantir espaço */
                 display: flex;
                 flex-direction: column;
                 position: relative;
@@ -582,15 +564,15 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                padding: 8px;
+                padding: 0; /* Sem padding para o grid se alinhar */
                 background: #000;
+                overflow: hidden;
             }
             
             #tetrisCanvas {
                 display: block;
-                max-width: 100%;
-                max-height: 100%;
                 background: #000 !important;
+                /* O canvas será dimensionado pela classe MiniTetris */
             }
             
             /* BOTÕES COMPACTOS */
@@ -754,7 +736,7 @@
             @media (max-width: 480px) {
                 .popup-card {
                     width: 95%;
-                    max-width: 350px;
+                    max-width: 320px;
                     border-radius: 12px;
                 }
                 
@@ -771,7 +753,7 @@
                 }
                 
                 .tetris-section {
-                    height: 120px;
+                    height: 180px;
                 }
                 
                 .tetris-header h4 {
@@ -807,11 +789,11 @@
             
             @media (max-width: 360px) {
                 .tetris-section {
-                    height: 110px;
+                    height: 160px;
                 }
                 
                 .popup-card {
-                    max-width: 320px;
+                    max-width: 300px;
                 }
             }
             
@@ -872,10 +854,10 @@
                             <strong>⚠️ ATENÇÃO:</strong> Esta funcionalidade ainda está sendo construída e testada e pode apresentar bugs, erros ou instabilidades de funcionamento.
                         </div>
                         
-                        <!-- TETRIS HORIZONTAL -->
+                        <!-- TETRIS VERTICAL -->
                         <div class="tetris-section">
                             <div class="tetris-header">
-                                <h4>TETRIS AUTO - MODO HORIZONTAL</h4>
+                                <h4>TETRIS AUTO</h4>
                             </div>
                             <div class="tetris-container">
                                 <canvas id="tetrisCanvas"></canvas>

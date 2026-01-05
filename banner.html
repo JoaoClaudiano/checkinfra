@@ -1,0 +1,85 @@
+<!-- banner.html - Banner PWA completo -->
+<style>
+  #pwa-install-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #323232;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: sans-serif;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 9999;
+  }
+
+  #pwa-install-banner.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  #pwa-install-banner img {
+    width: 40px;
+    height: 40px;
+  }
+
+  #pwa-install-banner button {
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #pwa-install-banner .close-btn {
+    margin-left: auto;
+    cursor: pointer;
+    font-size: 20px;
+  }
+</style>
+
+<div id="pwa-install-banner">
+  <img src="icons/icon-192.png" alt="CheckInfra">
+  <span>Instale o CheckInfra no seu dispositivo!</span>
+  <button id="install-btn">Instalar</button>
+  <span class="close-btn" id="close-banner">&times;</span>
+</div>
+
+<script>
+  let deferredPrompt;
+  const banner = document.getElementById('pwa-install-banner');
+  const installBtn = document.getElementById('install-btn');
+  const closeBtn = document.getElementById('close-banner');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    banner.classList.add('show');
+
+    setTimeout(() => {
+      banner.classList.remove('show');
+    }, 4000); // desaparece em 4 segundos
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log('Escolha do usuário:', outcome);
+      banner.classList.remove('show');
+      deferredPrompt = null;
+    }
+  });
+
+  closeBtn.addEventListener('click', () => {
+    banner.classList.remove('show');
+  });
+</script>

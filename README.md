@@ -33,7 +33,19 @@ validar e decidir com mais clareza e responsabilidade.
 
 Projeto em desenvolvimento — protótipo funcional em evolução contínua.
 
-## 🤝 Contribuições
+## 📦 Downloads
+
+Você pode baixar os builds do CheckInfra diretamente:
+
+- [APK para Android (instalação direta)]📥(builds/app-release-signed.apk)  
+- [AAB para Play Store (assinada)](builds/app-release.aab)  
+
+> Obs: O AAB já está assinado, mas como não será publicado por enquanto, você pode apenas baixar e testar o APK diretamente.  
+> O CheckInfra também funciona como PWA — basta abrir no navegador e adicionar à tela inicial.
+
+---
+
+## 🫱🏼‍🫲🏾 Contribuições
 
 Sugestões, melhorias e adaptações são bem-vindas, especialmente para uso em
 contextos educacionais e de gestão pública.

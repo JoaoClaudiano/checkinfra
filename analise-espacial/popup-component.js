@@ -1,4 +1,4 @@
-// popup-counter-optimized-final.js
+// popup-counter-optimized-tetris-fixed.js
 (function() {
     'use strict';
     
@@ -109,78 +109,358 @@
         return newCount;
     }
     
-    // ==================== TETRIS OTIMIZADO ====================
+    // ==================== TETRIS INTELIGENTE E CORRETO ====================
     class MiniTetris {
         constructor(canvas) {
             this.canvas = canvas;
             this.ctx = canvas.getContext('2d');
             
-            // Ajusta tamanho baseado na tela
+            // Tamanho fixo para manter compatibilidade
             const isMobile = window.innerWidth < 480;
             this.gridSize = isMobile ? 14 : 16;
-            this.cols = isMobile ? 8 : 10;
-            this.rows = isMobile ? 12 : 14;
+            this.cols = 10;
+            this.rows = 14;
             
             // Ajusta canvas
             this.canvas.width = this.cols * this.gridSize;
             this.canvas.height = this.rows * this.gridSize;
             
-            this.pieces = this.createPieces();
+            // Tetrominós clássicos
+            this.shapes = [
+                [[1,1,1,1]], // I
+                [[1,1],[1,1]], // O
+                [[0,1,0],[1,1,1]], // T
+                [[0,1,1],[1,1,0]], // S
+                [[1,1,0],[0,1,1]], // Z
+                [[1,0,0],[1,1,1]], // J
+                [[0,0,1],[1,1,1]]  // L
+            ];
+            
+            this.colors = [
+                '#00FFFF', // Cyan
+                '#FFFF00', // Yellow
+                '#800080', // Purple
+                '#00FF00', // Green
+                '#FF0000', // Red
+                '#0000FF', // Blue
+                '#FFA500'  // Orange
+            ];
+            
             this.board = [];
+            this.currentPiece = null;
+            this.nextPiece = null;
+            this.gameOver = false;
+            this.score = 0;
+            this.lastDropTime = 0;
+            this.dropInterval = 600;
+            
             this.reset();
             this.start();
         }
         
-        createPieces() {
-            return [
-                { shape: [[1,1,1,1]], color: '#00FFFF', name: 'I' },
-                { shape: [[1,1],[1,1]], color: '#FFFF00', name: 'O' },
-                { shape: [[0,1,0],[1,1,1]], color: '#800080', name: 'T' },
-                { shape: [[1,1,0],[0,1,1]], color: '#00FF00', name: 'S' },
-                { shape: [[0,1,1],[1,1,0]], color: '#FF0000', name: 'Z' },
-                { shape: [[1,0,0],[1,1,1]], color: '#0000FF', name: 'J' },
-                { shape: [[0,0,1],[1,1,1]], color: '#FFA500', name: 'L' }
-            ];
-        }
-        
         reset() {
-            this.board = Array(this.rows).fill().map(() => Array(this.cols).fill(0));
-            this.spawnPiece();
+            // Inicializa o tabuleiro vazio
+            this.board = [];
+            for (let row = 0; row < this.rows; row++) {
+                this.board[row] = [];
+                for (let col = 0; col < this.cols; col++) {
+                    this.board[row][col] = 0;
+                }
+            }
+            
+            this.score = 0;
             this.gameOver = false;
+            
+            // Gera a primeira peça
+            this.currentPiece = this.createRandomPiece();
+            this.nextPiece = this.createRandomPiece();
         }
         
-        spawnPiece() {
-            const piece = this.pieces[Math.floor(Math.random() * this.pieces.length)];
-            this.currentPiece = {
-                ...piece,
-                x: Math.floor(this.cols / 2) - Math.floor(piece.shape[0].length / 2),
-                y: 0
+        createRandomPiece() {
+            const shapeIndex = Math.floor(Math.random() * this.shapes.length);
+            return {
+                shape: this.shapes[shapeIndex],
+                color: this.colors[shapeIndex],
+                row: 0,
+                col: Math.floor(this.cols / 2) - Math.floor(this.shapes[shapeIndex][0].length / 2)
             };
         }
         
-        draw() {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        isValidMove(piece, row, col) {
+            for (let r = 0; r < piece.shape.length; r++) {
+                for (let c = 0; c < piece.shape[r].length; c++) {
+                    if (piece.shape[r][c]) {
+                        const newRow = row + r;
+                        const newCol = col + c;
+                        
+                        // Verifica limites
+                        if (newCol < 0 || newCol >= this.cols || newRow >= this.rows) {
+                            return false;
+                        }
+                        
+                        // Verifica se já tem peça no tabuleiro
+                        if (newRow >= 0 && this.board[newRow][newCol]) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        
+        mergePiece() {
+            for (let r = 0; r < this.currentPiece.shape.length; r++) {
+                for (let c = 0; c < this.currentPiece.shape[r].length; c++) {
+                    if (this.currentPiece.shape[r][c]) {
+                        const row = this.currentPiece.row + r;
+                        const col = this.currentPiece.col + c;
+                        
+                        if (row >= 0) { // Só adiciona se estiver dentro do tabuleiro
+                            this.board[row][col] = this.currentPiece.color;
+                        }
+                    }
+                }
+            }
+        }
+        
+        clearLines() {
+            let linesCleared = 0;
             
-            // Desenha peças fixas
-            for (let r = 0; r < this.rows; r++) {
-                for (let c = 0; c < this.cols; c++) {
-                    if (this.board[r][c]) {
-                        this.ctx.fillStyle = this.board[r][c];
-                        this.ctx.fillRect(c * this.gridSize, r * this.gridSize, 
-                                       this.gridSize - 1, this.gridSize - 1);
+            for (let row = this.rows - 1; row >= 0; row--) {
+                let isLineComplete = true;
+                
+                // Verifica se a linha está completa
+                for (let col = 0; col < this.cols; col++) {
+                    if (!this.board[row][col]) {
+                        isLineComplete = false;
+                        break;
+                    }
+                }
+                
+                if (isLineComplete) {
+                    // Remove a linha
+                    this.board.splice(row, 1);
+                    // Adiciona uma nova linha no topo
+                    this.board.unshift(new Array(this.cols).fill(0));
+                    linesCleared++;
+                    
+                    // Move a linha atual para baixo novamente para verificar
+                    row++;
+                }
+            }
+            
+            if (linesCleared > 0) {
+                this.score += linesCleared * 100;
+                this.createLineClearEffect(linesCleared);
+            }
+        }
+        
+        createLineClearEffect(lines) {
+            // Efeito visual simples
+            const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00'];
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const container = this.canvas.parentElement;
+                    if (!container) return;
+                    
+                    const particle = document.createElement('div');
+                    particle.style.position = 'absolute';
+                    particle.style.width = '4px';
+                    particle.style.height = '4px';
+                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.borderRadius = '50%';
+                    particle.style.left = `${Math.random() * 80 + 10}%`;
+                    particle.style.top = `${Math.random() * 80 + 10}%`;
+                    particle.style.pointerEvents = 'none';
+                    particle.style.zIndex = '10';
+                    container.appendChild(particle);
+                    
+                    setTimeout(() => particle.remove(), 500);
+                }, i * 100);
+            }
+        }
+        
+        findBestPosition() {
+            if (!this.currentPiece) return;
+            
+            let bestScore = -Infinity;
+            let bestRotation = 0;
+            let bestCol = this.currentPiece.col;
+            
+            // Testa todas as rotações possíveis
+            for (let rotation = 0; rotation < 4; rotation++) {
+                let testPiece = {
+                    ...this.currentPiece,
+                    shape: this.rotatePiece(this.currentPiece.shape, rotation)
+                };
+                
+                // Testa todas as colunas possíveis
+                for (let col = 0; col <= this.cols - testPiece.shape[0].length; col++) {
+                    // Encontra a linha mais baixa onde a peça pode ser colocada
+                    let row = 0;
+                    while (this.isValidMove(testPiece, row + 1, col)) {
+                        row++;
+                    }
+                    
+                    // Calcula pontuação
+                    let score = 0;
+                    
+                    // Pontua por altura (quanto mais baixo, melhor)
+                    score += row * 2;
+                    
+                    // Pontua por proximidade de outras peças
+                    for (let r = 0; r < testPiece.shape.length; r++) {
+                        for (let c = 0; c < testPiece.shape[r].length; c++) {
+                            if (testPiece.shape[r][c]) {
+                                const boardRow = row + r;
+                                const boardCol = col + c;
+                                
+                                // Bônus por encostar em peças existentes
+                                if (boardRow < this.rows - 1 && this.board[boardRow + 1][boardCol]) {
+                                    score += 3;
+                                }
+                                
+                                // Penalidade por criar buracos
+                                if (boardRow > 0 && !this.board[boardRow - 1][boardCol]) {
+                                    score -= 1;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestRotation = rotation;
+                        bestCol = col;
                     }
                 }
             }
             
-            // Desenha peça atual
+            // Aplica a melhor rotação
+            for (let i = 0; i < bestRotation; i++) {
+                this.currentPiece.shape = this.rotatePiece(this.currentPiece.shape);
+            }
+            
+            // Move para a melhor coluna
+            if (this.isValidMove(this.currentPiece, this.currentPiece.row, bestCol)) {
+                this.currentPiece.col = bestCol;
+            }
+        }
+        
+        rotatePiece(shape, rotations = 1) {
+            let rotated = shape;
+            for (let i = 0; i < rotations; i++) {
+                const N = rotated.length;
+                const M = rotated[0].length;
+                const newShape = [];
+                
+                for (let r = 0; r < M; r++) {
+                    newShape[r] = [];
+                    for (let c = 0; c < N; c++) {
+                        newShape[r][c] = rotated[N - 1 - c][r];
+                    }
+                }
+                rotated = newShape;
+            }
+            return rotated;
+        }
+        
+        update() {
+            if (this.gameOver) return;
+            
+            const currentTime = Date.now();
+            if (currentTime - this.lastDropTime > this.dropInterval) {
+                this.lastDropTime = currentTime;
+                
+                // Move a peça para baixo
+                if (this.isValidMove(this.currentPiece, this.currentPiece.row + 1, this.currentPiece.col)) {
+                    this.currentPiece.row++;
+                } else {
+                    // Fixa a peça no tabuleiro
+                    this.mergePiece();
+                    this.clearLines();
+                    
+                    // Nova peça
+                    this.currentPiece = this.nextPiece;
+                    this.nextPiece = this.createRandomPiece();
+                    
+                    // Encontra a melhor posição para a nova peça
+                    this.findBestPosition();
+                    
+                    // Verifica game over
+                    if (!this.isValidMove(this.currentPiece, this.currentPiece.row, this.currentPiece.col)) {
+                        this.gameOver = true;
+                        setTimeout(() => this.reset(), 2000);
+                    }
+                }
+                
+                // Movimentos laterais aleatórios (25% de chance)
+                if (Math.random() < 0.25) {
+                    const direction = Math.random() < 0.5 ? -1 : 1;
+                    if (this.isValidMove(this.currentPiece, this.currentPiece.row, this.currentPiece.col + direction)) {
+                        this.currentPiece.col += direction;
+                    }
+                }
+                
+                // Rotações aleatórias (20% de chance)
+                if (Math.random() < 0.2) {
+                    const rotated = this.rotatePiece(this.currentPiece.shape);
+                    if (this.isValidMove({...this.currentPiece, shape: rotated}, this.currentPiece.row, this.currentPiece.col)) {
+                        this.currentPiece.shape = rotated;
+                    }
+                }
+                
+                this.draw();
+            }
+        }
+        
+        draw() {
+            // Limpa o canvas
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            // Desenha o tabuleiro
+            for (let row = 0; row < this.rows; row++) {
+                for (let col = 0; col < this.cols; col++) {
+                    if (this.board[row][col]) {
+                        this.ctx.fillStyle = this.board[row][col];
+                        this.ctx.fillRect(
+                            col * this.gridSize,
+                            row * this.gridSize,
+                            this.gridSize - 1,
+                            this.gridSize - 1
+                        );
+                        
+                        // Efeito de brilho
+                        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                        this.ctx.fillRect(
+                            col * this.gridSize,
+                            row * this.gridSize,
+                            this.gridSize - 1,
+                            2
+                        );
+                    }
+                }
+            }
+            
+            // Desenha a peça atual
             if (this.currentPiece) {
                 this.ctx.fillStyle = this.currentPiece.color;
                 for (let r = 0; r < this.currentPiece.shape.length; r++) {
                     for (let c = 0; c < this.currentPiece.shape[r].length; c++) {
                         if (this.currentPiece.shape[r][c]) {
                             this.ctx.fillRect(
-                                (this.currentPiece.x + c) * this.gridSize,
-                                (this.currentPiece.y + r) * this.gridSize,
+                                (this.currentPiece.col + c) * this.gridSize,
+                                (this.currentPiece.row + r) * this.gridSize,
+                                this.gridSize - 1,
+                                this.gridSize - 1
+                            );
+                            
+                            // Contorno
+                            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                            this.ctx.lineWidth = 1;
+                            this.ctx.strokeRect(
+                                (this.currentPiece.col + c) * this.gridSize,
+                                (this.currentPiece.row + r) * this.gridSize,
                                 this.gridSize - 1,
                                 this.gridSize - 1
                             );
@@ -188,60 +468,39 @@
                     }
                 }
             }
-        }
-        
-        update() {
-            if (!this.currentPiece || this.gameOver) return;
             
-            // Move para baixo
-            if (this.currentPiece.y < this.rows - this.currentPiece.shape.length) {
-                this.currentPiece.y++;
-            } else {
-                // Fixa a peça e spawna nova
-                this.mergePiece();
-                this.spawnPiece();
+            // Grade
+            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            this.ctx.lineWidth = 0.5;
+            for (let col = 0; col <= this.cols; col++) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(col * this.gridSize, 0);
+                this.ctx.lineTo(col * this.gridSize, this.rows * this.gridSize);
+                this.ctx.stroke();
             }
-            
-            this.draw();
-        }
-        
-        mergePiece() {
-            for (let r = 0; r < this.currentPiece.shape.length; r++) {
-                for (let c = 0; c < this.currentPiece.shape[r].length; c++) {
-                    if (this.currentPiece.shape[r][c]) {
-                        const y = this.currentPiece.y + r;
-                        const x = this.currentPiece.x + c;
-                        if (y >= 0 && y < this.rows && x >= 0 && x < this.cols) {
-                            this.board[y][x] = this.currentPiece.color;
-                        }
-                    }
-                }
-            }
-            
-            // Verifica linhas completas
-            this.checkLines();
-        }
-        
-        checkLines() {
-            for (let r = this.rows - 1; r >= 0; r--) {
-                if (this.board[r].every(cell => cell !== 0)) {
-                    // Remove linha
-                    this.board.splice(r, 1);
-                    this.board.unshift(Array(this.cols).fill(0));
-                }
+            for (let row = 0; row <= this.rows; row++) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, row * this.gridSize);
+                this.ctx.lineTo(this.cols * this.gridSize, row * this.gridSize);
+                this.ctx.stroke();
             }
         }
         
         start() {
-            setInterval(() => {
+            this.lastDropTime = Date.now();
+            
+            const gameLoop = () => {
+                this.update();
                 if (!this.gameOver) {
-                    this.update();
+                    requestAnimationFrame(gameLoop);
                 }
-            }, 600); // Velocidade reduzida
+            };
+            
+            gameLoop();
         }
         
         destroy() {
-            // Limpa recursos se necessário
+            this.gameOver = true;
         }
     }
     
@@ -347,22 +606,23 @@
                 margin-bottom: 5px;
             }
             
-            /* TETRIS COMPACTO */
+            /* TETRIS COMPACTO - CORRIGIDO */
             .tetris-section {
                 background: #000;
                 border-radius: 8px;
                 overflow: hidden;
                 margin: 15px 0;
                 border: 2px solid #1a1a2e;
-                height: 180px;
+                height: 200px;
                 display: flex;
                 flex-direction: column;
+                position: relative;
             }
             
             .tetris-header {
                 padding: 8px;
                 text-align: center;
-                background: rgba(0, 0, 0, 0.8);
+                background: rgba(0, 0, 0, 0.9);
                 border-bottom: 1px solid #333;
             }
             
@@ -380,6 +640,7 @@
                 justify-content: center;
                 align-items: center;
                 padding: 10px;
+                background: linear-gradient(180deg, #0a0a1a 0%, #000 100%);
             }
             
             #tetrisCanvas {
@@ -387,6 +648,8 @@
                 display: block;
                 max-width: 100%;
                 max-height: 100%;
+                image-rendering: pixelated;
+                image-rendering: crisp-edges;
             }
             
             /* BOTÕES COMPACTOS */
@@ -567,7 +830,7 @@
                 }
                 
                 .tetris-section {
-                    height: 150px;
+                    height: 180px;
                 }
                 
                 .tetris-header h4 {
@@ -598,7 +861,7 @@
             
             @media (max-width: 360px) {
                 .tetris-section {
-                    height: 130px;
+                    height: 160px;
                 }
                 
                 .popup-card {
@@ -654,7 +917,7 @@
                         
                         <div class="tetris-section">
                             <div class="tetris-header">
-                                <h4>MINI TETRIS</h4>
+                                <h4>TETRIS AUTO</h4>
                             </div>
                             <div class="tetris-container">
                                 <canvas id="tetrisCanvas"></canvas>

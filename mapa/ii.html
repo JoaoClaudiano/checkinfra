@@ -1,217 +1,159 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mapa Sanitário – CheckInfra</title>
+<meta charset="utf-8">
+<title>Áreas de Influência – Escolas Críticas</title>
 
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase -->
-<script type="module" src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script type="module" src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
 
 <style>
-body { margin:0; font-family: Arial, sans-serif; background:#f4f6f8; }
-header {
-  background:#1f4fd8; color:#fff; padding:14px 10px;
-  text-align:center; font-weight:bold; position:sticky; top:0; z-index:999;
-}
-.painel {
-  background:#fff; padding:8px; display:flex; flex-wrap:wrap;
-  gap:10px; justify-content:center; border-bottom:1px solid #ddd;
-}
-.painel label { font-size:13px; display:flex; gap:4px; align-items:center; }
-.bola { width:12px; height:12px; border-radius:50%; display:inline-block; }
-.verde{background:#4CAF50}
-.amarela{background:#FFD700}
-.laranja{background:#FF9800}
-.vermelho{background:#F44336}
-#map { height: calc(100vh - 150px); }
-
-/* Pulso */
-.pulse-critico { animation:pulse-red 2.5s infinite; }
-.pulse-atencao { animation:pulse-orange 2.5s infinite; }
-.pulse-alerta { animation:pulse-yellow 2.5s infinite; }
-.pulse-adequado { animation:pulse-green 2.5s infinite; }
-
-@keyframes pulse-red {0%{r:8;opacity:.8}70%{r:18;opacity:0}}
-@keyframes pulse-orange {0%{r:8;opacity:.8}70%{r:16;opacity:0}}
-@keyframes pulse-yellow {0%{r:8;opacity:.7}70%{r:14;opacity:0}}
-@keyframes pulse-green {0%{r:8;opacity:.6}70%{r:12;opacity:0}}
-
-footer{
-  background:#1f4fd8;color:#fff;text-align:center;
-  font-size:12px;padding:14px;
+html, body, #map {
+  height: 100%;
+  margin: 0;
 }
 </style>
 </head>
 
 <body>
-
-<header>
-🗺️ Mapa Sanitário das Escolas — Visão do Gestor
-<div style="font-size:12px;font-weight:normal;opacity:.9">
-Leitura territorial agregada por bairros
-</div>
-</header>
-
-<div class="painel">
-<label><input type="checkbox" id="fAdeq" checked><span class="bola verde"></span>Adequado</label>
-<label><input type="checkbox" id="fAlerta" checked><span class="bola amarela"></span>Alerta</label>
-<label><input type="checkbox" id="fAtencao" checked><span class="bola laranja"></span>Atenção</label>
-<label><input type="checkbox" id="fCritico" checked><span class="bola vermelho"></span>Crítico</label>
-<label><input type="checkbox" id="togglePulso" checked>Mapa vivo</label>
-<label><input type="checkbox" id="toggleBairros" checked>Polígonos por bairro</label>
-</div>
-
 <div id="map"></div>
 
-<footer>
-© 2025 CheckInfra — Ferramenta exploratória de apoio à decisão pública<br>
-As análises não substituem vistoria técnica presencial
-</footer>
+<!-- Leaflet -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<!-- D3 Voronoi -->
+<script src="https://d3js.org/d3-delaunay.v6.min.js"></script>
+
+<!-- Firebase + Firestore -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* Firebase */
-const app = initializeApp({
+/* =========================
+   FIREBASE CONFIG
+========================= */
+const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
   projectId: "checkinfra-adf3c"
-});
+};
+
+const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* Mapa */
+/* =========================
+   MAPA BASE
+========================= */
 const map = L.map("map").setView([-3.7319, -38.5267], 12);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-let avaliacoes = [];
-let camadaPontos = L.layerGroup().addTo(map);
-let camadaBairros = L.layerGroup().addTo(map);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "© OpenStreetMap"
+}).addTo(map);
 
-const statusAtivo = () => ({
-  adequado: fAdeq.checked,
-  alerta: fAlerta.checked,
-  atencao: fAtencao.checked,
-  critico: fCritico.checked
+/* =========================
+   POLIGONAIS (LIMITE)
+========================= */
+const poligonos = await fetch("POLIGONAIS.geojson").then(r => r.json());
+
+const limiteLayer = L.geoJSON(poligonos, {
+  style: {
+    color: "#000",
+    weight: 2,
+    fillOpacity: 0
+  }
+}).addTo(map);
+
+map.fitBounds(limiteLayer.getBounds());
+
+/* =========================
+   LER FIRESTORE
+========================= */
+const snapshot = await getDocs(collection(db, "escolas"));
+
+const escolasCriticas = [];
+
+snapshot.forEach(doc => {
+  const d = doc.data();
+
+  if (
+    d.classe === "critico" &&
+    typeof d.lat === "number" &&
+    typeof d.lng === "number"
+  ) {
+    escolasCriticas.push(d);
+  }
 });
 
-function corStatus(s){
-  s=s.toLowerCase();
-  if(s.includes("crítica")) return "#F44336";
-  if(s.includes("atenção")) return "#FF9800";
-  if(s.includes("alerta")) return "#FFD700";
-  return "#4CAF50";
+if (escolasCriticas.length === 0) {
+  alert("Nenhuma escola crítica encontrada.");
+  throw new Error("Sem escolas críticas");
 }
 
-function pulsoClasse(s){
-  if(!togglePulso.checked) return "";
-  s=s.toLowerCase();
-  if(s.includes("crítica")) return "pulse-critico";
-  if(s.includes("atenção")) return "pulse-atencao";
-  if(s.includes("alerta")) return "pulse-alerta";
-  return "pulse-adequado";
+/* =========================
+   CONVERTER PARA PONTOS
+========================= */
+const pontos = escolasCriticas.map(e => {
+  const p = map.latLngToLayerPoint([e.lat, e.lng]);
+  return [p.x, p.y];
+});
+
+/* =========================
+   VORONOI (SEM SOBREPOSIÇÃO)
+========================= */
+const delaunay = d3.Delaunay.from(pontos);
+const size = map.getSize();
+
+const voronoi = delaunay.voronoi([
+  0,
+  0,
+  size.x,
+  size.y
+]);
+
+const voronoiLayer = L.layerGroup().addTo(map);
+
+/* =========================
+   DESENHAR CÉLULAS
+========================= */
+for (let i = 0; i < pontos.length; i++) {
+  const cell = voronoi.cellPolygon(i);
+  if (!cell) continue;
+
+  const latlngs = cell.map(p =>
+    map.layerPointToLatLng([p[0], p[1]])
+  );
+
+  L.polygon(latlngs, {
+    color: "#7f0000",
+    weight: 1,
+    fillColor: "#d7301f",
+    fillOpacity: 0.35
+  })
+  .bindPopup(`
+    <strong>${escolasCriticas[i].nome}</strong><br>
+    Classe: crítico<br>
+    Área de influência exclusiva
+  `)
+  .addTo(voronoiLayer);
 }
 
-/* Carregar avaliações */
-async function carregarAvaliacoes(){
-  const snap = await getDocs(collection(db,"avaliacoes"));
-  avaliacoes=[];
-  snap.forEach(d=>{
-    const v=d.data();
-    if(v.lat&&v.lng) avaliacoes.push(v);
-  });
-}
-
-/* Pontos */
-function desenharPontos(){
-  camadaPontos.clearLayers();
-  avaliacoes.forEach(d=>{
-    const s=d.status.toLowerCase();
-    if(
-      (s.includes("adequado") && !fAdeq.checked)||
-      (s.includes("alerta") && !fAlerta.checked)||
-      (s.includes("atenção") && !fAtencao.checked)||
-      (s.includes("crítica") && !fCritico.checked)
-    ) return;
-
-    L.circleMarker([d.lat,d.lng],{
-      radius:8,
-      color:corStatus(d.status),
-      fillColor:corStatus(d.status),
-      fillOpacity:.8,
-      className:pulsoClasse(d.status)
-    })
-    .bindPopup(`<strong>${d.escola}</strong><br>Status: ${d.status}`)
-    .addTo(camadaPontos);
-  });
-}
-
-/* Bairros */
-async function desenharBairros(){
-  camadaBairros.clearLayers();
-  if(!toggleBairros.checked) return;
-
-  const geo = await fetch("POLIGONAIS.geojson").then(r=>r.json());
-
-  L.geoJSON(geo,{
-    style:f=>{
-      const poly=L.polygon(f.geometry.coordinates[0].map(c=>[c[1],c[0]]));
-      const pts=avaliacoes.filter(p=>poly.getBounds().contains([p.lat,p.lng]));
-      if(pts.length===0) return {fillOpacity:0,color:"#999",weight:1};
-
-      const t=pts.length;
-      const c={
-        crit:pts.filter(p=>p.status.includes("Crítico")).length,
-        aten:pts.filter(p=>p.status.includes("Atenção")).length,
-        alerta:pts.filter(p=>p.status.includes("Alerta")).length,
-        adeq:pts.filter(p=>p.status.includes("Adequado")).length
-      };
-
-      let cor="#4CAF50",txt="predomínio adequado";
-      if(c.crit/t>=0.5){cor="#F44336";txt="≥50% crítico — atenção prioritária";}
-      else if(c.aten/t>=0.5){cor="#FF9800";txt="≥50% atenção — alerta territorial";}
-      else if(c.alerta/t>=0.5){cor="#FFD700";txt="≥50% alerta — atenção localizada";}
-
-      f._tooltip={c,t,txt};
-      return {fillColor:cor,fillOpacity:.45,color:"#555",weight:1};
-    },
-    onEachFeature:(f,l)=>{
-      l.on("click",()=>{
-        if(!f._tooltip){l.bindPopup("Sem avaliações").openPopup();return;}
-        const {c,t,txt}=f._tooltip;
-        l.bindPopup(`
-          <strong>Leitura do bairro</strong><hr>
-          Crítico: ${(c.crit/t*100).toFixed(0)}% (${c.crit})<br>
-          Atenção: ${(c.aten/t*100).toFixed(0)}% (${c.aten})<br>
-          Alerta: ${(c.alerta/t*100).toFixed(0)}% (${c.alerta})<br>
-          Adequado: ${(c.adeq/t*100).toFixed(0)}% (${c.adeq})<hr>
-          <em>${txt}</em>
-        `).openPopup();
-      });
-    }
-  }).addTo(camadaBairros);
-}
-
-/* Atualizar */
-async function atualizar(){
-  desenharPontos();
-  await desenharBairros();
-}
-
-/* Eventos */
-[fAdeq,fAlerta,fAtencao,fCritico,togglePulso,toggleBairros]
-.forEach(e=>e.addEventListener("change",atualizar));
-
-/* Init */
-await carregarAvaliacoes();
-atualizar();
+/* =========================
+   PONTOS DAS ESCOLAS
+========================= */
+escolasCriticas.forEach(e => {
+  L.circleMarker([e.lat, e.lng], {
+    radius: 6,
+    color: "#000",
+    fillColor: "#b30000",
+    fillOpacity: 1
+  })
+  .bindPopup(`<strong>${e.nome}</strong><br>crítico`)
+  .addTo(map);
+});
 </script>
-
 </body>
 </html>

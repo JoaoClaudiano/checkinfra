@@ -2,40 +2,55 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>Áreas de Influência – Escolas Críticas</title>
-
+<title>CheckInfra — Áreas de Influência Crítica</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 html, body, #map {
   height: 100%;
   margin: 0;
 }
+
+header {
+  background:#1f4fd8;
+  color:#fff;
+  padding:12px;
+  text-align:center;
+  font-weight:bold;
+}
+
+footer {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#f4f6f8;
+  font-size:11px;
+  text-align:center;
+  padding:6px;
+  border-top:1px solid #ccc;
+}
+
 </style>
 </head>
 
 <body>
+
+<header>CheckInfra — Áreas de Influência Sanitária</header>
 <div id="map"></div>
+<footer>Análise territorial automatizada · Não substitui inspeção técnica presencial</footer>
 
-<!-- Leaflet -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- D3 Voronoi -->
 <script src="https://d3js.org/d3-delaunay.v6.min.js"></script>
 
-<!-- Firebase + Firestore -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* =========================
-   FIREBASE CONFIG
-========================= */
+/* ===============================
+   FIREBASE
+================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyBvFUBXJwumctgf2DNH9ajSIk5-uydiZa0",
   authDomain: "checkinfra-adf3c.firebaseapp.com",
@@ -45,115 +60,110 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* =========================
+/* ===============================
    MAPA BASE
-========================= */
+================================ */
 const map = L.map("map").setView([-3.7319, -38.5267], 12);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "© OpenStreetMap"
 }).addTo(map);
 
-/* =========================
-   POLIGONAIS (LIMITE)
-========================= */
-const poligonos = await fetch("POLIGONAIS.geojson").then(r => r.json());
+/* ===============================
+   LIMITE TERRITORIAL
+================================ */
+const limiteGeo = await fetch("POLIGONAIS.geojson").then(r => r.json());
 
-const limiteLayer = L.geoJSON(poligonos, {
-  style: {
-    color: "#000",
-    weight: 2,
-    fillOpacity: 0
+const limiteLayer = L.geoJSON(limiteGeo, {
+  style:{
+    color:"#000",
+    weight:2,
+    fillOpacity:0
   }
 }).addTo(map);
 
 map.fitBounds(limiteLayer.getBounds());
 
-/* =========================
+/* ===============================
    LER FIRESTORE
-========================= */
-const snapshot = await getDocs(collection(db, "escolas"));
+================================ */
+const snap = await getDocs(collection(db,"escolas"));
 
-const escolasCriticas = [];
+const critico = [];
+const atencao = [];
 
-snapshot.forEach(doc => {
+snap.forEach(doc=>{
   const d = doc.data();
+  if(typeof d.lat !== "number") return;
 
-  if (
-    d.classe === "critico" &&
-    typeof d.lat === "number" &&
-    typeof d.lng === "number"
-  ) {
-    escolasCriticas.push(d);
-  }
+  if(d.classe === "critico") critico.push(d);
+  if(d.classe === "atencao") atencao.push(d);
 });
 
-if (escolasCriticas.length === 0) {
-  alert("Nenhuma escola crítica encontrada.");
-  throw new Error("Sem escolas críticas");
+/* ===============================
+   FUNÇÃO VORONOI
+================================ */
+function desenharVoronoi(escolas, cor, titulo){
+  if(escolas.length === 0) return;
+
+  const pontos = escolas.map(e=>{
+    const p = map.latLngToLayerPoint([e.lat,e.lng]);
+    return [p.x,p.y];
+  });
+
+  const delaunay = d3.Delaunay.from(pontos);
+  const size = map.getSize();
+
+  const voronoi = delaunay.voronoi([0,0,size.x,size.y]);
+
+  escolas.forEach((e,i)=>{
+    const cell = voronoi.cellPolygon(i);
+    if(!cell) return;
+
+    const latlngs = cell.map(p =>
+      map.layerPointToLatLng([p[0],p[1]])
+    );
+
+    L.polygon(latlngs,{
+      color:cor,
+      weight:1,
+      fillColor:cor,
+      fillOpacity:0.35
+    })
+    .bindPopup(`
+      <strong>${e.nome}</strong><br>
+      Classe: ${titulo}<br>
+      Área de influência exclusiva
+    `)
+    .addTo(map);
+  });
 }
 
-/* =========================
-   CONVERTER PARA PONTOS
-========================= */
-const pontos = escolasCriticas.map(e => {
-  const p = map.latLngToLayerPoint([e.lat, e.lng]);
-  return [p.x, p.y];
-});
+/* ===============================
+   DESENHAR VORONOI
+================================ */
+desenharVoronoi(critico,"#b30000","Crítico");
+desenharVoronoi(atencao,"#ff9800","Atenção");
 
-/* =========================
-   VORONOI (SEM SOBREPOSIÇÃO)
-========================= */
-const delaunay = d3.Delaunay.from(pontos);
-const size = map.getSize();
-
-const voronoi = delaunay.voronoi([
-  0,
-  0,
-  size.x,
-  size.y
-]);
-
-const voronoiLayer = L.layerGroup().addTo(map);
-
-/* =========================
-   DESENHAR CÉLULAS
-========================= */
-for (let i = 0; i < pontos.length; i++) {
-  const cell = voronoi.cellPolygon(i);
-  if (!cell) continue;
-
-  const latlngs = cell.map(p =>
-    map.layerPointToLatLng([p[0], p[1]])
-  );
-
-  L.polygon(latlngs, {
-    color: "#7f0000",
-    weight: 1,
-    fillColor: "#d7301f",
-    fillOpacity: 0.35
-  })
-  .bindPopup(`
-    <strong>${escolasCriticas[i].nome}</strong><br>
-    Classe: crítico<br>
-    Área de influência exclusiva
-  `)
-  .addTo(voronoiLayer);
-}
-
-/* =========================
+/* ===============================
    PONTOS DAS ESCOLAS
-========================= */
-escolasCriticas.forEach(e => {
-  L.circleMarker([e.lat, e.lng], {
-    radius: 6,
-    color: "#000",
-    fillColor: "#b30000",
-    fillOpacity: 1
-  })
-  .bindPopup(`<strong>${e.nome}</strong><br>crítico`)
-  .addTo(map);
-});
+================================ */
+function desenharPontos(lista, cor){
+  lista.forEach(e=>{
+    L.circleMarker([e.lat,e.lng],{
+      radius:6,
+      color:"#000",
+      fillColor:cor,
+      fillOpacity:1
+    })
+    .bindPopup(`<strong>${e.nome}</strong><br>${e.classe}`)
+    .addTo(map);
+  });
+}
+
+desenharPontos(critico,"#b30000");
+desenharPontos(atencao,"#ff9800");
+
 </script>
 </body>
 </html>

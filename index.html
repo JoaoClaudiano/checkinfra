@@ -197,7 +197,57 @@
         gap: 8px;
       }
     }
-     
+
+    /* Botão desativado com cadeado */
+.btn-desativado {
+    opacity: 0.4;
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    cursor: not-allowed;
+    pointer-events: none;
+    user-select: none;
+    position: relative;
+    padding-left: 40px; /* Espaço para o ícone */
+}
+
+/* Ícone de cadeado */
+.btn-desativado::before {
+    content: "🔒";
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+}
+
+/* Efeito de tooltip para indicar motivo */
+.btn-desativado:hover::after {
+    content: "Funcionalidade em desenvolvimento";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-bottom: 8px;
+    z-index: 1000;
+}
+
+/* Para telas menores, ajuste o espaçamento */
+@media (max-width: 480px) {
+    .btn-desativado {
+        padding-left: 35px;
+    }
+    .btn-desativado::before {
+        left: 12px;
+    }
+}
+
   </style>
 </head>
 
@@ -237,7 +287,10 @@
     <a href="./painel/" class="btn-secondary">📊 Painel Técnico</a>
     <a href="./mapa/" class="btn-secondary">🗺️ Mapa da Rede</a>
     <a href="./metodiq/index.html" class="btn-secondary">📘 Metodologia Técnica</a>
-    <a href="./analise-espacial/index.html" class="btn-secondary">🧭 Análise Espacial</a>
+    <a class="btn-secondary btn-desativado" style="text-decoration: none; cursor: not-allowed;" 
+       title="Funcionalidade em desenvolvimento - Em breve!">
+       🧭 Análise Espacial
+    </a> 
   </div>
 </main>
 

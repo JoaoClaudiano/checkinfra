@@ -15,4 +15,5 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Métricas:', window.dadosManager.getMetricas());
     }
   }, 3000);
+  
 });

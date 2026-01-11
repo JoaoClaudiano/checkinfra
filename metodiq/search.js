@@ -1,27 +1,25 @@
 // Sistema de busca para o Manual CheckInfra
 class ManualSearch {
-// Na linha 10 do search.js, modifique o construtor:
-// Na linha 10 do search.js, modifique o construtor:
-constructor() {
-    try {
-        this.searchInput = document.getElementById('searchInput');
-        this.searchBtn = document.getElementById('searchBtn');
-        this.searchResults = document.getElementById('searchResults');
-        
-        if (!this.searchInput || !this.searchBtn || !this.searchResults) {
-            console.error('Elementos de busca não encontrados');
-            return;
+    constructor() {
+        try {
+            this.searchInput = document.getElementById('searchInput');
+            this.searchBtn = document.getElementById('searchBtn');
+            this.searchResults = document.getElementById('searchResults');
+            
+            if (!this.searchInput || !this.searchBtn || !this.searchResults) {
+                console.error('Elementos de busca não encontrados');
+                return;
+            }
+            
+            this.allContent = [];
+            this.index = {};
+            
+            this.init();
+        } catch (error) {
+            console.error('Erro ao inicializar busca:', error);
         }
-        
-        this.allContent = [];
-        this.index = {};
-        
-        this.init();
-    } catch (error) {
-        console.error('Erro ao inicializar busca:', error);
     }
-}
-    
+        
     init() {
         this.loadAllContent();
         this.setupEventListeners();

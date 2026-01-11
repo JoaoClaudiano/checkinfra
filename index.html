@@ -476,6 +476,24 @@
     .catch(console.error);
 </script>
 
+  
+<!-- FEEDBACK MVP -->
+<link rel="stylesheet" href="./feedback/feedback.css">
+
+<div id="feedback-container"></div>
+
+<script>
+  fetch("./feedback/feedback.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("feedback-container").innerHTML = html;
+
+      const script = document.createElement("script");
+      script.src = "./feedback/feedback.js";
+      document.body.appendChild(script);
+    });
+
+
 
 <!-- ===== SERVICE WORKER ===== -->
 <script>

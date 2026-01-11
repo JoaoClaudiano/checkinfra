@@ -430,7 +430,7 @@ function exportToPDF() {
         page-break-inside: avoid;
     `;
     footer.innerHTML = `
-        © 2025 CheckInfra - Sistema de Diagnóstico Sanitário Escolar<br>
+        © 2026 CheckInfra - Sistema de Diagnóstico Sanitário Escolar<br>
         Documento técnico institucional - Uso interno<br>
         <small>Gerado automaticamente pelo sistema CheckInfra v3.0</small>
     `;
@@ -509,7 +509,7 @@ function showVersionInfo() {
             
             <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
                 <h4 style="color: #1f4fd8; margin-top: 0;">CheckInfra v3.0</h4>
-                <p><strong>Data de Publicação:</strong> Janeiro 2025</p>
+                <p><strong>Data de Publicação:</strong> Janeiro 2026</p>
                 <p><strong>Baseado em:</strong> Análise de 28 arquivos do sistema</p>
                 <p><strong>Status:</strong> Documento Técnico-Institucional Completo</p>
             </div>

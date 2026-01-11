@@ -247,6 +247,77 @@
         left: 12px;
     }
 }
+    /* Footer */
+.site-footer {
+  padding: 16px;
+  background: #f8f9fa;
+  text-align: center;
+  font-size: 14px;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.footer-apk-link {
+  color: #0d6efd;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Modal */
+.apk-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.apk-box {
+  background: #fff;
+  max-width: 360px;
+  padding: 22px;
+  border-radius: 14px;
+  text-align: center;
+  animation: scaleIn 0.25s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.apk-download {
+  display: block;
+  margin: 16px 0;
+  padding: 12px;
+  background: #198754;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.apk-close {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+}
+
+    
 
   </style>
 </head>
@@ -308,6 +379,9 @@
       <a href="./pages/contato.html">Contato</a> | 
       <a href="./pages/politica-privacidade.html">Política de Privacidade</a> | 
       <a href="./pages/termos-de-uso.html">Termos de Uso</a>
+       <a href="#" id="openApkModal" class="footer-apk-link">
+      📱 Baixar app Android
+    </a>
     </p>
 
 
@@ -338,6 +412,51 @@
     </p>
   </div>
 </footer>
+
+  <div id="apkModal" class="apk-modal">
+  <div class="apk-box">
+    <h3>📱 App CheckInfra</h3>
+
+    <p>
+      Instale o CheckInfra no seu celular para melhor desempenho
+      e suporte a uso offline.
+    </p>
+
+    <a
+      href="https://raw.githubusercontent.com/JoaoClaudiano/checkinfra/main/builds/app-release-signed.apk"
+      class="apk-download"
+      download
+    >
+      ⬇️ Baixar CheckInfra (APK)
+    </a>
+
+    <button id="closeApkModal" class="apk-close">
+      Fechar
+    </button>
+  </div>
+</div>
+
+  <script>
+  const openApk = document.getElementById("openApkModal");
+  const modal = document.getElementById("apkModal");
+  const closeApk = document.getElementById("closeApkModal");
+
+  openApk.addEventListener("click", (e) => {
+    e.preventDefault();
+    modal.style.display = "flex";
+  });
+
+  closeApk.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+</script>
+
 
 
 <!-- FEEDBACK MVP -->

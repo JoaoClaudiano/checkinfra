@@ -60,6 +60,7 @@ class ManualSearch {
         this.createSearchIndex();
     }
     
+    
     createSearchIndex() {
         this.index = {};
         

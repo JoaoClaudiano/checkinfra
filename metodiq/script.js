@@ -30,9 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Salva a aba ativa no localStorage
         localStorage.setItem('activeTab', tabId);
-        
-        // Envolver tabelas da aba ativa
-        setTimeout(wrapResponsiveTables, 300);
     }
     
     // Adiciona eventos aos botões
@@ -67,8 +64,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isOpen) {
                 header.classList.add('active');
                 content.style.maxHeight = content.scrollHeight + 'px';
-                // Envolver tabelas dentro do accordion
-                setTimeout(() => wrapTablesInContainer(content), 100);
             }
         });
     });
@@ -92,8 +87,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isOpen) {
                 header.classList.add('active');
                 content.style.maxHeight = content.scrollHeight + 'px';
-                // Envolver tabelas dentro do accordion técnico
-                setTimeout(() => wrapTablesInContainer(content), 100);
             }
         });
     });
@@ -114,149 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     backToTopBtn.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    
-    // ====================
-    // FUNÇÕES PARA TABELAS RESPONSIVAS
-    // ====================
-    
-    // Função para envolver tabelas em containers responsivos
-    function wrapTablesInContainer(element) {
-        if (!element) return;
-        
-        const tables = element.querySelectorAll('table');
-        tables.forEach(table => {
-            // Verificar se a tabela já está dentro de um container
-            if (!table.closest('.table-responsive') && !table.closest('.card-table-container')) {
-                // Criar wrapper
-                const wrapper = document.createElement('div');
-                wrapper.className = 'table-responsive card-table-container';
-                wrapper.style.cssText = `
-                    width: 100%;
-                    overflow-x: auto;
-                    -webkit-overflow-scrolling: touch;
-                    margin: 1rem 0;
-                    border-radius: 8px;
-                    border: 1px solid var(--border);
-                    background: white;
-                `;
-                
-                if (document.body.classList.contains('dark-theme')) {
-                    wrapper.style.background = '#2d3748';
-                    wrapper.style.borderColor = '#4a5568';
-                }
-                
-                // Inserir wrapper antes da tabela e mover tabela para dentro
-                table.parentNode.insertBefore(wrapper, table);
-                wrapper.appendChild(table);
-                
-                // Aplicar estilo mínimo para tabela
-                table.style.minWidth = '600px';
-                table.style.width = '100%';
-            }
-        });
-    }
-    
-    // Função principal para envolver todas as tabelas
-    function wrapResponsiveTables() {
-        console.log('Envolvendo tabelas em containers responsivos...');
-        
-        // Selecionar todas as tabelas
-        const tables = document.querySelectorAll('table');
-        
-        tables.forEach(table => {
-            wrapTablesInContainer(table.parentElement);
-        });
-        
-        // Adicionar indicadores de scroll em mobile
-        addTableScrollIndicators();
-    }
-    
-    // Adicionar indicadores de scroll para tabelas em mobile
-    function addTableScrollIndicators() {
-        if (window.innerWidth > 768) return;
-        
-        const containers = document.querySelectorAll('.table-responsive');
-        containers.forEach(container => {
-            // Verificar se a tabela tem scroll horizontal
-            const table = container.querySelector('table');
-            if (table && table.scrollWidth > container.offsetWidth) {
-                // Adicionar indicador se não existir
-                if (!container.querySelector('.scroll-indicator')) {
-                    const indicator = document.createElement('div');
-                    indicator.className = 'scroll-indicator';
-                    indicator.innerHTML = '<i class="fas fa-arrows-left-right"></i> Arraste para os lados';
-                    indicator.style.cssText = `
-                        position: absolute;
-                        top: 10px;
-                        right: 10px;
-                        background: var(--primary);
-                        color: white;
-                        padding: 4px 8px;
-                        border-radius: 12px;
-                        font-size: 0.7rem;
-                        z-index: 10;
-                        opacity: 0.8;
-                        pointer-events: none;
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                    `;
-                    container.style.position = 'relative';
-                    container.appendChild(indicator);
-                    
-                    // Remover indicador após alguns segundos
-                    setTimeout(() => {
-                        indicator.style.opacity = '0';
-                        setTimeout(() => indicator.remove(), 500);
-                    }, 3000);
-                }
-            }
-        });
-    }
-    
-    // Detectar mobile e adicionar classe
-    function detectMobile() {
-        if (window.innerWidth <= 768) {
-            document.body.classList.add('is-mobile');
-        } else {
-            document.body.classList.remove('is-mobile');
-        }
-        addTableScrollIndicators();
-    }
-    
-    // Executar funções de tabela
-    setTimeout(() => {
-        wrapResponsiveTables();
-        detectMobile();
-    }, 500);
-    
-    // Executar ao redimensionar
-    window.addEventListener('resize', detectMobile);
-    
-    // Observar mudanças no DOM para novas tabelas
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.addedNodes.length) {
-                mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === 1) { // Element node
-                        if (node.tagName === 'TABLE') {
-                            wrapTablesInContainer(node.parentElement);
-                        } else if (node.querySelectorAll) {
-                            const tables = node.querySelectorAll('table');
-                            tables.forEach(table => {
-                                wrapTablesInContainer(table.parentElement);
-                            });
-                        }
-                    }
-                });
-            }
-        });
-    });
-    
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
     });
     
     // ====================
@@ -799,17 +649,4 @@ window.activateTab = function(tabId) {
         menuOverlay.classList.remove('active');
         document.body.style.overflow = '';
     }
-    
-    // Envolver tabelas da nova aba
-    setTimeout(() => {
-        const tables = activeContent.querySelectorAll('table');
-        tables.forEach(table => {
-            if (!table.closest('.table-responsive')) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'table-responsive card-table-container';
-                table.parentNode.insertBefore(wrapper, table);
-                wrapper.appendChild(table);
-            }
-        });
-    }, 300);
 };

@@ -1,6 +1,7 @@
 // Sistema de busca para o Manual CheckInfra
 class ManualSearch {
 // Na linha 10 do search.js, modifique o construtor:
+// Na linha 10 do search.js, modifique o construtor:
 constructor() {
     try {
         this.searchInput = document.getElementById('searchInput');

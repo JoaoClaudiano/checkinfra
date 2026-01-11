@@ -1971,3 +1971,192 @@ body.dark-theme .tech-table-wrapper {
         padding-top: max(1.5rem, env(safe-area-inset-top));
     }
 }
+/* ============================================ */
+/* CORREÇÕES PARA TABELAS EM ACCORDIONS */
+/* ============================================ */
+
+/* Container responsivo para todas as tabelas */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1rem 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
+}
+
+body.dark-theme .table-responsive {
+    background: #2d3748;
+    border-color: #4a5568;
+}
+
+/* Garantir que tabelas dentro de accordions tenham scroll */
+.tech-accordion-content .table-responsive,
+.accordion-content .table-responsive {
+    margin: 1rem -1.5rem !important;
+    width: calc(100% + 3rem) !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* Ajuste para telas pequenas */
+@media (max-width: 768px) {
+    .tech-accordion-content .table-responsive,
+    .accordion-content .table-responsive {
+        margin: 1rem -1rem !important;
+        width: calc(100% + 2rem) !important;
+    }
+    
+    .table-responsive table {
+        min-width: 600px !important;
+    }
+}
+
+/* Header ajustado para iPhone */
+@media (max-width: 480px) {
+    .header-container {
+        flex-wrap: nowrap;
+        align-items: center;
+        min-height: 70px;
+        padding: 0 10px;
+    }
+    
+    .header-content {
+        position: static;
+        transform: none;
+        text-align: left;
+        padding: 0 10px;
+        flex: 1;
+        min-width: 0;
+        max-width: none;
+    }
+    
+    header h1 {
+        font-size: 1.4rem;
+        line-height: 1.2;
+        white-space: normal;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        margin-bottom: 4px;
+    }
+    
+    header .subtitle {
+        font-size: 0.85rem;
+        line-height: 1.2;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 2.4em;
+    }
+    
+    .header-btn {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+    }
+    
+    .version-badge {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        margin-top: 4px;
+    }
+}
+
+/* Correção para iPhone SE e telas muito pequenas */
+@media (max-width: 375px) {
+    header h1 {
+        font-size: 1.2rem;
+        -webkit-line-clamp: 2;
+    }
+    
+    header .subtitle {
+        font-size: 0.75rem;
+        -webkit-line-clamp: 2;
+    }
+    
+    .header-btn {
+        width: 38px;
+        height: 38px;
+    }
+    
+    .version-badge {
+        font-size: 0.65rem;
+        padding: 1px 6px;
+    }
+}
+
+/* Indicador de scroll para tabelas em mobile */
+.scroll-indicator {
+    animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* Ajuste para evitar quebra de layout em accordions abertos */
+.tech-accordion-content.active,
+.accordion-content.active {
+    overflow: visible !important;
+}
+
+/* Garantir que tabelas em cards tenham estilo consistente */
+.card-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.card-table-container table th {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.card-table-container table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border);
+}
+
+body.dark-theme .card-table-container table td {
+    border-bottom: 1px solid #4a5568;
+}
+
+.card-table-container table tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+body.dark-theme .card-table-container table tr:nth-child(even) {
+    background: #4a5568;
+}
+
+/* Ajuste para o menu de ferramentas não sobrepor conteúdo */
+@media (max-width: 768px) {
+    .container {
+        padding-bottom: 80px; /* Espaço para o botão voltar ao topo */
+    }
+}
+
+/* Melhorar a experiência de toque em tabelas mobile */
+@media (max-width: 768px) {
+    .table-responsive {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .table-responsive table th,
+    .table-responsive table td {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+

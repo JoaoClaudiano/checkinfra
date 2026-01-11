@@ -23,6 +23,57 @@ e apoiar a tomada de decisão por gestores públicos, sem substituir o julgament
 - Chart.js  
 - jsPDF  
 
+## 🌳 árvore
+
+checkinfra/
+├── .github/
+│   └── workflows/
+│       └── (arquivos se houver ações/CI)
+│
+├── analise-espacial/
+│   └── (conteúdo interno não exibido diretamente na listagem)
+│
+├── assets/
+│   └── (conteúdo interno não exibido diretamente na listagem)
+│
+├── builds/
+│   ├── app-release-signed.apk
+│   └── (outros arquivos de build, se presentes)
+│
+├── feedback/
+│   └── (conteúdo interno não exibido diretamente na listagem)
+│
+├── icons/
+│   └── (ícones listados internamente)
+│
+├── js/
+│   └── (scripts listados internamente)
+│
+├── mapa/
+│   └── (conteúdo de mapa listado internamente)
+│
+├── metodiq/
+│   └── (documentos/metodologia listados internamente)
+│
+├── pages/
+│   └── (páginas auxiliares, se presentes)
+│
+├── painel/
+│   └── (conteúdo de painel listado internamente)
+│
+├── LICENSE
+├── README.md
+├── avaliacao.html
+├── banner.html
+├── footer.html
+├── google8df277a1c3c466cf.html
+├── index.html
+├── manifest.json
+├── metodologia.html
+└── service-worker.js
+
+
+
 ## 🧠 Princípio do projeto
 
 O CheckInfra não automatiza decisões.  

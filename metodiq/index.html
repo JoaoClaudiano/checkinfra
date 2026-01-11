@@ -1441,65 +1441,6 @@
             </div>
         </div>
 
-        <!-- ABA 9: RECOMENDAÇÕES TÉCNICAS -->
-        <div id="recomendacoes" class="tab-content">
-            <h2><i class="fas fa-tools"></i> Recomendações Técnicas e Manutenção</h2>
-
-            <div class="methodology-card">
-                <h3><i class="fas fa-exclamation-triangle"></i> 1. Vulnerabilidades Identificadas</h3>
-
-                <div class="danger-box">
-                    <strong><i class="fas fa-shield-alt"></i> CRÍTICO: Chaves Firebase Expostas</strong><br>
-                    Todas as chaves API estão hardcoded no código fonte. 
-                    <strong>Recomendação urgente:</strong> Mover para variáveis de ambiente ou configurar restrições por domínio.
-                </div>
-
-                <div class="warning-box">
-                    <strong><i class="fas fa-database"></i> ALERTA: Performance com Grandes Volumes</strong><br>
-                    Sistema carrega todas avaliações de uma vez. 
-                    <strong>Recomendação:</strong> Implementar paginação ou limites na consulta.
-                </div>
-
-                <div class="info-box">
-                    <strong><i class="fas fa-images"></i> ATENÇÃO: Tamanho de PDFs com Fotos</strong><br>
-                    Imagens em Base64 podem gerar PDFs muito grandes. 
-                    <strong>Recomendação:</strong> Implementar compressão antes da conversão.
-                </div>
-            </div>
-
-            <div class="methodology-card">
-                <h3><i class="fas fa-wrench"></i> 2. Melhorias de Performance Recomendadas</h3>
-
-                <div class="impact-grid">
-                    <div class="impact-card">
-                        <h4><i class="fas fa-compress-arrows-alt"></i> Compressão de Imagens</h4>
-                        <p>Reduzir tamanho das fotos antes do PDF</p>
-                        <p><strong>Tecnologia:</strong> Canvas API + redimensionamento</p>
-                    </div>
-
-                    <div class="impact-card">
-                        <h4><i class="fas fa-layer-group"></i> Clusterização no Mapa</h4>
-                        <p>Agrupar marcadores quando zoomed out</p>
-                        <p><strong>Biblioteca:</strong> Leaflet.markercluster</p>
-                    </div>
-
-                    <div class="impact-card">
-                        <h4><i class="fas fa-database"></i> Cache Local</h4>
-                        <p>Armazenar dados frequentemente acessados</p>
-                        <p><strong>Tecnologia:</strong> IndexedDB para dados estruturados</p>
-                    </div>
-
-                    <div class="impact-card">
-                        <h4><i class="fas fa-sync-alt"></i> Lazy Loading</h4>
-                        <p>Carregar dados sob demanda</p>
-                        <p><strong>Aplicação:</strong> Mapas e listas grandes</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="methodology-card">
-                <h3><i class="fas fa-shield-alt"></i> 3. Segurança - Plano de Ação</h3>
-
                 <!-- TABELA 5 - COM SCROLL HORIZONTAL MANUAL -->
                 <div class="table-responsive manual-table">
                     <table>

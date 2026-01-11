@@ -327,8 +327,6 @@
   cursor: pointer;
 }
 
-    
-
   </style>
 </head>
 
@@ -389,11 +387,10 @@
       <a href="./pages/contato.html">Contato</a> | 
       <a href="./pages/politica-privacidade.html">Política de Privacidade</a> | 
       <a href="./pages/termos-de-uso.html">Termos de Uso</a>
-       <a href="#" id="openApkModal" class="footer-apk-link">
+      <a href="#" id="openApkModal" class="footer-apk-link">
       📱 Baixar app Android
     </a>
     </p>
-
 
     <!-- Badges MIT + GitHub --> 
 
@@ -414,7 +411,6 @@
         </svg>
       </a>
     </p>
-
 
     <!-- Aviso LGPD -->
     <p style="margin:0; font-size:12px;">
@@ -467,8 +463,6 @@
   });
 </script>
 
-
-
 <!-- FEEDBACK MVP -->
 <link rel="stylesheet" href="./feedback/feedback.css">
 
@@ -486,22 +480,6 @@
     .catch(console.error);
 </script>
 
-<!-- FEEDBACK MVP -->
-<link rel="stylesheet" href="./feedback/feedback.css">
-
-<div id="feedback-container"></div>
-
-<script>
-  fetch("./feedback/feedback.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("feedback-container").innerHTML = html;
-
-      const script = document.createElement("script");
-      script.src = "./feedback/feedback.js";
-      document.body.appendChild(script);
-    });
-</script>
 
 <!-- SERVICE WORKER -->
 <!-- Verificação de instalação PWA -->
@@ -514,42 +492,31 @@ if ('serviceWorker' in navigator) {
         console.log('Service Worker registrado com sucesso:', registration.scope);
         
         // Verificar se o app pode ser instalado
-        let deferredPrompt;
-        const installButton = document.createElement('button');
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-          // Previne que o prompt apareça automaticamente
-          e.preventDefault();
-          deferredPrompt = e;
-          
-          // Mostra botão de instalação
-          installButton.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #1f4fd8;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 10000;
-          `;
-          installButton.textContent = '📲 Instalar App';
-          document.body.appendChild(installButton);
-          
-          installButton.addEventListener('click', () => {
-            installButton.style.display = 'none';
-            deferredPrompt.prompt();
-            
-            deferredPrompt.userChoice.then((choiceResult) => {
-              if (choiceResult.outcome === 'accepted') {
-                console.log('Usuário aceitou instalação');
-              }
-              deferredPrompt = null;
-            });
-          });
+// No seu script de debug ou no main
+let deferredPrompt;
+const installButton = document.getElementById('install-button-custom'); // Crie um botão
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Previne o banner automático
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  // Mostra seu botão customizado
+  if (installButton) {
+    installButton.style.display = 'block';
+    installButton.addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('✅ Usuário instalou o app');
+          }
+          deferredPrompt = null;
         });
+      }
+    });
+  }
+});
         
         // Esconder botão se já instalado
         window.addEventListener('appinstalled', () => {

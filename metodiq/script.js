@@ -854,3 +854,15 @@ window.activateTab = function(tabId) {
         document.body.style.overflow = '';
     }
 };
+
+// Adicione no final do script.js
+console.log('Script carregado! Verificando elementos:');
+console.log('Aba ativa:', document.querySelector('.tab-btn.active')?.dataset.tab);
+console.log('Elementos de busca:', {
+    searchInput: document.getElementById('searchInput'),
+    searchBtn: document.getElementById('searchBtn'),
+    searchResults: document.getElementById('searchResults')
+});
+console.log('Service Worker:', navigator.serviceWorker ? 'Disponível' : 'Não disponível');
+
+

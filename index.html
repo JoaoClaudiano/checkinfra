@@ -476,7 +476,6 @@
     .catch(console.error);
 </script>
 
-  
 <!-- FEEDBACK MVP -->
 <link rel="stylesheet" href="./feedback/feedback.css">
 
@@ -492,10 +491,9 @@
       script.src = "./feedback/feedback.js";
       document.body.appendChild(script);
     });
+</script>
 
-
-
-<!-- ===== SERVICE WORKER ===== -->
+<!-- SERVICE WORKER -->
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./service-worker.js")

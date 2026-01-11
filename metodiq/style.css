@@ -46,66 +46,72 @@ body.dark-theme .container {
     padding: 20px;
 }
 
-/* HEADER COM BOTÕES - CORRIGIDO PARA IPHONE */
+/* ============================================ */
+/* HEADER CORRIGIDO - CENTRALIZADO E RESPONSIVO */
+/* ============================================ */
+
 header {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color: white;
     padding: 1.5rem 0;
-    text-align: center;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     box-shadow: 0 8px 25px rgba(31, 79, 216, 0.3);
     margin-bottom: 2rem;
     position: relative;
-    overflow: visible; /* Alterado de hidden para visible */
-}
-
-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-    background-size: 30px 30px;
-    opacity: 0.3;
-    animation: float 20s linear infinite;
-}
-
-@keyframes float {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    overflow: hidden;
 }
 
 .header-container {
-    position: relative;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
     min-height: 80px;
+    position: relative;
 }
 
-.header-content {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+.header-center {
     text-align: center;
-    width: 100%;
-    max-width: 500px;
-    padding: 0 60px;
-    z-index: 1;
-    pointer-events: none;
+    flex: 1;
+    padding: 0 15px;
+    min-width: 0; /* Permite que o conteúdo encolha */
 }
 
-.header-content * {
-    pointer-events: auto;
+.header-center h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
 
+.header-center .subtitle {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    max-width: 900px;
+    margin: 0 auto 0.5rem;
+    font-weight: 300;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.version-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    backdrop-filter: blur(5px);
+}
+
+/* Botões do header */
 .header-btn {
     background: rgba(255, 255, 255, 0.2);
     color: white;
@@ -120,65 +126,199 @@ header::before {
     transition: all 0.3s ease;
     backdrop-filter: blur(5px);
     flex-shrink: 0;
-    position: relative;
     z-index: 2;
-}
-
-.header-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 .back-btn {
     margin-right: auto;
-    order: 1;
 }
 
 .menu-toggle {
     margin-left: auto;
-    order: 3;
 }
 
-.header-content {
-    order: 2;
-    flex: 1;
+/* ============================================ */
+/* TABELAS MANUAIS COM SCROLL HORIZONTAL */
+/* ============================================ */
+
+.table-responsive.manual-table {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: white;
 }
 
-header h1 {
-    font-size: 2.8rem;
-    margin-bottom: 0.5rem;
-    font-weight: 800;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    position: relative;
-    word-wrap: break-word;
-    word-break: break-word;
-    overflow-wrap: break-word;
+body.dark-theme .table-responsive.manual-table {
+    background: #2d3748;
+    border-color: #4a5568;
 }
 
-header .subtitle {
-    font-size: 1.2rem;
-    opacity: 0.95;
-    max-width: 900px;
-    margin: 0 auto;
-    font-weight: 300;
-    position: relative;
-    word-wrap: break-word;
-    word-break: break-word;
-    overflow-wrap: break-word;
+.table-responsive.manual-table table {
+    width: 100%;
+    min-width: 650px; /* Largura mínima para garantir scroll em mobile */
+    border-collapse: collapse;
+    margin: 0;
 }
 
-.version-badge {
-    display: inline-block;
-    background: rgba(255,255,255,0.2);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    margin-top: 10px;
-    backdrop-filter: blur(5px);
+.table-responsive.manual-table th {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
+.table-responsive.manual-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+body.dark-theme .table-responsive.manual-table td {
+    border-bottom: 1px solid #4a5568;
+}
+
+.table-responsive.manual-table tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+body.dark-theme .table-responsive.manual-table tr:nth-child(even) {
+    background: #4a5568;
+}
+
+/* Indicador visual para scroll horizontal em mobile */
+@media (max-width: 768px) {
+    .table-responsive.manual-table {
+        position: relative;
+    }
+    
+    .table-responsive.manual-table::after {
+        content: '↔ Arraste para os lados';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--primary);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        opacity: 0.8;
+        pointer-events: none;
+        z-index: 2;
+        animation: fadeOut 3s ease-in-out 2s forwards;
+    }
+    
+    @keyframes fadeOut {
+        to { opacity: 0; }
+    }
+}
+
+/* ============================================ */
+/* RESPONSIVIDADE DO HEADER */
+/* ============================================ */
+
+@media (max-width: 992px) {
+    .header-center h1 {
+        font-size: 1.8rem;
+    }
+    
+    .header-center .subtitle {
+        font-size: 1rem;
+    }
+    
+    .header-btn {
+        width: 45px;
+        height: 45px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        padding: 0 15px;
+        min-height: 70px;
+    }
+    
+    .header-center {
+        padding: 0 10px;
+    }
+    
+    .header-center h1 {
+        font-size: 1.5rem;
+        line-height: 1.1;
+        margin-bottom: 0.3rem;
+    }
+    
+    .header-center .subtitle {
+        font-size: 0.9rem;
+        line-height: 1.2;
+        margin-bottom: 0.3rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 2.4em;
+    }
+    
+    .version-badge {
+        font-size: 0.8rem;
+        padding: 3px 8px;
+    }
+    
+    .header-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        padding: 0 10px;
+        min-height: 65px;
+    }
+    
+    .header-center h1 {
+        font-size: 1.3rem;
+    }
+    
+    .header-center .subtitle {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 2;
+        max-height: 2.2em;
+    }
+    
+    .version-badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
+    
+    .header-btn {
+        width: 38px;
+        height: 38px;
+    }
+}
+
+@media (max-width: 375px) {
+    .header-center h1 {
+        font-size: 1.2rem;
+    }
+    
+    .header-center .subtitle {
+        font-size: 0.75rem;
+    }
+    
+    .version-badge {
+        display: none; /* Esconde em telas muito pequenas */
+    }
+}
+
+/* ============================================ */
 /* SIDEBAR DE FERRAMENTAS */
+/* ============================================ */
+
 .sidebar-tools {
     position: fixed;
     top: 0;
@@ -1284,15 +1424,6 @@ body.dark-theme ::-webkit-scrollbar-track {
         padding: 15px;
     }
 
-    header h1 {
-        font-size: 2.2rem;
-    }
-
-    .header-btn {
-        width: 45px;
-        height: 45px;
-    }
-
     .nav-tabs {
         flex-direction: column;
         position: static;
@@ -1309,50 +1440,6 @@ body.dark-theme ::-webkit-scrollbar-track {
 }
 
 @media (max-width: 768px) {
-    .header-container {
-        padding: 0 15px;
-        flex-wrap: nowrap;
-    }
-    
-    .header-content {
-        position: static;
-        transform: none;
-        order: 2;
-        flex: 1;
-        min-width: 0;
-        max-width: none;
-        padding: 0 15px;
-    }
-    
-    .header-btn {
-        width: 45px;
-        height: 45px;
-        flex-shrink: 0;
-    }
-    
-    header h1 {
-        font-size: 1.8rem;
-        line-height: 1.2;
-        white-space: normal;
-        overflow: visible;
-        text-overflow: clip;
-    }
-    
-    header .subtitle {
-        font-size: 1rem;
-        line-height: 1.3;
-    }
-    
-    .version-badge {
-        font-size: 0.8rem;
-        padding: 3px 8px;
-    }
-
-    .sidebar-tools {
-        width: 100%;
-        right: -100%;
-    }
-
     .tab-content {
         padding: 1.5rem;
     }
@@ -1367,40 +1454,6 @@ body.dark-theme ::-webkit-scrollbar-track {
 }
 
 @media (max-width: 576px) {
-    .header-container {
-        min-height: 65px;
-        padding: 0 12px;
-    }
-    
-    .header-content {
-        padding: 0 10px;
-    }
-    
-    .header-btn {
-        width: 42px;
-        height: 42px;
-    }
-    
-    header h1 {
-        font-size: 1.6rem;
-        margin-bottom: 0.3rem;
-    }
-    
-    header .subtitle {
-        font-size: 0.9rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-height: 2.6em;
-    }
-    
-    .version-badge {
-        font-size: 0.75rem;
-        padding: 2px 6px;
-    }
-
     .footer-links {
         flex-direction: column;
         gap: 1rem;
@@ -1413,331 +1466,6 @@ body.dark-theme ::-webkit-scrollbar-track {
     .tool-btn {
         padding: 0.6rem 0.8rem;
         font-size: 0.9rem;
-    }
-}
-
-/* ============================================ */
-/* CORREÇÃO ESPECÍFICA PARA IPHONE */
-/* ============================================ */
-
-@media (max-width: 480px) {
-    .header-container {
-        min-height: 60px;
-        padding: 0 10px;
-        flex-wrap: nowrap;
-    }
-    
-    .header-content {
-        position: static;
-        transform: none;
-        flex: 1;
-        min-width: 0;
-        padding: 0 8px;
-        overflow: visible;
-    }
-    
-    .header-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-        flex-shrink: 0;
-    }
-    
-    header h1 {
-        font-size: 1.4rem;
-        line-height: 1.1;
-        white-space: normal;
-        overflow: visible;
-        text-overflow: clip;
-        word-break: break-word;
-        hyphens: auto;
-    }
-    
-    header .subtitle {
-        font-size: 0.85rem;
-        -webkit-line-clamp: 2;
-        max-height: 2.4em;
-    }
-    
-    .version-badge {
-        font-size: 0.7rem;
-        padding: 2px 5px;
-    }
-
-    /* NAVEGAÇÃO VERTICAL */
-    .nav-tabs {
-        flex-direction: column;
-        padding: 15px;
-        margin: 1rem 0;
-        gap: 8px;
-    }
-
-    .tab-btn {
-        width: 100%;
-        padding: 12px 20px;
-        justify-content: flex-start;
-        border-radius: 8px;
-    }
-
-    /* CONTEÚDO PRINCIPAL */
-    .container {
-        padding: 12px;
-    }
-
-    .tab-content {
-        padding: 1.2rem;
-        margin-bottom: 1.5rem;
-        border-radius: 12px;
-    }
-
-    .tab-content h2 {
-        font-size: 1.5rem;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-
-    /* ACCORDIONS */
-    .tech-accordion-header {
-        padding: 1rem;
-        font-size: 1.1rem;
-    }
-
-    .tech-card {
-        padding: 1rem;
-    }
-
-    /* TABELAS COM SCROLL HORIZONTAL */
-    .tech-table-wrapper {
-        position: relative;
-        overflow: hidden;
-        margin: 1rem -1rem;
-        width: calc(100% + 2rem);
-    }
-
-    .tech-table {
-        display: block;
-        width: 100%;
-        overflow-x: auto;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-        margin: 0;
-        border-radius: 0;
-        box-shadow: none;
-        border: 1px solid var(--border);
-        background: white;
-    }
-
-    body.dark-theme .tech-table {
-        background: #2d3748;
-        border-color: #4a5568;
-    }
-
-    .tech-table tr:nth-child(even) {
-        background: #f8f9fa;
-    }
-
-    body.dark-theme .tech-table tr:nth-child(even) {
-        background: #4a5568;
-    }
-
-    .tech-table th,
-    .tech-table td {
-        padding: 0.75rem;
-        min-width: 140px;
-        padding: 0.8rem;
-        white-space: nowrap;
-        font-size: 0.9rem;
-    }
-
-    .tech-table th {
-        position: sticky;
-        left: 0;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        z-index: 2;
-        min-width: 120px;
-    }
-
-    body.dark-theme .tech-table th {
-        background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-    }
-
-    .tech-table-wrapper::after {
-        content: '↔';
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: var(--primary);
-        color: white;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        opacity: 0.7;
-        pointer-events: none;
-        z-index: 3;
-    }
-
-    .tech-table + * {
-        clear: both;
-        margin-top: 1.5rem !important;
-    }
-
-    .tech-accordion-content .tech-table-wrapper {
-        margin: 1rem -1.5rem;
-        width: calc(100% + 3rem);
-    }
-
-    .tech-accordion-content {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    .tech-card {
-        padding: 1rem;
-        overflow: hidden;
-    }
-
-    .tech-accordion-item:hover {
-        transform: none !important;
-    }
-
-    /* GRIDS E LAYOUTS */
-    .impact-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .impact-card {
-        padding: 1rem;
-    }
-
-    /* EQUAÇÕES E FÓRMULAS */
-    .formula-destaque {
-        padding: 1.2rem;
-        overflow-x: auto;
-    }
-
-    .formula-destaque h3 {
-        font-size: 1.3rem;
-        word-break: break-word;
-    }
-
-    .equacao {
-        font-size: 1rem;
-        padding: 1rem;
-        overflow-x: auto;
-    }
-
-    /* MENU SIDEBAR */
-    .sidebar-tools {
-        width: 100vw;
-        right: -100vw;
-    }
-
-    .tools-content {
-        padding: 1rem;
-    }
-
-    /* BOTÕES DE FERRAMENTAS */
-    .tool-btn {
-        padding: 0.8rem 0.9rem;
-        font-size: 0.9rem;
-    }
-
-    .tool-btn i {
-        margin-right: 8px;
-        font-size: 0.9rem;
-    }
-
-    /* FOOTER */
-    footer {
-        padding: 1.5rem;
-        border-radius: 15px 15px 0 0;
-    }
-
-    .footer-links {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    /* UTILITÁRIOS */
-    .info-box,
-    .warning-box,
-    .success-box,
-    .danger-box {
-        padding: 1rem;
-        font-size: 0.9rem;
-    }
-
-    /* BOTÃO VOLTAR AO TOPO */
-    .back-to-top {
-        bottom: 20px;
-        right: 20px;
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
-    }
-}
-
-/* CORREÇÃO ESPECÍFICA PARA IPHONE PEQUENO (iPhone SE, 5, etc) */
-@media (max-width: 375px) {
-    .header-container {
-        min-height: 55px;
-        padding: 0 8px;
-    }
-    
-    .header-content {
-        padding: 0 5px;
-    }
-    
-    .header-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 0.9rem;
-    }
-    
-    header h1 {
-        font-size: 1.3rem;
-        line-height: 1.1;
-        margin-bottom: 0.2rem;
-    }
-    
-    header .subtitle {
-        font-size: 0.8rem;
-        -webkit-line-clamp: 2;
-        max-height: 2.2em;
-    }
-    
-    .version-badge {
-        display: none;
-    }
-}
-
-@media (max-width: 320px) {
-    .header-container {
-        min-height: 50px;
-        padding: 0 5px;
-    }
-    
-    .header-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 0.85rem;
-    }
-    
-    header h1 {
-        font-size: 1.2rem;
-    }
-    
-    header .subtitle {
-        font-size: 0.75rem;
-        -webkit-line-clamp: 2;
-        max-height: 2em;
     }
 }
 
@@ -1766,397 +1494,10 @@ body.dark-theme ::-webkit-scrollbar-track {
 }
 
 /* GARANTIR QUE O TEXTO NÃO SAIA DA TELA */
-header h1,
-header .subtitle {
+.header-center h1,
+.header-center .subtitle {
     max-width: 100%;
     overflow-wrap: break-word;
     word-break: break-word;
     hyphens: auto;
 }
-
-/* ============================================ */
-/* CORREÇÃO PARA TABELAS EM TELAS PEQUENAS */
-/* ============================================ */
-
-/* Garantir que tabelas fiquem responsivas em cards */
-.card-table-container {
-    position: relative;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 8px;
-    margin: 1rem 0;
-    background: white;
-}
-
-body.dark-theme .card-table-container {
-    background: #2d3748;
-}
-
-/* Aplicar a todas as tabelas dentro de cards e tab-content */
-.tab-content table,
-.tech-card table,
-.methodology-card table,
-.impact-card table,
-.flow-step table {
-    width: 100%;
-    min-width: 600px;
-    border-collapse: collapse;
-    margin: 0;
-}
-
-/* Estilização para tabelas em containers responsivos */
-.tab-content table th,
-.tech-card table th,
-.methodology-card table th {
-    white-space: nowrap;
-    min-width: 120px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: white;
-    padding: 0.8rem;
-    font-size: 0.9rem;
-}
-
-.tab-content table td,
-.tech-card table td,
-.methodology-card table td {
-    padding: 0.8rem;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.9rem;
-}
-
-body.dark-theme .tab-content table td,
-body.dark-theme .tech-card table td,
-body.dark-theme .methodology-card table td {
-    border-bottom: 1px solid #4a5568;
-}
-
-/* Ajuste específico para telas muito pequenas */
-@media (max-width: 768px) {
-    /* Reduzir padding das células */
-    .tab-content table th,
-    .tech-card table th,
-    .methodology-card table th,
-    .tab-content table td,
-    .tech-card table td,
-    .methodology-card table td {
-        padding: 0.6rem;
-        font-size: 0.85rem;
-    }
-    
-    @media (max-width: 480px) {
-        .tab-content table th,
-        .tech-card table th,
-        .methodology-card table th,
-        .tab-content table td,
-        .tech-card table td,
-        .methodology-card table td {
-            padding: 0.5rem;
-            font-size: 0.8rem;
-        }
-        
-        .tab-content table,
-        .tech-card table,
-        .methodology-card table {
-            min-width: 500px;
-        }
-        
-        /* Indicador visual de que a tabela é rolável */
-        .card-table-container {
-            position: relative;
-        }
-        
-        .card-table-container::after {
-            content: '↔';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--primary);
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            opacity: 0.7;
-            pointer-events: none;
-            z-index: 2;
-        }
-    }
-}
-
-/* Ajuste para tabelas específicas em tech-accordion */
-.tech-accordion-content .tech-table {
-    min-width: 100%;
-    width: 100%;
-}
-
-@media (max-width: 768px) {
-    .tech-accordion-content .tech-table {
-        min-width: 500px;
-    }
-}
-
-/* Garantir que os cards não quebrem com tabelas grandes */
-.tab-content,
-.tech-card,
-.methodology-card,
-.impact-card,
-.flow-step {
-    overflow: hidden;
-}
-
-/* Melhorar a visualização em orientação paisagem mobile */
-@media (max-width: 768px) and (orientation: landscape) {
-    .card-table-container {
-        max-height: 300px;
-        overflow-y: auto;
-    }
-}
-
-/* Ajustes específicos para a tabela de Técnico */
-.tech-table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    margin: 1rem 0;
-    border-radius: 8px;
-    background: white;
-    border: 1px solid var(--border);
-}
-
-body.dark-theme .tech-table-wrapper {
-    background: #2d3748;
-    border-color: #4a5568;
-}
-
-.tech-table-wrapper table {
-    min-width: 700px;
-    margin: 0;
-}
-
-/* Garantir que o conteúdo ao redor das tabelas também se ajuste */
-.tech-card > *:not(.card-table-container):not(table) {
-    width: 100%;
-    overflow-wrap: break-word;
-}
-
-/* Ajuste para fórmulas e equações em telas pequenas */
-@media (max-width: 480px) {
-    .formula-destaque,
-    .equacao {
-        overflow-x: auto;
-        padding: 1rem;
-        font-size: 0.9rem;
-    }
-    
-    .formula-destaque h3,
-    .equacao {
-        white-space: nowrap;
-        min-width: 300px;
-    }
-}
-
-/* AJUSTES FINAIS PARA DISPOSITIVOS COM NOTCH/DYNAMIC ISLAND */
-@media (max-width: 480px) {
-    .container {
-        padding-top: max(12px, env(safe-area-inset-top));
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
-        padding-left: max(12px, env(safe-area-inset-left));
-        padding-right: max(12px, env(safe-area-inset-right));
-    }
-
-    header {
-        padding-top: max(1.5rem, env(safe-area-inset-top));
-    }
-}
-/* ============================================ */
-/* CORREÇÕES PARA TABELAS EM ACCORDIONS */
-/* ============================================ */
-
-/* Container responsivo para todas as tabelas */
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin: 1rem 0;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: white;
-}
-
-body.dark-theme .table-responsive {
-    background: #2d3748;
-    border-color: #4a5568;
-}
-
-/* Garantir que tabelas dentro de accordions tenham scroll */
-.tech-accordion-content .table-responsive,
-.accordion-content .table-responsive {
-    margin: 1rem -1.5rem !important;
-    width: calc(100% + 3rem) !important;
-    border-radius: 0 !important;
-    border-left: none !important;
-    border-right: none !important;
-}
-
-/* Ajuste para telas pequenas */
-@media (max-width: 768px) {
-    .tech-accordion-content .table-responsive,
-    .accordion-content .table-responsive {
-        margin: 1rem -1rem !important;
-        width: calc(100% + 2rem) !important;
-    }
-    
-    .table-responsive table {
-        min-width: 600px !important;
-    }
-}
-
-/* Header ajustado para iPhone */
-@media (max-width: 480px) {
-    .header-container {
-        flex-wrap: nowrap;
-        align-items: center;
-        min-height: 70px;
-        padding: 0 10px;
-    }
-    
-    .header-content {
-        position: static;
-        transform: none;
-        text-align: left;
-        padding: 0 10px;
-        flex: 1;
-        min-width: 0;
-        max-width: none;
-    }
-    
-    header h1 {
-        font-size: 1.4rem;
-        line-height: 1.2;
-        white-space: normal;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        margin-bottom: 4px;
-    }
-    
-    header .subtitle {
-        font-size: 0.85rem;
-        line-height: 1.2;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-height: 2.4em;
-    }
-    
-    .header-btn {
-        width: 42px;
-        height: 42px;
-        flex-shrink: 0;
-    }
-    
-    .version-badge {
-        font-size: 0.7rem;
-        padding: 2px 8px;
-        margin-top: 4px;
-    }
-}
-
-/* Correção para iPhone SE e telas muito pequenas */
-@media (max-width: 375px) {
-    header h1 {
-        font-size: 1.2rem;
-        -webkit-line-clamp: 2;
-    }
-    
-    header .subtitle {
-        font-size: 0.75rem;
-        -webkit-line-clamp: 2;
-    }
-    
-    .header-btn {
-        width: 38px;
-        height: 38px;
-    }
-    
-    .version-badge {
-        font-size: 0.65rem;
-        padding: 1px 6px;
-    }
-}
-
-/* Indicador de scroll para tabelas em mobile */
-.scroll-indicator {
-    animation: fadeInOut 3s ease-in-out;
-}
-
-@keyframes fadeInOut {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-}
-
-/* Ajuste para evitar quebra de layout em accordions abertos */
-.tech-accordion-content.active,
-.accordion-content.active {
-    overflow: visible !important;
-}
-
-/* Garantir que tabelas em cards tenham estilo consistente */
-.card-table-container table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.card-table-container table th {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: white;
-    padding: 12px 15px;
-    text-align: left;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.card-table-container table td {
-    padding: 10px 15px;
-    border-bottom: 1px solid var(--border);
-}
-
-body.dark-theme .card-table-container table td {
-    border-bottom: 1px solid #4a5568;
-}
-
-.card-table-container table tr:nth-child(even) {
-    background: #f8f9fa;
-}
-
-body.dark-theme .card-table-container table tr:nth-child(even) {
-    background: #4a5568;
-}
-
-/* Ajuste para o menu de ferramentas não sobrepor conteúdo */
-@media (max-width: 768px) {
-    .container {
-        padding-bottom: 80px; /* Espaço para o botão voltar ao topo */
-    }
-}
-
-/* Melhorar a experiência de toque em tabelas mobile */
-@media (max-width: 768px) {
-    .table-responsive {
-        -webkit-tap-highlight-color: transparent;
-    }
-    
-    .table-responsive table th,
-    .table-responsive table td {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-    }
-}
-
-

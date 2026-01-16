@@ -17,7 +17,7 @@
     <priority>0.9</priority>
   </url>
 
-  <!-- Ferramentas principais -->
+  <!-- Mapa -->
   <url>
     <loc>https://joaoclaudiano.github.io/checkinfra/mapa/</loc>
     <lastmod>2026-01-15</lastmod>
@@ -25,14 +25,15 @@
     <priority>0.9</priority>
   </url>
 
+  <!-- Painel -->
   <url>
     <loc>https://joaoclaudiano.github.io/checkinfra/painel/</loc>
     <lastmod>2026-01-15</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
   </url>
 
-  <!-- Metodologia (muito importante institucionalmente) -->
+  <!-- Metodologia -->
   <url>
     <loc>https://joaoclaudiano.github.io/checkinfra/metodiq/</loc>
     <lastmod>2026-01-15</lastmod>
@@ -40,33 +41,33 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Páginas institucionais -->
+  <!-- Institucionais -->
   <url>
     <loc>https://joaoclaudiano.github.io/checkinfra/pages/sobre.html</loc>
     <lastmod>2026-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-
-  <url>
-    <loc>https://joaoclaudiano.github.io/checkinfra/pages/contato.html</loc>
-    <lastmod>2026-01-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://joaoclaudiano.github.io/checkinfra/pages/politica-privacidade.html</loc>
     <lastmod>2026-01-15</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
+    <priority>0.5</priority>
   </url>
 
   <url>
     <loc>https://joaoclaudiano.github.io/checkinfra/pages/termos-de-uso.html</loc>
     <lastmod>2026-01-15</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://joaoclaudiano.github.io/checkinfra/pages/contato.html</loc>
+    <lastmod>2026-01-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
   </url>
 
 </urlset>

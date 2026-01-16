@@ -5,7 +5,9 @@
   <title>Termos de Uso – CheckInfra</title>
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="description" content="Termos de Uso do CheckInfra. Conheça as regras, limitações e responsabilidades do uso da plataforma de diagnóstico sanitário escolar.">
+  <meta name="robots" content="index, follow">
+    
   <link rel="manifest" href="/manifest.json">
   <link rel="canonical" href="https://joaoclaudiano.github.io/checkinfra/pages/termos-de-uso.html"/>
     <!-- Google tag (gtag.js) -->
@@ -116,7 +118,7 @@
 <!-- ===== SERVICE WORKER ===== -->
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js")
+  navigator.serviceWorker.register("/checkinfra/service-worker.js")
     .then(() => console.log("Service Worker registrado"))
     .catch(err => console.error("Erro no Service Worker", err));
 }

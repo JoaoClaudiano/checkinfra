@@ -2,8 +2,9 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Sobre – CheckInfra</title>
+  <title>Sobre o CheckInfra — Diagnóstico de Infraestrutura Escolar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Conheça o CheckInfra, uma plataforma de apoio ao diagnóstico sanitário de banheiros escolares, voltada à gestão pública, engenharia civil e melhoria da infraestrutura educacional.">
   <!-- Manifest.json da raiz -->
   <link rel="manifest" href="/manifest.json">
 
@@ -105,7 +106,7 @@
 <!-- ===== SERVICE WORKER ===== -->
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js")
+  navigator.serviceWorker.register("/service-worker.js")
     .then(() => console.log("Service Worker registrado"))
     .catch(err => console.error("Erro no Service Worker", err));
 }

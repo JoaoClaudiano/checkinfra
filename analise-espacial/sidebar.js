@@ -4,16 +4,16 @@ const closeSidebar = document.getElementById("close-sidebar");
 const menuItems = document.querySelectorAll("#sidebar-menu li");
 const sidebarContent = document.getElementById("sidebar-content");
 
-// Emojis para cada indicador
-const emojis = {
-    'pareto': '📊',
-    'densidade-critica': '📍',
-    'concentracao-relativa': '📈',
-    'zonas-prioritarias': '🟥',
-    'kde': '🔥',
-    'gini': '⚖️',
-    'lq': '📈',
-    'moran': '🔗'
+// Ícones SVG para cada indicador
+const icones = {
+    'pareto': '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+    'densidade-critica': '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+    'concentracao-relativa': '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+    'zonas-prioritarias': '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    'kde': '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    'gini': '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><path d="M5 9c0 3.31 3.13 6 7 6s7-2.69 7-6"/></svg>',
+    'lq': '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+    'moran': '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
 };
 
 // Função para carregar indicador no iframe
@@ -38,7 +38,7 @@ function carregarIndicador(indicador) {
     iframe.onerror = function() {
         sidebarContent.innerHTML = `
             <div style="padding: 20px; color: #666; text-align: center;">
-                <h3>${emojis[indicador] || '📄'} ${formatarNomeIndicador(indicador)}</h3>
+                <h3>${icones[indicador] || ''} ${formatarNomeIndicador(indicador)}</h3>
                 <p>O arquivo <strong>indicadores/${indicador}/index.html</strong> não foi encontrado.</p>
                 <p>Crie o arquivo HTML ou verifique o caminho.</p>
             </div>

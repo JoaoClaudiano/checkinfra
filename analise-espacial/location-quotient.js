@@ -254,7 +254,7 @@ class LocationQuotientHandler {
         retangulo.bindPopup(`
           <div style="min-width: 200px;">
             <h4 style="margin: 0 0 10px 0; color: ${cor};">
-              📊 Location Quotient
+              Location Quotient
             </h4>
             <p><strong>LQ:</strong> ${resultado.lq.toFixed(2)}</p>
             <p><strong>Interpretação:</strong> ${resultado.interpretacao}</p>
@@ -299,7 +299,7 @@ class LocationQuotientHandler {
       `;
       
       div.innerHTML = `
-        <strong>📊 Location Quotient</strong><br>
+        <strong>Location Quotient</strong><br>
         <small style="color: #666;">Concentração regional vs. cidade</small><br>
         <div style="margin-top: 8px;">
           <div style="display: flex; align-items: center; margin: 4px 0;">

@@ -95,20 +95,20 @@ function gerarVoronoi() {
   
   // Verificar dados
   if (!window.dadosManager) {
-    container.innerHTML = '<div class="erro">❌ Dados não disponíveis</div>';
+    container.innerHTML = '<div class="erro">Dados não disponíveis</div>';
     return;
   }
   
   const escolas = window.dadosManager.getEscolas();
   if (escolas.length < 3) {
-    container.innerHTML = '<div class="erro">❌ Mínimo 3 escolas para Voronoi</div>';
+    container.innerHTML = '<div class="erro">Mínimo 3 escolas para Voronoi</div>';
     return;
   }
   
   // Simular processamento
   container.innerHTML = `
     <div class="processando">
-      <p>🔄 Processando ${escolas.length} pontos...</p>
+      <p>Processando ${escolas.length} pontos...</p>
       <div class="spinner"></div>
     </div>
   `;
@@ -124,7 +124,7 @@ function gerarVoronoi() {
     
     container.innerHTML = `
       <div class="resultado-sucesso">
-        <h5>✅ Diagrama de Voronoi Gerado</h5>
+        <h5>Diagrama de Voronoi Gerado</h5>
         <div class="resultado-detalhes">
           <p><strong>Escolas processadas:</strong> ${resultado.escolasProcessadas}</p>
           <p><strong>Polígonos gerados:</strong> ${resultado.poligonosGerados}</p>
@@ -132,7 +132,7 @@ function gerarVoronoi() {
           <p><strong>Tempo de processamento:</strong> ${resultado.tempo}</p>
         </div>
         <button onclick="visualizarVoronoiNoMapa()" class="btn-visualizar">
-          👁️ Visualizar no Mapa
+          Visualizar no Mapa
         </button>
       </div>
     `;
@@ -144,7 +144,7 @@ function gerarVoronoi() {
 // Visualizar Voronoi no mapa (simulação)
 function visualizarVoronoiNoMapa() {
   if (!mapaAvancado) {
-    alert('⚠️ Inicialize o mapa avançado primeiro');
+    alert('Inicialize o mapa avançado primeiro');
     return;
   }
   
@@ -201,7 +201,7 @@ function calcularImpacto() {
   
   // Verificar dados
   if (!window.dadosManager) {
-    container.innerHTML = '<div class="erro">❌ Dados não disponíveis</div>';
+    container.innerHTML = '<div class="erro">Dados não disponíveis</div>';
     return;
   }
   
@@ -219,7 +219,7 @@ function calcularImpacto() {
   
   container.innerHTML = `
     <div class="resultado-impacto">
-      <h5>📊 Análise de Impacto</h5>
+      <h5>Análise de Impacto</h5>
       <div class="impacto-detalhes">
         <p><strong>Raio de impacto:</strong> ${resultado.raioMetros}m</p>
         <p><strong>Escolas na área:</strong> ${resultado.escolasDentroRaio}</p>
@@ -249,7 +249,7 @@ function calcularEstatisticas() {
   
   // Verificar dados
   if (!window.dadosManager) {
-    container.innerHTML = '<div class="erro">❌ Dados não disponíveis</div>';
+    container.innerHTML = '<div class="erro">Dados não disponíveis</div>';
     return;
   }
   
@@ -269,7 +269,7 @@ function calcularEstatisticas() {
   
   container.innerHTML = `
     <div class="estatisticas-detalhadas">
-      <h5>📈 Estatísticas Avançadas</h5>
+      <h5>Estatísticas Avançadas</h5>
       
       <div class="estat-grid">
         <div class="estat-card">
@@ -368,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnVoronoiMain = document.getElementById('btn-voronoi');
   if (btnVoronoiMain) {
     btnVoronoiMain.addEventListener('click', () => {
-      alert('🧩 Para gerar diagramas de Voronoi, vá para a aba "Análise Avançada"');
+      alert('Para gerar diagramas de Voronoi, vá para a aba "Análise Avançada"');
     });
   }
 });

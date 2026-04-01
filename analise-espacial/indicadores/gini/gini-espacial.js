@@ -152,7 +152,7 @@ class GiniEspacialHandler {
       `;
       
       div.innerHTML = `
-        <strong>⚖️ Gini Espacial</strong><br>
+        <strong>Gini Espacial</strong><br>
         <small>Desigualdade na distribuição</small><br>
         <div style="margin-top: 8px;">
           <div style="display: flex; align-items: center; margin: 4px 0;">

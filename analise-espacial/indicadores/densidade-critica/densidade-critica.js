@@ -136,7 +136,7 @@ class DensidadeCriticaHandler {
       `;
       
       div.innerHTML = `
-        <strong>📍 Densidade Crítica</strong><br>
+        <strong>Densidade Crítica</strong><br>
         <small>Escolas críticas por célula</small><br>
         <div style="margin-top: 8px;">
           <div style="display: flex; align-items: center; margin: 4px 0;">

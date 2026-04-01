@@ -259,8 +259,8 @@ class AnaliseVoronoi {
                     sobrecargaPorEscola.sort((a, b) => b.sobrecargaPercentual - a.sobrecargaPercentual)[0] : null
             },
             recomendacao: capacidadeSuficiente ? 
-                `✅ Viável: ${escolasReceptoras.length} escolas podem absorver ${alunosDeslocados} alunos` :
-                `❌ Crítico: Déficit de ${deficit} vagas. Necessário ${Math.ceil(deficit / 200)} nova(s) sala(s)`
+                `<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#28a745' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polyline points='20 6 9 17 4 12'/></svg> Viável: ${escolasReceptoras.length} escolas podem absorver ${alunosDeslocados} alunos` :
+                `<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#dc3545' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg> Crítico: Déficit de ${deficit} vagas. Necessário ${Math.ceil(deficit / 200)} nova(s) sala(s)`
         };
     }
     
@@ -433,7 +433,7 @@ function atualizarTabelaImpacto(metricas) {
     if (!metricas || metricas.length === 0) {
         tabelaImpacto.innerHTML = `
             <div class="card">
-                <h4>🔥 Análise de Impacto</h4>
+                <h4>Análise de Impacto</h4>
                 <p>Nenhuma escola crítica encontrada para análise de impacto.</p>
             </div>
         `;
@@ -445,7 +445,7 @@ function atualizarTabelaImpacto(metricas) {
     
     let html = `
         <div class="card">
-            <h4>🔥 Ranking de Impacto - Fechamento de Escolas</h4>
+            <h4>Ranking de Impacto - Fechamento de Escolas</h4>
             <p style="font-size:12px; color:#666; margin-bottom:15px;">
                 ${metricas.length} escolas críticas analisadas | 
                 Impacto médio: ${(metricas.reduce((sum, m) => sum + m.impactoTotal, 0) / metricas.length).toFixed(1)}/100
@@ -507,7 +507,7 @@ function simularFechamentoVoronoi(escolaId) {
     const simulacao = analise.simularFechamento(escolaId, resultado.poligonos, resultado.metricas);
     
     if (!simulacao) {
-        alert('❌ Não foi possível simular o fechamento desta escola.');
+        alert('Não foi possível simular o fechamento desta escola.');
         return;
     }
     
@@ -523,11 +523,11 @@ function exibirResultadoSimulacao(simulacao) {
     
     resultadoDiv.innerHTML = `
         <div class="card">
-            <h4>🧪 Simulação de Fechamento - ${simulacao.escolaFechada.nome}</h4>
+            <h4>Simulação de Fechamento - ${simulacao.escolaFechada.nome}</h4>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
                 <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <h5 style="margin-top: 0;">📊 Dados da Escola</h5>
+                    <h5 style="margin-top: 0;">Dados da Escola</h5>
                     <p><strong>Nome:</strong> ${simulacao.escolaFechada.nome}</p>
                     <p><strong>Alunos:</strong> ${simulacao.alunosDeslocados}</p>
                     <p><strong>Tipo:</strong> ${simulacao.escolaFechada.tipo}</p>
@@ -535,15 +535,15 @@ function exibirResultadoSimulacao(simulacao) {
                 </div>
                 
                 <div style="background: ${simulacao.capacidadeSuficiente ? '#e8f5e9' : '#ffebee'}; padding: 15px; border-radius: 8px;">
-                    <h5 style="margin-top: 0;">${simulacao.capacidadeSuficiente ? '✅ Viabilidade' : '❌ Viabilidade'}</h5>
+                    <h5 style="margin-top: 0;">${simulacao.capacidadeSuficiente ? '<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#28a745\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><polyline points=\'20 6 9 17 4 12\'/></svg> Viabilidade' : '<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#dc3545\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><line x1=\'18\' y1=\'6\' x2=\'6\' y2=\'18\'/><line x1=\'6\' y1=\'6\' x2=\'18\' y2=\'18\'/></svg> Viabilidade'}</h5>
                     <p><strong>Capacidade disponível:</strong> ${simulacao.capacidadeTotal}</p>
                     <p><strong>Alunos a realocar:</strong> ${simulacao.alunosDeslocados}</p>
-                    <p><strong>${simulacao.capacidadeSuficiente ? '✅ Suficiente' : '❌ Insuficiente'}</strong></p>
+                    <p><strong>${simulacao.capacidadeSuficiente ? '<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#28a745\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><polyline points=\'20 6 9 17 4 12\'/></svg> Suficiente' : '<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#dc3545\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><line x1=\'18\' y1=\'6\' x2=\'6\' y2=\'18\'/><line x1=\'6\' y1=\'6\' x2=\'18\' y2=\'18\'/></svg> Insuficiente'}</strong></p>
                     <p><em>${simulacao.recomendacao}</em></p>
                 </div>
             </div>
             
-            <h5>🏫 Escolas Receptoras (${simulacao.escolasReceptoras.length})</h5>
+            <h5>Escolas Receptoras (${simulacao.escolasReceptoras.length})</h5>
             <div style="max-height: 300px; overflow-y: auto;">
                 ${simulacao.escolasReceptoras.length > 0 ? `
                     <table style="width: 100%; border-collapse: collapse;">
@@ -580,7 +580,7 @@ function exibirResultadoSimulacao(simulacao) {
             
             ${simulacao.deficit > 0 ? `
                 <div style="margin-top: 20px; padding: 15px; background: #fff3e0; border-radius: 8px; border-left: 4px solid #ff9800;">
-                    <h5>⚠️ Recomendações para Déficit</h5>
+                    <h5><svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg> Recomendações para Déficit</h5>
                     <p>Para atender o déficit de ${simulacao.deficit} vagas:</p>
                     <ul>
                         <li>Considerar construção de ${Math.ceil(simulacao.deficit / 200)} nova(s) sala(s) de aula</li>
@@ -594,12 +594,12 @@ function exibirResultadoSimulacao(simulacao) {
             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
                 <button onclick="exportarRelatorioSimulacao(${JSON.stringify(simulacao).replace(/"/g, '&quot;')})" 
                         style="padding: 10px 20px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer">
-                    📥 Exportar Relatório de Simulação
+                    Exportar Relatório de Simulação
                 </button>
                 
                 <button onclick="document.getElementById('simulacaoResultado').style.display = 'none'" 
                         style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px">
-                    ✕ Fechar
+                    Fechar
                 </button>
             </div>
         </div>

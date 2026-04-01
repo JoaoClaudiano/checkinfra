@@ -102,7 +102,7 @@ class ZonasRiscoHandler {
       `;
       
       div.innerHTML = `
-        <strong>⚠️ Zonas de Risco</strong><br>
+        <strong>Zonas de Risco</strong><br>
         <small>Raio de influência</small><br>
         <div style="margin-top: 8px;">
           <div style="display: flex; align-items: center; margin: 4px 0;">

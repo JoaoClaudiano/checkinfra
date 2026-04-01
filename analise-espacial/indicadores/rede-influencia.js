@@ -195,7 +195,7 @@ class RedeInfluenciaHandler {
       `;
       
       div.innerHTML = `
-        <strong>🔗 Rede de Influência</strong><br>
+        <strong>Rede de Influência</strong><br>
         <small>Conexões entre pontos críticos</small><br>
         <div style="margin-top: 8px;">
           <div style="display: flex; align-items: center; margin: 4px 0;">

@@ -72,7 +72,7 @@
 
           if (response.ok) {
             if (status) {
-              status.textContent = "✅ Obrigado! Seu feedback foi enviado! ☁️";
+              status.textContent = "Obrigado! Seu feedback foi enviado!";
               status.classList.add("success");
             }
             
@@ -90,14 +90,14 @@
 
           } else {
             if (status) {
-              status.textContent = "⚠️ Erro: " + (data.message || "Tente novamente.");
+              status.textContent = "Erro: " + (data.message || "Tente novamente.");
               status.classList.add("error");
             }
           }
 
         } catch (error) {
           if (status) {
-            status.textContent = "⚠️ Falha de conexão. Tente novamente.";
+            status.textContent = "Falha de conexão. Tente novamente.";
             status.classList.add("error");
           }
         }

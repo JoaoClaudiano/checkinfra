@@ -1215,38 +1215,26 @@ body.dark-theme .flow-step::after {
 
 /* FOOTER */
 footer {
-    text-align: center;
-    padding: 2.5rem;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    color: white;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    background: #1f4fd8;
+    color: #fff;
+    padding: 24px 20px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    box-sizing: border-box;
     margin-top: 4rem;
-    box-shadow: 0 -8px 25px rgba(31, 79, 216, 0.3);
 }
-
-.footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 3rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.footer-links a {
-    color: rgba(255, 255, 255, 0.9);
-    text-decoration: none;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.footer-links a:hover {
-    color: white;
-    transform: translateY(-2px);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
+.footer-inner { max-width:800px; margin:0 auto 16px; display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:24px; align-items:start; }
+.footer-brand strong { font-size:16px; }
+.footer-brand p { margin:4px 0 0; font-size:11px; opacity:0.85; }
+.footer-nav { display:flex; flex-direction:column; gap:6px; }
+.footer-nav a { color:#fff; text-decoration:none; font-size:12px; opacity:0.9; }
+.footer-nav a:hover { opacity:1; text-decoration:underline; }
+.footer-badges { display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+.footer-badges img { max-width:90px; }
+.footer-github { display:inline-flex; align-items:center; justify-content:center; background:#24292f; color:#fff; width:36px; height:36px; border-radius:50%; text-decoration:none; transition:transform 0.2s, background-color 0.2s; }
+.footer-github:hover { background:#0070e0; transform:scale(1.1); }
+.footer-lgpd { max-width:800px; margin:0 auto; padding-top:12px; border-top:1px solid rgba(255,255,255,0.2); font-size:11px; opacity:0.85; text-align:center; }
+@media (max-width:600px) { .footer-inner { grid-template-columns:1fr; gap:16px; } .footer-badges { align-items:flex-start; flex-direction:row; gap:12px; } }
 
 /* UTILITÁRIOS */
 .info-box {

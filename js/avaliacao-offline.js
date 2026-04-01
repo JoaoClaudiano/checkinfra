@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <strong>Código:</strong> ${dados.id}<br>
       <strong>Status:</strong> ${status}<br>
       <strong>Pontuação:</strong> ${pontuacao}<br>
-      ${navigator.onLine ? "☁️ Enviado" : "📴 Salvo offline"}
+      ${navigator.onLine ? "Enviado" : "Salvo offline"}
     `;
 
     if (navigator.onLine && window.salvarAvaliacao) {

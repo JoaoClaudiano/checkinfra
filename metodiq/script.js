@@ -483,7 +483,7 @@ function showHelp() {
             <ul>
                 <li><strong>Navegação por Abas:</strong> Use as abas no topo para navegar entre as seções</li>
                 <li><strong>Busca:</strong> Encontre termos específicos usando a busca no menu de ferramentas</li>
-                <li><strong>Ferramentas:</strong> Acesse funções rápidas através do menu à direita (⚙️)</li>
+                <li><strong>Ferramentas:</strong> Acesse funções rápidas através do menu à direita</li>
                 <li><strong>Exportação:</strong> Exporte a seção atual para PDF ou imprima</li>
                 <li><strong>Temas:</strong> Alterne entre tema claro e escuro</li>
             </ul>

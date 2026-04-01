@@ -350,17 +350,17 @@ class AnaliseInteligente {
     
     switch(tipo) {
       case 'aumento_critico':
-        titulo = '🚨 Aumento Crítico Detectado';
+        titulo = 'Aumento Crítico Detectado';
         mensagem = `Escolas críticas aumentaram ${dados.aumento}`;
         cor = '#dc3545';
         break;
       case 'hotspot_detectado':
-        titulo = '🔥 Hotspot Detectado';
+        titulo = 'Hotspot Detectado';
         mensagem = `Cluster com ${dados.tamanho} escolas críticas`;
         cor = '#fd7e14';
         break;
       default:
-        titulo = '⚠️ Alerta do Sistema';
+        titulo = 'Alerta do Sistema';
         mensagem = JSON.stringify(dados);
     }
     

@@ -282,7 +282,7 @@ class IndiceVulnerabilidadeComposta {
     return `
       <div style="min-width: 250px; font-family: Arial, sans-serif;">
         <h4 style="margin: 0 0 10px 0; color: ${cor};">
-          🎯 ${escola.nome}
+          ${escola.nome}
         </h4>
         
         <div style="background: ${cor}20; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
@@ -298,19 +298,19 @@ class IndiceVulnerabilidadeComposta {
           <strong>Componentes do IVC:</strong><br>
           <div style="margin-top: 8px;">
             <div style="display: flex; justify-content: space-between; margin: 4px 0;">
-              <span>📊 Criticidade (40%):</span>
+              <span>Criticidade (40%):</span>
               <strong>${comp.criticidade.toFixed(1)}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; margin: 4px 0;">
-              <span>👥 Densidade Pop. (25%):</span>
+              <span><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M23 21v-2a4 4 0 0 0-3-3.87'/><path d='M16 3.13a4 4 0 0 1 0 7.75'/></svg> Densidade Pop. (25%):</span>
               <strong>${comp.densidadePop.toFixed(1)}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; margin: 4px 0;">
-              <span>🚶 Acessibilidade (20%):</span>
+              <span><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polygon points='3 11 22 2 13 21 11 13 3 11'/></svg> Acessibilidade (20%):</span>
               <strong>${comp.acessibilidade.toFixed(1)}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; margin: 4px 0;">
-              <span>🏗️ Infraestrutura (15%):</span>
+              <span><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z'/></svg> Infraestrutura (15%):</span>
               <strong>${comp.infraestrutura.toFixed(1)}</strong>
             </div>
           </div>
@@ -337,7 +337,7 @@ class IndiceVulnerabilidadeComposta {
       `;
       
       div.innerHTML = `
-        <strong>🎯 IVC - Vulnerabilidade</strong><br>
+        <strong>IVC - Vulnerabilidade</strong><br>
         <small style="color: #666;">Índice composto (0-100)</small><br>
         <div style="margin-top: 8px;">
           <div style="display: flex; align-items: center; margin: 4px 0;">

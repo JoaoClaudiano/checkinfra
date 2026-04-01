@@ -839,19 +839,19 @@
             <div id="${CONFIG.popupId}">
                 <div class="popup-card">
                     <div class="popup-header">
-                        <h3>🚧 Página em Desenvolvimento</h3>
+                        <h3><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z'/></svg> Página em Desenvolvimento</h3>
                         <button class="close-btn">&times;</button>
                     </div>
                     
                     <div class="popup-content">
                         <p class="popup-message">
-                            <strong>Ajude-nos com um cafezinho! ☕</strong>
+                            <strong>Ajude-nos com um cafezinho! <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M18 8h1a4 4 0 0 1 0 8h-1'/><path d='M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z'/><line x1='6' y1='1' x2='6' y2='4'/><line x1='10' y1='1' x2='10' y2='4'/><line x1='14' y1='1' x2='14' y2='4'/></svg></strong>
                             Estamos trabalhando para melhorar esta página.
                         </p>
                         
                         <!-- TEXTO DE AVISO ADICIONADO -->
                         <div class="warning-message">
-                            <strong>⚠️ ATENÇÃO:</strong> Esta funcionalidade ainda está sendo construída e testada e pode apresentar bugs, erros ou instabilidades de funcionamento.
+                            <strong><svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg> ATENÇÃO:</strong> Esta funcionalidade ainda está sendo construída e testada e pode apresentar bugs, erros ou instabilidades de funcionamento.
                         </div>
                         
                         <!-- TETRIS VERTICAL -->
@@ -869,7 +869,7 @@
                                 Entendi
                             </button>
                             <button class="btn btn-secondary" id="sendCoffeeBtn">
-                                <span>☕</span>
+                                <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M18 8h1a4 4 0 0 1 0 8h-1'/><path d='M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z'/><line x1='6' y1='1' x2='6' y2='4'/><line x1='10' y1='1' x2='10' y2='4'/><line x1='14' y1='1' x2='14' y2='4'/></svg>
                                 <span>Enviar Café</span>
                             </button>
                         </div>
@@ -966,7 +966,7 @@
         
         // Animação do botão
         btn.disabled = true;
-        btn.innerHTML = '<span>⏳</span><span>Enviando...</span>';
+        btn.innerHTML = '<span>Enviando...</span>';
         
         // Animação visual
         const rect = btn.getBoundingClientRect();
@@ -974,7 +974,7 @@
             setTimeout(() => {
                 const coffee = document.createElement('div');
                 coffee.className = 'coffee-particle';
-                coffee.textContent = '☕';
+                coffee.innerHTML = '<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><path d=\'M18 8h1a4 4 0 0 1 0 8h-1\'/><path d=\'M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z\'/><line x1=\'6\' y1=\'1\' x2=\'6\' y2=\'4\'/><line x1=\'10\' y1=\'1\' x2=\'10\' y2=\'4\'/><line x1=\'14\' y1=\'1\' x2=\'14\' y2=\'4\'/></svg>';
                 coffee.style.left = `${rect.left + Math.random() * rect.width}px`;
                 coffee.style.top = `${rect.top}px`;
                 coffee.style.fontSize = `${14 + Math.random() * 8}px`;
@@ -1004,23 +1004,23 @@
             // Notificação
             showNotification(
                 result.success 
-                    ? '☕ Café enviado com sucesso!' 
-                    : '☕ Café salvo localmente!',
+                    ? 'Café enviado com sucesso!' 
+                    : 'Café salvo localmente!',
                 result.success ? 'success' : 'warning'
             );
             
             // Feedback no botão
             btn.innerHTML = result.success 
-                ? '<span>✅</span><span>Enviado!</span>'
-                : '<span>📱</span><span>Salvo Local</span>';
+                ? '<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#28a745\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><polyline points=\'20 6 9 17 4 12\'/></svg><span>Enviado!</span>'
+                : '<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'15\' height=\'15\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><rect x=\'5\' y=\'2\' width=\'14\' height=\'20\' rx=\'2\' ry=\'2\'/><line x1=\'12\' y1=\'18\' x2=\'12.01\' y2=\'18\'/></svg><span>Salvo Local</span>';
             
             updateStatus(result.success,
                 result.success ? 'Café registrado!' : 'Modo Local');
             
         } catch (error) {
             console.error('Erro ao enviar café:', error);
-            showNotification('❌ Erro ao enviar', 'error');
-            btn.innerHTML = '<span>❌</span><span>Erro</span>';
+            showNotification('Erro ao enviar', 'error');
+            btn.innerHTML = '<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#dc3545\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><line x1=\'18\' y1=\'6\' x2=\'6\' y2=\'18\'/><line x1=\'6\' y1=\'6\' x2=\'18\' y2=\'18\'/></svg><span>Erro</span>';
             updateStatus(false, 'Erro ao enviar');
             
         } finally {

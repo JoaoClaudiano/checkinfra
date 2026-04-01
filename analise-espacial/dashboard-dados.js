@@ -95,7 +95,7 @@ class DashboardDados {
     
     return `
       <div class="dashboard-pronto">
-        <h4>📊 Dados em Tempo Real</h4>
+        <h4><svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='vertical-align:middle;margin-right:4px;' aria-hidden='true'><line x1='18' y1='20' x2='18' y2='10'/><line x1='12' y1='20' x2='12' y2='4'/><line x1='6' y1='20' x2='6' y2='14'/></svg> Dados em Tempo Real</h4>
         
         <div class="metricas-rapidas">
           <div class="metrica-rapida">
@@ -123,9 +123,9 @@ class DashboardDados {
         
         <div class="dados-info">
           <small>
-            📍 ${escolas.length} pontos | 
-            📡 Fonte: Firebase + Local | 
-            🔄 ${metricas.ultimaAtualizacao ? new Date(metricas.ultimaAtualizacao).toLocaleTimeString() : 'Agora'}
+            <svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'/><circle cx='12' cy='10' r='3'/></svg> ${escolas.length} pontos | 
+            Fonte: Firebase + Local | 
+            ${metricas.ultimaAtualizacao ? new Date(metricas.ultimaAtualizacao).toLocaleTimeString() : 'Agora'}
           </small>
         </div>
       </div>
@@ -135,7 +135,7 @@ class DashboardDados {
   renderErro() {
     return `
       <div class="dashboard-erro">
-        <div style="color: #dc3545; font-size: 24px;">⚠️</div>
+        <div><svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#dc3545' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'/><line x1='12' y1='9' x2='12' y2='13'/><line x1='12' y1='17' x2='12.01' y2='17'/></svg></div>
         <p>Erro ao carregar dados</p>
         <button onclick="window.dadosManager.inicializar()" class="btn-recarregar">
           Tentar novamente

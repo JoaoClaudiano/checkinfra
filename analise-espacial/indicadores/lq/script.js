@@ -47,7 +47,7 @@ const exemplo = document.querySelector('.exemplo');
 const calculadora = document.createElement('div');
 calculadora.className = 'calculadora-interativa';
 calculadora.innerHTML = `
-<h3>🧮 Calcule seu LQ</h3>
+<h3>Calcule seu LQ</h3>
 <div class="inputs">
 <div>
 <label>Escolas no local: <input type="number" id="local-total" value="10"></label>

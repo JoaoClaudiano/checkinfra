@@ -60,12 +60,12 @@ class SistemaInicializacao {
         this.log('FIREBASE', `Conexão ${conectado ? 'OK' : 'FALHOU'}`);
       }
       
-      this.atualizarProgresso('firebase', 100, '✅ Firebase pronto');
+      this.atualizarProgresso('firebase', 100, 'Firebase pronto');
       this.etapas.firebase.status = 'concluido';
       
     } catch (error) {
       this.log('FIREBASE', 'Modo offline - usando dados locais');
-      this.atualizarProgresso('firebase', 100, '⚠️ Modo offline');
+      this.atualizarProgresso('firebase', 100, 'Modo offline');
       this.etapas.firebase.status = 'offline';
     }
   }
@@ -92,7 +92,7 @@ class SistemaInicializacao {
       this.log('DADOS', `${escolas.length} escolas carregadas`);
       this.log('DADOS', 'Métricas:', metricas);
       
-      this.atualizarProgresso('dados', 100, `✅ ${escolas.length} escolas`);
+      this.atualizarProgresso('dados', 100, `${escolas.length} escolas`);
       this.etapas.dados.status = 'concluido';
       
       return { escolas, metricas };
@@ -144,7 +144,7 @@ class SistemaInicializacao {
       const escolas = window.dadosManager.getEscolas();
       this.plotarEscolasIniciais(escolas);
       
-      this.atualizarProgresso('mapa', 100, '✅ Mapa pronto');
+      this.atualizarProgresso('mapa', 100, 'Mapa pronto');
       this.etapas.mapa.status = 'concluido';
       
       // 🔥 DISPARAR EVENTO DE MAPA PRONTO
@@ -204,7 +204,7 @@ class SistemaInicializacao {
       this.atualizarProgresso('indicadores', progresso, `${carregados}/${total} carregados`);
     }
     
-    this.atualizarProgresso('indicadores', 100, `✅ ${carregados} indicadores`);
+    this.atualizarProgresso('indicadores', 100, `${carregados} indicadores`);
     this.etapas.indicadores.status = 'concluido';
     
     this.log('INDICADORES', `${carregados} de ${total} indicadores carregados`);
@@ -356,7 +356,7 @@ class SistemaInicializacao {
   }
   
   mostrarErro(erro) {
-    alert(`❌ Erro ao inicializar sistema:\n\n${erro.message}\n\nVerifique o console para mais detalhes.`);
+    alert(`Erro ao inicializar sistema:\n\n${erro.message}\n\nVerifique o console para mais detalhes.`);
     this.mostrarLoading(false);
   }
   

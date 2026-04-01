@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       <strong style="display: inline;">ID:</strong> ${dados.id}<br>
       <strong style="display: inline;">Pontuação:</strong> ${pontuacao}<br>
       <strong style="display: inline;">Avaliador:</strong> ${dados.avaliador}<br>
-      ${navigator.onLine ? "☁️ Enviado ao sistema" : "📴 Salvo offline"}
+      ${navigator.onLine ? "Enviado ao sistema" : "Salvo offline"}
     `;
 
 

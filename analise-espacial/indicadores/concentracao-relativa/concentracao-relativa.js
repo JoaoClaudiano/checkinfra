@@ -80,7 +80,7 @@ class ConcentracaoRelativaHandler {
       
       return L.layerGroup([circulo, marcador, ...linhas]).bindPopup(`
         <div style="min-width: 200px;">
-          <h4>📈 Cluster Crítico #${index + 1}</h4>
+          <h4>Cluster Crítico #${index + 1}</h4>
           <p><strong>Escolas no cluster:</strong> ${cluster.escolas.length}</p>
           <p><strong>Raio:</strong> ${cluster.raio.toFixed(2)} km</p>
           <p><strong>Densidade:</strong> ${(cluster.escolas.length / (Math.PI * cluster.raio * cluster.raio)).toFixed(2)} escolas/km²</p>
@@ -182,7 +182,7 @@ class ConcentracaoRelativaHandler {
       `;
       
       div.innerHTML = `
-        <strong>📈 Concentração Relativa</strong><br>
+        <strong>Concentração Relativa</strong><br>
         <small>Clusters de escolas críticas</small><br>
         <div style="margin-top: 8px;">
           <div style="display: flex; align-items: center; margin: 4px 0;">

@@ -69,7 +69,7 @@ formulaContainer.addEventListener('click', function() {
 const simulador = document.createElement('div');
 simulador.className = 'simulador-moran';
 simulador.innerHTML = `
-<h3>🧪 Simule o Índice de Moran</h3>
+<h3>Simule o Índice de Moran</h3>
 <div class="controles">
 <div>
 <label>Padrão:
@@ -137,7 +137,7 @@ const cor = parseFloat(moranI) > 0 ? '#e74c3c' : parseFloat(moranI) < 0 ? '#3498
 
 resultado.innerHTML = `
 <div style="background:${cor}20; padding:20px; border-radius:10px; border-left:5px solid ${cor}">
-<h4>📊 Resultado da Simulação</h4>
+<h4>Resultado da Simulação</h4>
 <p><strong>Moran I:</strong> ${moranI}</p>
 <p><strong>Z-Score:</strong> ${zScore}</p>
 <p><strong>Significância:</strong> ${significancia}</p>

@@ -159,10 +159,10 @@ async function desenharPoligonos(){
 
       l.bindTooltip(`
         <b>${f.properties.nome||"Área"}</b><br>
-        🔴 Crítico: ${Math.round(c/total*100)}% (${c})<br>
-        🟠 Atenção: ${Math.round(a/total*100)}% (${a})<br>
-        🟡 Alerta: ${Math.round(al/total*100)}% (${al})<br>
-        🟢 Adequado: ${Math.round(ok/total*100)}% (${ok})<br>
+        <span style='display:inline-block;width:9px;height:9px;border-radius:50%;background:#dc3545;vertical-align:middle;margin-right:3px;'></span> Crítico: ${Math.round(c/total*100)}% (${c})<br>
+        <span style='display:inline-block;width:9px;height:9px;border-radius:50%;background:#fd7e14;vertical-align:middle;margin-right:3px;'></span> Atenção: ${Math.round(a/total*100)}% (${a})<br>
+        <span style='display:inline-block;width:9px;height:9px;border-radius:50%;background:#ffc107;vertical-align:middle;margin-right:3px;'></span> Alerta: ${Math.round(al/total*100)}% (${al})<br>
+        <span style='display:inline-block;width:9px;height:9px;border-radius:50%;background:#28a745;vertical-align:middle;margin-right:3px;'></span> Adequado: ${Math.round(ok/total*100)}% (${ok})<br>
         <i>${obs}</i>
       `);
     }

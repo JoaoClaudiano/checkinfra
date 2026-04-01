@@ -429,7 +429,7 @@ class DashboardExecutivo {
     return `
       <div style="min-width: 300px; font-family: Arial, sans-serif;">
         <h4 style="margin: 0 0 10px 0; color: ${cor};">
-          ⭐ Local Recomendado #${rec.ranking}
+          Local Recomendado #${rec.ranking}
         </h4>
         
         <div style="background: ${cor}20; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
@@ -442,7 +442,7 @@ class DashboardExecutivo {
         </div>
         
         <div style="font-size: 12px;">
-          <strong>📊 Scores:</strong><br>
+          <strong>Scores:</strong><br>
           <div style="margin: 5px 0;">
             • Demanda: ${rec.scores.demanda.toFixed(0)}/100<br>
             • Vulnerabilidade: ${rec.scores.vulnerabilidade.toFixed(0)}/100<br>
@@ -452,14 +452,14 @@ class DashboardExecutivo {
           
           <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
           
-          <strong>💰 Estimativas:</strong><br>
+          <strong>Estimativas:</strong><br>
           • Investimento: ${rec.investimentoEstimado.formatado}<br>
           • Capacidade: ${rec.capacidadeSugerida} alunos<br>
           • Impacto: ${rec.impactoEsperado.alunosAtendidos} alunos atendidos
           
           <hr style="margin: 10px 0; border: none; border-top: 1px solid #eee;">
           
-          <strong>💡 Justificativa:</strong><br>
+          <strong>Justificativa:</strong><br>
           <ul style="margin: 5px 0; padding-left: 20px; font-size: 11px;">
             ${rec.justificativa.slice(0, 3).map(j => `<li>${j}</li>`).join('')}
           </ul>
